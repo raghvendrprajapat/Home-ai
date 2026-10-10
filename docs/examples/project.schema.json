@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/gharplan/project.schema.json",
+  "title": "GharPlan project document",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "id", "name", "units", "createdAt", "updatedAt", "revision", "floors", "junctions", "walls", "openings", "rooms", "furniture", "materials", "electrical", "cameras"],
+  "$defs": {
+    "id": { "type": "string", "pattern": "^[A-Za-z0-9_-]{2,40}$" },
+    "mm": { "type": "integer", "minimum": -1000000, "maximum": 1000000 },
+    "posMm": { "type": "integer", "minimum": 1, "maximum": 1000000 },
+    "vec2": { "type": "object", "additionalProperties": false, "required": ["x", "y"], "properties": { "x": { "$ref": "#/$defs/mm" }, "y": { "$ref": "#/$defs/mm" } } }
+  },
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "id": { "$ref": "#/$defs/id" },
+    "name": { "type": "string", "minLength": 1, "maxLength": 120 },
+    "units": { "enum": ["metric", "imperial"] },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "revision": { "type": "integer", "minimum": 0 },
+    "floors": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "name", "level", "elevation", "defaultWallHeight"],
+        "properties": { "id": { "$ref": "#/$defs/id" }, "name": { "type": "string" }, "level": { "type": "integer" }, "elevation": { "$ref": "#/$defs/mm" }, "defaultWallHeight": { "$ref": "#/$defs/posMm" } } }
+    },
+    "junctions": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "floorId", "x", "y"],
+        "properties": { "id": { "$ref": "#/$defs/id" }, "floorId": { "$ref": "#/$defs/id" }, "x": { "$ref": "#/$defs/mm" }, "y": { "$ref": "#/$defs/mm" } } }
+    },
+    "walls": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "floorId", "a", "b", "thickness", "height", "leftMaterial", "rightMaterial", "rev"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "floorId": { "$ref": "#/$defs/id" },
+          "a": { "$ref": "#/$defs/id" }, "b": { "$ref": "#/$defs/id" },
+          "thickness": { "type": "integer", "minimum": 50, "maximum": 600 },
+          "height": { "type": "integer", "minimum": 1000, "maximum": 6000 },
+          "leftMaterial": { "$ref": "#/$defs/id" }, "rightMaterial": { "$ref": "#/$defs/id" },
+          "rev": { "type": "integer", "minimum": 0 } } }
+    },
+    "openings": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "wallId", "kind", "assetId", "offset", "width", "height", "sill", "flipX", "flipY", "rev"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "wallId": { "$ref": "#/$defs/id" },
+          "kind": { "enum": ["door", "window", "opening"] }, "assetId": { "$ref": "#/$defs/id" },
+          "offset": { "$ref": "#/$defs/posMm" }, "width": { "$ref": "#/$defs/posMm" }, "height": { "$ref": "#/$defs/posMm" },
+          "sill": { "type": "integer", "minimum": 0, "maximum": 6000 },
+          "flipX": { "type": "boolean" }, "flipY": { "type": "boolean" }, "rev": { "type": "integer", "minimum": 0 } } }
+    },
+    "rooms": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "floorId", "boundary", "name", "type", "ceilingHeight", "floorMaterial", "rev"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "floorId": { "$ref": "#/$defs/id" },
+          "boundary": { "type": "array", "minItems": 3, "items": { "$ref": "#/$defs/id" } },
+          "name": { "type": "string", "maxLength": 60 },
+          "type": { "enum": ["living", "bedroom", "kitchen", "bathroom", "dining", "pooja", "balcony", "utility", "hall", "study", "other"] },
+          "ceilingHeight": { "type": "integer", "minimum": 1800, "maximum": 6000 },
+          "floorMaterial": { "$ref": "#/$defs/id" }, "rev": { "type": "integer", "minimum": 0 } } }
+    },
+    "furniture": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "floorId", "assetId", "position", "elevation", "rotationDeg", "size", "materialOverrides", "rev"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "floorId": { "$ref": "#/$defs/id" }, "assetId": { "$ref": "#/$defs/id" },
+          "position": { "$ref": "#/$defs/vec2" }, "elevation": { "type": "integer", "minimum": 0, "maximum": 6000 },
+          "rotationDeg": { "type": "number", "minimum": 0, "exclusiveMaximum": 360 },
+          "size": { "type": "object", "additionalProperties": false, "required": ["w", "d", "h"], "properties": { "w": { "$ref": "#/$defs/posMm" }, "d": { "$ref": "#/$defs/posMm" }, "h": { "$ref": "#/$defs/posMm" } } },
+          "materialOverrides": { "type": "object", "additionalProperties": { "$ref": "#/$defs/id" } },
+          "groupId": { "$ref": "#/$defs/id" },
+          "rev": { "type": "integer", "minimum": 0 } } }
+    },
+    "materials": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "name", "baseColor", "roughness", "metalness"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "name": { "type": "string" },
+          "baseColor": { "type": "string", "pattern": "^#[0-9a-fA-F]{6}$" },
+          "textureAssetId": { "$ref": "#/$defs/id" }, "uvScaleMm": { "$ref": "#/$defs/posMm" },
+          "roughness": { "type": "number", "minimum": 0, "maximum": 1 }, "metalness": { "type": "number", "minimum": 0, "maximum": 1 } } }
+    },
+    "electrical": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "kind", "wallId", "offset", "height", "rev"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "kind": { "enum": ["switchboard", "socket", "light", "fan", "ac", "db"] },
+          "wallId": { "$ref": "#/$defs/id" }, "offset": { "$ref": "#/$defs/posMm" }, "height": { "type": "integer", "minimum": 0, "maximum": 6000 },
+          "label": { "type": "string", "maxLength": 40 }, "rev": { "type": "integer", "minimum": 0 } } }
+    },
+    "cameras": {
+      "type": "array",
+      "items": { "type": "object", "additionalProperties": false, "required": ["id", "name", "mode", "position", "target"],
+        "properties": {
+          "id": { "$ref": "#/$defs/id" }, "name": { "type": "string" }, "mode": { "enum": ["orbit", "walk"] },
+          "position": { "type": "array", "items": { "$ref": "#/$defs/mm" }, "minItems": 3, "maxItems": 3 },
+          "target": { "type": "array", "items": { "$ref": "#/$defs/mm" }, "minItems": 3, "maxItems": 3 } } }
+    }
+  }
+}
