@@ -27,6 +27,10 @@ Research rounds: 2026-10-10 (round 1), 2026-10-11 (round 2, live sources), 2026-
 
 Examples: [`examples/sample-project.json`](examples/sample-project.json), validated against [`examples/project.schema.json`](examples/project.schema.json) with 0 errors.
 
+## Build process
+
+**[`build-process-guide.md`](build-process-guide.md)**: how to build the app step by step with Claude Code (main builder) and Codex (reviewer and independent tests). It covers setup, rule files, the task cycle, ready prompts for every task, phone testing, safety rules, when to hire experts, and the timeline.
+
 ## Older documents (history)
 
 The round-1/round-2 documents `01`–`12` and [`research/source-log.md`](research/source-log.md) are kept for history. Each has a "Superseded" note at the top. Electrical content has been removed from them as well.
