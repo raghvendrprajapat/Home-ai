@@ -1,0 +1,389 @@
+{
+  "schemaVersion": 1,
+  "id": "prj_sample_2room",
+  "name": "Sample 1BHK (living + bedroom)",
+  "units": "metric",
+  "createdAt": "2026-10-10T00:00:00Z",
+  "updatedAt": "2026-10-10T00:00:00Z",
+  "revision": 1,
+  "floors": [
+    {
+      "id": "f0",
+      "name": "Ground floor",
+      "level": 0,
+      "elevation": 0,
+      "defaultWallHeight": 3000
+    }
+  ],
+  "junctions": [
+    {
+      "id": "j1",
+      "floorId": "f0",
+      "x": 0,
+      "y": 0
+    },
+    {
+      "id": "j2",
+      "floorId": "f0",
+      "x": 4500,
+      "y": 0
+    },
+    {
+      "id": "j3",
+      "floorId": "f0",
+      "x": 8000,
+      "y": 0
+    },
+    {
+      "id": "j4",
+      "floorId": "f0",
+      "x": 8000,
+      "y": 5000
+    },
+    {
+      "id": "j5",
+      "floorId": "f0",
+      "x": 4500,
+      "y": 5000
+    },
+    {
+      "id": "j6",
+      "floorId": "f0",
+      "x": 0,
+      "y": 5000
+    }
+  ],
+  "walls": [
+    {
+      "id": "w1",
+      "floorId": "f0",
+      "a": "j1",
+      "b": "j2",
+      "thickness": 230,
+      "height": 3000,
+      "leftMaterial": "m_ext",
+      "rightMaterial": "m_paint_white",
+      "rev": 0
+    },
+    {
+      "id": "w2",
+      "floorId": "f0",
+      "a": "j2",
+      "b": "j3",
+      "thickness": 230,
+      "height": 3000,
+      "leftMaterial": "m_ext",
+      "rightMaterial": "m_paint_blue",
+      "rev": 0
+    },
+    {
+      "id": "w3",
+      "floorId": "f0",
+      "a": "j3",
+      "b": "j4",
+      "thickness": 230,
+      "height": 3000,
+      "leftMaterial": "m_ext",
+      "rightMaterial": "m_paint_blue",
+      "rev": 0
+    },
+    {
+      "id": "w4",
+      "floorId": "f0",
+      "a": "j4",
+      "b": "j5",
+      "thickness": 230,
+      "height": 3000,
+      "leftMaterial": "m_ext",
+      "rightMaterial": "m_paint_blue",
+      "rev": 0
+    },
+    {
+      "id": "w5",
+      "floorId": "f0",
+      "a": "j5",
+      "b": "j6",
+      "thickness": 230,
+      "height": 3000,
+      "leftMaterial": "m_ext",
+      "rightMaterial": "m_paint_white",
+      "rev": 0
+    },
+    {
+      "id": "w6",
+      "floorId": "f0",
+      "a": "j6",
+      "b": "j1",
+      "thickness": 230,
+      "height": 3000,
+      "leftMaterial": "m_ext",
+      "rightMaterial": "m_paint_white",
+      "rev": 0
+    },
+    {
+      "id": "w7",
+      "floorId": "f0",
+      "a": "j2",
+      "b": "j5",
+      "thickness": 115,
+      "height": 3000,
+      "leftMaterial": "m_paint_white",
+      "rightMaterial": "m_paint_blue",
+      "rev": 0
+    }
+  ],
+  "openings": [
+    {
+      "id": "o_main_door",
+      "wallId": "w5",
+      "kind": "door",
+      "assetId": "a_door_single_1000",
+      "offset": 1500,
+      "width": 1000,
+      "height": 2100,
+      "sill": 0,
+      "flipX": false,
+      "flipY": false,
+      "rev": 0
+    },
+    {
+      "id": "o_bed_door",
+      "wallId": "w7",
+      "kind": "door",
+      "assetId": "a_door_single_900",
+      "offset": 1000,
+      "width": 900,
+      "height": 2100,
+      "sill": 0,
+      "flipX": true,
+      "flipY": false,
+      "rev": 0
+    },
+    {
+      "id": "o_win_living",
+      "wallId": "w1",
+      "kind": "window",
+      "assetId": "a_window_2pane",
+      "offset": 2250,
+      "width": 1500,
+      "height": 1200,
+      "sill": 900,
+      "flipX": false,
+      "flipY": false,
+      "rev": 0
+    },
+    {
+      "id": "o_win_bed",
+      "wallId": "w3",
+      "kind": "window",
+      "assetId": "a_window_2pane",
+      "offset": 2500,
+      "width": 1200,
+      "height": 1200,
+      "sill": 900,
+      "flipX": false,
+      "flipY": false,
+      "rev": 0
+    }
+  ],
+  "rooms": [
+    {
+      "id": "r_living",
+      "floorId": "f0",
+      "boundary": [
+        "j1",
+        "j2",
+        "j5",
+        "j6"
+      ],
+      "name": "Living",
+      "type": "living",
+      "ceilingHeight": 3000,
+      "floorMaterial": "m_tile_vitrified",
+      "rev": 0
+    },
+    {
+      "id": "r_bed",
+      "floorId": "f0",
+      "boundary": [
+        "j2",
+        "j3",
+        "j4",
+        "j5"
+      ],
+      "name": "Bedroom",
+      "type": "bedroom",
+      "ceilingHeight": 3000,
+      "floorMaterial": "m_wood_laminate",
+      "rev": 0
+    }
+  ],
+  "furniture": [
+    {
+      "id": "fu_sofa",
+      "floorId": "f0",
+      "assetId": "a_sofa_3seat",
+      "assetVersion": 1,
+      "position": {
+        "x": 1300,
+        "y": 4300
+      },
+      "elevation": 0,
+      "rotationDeg": 180,
+      "size": {
+        "w": 2000,
+        "d": 900,
+        "h": 850
+      },
+      "materialOverrides": {},
+      "rev": 0
+    },
+    {
+      "id": "fu_tv",
+      "floorId": "f0",
+      "assetId": "a_tv_unit",
+      "assetVersion": 1,
+      "position": {
+        "x": 2250,
+        "y": 400
+      },
+      "elevation": 0,
+      "rotationDeg": 0,
+      "size": {
+        "w": 1800,
+        "d": 400,
+        "h": 500
+      },
+      "materialOverrides": {},
+      "rev": 0
+    },
+    {
+      "id": "fu_bed",
+      "floorId": "f0",
+      "assetId": "a_bed_queen",
+      "assetVersion": 1,
+      "position": {
+        "x": 6450,
+        "y": 1200
+      },
+      "elevation": 0,
+      "rotationDeg": 0,
+      "size": {
+        "w": 1800,
+        "d": 2000,
+        "h": 900
+      },
+      "materialOverrides": {
+        "frame": "m_wood_laminate"
+      },
+      "rev": 0
+    },
+    {
+      "id": "fu_wardrobe",
+      "floorId": "f0",
+      "assetId": "a_wardrobe_3door",
+      "assetVersion": 1,
+      "position": {
+        "x": 6250,
+        "y": 4500
+      },
+      "elevation": 0,
+      "rotationDeg": 180,
+      "size": {
+        "w": 1800,
+        "d": 600,
+        "h": 2100
+      },
+      "materialOverrides": {},
+      "rev": 0
+    }
+  ],
+  "materials": [
+    {
+      "id": "m_ext",
+      "name": "Exterior plaster",
+      "baseColor": "#d9d2c5",
+      "roughness": 0.9,
+      "metalness": 0
+    },
+    {
+      "id": "m_paint_white",
+      "name": "Paint - white",
+      "baseColor": "#f4f4f2",
+      "roughness": 0.8,
+      "metalness": 0
+    },
+    {
+      "id": "m_paint_blue",
+      "name": "Paint - sky blue",
+      "baseColor": "#bcd7ea",
+      "roughness": 0.8,
+      "metalness": 0
+    },
+    {
+      "id": "m_tile_vitrified",
+      "name": "Vitrified tile 600x600",
+      "baseColor": "#e8e3da",
+      "textureAssetId": "t_tile_600",
+      "uvScaleMm": 600,
+      "roughness": 0.3,
+      "metalness": 0
+    },
+    {
+      "id": "m_wood_laminate",
+      "name": "Wood laminate",
+      "baseColor": "#a07850",
+      "textureAssetId": "t_wood_lam",
+      "uvScaleMm": 1200,
+      "roughness": 0.6,
+      "metalness": 0
+    }
+  ],
+  "lights": [
+    {
+      "id": "l_living",
+      "floorId": "f0",
+      "kind": "point",
+      "position": {
+        "x": 2250,
+        "y": 2500
+      },
+      "height": 2900,
+      "lumens": 1500,
+      "colorTempK": 4000,
+      "castsShadow": false,
+      "rev": 0
+    },
+    {
+      "id": "l_bed",
+      "floorId": "f0",
+      "kind": "point",
+      "position": {
+        "x": 6250,
+        "y": 3500
+      },
+      "height": 2900,
+      "lumens": 1000,
+      "colorTempK": 3000,
+      "castsShadow": false,
+      "rev": 0
+    }
+  ],
+  "cameras": [
+    {
+      "id": "cam_default",
+      "name": "Overview",
+      "mode": "orbit",
+      "position": [
+        4000,
+        9000,
+        12000
+      ],
+      "target": [
+        4000,
+        2500,
+        0
+      ]
+    }
+  ]
+}
