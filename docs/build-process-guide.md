@@ -1,5 +1,7 @@
 # Build Process Guide: building GharPlan with Codex (main) and Claude Code (specialist)
 
+> **D17 supersession (2026-10-11):** the owner now authorizes continuous Codex development, routine decisions, audits, verification and green-PR merges without repeated plan approval. Claude reviews only after agreed development and Codex verification, before commercial release, and remains review-only under D16. Older task tables/prompts below describe the previous review schedule: C1–C6, pre-build fixture prerequisites, weekly reviews and automatic rescue/estimate pauses are deferred by D17. PH0-T02a's accepted PR #60 fixtures remain immutable. Codex writes clearly attributed analytic/property/fault-injection tests for later modules; future Claude comment fixtures are copied exactly when supplied. CI, real-phone, external-service and security release checks still require actual evidence. Pending checks must never be called passed.
+
 **Date:** 2026-10-11 (v4: D16 — Codex develops; Claude reviews only, supplies independent cases in PR comments and never pushes) · **Shared context:** [`../AGENTS.md`](../AGENTS.md) + [`codex-start-here.md`](codex-start-here.md), including the prompts to paste into Codex · **For:** Raghvendr (no coding background) · **Based on:** [`combined-research.md`](combined-research.md). Section numbers like §E.5 and task IDs like PH0-T02 refer to that document.
 
 **Purpose:** a step-by-step process to build the app with AI coding agents.
@@ -198,19 +200,19 @@ So keep **one** file, `AGENTS.md`, under 200 lines (the docs advise this size). 
 
 ## 6. The task cycle
 
-### 6.1 Normal task (Codex builds and self-verifies; Claude checks weekly), about 75% of tasks
+### 6.1 Current task cycle (D17)
 
 | Step | You do | Who | Done when |
 |---|---|---|---|
-| 1. Pick | Open the next issue (Part 7 order) | You | — |
-| 2. Plan | Paste the task prompt (§7.1) into Codex; ask it to plan first and wait | Codex | You approve the plan |
+| 1. Pick | Continue the next issue in dependency order (Part 7) | Codex | Dependencies have credible evidence |
+| 2. Plan | Communicate files, acceptance tests and failure modes; proceed under standing authorization | Codex | Plan recorded |
 | 3. Build | Codex implements on a branch named after the task, runs `pnpm check`, opens a PR with the Owner summary | Codex | CI green |
 | 4. Self-verify | Codex automatic review, **or** a *new* Codex session with the review prompt (§7.1). A fresh session does not carry the builder's assumptions | Codex | Findings fixed |
-| 5. Phone test | Follow the Owner summary on the Low + Mid phones | You | Works |
-| 6. Merge | Click Merge; close the issue | You | Done |
-| 7. Weekly | Paste the batch-review prompt (`codex-start-here.md` §8) into Claude Code with `/model sonnet`, listing that week's merged PRs; paste the findings into Codex as one fix task | Claude → Codex | Fix PR merged |
+| 5. Evidence | Record actual output and mark unexecuted phone/external checks pending; prepare simple phone instructions | Codex | No unsupported completion claims |
+| 6. Merge | Verify exact head, green CI and review findings fixed; merge under D15/D17 and continue | Codex | Development task checked |
+| 7. Final review | After agreed development and Codex verification, Claude reviews; Codex fixes findings. Complete device/service/security gates before commercial release | Claude + Codex + owner/testers | Actual release evidence |
 
-### 6.2 ⭐ task (Codex builds; Claude checks), about 25% of tasks
+### 6.2 Historical Claude schedule (deferred by D17)
 
 | Step | Extra Claude step |
 |---|---|
@@ -219,9 +221,9 @@ So keep **one** file, `AGENTS.md`, under 200 lines (the docs advise this size). 
 | After CI green | **C2 review:** Claude reviews only the PR diff against the spec section; findings go back to Codex to fix |
 | If stuck | **C3 rescue diagnosis** after 2 Codex failures: Claude replies with diagnosis in a PR comment or chat; Codex applies fixes. No Claude development exception |
 
-**Stop rules:**
-- A task fails **3 times** (Codex twice + one Claude rescue): stop and note it for the expert.
-- A phase takes > **2×** its estimate: pause and get expert help (§L.1).
+**Current rules:**
+- Repeated failures: diagnose, add regression tests, document unresolved risks; continue unaffected authorized work and seek expert validation when needed.
+- A phase takes > **2×** its estimate: reassess the approach and record the risk; D17 supersedes the automatic pause.
 - Never merge red CI.
 - Never accept "I removed or changed the test so it passes", especially for files in `tests/fixtures/independent/`.
 
