@@ -1,16 +1,16 @@
 # Build Process Guide: building GharPlan with Codex (main) and Claude Code (specialist)
 
-**Date:** 2026-10-11 (v3: Codex builds, tests and self-verifies everything; Claude Code checks afterwards at two levels: deep review on ⭐ tasks, weekly batch review on normal tasks) · **Shared context:** [`../AGENTS.md`](../AGENTS.md) + [`codex-start-here.md`](codex-start-here.md), including the prompts to paste into Codex · **For:** Raghvendr (no coding background) · **Based on:** [`combined-research.md`](combined-research.md). Section numbers like §E.5 and task IDs like PH0-T02 refer to that document.
+**Date:** 2026-10-11 (v4: D16 — Codex develops; Claude reviews only, supplies independent cases in PR comments and never pushes) · **Shared context:** [`../AGENTS.md`](../AGENTS.md) + [`codex-start-here.md`](codex-start-here.md), including the prompts to paste into Codex · **For:** Raghvendr (no coding background) · **Based on:** [`combined-research.md`](combined-research.md). Section numbers like §E.5 and task IDs like PH0-T02 refer to that document.
 
 **Purpose:** a step-by-step process to build the app with AI coding agents.
-- **Codex** does most of the work.
-- **Claude Code** is used only at a few high-risk points, so its smaller usage limit is not exhausted.
+- **Codex** does development, test implementation, fixture transcription and repository changes.
+- **Claude Code** reviews only at selected points, replying in PR comments or chat; it does no development work and never pushes (D16).
 - **You** are the product owner and tester.
 - Tests, independent checks, your phone tests and a few paid expert reviews decide whether code is accepted.
 
 **Honesty first:**
 - This process lowers risk; it does **not** guarantee success. AI agents can write code that looks right but is wrong (Part 8 shows how we catch it).
-- **There is no published, trustworthy head-to-head study that says "Codex is weak at X".** The Claude Code touchpoints below are not based on a proven Codex weakness. They are placed where the cost of a hidden bug is highest, so a *second, different* AI checking the work adds the most value. If, in practice, Codex struggles with a type of task, record it (§13) and move that type to Claude.
+- **There is no published, trustworthy head-to-head study that says "Codex is weak at X".** The Claude Code touchpoints below are not based on a proven Codex weakness. They are placed where the cost of a hidden bug is highest, so a *second, different* AI checking the work adds the most value. If Codex struggles with a type of task, record it (§13), request Claude's diagnosis and consider a human expert; Claude remains review-only.
 - Times and costs are estimates. Tool features, plans and limits change often. Facts marked VERIFIED were read on official pages on 2026-10-11.
 
 ---
@@ -21,8 +21,8 @@
 
   | Kaun | Kaam |
   |---|---|
-  | **Codex** (aapke ChatGPT Plus mein) | **Main builder.** Lagbhag har task ka plan, code, tests aur PR; normal review bhi |
-  | **Claude Code** (kam limit) | **Doosra checker, 2 level par:** (1) ⭐ risky task ka gehra review (Opus) merge se pehle, (2) normal tasks ka **hafte mein ek baar** sab PRs ka saath mein chhota check (Sonnet), (3) sabse risky hisson ke independent tests, (4) Codex 2 baar fail ho to bachav, (5) launch se pehle security review |
+  | **Codex** (aapke ChatGPT Plus mein) | **Main builder.** Plan, code, tests, PR aur fixes; Claude ke fixture comment ko exactly copy karke source link dena |
+  | **Claude Code** (kam limit) | **Sirf checker:** ⭐ deep review, weekly batch review, security review aur rescue diagnosis; independent cases/expected values PR comment mein. Code/files/PR development aur repo push kabhi nahi (D16) |
   | **Aap** | Task chunna, plan approve karna, phone par test, merge karna |
   | **GitHub Actions** | Har PR par automatic tests; Android APK banana |
 
@@ -30,7 +30,7 @@
   - Claude ko poora repo mat padhwao; sirf PR ka diff aur spec ke 1–2 sections do.
   - Har kaam ke liye nayi session; kaam khatam hote hi `/clear`.
   - Simple review ke liye lighter model (`/model sonnet`); bhaari soch ke liye hi bada model.
-  - Claude se code likhwana tabhi jab Codex 2 baar fail ho jaaye.
+  - Codex 2 baar fail ho to Claude se sirf diagnosis lo; fixes Codex karega. Claude kabhi development ya push nahi karega.
 - **Har task ka chakkar:**
   1. Codex plan banaye.
   2. Aap approve karein.
@@ -49,8 +49,8 @@
 
 | Role | Who | Responsibilities |
 |---|---|---|
-| **Main builder** | **Codex** | Plans and implements nearly every task with tests; opens PRs; fixes review findings; normal reviews (in a fresh session) |
-| **Specialist** (used sparingly) | **Claude Code** | Only the ⭐ touchpoints in §1.1 |
+| **Main builder** | **Codex** | Plans and implements development tasks with tests; opens/pushes PR branches; transcribes independent comment data exactly; fixes review findings; normal reviews (in a fresh session) |
+| **Reviewer** (used sparingly) | **Claude Code** | §1.1 review touchpoints only; replies in PR comments or chat. No development, file edits, commits or pushes; independent case data is a PR comment |
 | Product owner + tester | You | Pick tasks, approve plans, phone tests, merge, user interviews |
 | Robot checker | GitHub Actions (CI) | On every PR: lint, typecheck, unit/property tests, build; debug APK |
 | Paid experts (short) | Geometry/3D dev, security reviewer | Phase 0, Phase 3, pre-launch (§N.5: $500–3,000 total) |
@@ -60,16 +60,16 @@
 
 | # | Touchpoint | Why Claude here | Typical size |
 |---|---|---|---|
-| C1 | **Independent test fixtures** for the riskiest code: geometry (PH0-T02a), openings (PH2-T04a), save/conflict races (PH5-T03a) | Tests written by the **same** AI as the code can share its wrong assumption (Codex's own audit warned about this). Codex writes code, Claude writes the expected answers | 1 session each |
+| C1 | **Independent cases/expected values**: future PH2-T04a openings and PH5-T03a save races. Claude supplies text in a PR comment; Codex copies it exactly into `tests/fixtures/independent/`, links the comment and verifies the copy. PH0-T02a geometry is already merged in PR #60, before D16 | Independent answers can expose assumptions shared by code and its author's tests. Claude supplies analytic answers; Codex transcribes them without changing any value and implements the code | 1 session each |
 | C2 | **Second review of ⭐ PRs**: geometry core, core-model/undo, 3D sync/stale guard, openings, save protocol, RLS/security, billing | A bug here corrupts or loses user data, or leaks it; a different model is more likely to see what the author missed | 1 short session per PR |
-| C3 | **Rescue** when Codex fails **2 times** on the same problem | Fresh perspective; avoids burning Codex attempts in a loop | Only when needed |
+| C3 | **Rescue diagnosis only** when Codex fails **2 times** on the same problem; Claude replies in a PR comment or chat, Codex applies fixes | Fresh perspective without transferring development to Claude | Only when needed |
 | C4 | **Security review before release** (`/security-review` and `/code-review` on the release diff) | Highest-impact check | 1–2 sessions |
 | C5 | **Plan review** of the 3–4 hardest tasks (PH0-T02, PH0-T05, PH3-T02, PH5-T03), before Codex writes code | Catch a wrong design before it is built | 1 short session each |
 | C6 | **Weekly batch review** (Claude Sonnet) of all normal PRs merged that week; findings become a new Codex fix PR | The owner wants every Codex task checked by Claude; batching keeps usage low | 1 session per week |
 
 Everything else (UI, catalog, i18n, export, Android setup, ads, analytics, docs) is **built and self-verified by Codex**, then covered by the weekly batch review (C6).
 
-**Rule:** never let both agents edit the same files at the same time. In a ⭐ task, Claude writes **only** test fixtures or review comments, and never the implementation, unless it is a C3 rescue.
+**D16 rule:** Claude never develops, edits development files, commits, opens a fixture PR or pushes, including during rescue. Review/diagnosis results are PR comments or chat; C1 case data must be a PR comment. Codex makes repository changes. Accepted independent fixtures are never altered to make code pass; a disputed value needs owner resolution and a corrected Claude source comment before an approved correction. PR #60's existing geometry fixtures retain their original provenance.
 
 ```mermaid
 graph LR
@@ -98,7 +98,7 @@ graph LR
 | Give only what is needed | Paste the PR link + "review only the diff" + the exact spec section (e.g. §E.9), never "read the whole repo" | Reading many files uses context and usage |
 | Fresh session per touchpoint | `/clear` between tasks; the docs advise it after two failed corrections | Long chats get expensive and confused |
 | Summarize if long | `/compact keep the findings` | Shrinks context |
-| Lighter model for routine reviews | `/model sonnet` (daily coding) or `/model haiku` (simple tasks); `opusplan` uses Opus in plan mode and Sonnet for execution (model-config docs) | Lighter models usually use less of your plan's limits. Check how your plan counts usage |
+| Lighter model for routine reviews | `/model sonnet` (routine reviews) or `/model haiku` (simple reviews); `opusplan` uses Opus in plan mode and Sonnet for execution (model-config docs); D16 still forbids development/file edits | Lighter models usually use less of your plan's limits. Check how your plan counts usage |
 | Plan mode for C5 | Shift+Tab or `/plan`: Claude reads and plans but does not edit | Short, focused output |
 | Don't let Claude run long test suites repeatedly | Let **CI** run tests; paste only the failing output | Saves usage |
 | Codex first for everything | Claude only for ⭐ C1–C5 | Main saving |
@@ -190,7 +190,7 @@ No computer? Ask Codex to add a GitHub Actions workflow that builds a debug APK 
 **VERIFIED:**
 - Codex reads `AGENTS.md`.
 - Claude Code also reads `AGENTS.md` directly when the repo has **no** `CLAUDE.md`. This needs Claude Code v2.1.277 or later.
-- In sessions where Claude can't read it, create a `CLAUDE.md` whose only line is `@AGENTS.md`. The import syntax is documented. Note: with a `CLAUDE.md` present, Claude reads only `CLAUDE.md`, so the import line is needed.
+- In sessions where Claude can't read it, ask Codex to create a `CLAUDE.md` whose only line is `@AGENTS.md`. The import syntax is documented. Note: with a `CLAUDE.md` present, Claude reads only `CLAUDE.md`, so the import line is needed. Claude does not edit this file under D16.
 
 So keep **one** file, `AGENTS.md`, under 200 lines (the docs advise this size). **It now exists at the repository root:** [`../AGENTS.md`](../AGENTS.md). Edit it there, never by copying text into chats. It points both agents to [`codex-start-here.md`](codex-start-here.md), which holds the current state, all owner decisions and the first prompts.
 
@@ -215,9 +215,9 @@ So keep **one** file, `AGENTS.md`, under 200 lines (the docs advise this size). 
 | Step | Extra Claude step |
 |---|---|
 | Before build | **C5 plan review** (hardest tasks only): paste Codex's plan into Claude in plan mode with the review prompt (§7.1) |
-| Before build | **C1 independent fixtures** (where listed): Claude writes test fixtures only, in `tests/fixtures/independent/`, in its own small PR; you merge it first |
+| Before build | **C1 independent fixtures** (PH2-T04a/PH5-T03a): Codex opens a small fixture-task PR with scope/spec references; Claude supplies cases/expected values as a PR comment; Codex copies them exactly, links that comment and verifies the copy. Merge that fixture PR before the matching implementation. PH0-T02a's historical PR #60 is already merged |
 | After CI green | **C2 review:** Claude reviews only the PR diff against the spec section; findings go back to Codex to fix |
-| If stuck | **C3 rescue** after 2 Codex failures: Claude diagnoses; it fixes only if the diagnosis alone does not unblock Codex |
+| If stuck | **C3 rescue diagnosis** after 2 Codex failures: Claude replies with diagnosis in a PR comment or chat; Codex applies fixes. No Claude development exception |
 
 **Stop rules:**
 - A task fails **3 times** (Codex twice + one Claude rescue): stop and note it for the expert.
@@ -257,19 +257,39 @@ docs/combined-research.md sections [..] and AGENTS.md. Do not read unrelated fil
 Report only real problems: file + line, why it is wrong, a concrete failing test case.
 Check especially: units (mm, degrees/radians, Three.js mapping), atomic commands, stale-result guard,
 edge cases from §E.13, tests that just repeat the implementation, secrets, licences.
-Keep the answer short: a numbered list, max 10 items, most serious first.
+Keep the answer short: a numbered list, max 10 items, most serious first. Reply in a PR comment or chat.
+For Claude: review only; do not develop, edit files, commit or push (D16).
 ```
 
-**Independent fixture prompt (Claude, C1):**
+**Independent case prompt (Claude, C1; PH2-T04a/PH5-T03a):**
 ```text
-Write test fixtures ONLY (no implementation) for [module] from docs/combined-research.md sections [..].
-Put them in tests/fixtures/independent/[name]/ as data + expected values. Compute expected values by hand or
-analytically and show the arithmetic in comments. Cover: [cases]. Keep it to the listed cases. Open a small PR.
+For Codex's fixture-task PR #[N], supply independent cases and expected values for [module] from
+docs/combined-research.md sections [..]. Cover only [cases]. Compute answers by hand/analytically and
+show the arithmetic. Respond as text in a PR comment, with complete data blocks ready to copy exactly
+into tests/fixtures/independent/[name]/. Never derive expected values from the implementation.
+D16: do no development work; do not edit files, commit, open a PR or push. Codex will copy your data
+without changing any value and link this source comment. If the spec is ambiguous, report it instead
+of inventing an expected value.
+```
+
+**Fixture transcription prompt (Codex; PH2-T04a/PH5-T03a):**
+```text
+Task [PH2-T04a or PH5-T03a]: independent fixture transcription. Follow AGENTS.md and D16.
+Show the plan first and wait for my OK. If there is no fixture-task PR yet, open one with a scope README
+and the spec/case request for Claude C1; do not invent expected values. Wait for Claude's source PR comment.
+Source comment: [URL]. After it exists, copy its complete case data into tests/fixtures/independent/[name]/
+exactly as given, without changing any value. Link the source comment in the PR; verify every case/value
+against it. Do not silently convert units, repair, omit, weaken or add cases. If the text is incomplete,
+not ready to copy or appears wrong, explain the problem and ask the owner for resolution and a corrected
+Claude source comment. Preserve existing accepted fixtures, including PR #60; no module implementation.
+Run pnpm check, report actual output and retain the required review/CI gates. Merge this fixture PR before
+the matching implementation task. Harness/adapter code belongs to Codex in the appropriate later task.
 ```
 
 **Plan review prompt (Claude, C5; plan mode):**
 ```text
-Here is Codex's plan for task [PHx-Tyy] and spec sections [..]. Do not write code.
+Here is Codex's plan for task [PHx-Tyy] and spec sections [..]. Review only (D16): no development,
+file edits, commits or pushes. Reply in a PR comment or chat.
 List up to 7 design problems or missing edge cases that would cause wrong geometry, lost data or stale 3D,
 most serious first, each with a one-line fix.
 ```
@@ -281,7 +301,7 @@ on my phone, what could still go wrong?
 ```
 
 Columns in the tables below:
-- **Build** = who implements (almost always Codex).
+- **Build** = Codex for development/transcription; the completed pre-D16 PH0-T02a row records historical authorship.
 - **⭐ Claude** = Claude touchpoints for that task; "—" means none.
 - **You check** = your own test.
 
@@ -292,7 +312,7 @@ Goal: prove the hardest parts before building the product.
 | Task | Build | ⭐ Claude | Specific instruction (add to task prompt) | You check |
 |---|---|---|---|---|
 | PH0-T01 Repo skeleton + CI | Codex | — | "pnpm monorepo with only packages/geometry, packages/core-model, apps/web (React+Vite, TS strict); GitHub Actions: lint, typecheck, tests on every PR; AGENTS.md already exists at the repo root — only fill its commands section; docs/decisions/dependencies.md; pin Node LTS and pnpm." | Green CI check on the PR |
-| PH0-T02a Independent geometry fixtures *(sub-task added by this guide)* | **Claude** | **C1** | Fixture prompt: "packages/geometry, §E.4–E.7, §H.6: sample exact areas 20642175/15872175 mm²; moved partition 21119175/15395175 mm²; rounded labels tested separately; F-TWO-SQ 14.44/16.34/0.18 m²; T-junctions; rejected X-crossing and non-orthogonal walls; raw pointer closing gap 0.4 mm versus rejected fractional canonical input (GEO-016 stages); 9/10/11 mm segments; room split/merge; GEO-021 small rooms" | Small PR of fixture files with hand arithmetic |
+| PH0-T02a Independent geometry fixtures *(completed before D16)* | **Claude (historical, PR #60)** | **C1 (complete)** | Already merged in [PR #60](https://github.com/raghvendrprajapat/Home-ai/pull/60). Preserve its 10 JSON sets/55 cases and README unchanged; exact sample/moved areas, F-TWO-SQ, L/T, rejected X/diagonals, GEO-016 input stages, segment limits, split/merge and GEO-021 are recorded there. No new Claude file authoring | PR #60 merged; PR/main CI green; geometry runtime execution still pending |
 | PH0-T02 Geometry core | Codex | **C5 + C2** | "Begin only after Claude's PH0-T02a fixtures PR is merged. §E.4–E.8: invariants I1–I8, normalizer with lineage, junction footprints with single ownership, half-edge faces, clear area, room identity. Make tests/fixtures/independent/geometry pass unchanged. fast-check: no crossings after normalize; grid rooms = cells; rectangle area = analytic." | All GEO tests green |
 | PH0-T03 Core model + undo | Codex | **C2** | "§G.2–G.3, §H.2–H.3: types, validateProject, AddWall/MoveJunction/MoveWall/DeleteWall/AddOpening/AddFurniture, Immer undo/redo, localGeneration. DM-001…004 (MoveWall w7 +100 → exact 21119175/15395175 mm², ±1 mm²; display formatting separate), SYNC-007." | DM tests green |
 | PH0-T04 Minimal 2D view | Codex | — | "Konva canvas draws the sample from core-model; drag a junction (preview, one command on release); show areas; Konva state never saved (ADR-002)." | Drag a corner; area changes; undo works |
@@ -327,8 +347,8 @@ Hindi copy: ChatGPT translates the strings, then a Hindi-speaking customer reads
 | PH2-T01 Transforms, zoom/pan, hit test, touch + loupe | Codex | — | "§E.1, §E.11, §E.12; GEO-008, GEO-012, UX-004." | Pinch/tap feel right on Low phone |
 | PH2-T02 Wall + room tools, names, carpet area | Codex | C2 (normalizer integration only) | "§E.5–E.8; FR-004, FR-005, FR-009, FR-010." | Draw a 2-room home; areas match tape |
 | PH2-T03 Snapping, dimensions, numeric entry, units | Codex | — | "§E.10, §E.12.2; GEO-002, GEO-007, GEO-009, UX-005." | Type 3450 → 3450 |
-| PH2-T04a Independent opening fixtures *(added)* | **Claude** | **C1** | Fixture prompt: "§E.9: offset/end-guard, overlap, reverse wall (newOffset = L − offset, flipX), split through/beside opening, shrink below clearance, sill + height > wall" | Small fixture PR |
-| PH2-T04 Doors/windows | Codex | **C2** | "§E.9; GEO-013…015; pass independent opening fixtures unchanged." | Door can't pass wall end; reverse keeps position |
+| PH2-T04a Independent opening fixtures *(added)* | **Codex** | **C1** | Open the fixture-task PR; Claude supplies PR-comment cases/expected values for §E.9: offset/end-guard, overlap, reverse wall (newOffset = L − offset, flipX), split through/beside opening, shrink below clearance, sill + height > wall. Codex copies them exactly into `tests/fixtures/independent/`, without changing values, and links the source comment (D16/§7.1) | Small Codex fixture PR; source-comment link + exact copy verified; merged before PH2-T04 |
+| PH2-T04 Doors/windows | Codex | **C2** | "Begin after PH2-T04a's Codex transcription PR is merged. §E.9; GEO-013…015; pass independent opening fixtures unchanged." | Door can't pass wall end; reverse keeps position |
 | PH2-T05 Selection, multi-select, duplicate | Codex | — | "§E.11; GEO-012, SYNC-009." | Duplicate sofa, undo |
 | PH2-T06 PNG export of plan | Codex | — | "FR-029; REN-006, UX-009." | Share on WhatsApp |
 
@@ -363,8 +383,8 @@ Hindi copy: ChatGPT translates the strings, then a Hindi-speaking customer reads
 |---|---|---|---|---|
 | PH5-T01 Supabase, migrations, RLS + test | Codex | **C2 (security)** | "§H.4; RLS; SEC-001, SEC-009; separate dev project; tell me which keys go where; never put the service key in the app." | You create the project; you put keys in secrets, **not** in chat |
 | PH5-T02 Google sign-in | Codex | — | "§D.10; SEC-002." | Sign in on phone |
-| PH5-T03a Independent save-race tests *(added)* | **Claude** | **C1** | Fixture prompt: "§H.5: two clients at revision 10, lost response after commit + retry with the same commandId, same key with different content → 409 IDEMPOTENCY_MISMATCH, ack arriving after newer local edits" | Small test PR |
-| PH5-T03 Save RPC (CAS + receipts) + client queue | Codex | **C5 + C2** | "§H.5 exactly; REL-006; pass the independent race tests unchanged." | Edit on 2 phones → conflict copy, nothing lost |
+| PH5-T03a Independent save-race tests *(added)* | **Codex** | **C1** | Open the fixture-task PR; Claude supplies PR-comment cases/expected values for §H.5: two clients at revision 10, lost response after commit + retry with the same commandId, same key with different content → 409 IDEMPOTENCY_MISMATCH, ack arriving after newer local edits. Codex copies them exactly into `tests/fixtures/independent/`, without changing values, and links the source comment (D16/§7.1) | Small Codex fixture PR; source-comment link + exact copy verified; merged before PH5-T03 |
+| PH5-T03 Save RPC (CAS + receipts) + client queue | Codex | **C5 + C2** | "Begin after PH5-T03a's Codex transcription PR is merged. §H.5 exactly; REL-006; pass the independent race tests unchanged." | Edit on 2 phones → conflict copy, nothing lost |
 | PH5-T04 Conflict UI, versions, restore | Codex | — | "REL-007, REL-008." | Restore old version |
 | PH5-T05 Account deletion + export | Codex | — | "§O.3; REL-012; deletion web page is one simple page." | Delete a test account |
 | PH5-T06 Backup + restore drill | Codex guides; you run | — | "Step-by-step drill; REL-011." | Timed result written down |
@@ -425,7 +445,7 @@ That is **≈ 20–26 deep (⭐) sessions plus about one light weekly batch sess
 | Check | How | Trust |
 |---|---|---|
 | GitHub Actions | ✓ green = tests pass; ✗ red = never merge | High (only as good as the tests) |
-| Independent fixtures | Claude wrote the expected answers, Codex the code (⭐ modules) | Higher |
+| Independent fixtures | Claude supplies expected answers in a PR comment; Codex copies exactly and links/verifies the source (D16). PR #60 is the historical geometry set | Higher |
 | Second-model review | Claude on ⭐ PRs | Medium-high |
 | Fresh-session review | Codex reviewing in a new session | Medium |
 | Phone test | Owner summary steps on Low + Mid | High for usability |
@@ -460,7 +480,7 @@ That is **≈ 20–26 deep (⭐) sessions plus about one light weekly batch sess
 ## 10. Safety rules (non-negotiable)
 
 1. **Never paste secrets into any AI chat:** Supabase service key, Play service account JSON, signing passwords, AI keys. Put them in Supabase or GitHub secrets yourself.
-2. Claude Code stays in Manual mode. In Codex, keep approvals on for commands that delete, push to `main`, deploy or spend money.
+2. Claude Code stays in Manual mode and follows D16: review/diagnosis only, no development/file edits/commits/pushes. In Codex, keep approvals on for commands that delete, push to `main`, deploy or spend money.
 3. `main` is protected; everything goes through PRs.
 4. Keep separate dev and production Supabase projects. AI agents only touch dev.
 5. Set spending caps in every paid API console before any AI feature work.
@@ -488,8 +508,8 @@ Total for reviews ≈ $500–3,000 (§N.5). Start with a small paid trial task.
 | Problem | What to do |
 |---|---|
 | Codex says "done" but the phone shows otherwise | Describe exactly what you did and saw (screen recording); ask it to write a failing test first, then fix |
-| Codex fails twice on the same thing | New Codex session with the failing output; if it fails again → C3 Claude rescue (diagnosis first) |
-| Codex wants to change an independent fixture | Refuse; ask Claude (short session) whether the fixture is really wrong |
+| Codex fails twice on the same thing | C3 Claude rescue diagnosis after the two failures, in a PR comment or chat; Codex applies findings; if the next attempt fails, use the expert stop rule |
+| Codex wants to change an independent fixture | Refuse a change made to get tests green; ask Claude for a short source-comment review, obtain owner resolution and a corrected source comment before an approved correction |
 | Claude limit reached | Do non-⭐ tasks; hold ⭐ PRs unmerged until Claude is available |
 | Codex limit reached | Phone testing, interviews, asset sourcing; or buy ChatGPT credits if urgent |
 | Wall/room bugs return | Ask Codex to shrink the failing case into a fixture; add it to the regression set; consider the expert |
@@ -512,7 +532,7 @@ Total for reviews ≈ $500–3,000 (§N.5). Start with a small paid trial task.
   | 1 session | Phone tests + benchmarks |
   | Weekly | 5-line note in `docs/progress.md`: done / blocked / next / time / money |
 
-- **"Agent log" in `docs/progress.md`:** each time Codex struggles with a type of work (e.g. touch gestures, geometry edge cases), write one line. If the same type appears 3 times, move that type to Claude or the expert. This is how the split adapts to evidence instead of guesses.
+- **"Agent log" in `docs/progress.md`:** each time Codex struggles with a type of work (e.g. touch gestures, geometry edge cases), write one line. If the same type appears 3 times, ask Claude for diagnosis or consult the expert; development never transfers to Claude under D16. This adapts the review support to evidence instead of guesses.
 - **Monthly:** recheck plans, limits and prices; back up the repo; get feedback from 2–3 users.
 
 **Timeline (estimate, part-time):**

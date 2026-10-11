@@ -14,7 +14,7 @@ This file carries **every decision made so far**, including decisions made in ch
 - **Money:** freemium. Google Play Billing subscription, ads only outside the editor, optional rewarded unlock. AI credits only later.
 - **Core promise:** measurements you can trust, 2D = 3D always, and your work is never lost.
 - **Owner:** not a programmer. He tests on two phones (Low: Galaxy A0x/Redmi A; Mid: Galaxy A3x/A5x) and approves plans. Merge authority follows D15 below.
-- **Current state:** Research PR #1 and PH0-T01 PR #2 are merged into main. PH0-T01 provides a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build, Chromium smoke checks, fresh Codex review and implementation CI passed; see [`verification/ph0-t01.md`](verification/ph0-t01.md) and PR #2 for evidence and limits. The 54 playbook task issues are live; PH0-T01 issue #3 is closed. There is no editor, geometry implementation, 3D, saving or Android build yet; ten-user interview completion is not confirmed. Geometry specification choices are approved as D11–D14. Next engineering task is PH0-T02a, with independent fixtures written by Claude; **do not start PH0-T02 until Claude's PH0-T02a fixtures PR is merged**.
+- **Current state:** Research PR #1 and PH0-T01 PR #2 are merged into main. PH0-T01 provides a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build, Chromium smoke checks, fresh Codex review and implementation CI passed; see [`verification/ph0-t01.md`](verification/ph0-t01.md) and PR #2 for evidence and limits. The 54 playbook task issues are live; PH0-T01 issue #3 is closed. There is no editor, geometry implementation, 3D, saving or Android build yet; ten-user interview completion is not confirmed. Geometry specification choices are approved as D11–D14. PH0-T02a geometry fixtures are merged in [PR #60](https://github.com/raghvendrprajapat/Home-ai/pull/60), with PR/main CI green. Claude authored them before D16; preserve their data and provenance. PH0-T02 implementation is pending and still needs plan approval and Claude's C5/C2 reviews. Future fixture tasks follow D16's comment-to-Codex workflow.
 
 ## 2. Owner decisions (binding)
 
@@ -25,9 +25,9 @@ This file carries **every decision made so far**, including decisions made in ch
 | D3 | Web + Android (Capacitor), mobile-first | ADR-001, ADR-009 |
 | D4 | First release (L0) = one floor, walls at 0°/90° only, L/T junctions | §C.1, §E.4 |
 | D5 | Stack: TypeScript, React + Vite, Zustand (UI only), Konva (2D display only), custom `geometry` + `core-model` with Immer patches, Three.js WebGL2, Supabase (Postgres JSONB snapshots, Auth, RLS, RPC), Cloudflare R2, Play Billing, AdMob, Vitest + fast-check + Playwright | Part D, §D.25 |
-| D6 | **Codex = main builder; Claude Code = second checker** (Claude's usage limit is lower) | AGENTS.md §2 |
+| D6 | **Codex = main builder; Claude Code = review-only second checker** under D16 (Claude's usage limit is lower) | AGENTS.md §2; D16 |
 | D7 | **2-level Claude check:** ⭐ tasks get a deep Claude review before merge; normal tasks get a weekly batch review | build-process-guide §6 |
-| D8 | Independent test fixtures for the riskiest modules are written by Claude before Codex implements: PH0-T02a geometry, PH2-T04a openings, PH5-T03a save races | build-process-guide §7 |
+| D8 | Independent cases and expected answers come from Claude before Codex implements the matching risky module. PH0-T02a geometry is complete in PR #60, authored before D16. Future PH2-T04a openings and PH5-T03a save races use Claude's PR-comment data, copied exactly by Codex under D16; merge each fixture PR before the matching implementation. | build-process-guide §7; D16; PR #60 |
 | D9 | AI features only after the first Play release, and only if a spike shows value; Gemini terms require an 18+ audience | Part I, §O.3 |
 | D10 | Never copy Planner 5D code, assets, UI or private APIs | §O.1 |
 | D11 | **Wall thickness: 50–1000 mm, inclusive, stored as integer mm.** The sample schema maximum is 1000, matching FR-007, §D.4 and §E.12.2; values outside the range are rejected. | Owner instruction; FR-007, §D.4, §E.12.2; project.schema.json |
@@ -35,6 +35,7 @@ This file carries **every decision made so far**, including decisions made in ch
 | D13 | **Area tests:** use unrounded clear-area mm² with existing tolerances; m² labels are formatted and tested separately. Initial sample 20642175/15872175 mm²; moved partition 21119175/15395175 mm². | Owner approval; §H.6; DM-003 |
 | D14 | **Raw input and canonical validation:** the 0.4 mm case is transient pointer/preview input before snapping/quantization to an integer-mm command. Fractional canonical project/command coordinates are rejected unchanged. Test the stages separately. | §E.1, §E.13; GEO-016 |
 | D15 | **Merge delegation (2026-10-11; formerly D13):** the owner said, "mere next instructions tak pr tum khud merge karoge". Until he changes this instruction, Codex may merge prepared PRs after all applicable CI, review and task acceptance gates pass. This changes only who clicks Merge; plan approval, real phone testing, Claude checks and unresolved specification decisions remain required where applicable. Older owner-merge examples in the guide are superseded by this decision. | Owner instruction; AGENTS.md §2 |
+| D16 | **Claude review-only (2026-10-11):** Claude Code does no development work and never pushes to the repository. Claude only reviews (⭐ deep reviews, weekly batch review, security review and rescue diagnosis), replying in PR comments or chat. For independent fixtures PH2-T04a and PH5-T03a, Claude writes the cases and expected values as text in a PR comment; Codex copies them into `tests/fixtures/independent/` exactly as given, without changing any value, and links the source comment in the PR. This supersedes older instructions permitting Claude development, file authoring, fixture PRs or rescue implementation. | Owner instruction; AGENTS.md §2/§5; build-process-guide C1/C3/§7.1 |
 
 ## 3. Which model for which job (benchmark-based, 2026-10-11)
 
@@ -55,7 +56,7 @@ These are independent Vals.ai results at **max effort**. Your app's default sett
 | Model | Jobs |
 |---|---|
 | **GPT-6.1 Sol in Codex** | All building, UI, catalog, i18n, export, Android/Capacitor, CI and build problems, normal reviews |
-| **Claude Opus 5.5** | ⭐ deep reviews (geometry, undo/sync, openings, saving, RLS, billing), independent fixtures, rescues, security review |
+| **Claude Opus 5.5** | Review-only: ⭐ plan/deep reviews (geometry, undo/sync, openings, saving, RLS, billing), independent case/expected-value PR comments, rescue diagnosis, security review |
 | **Claude Sonnet** | The weekly batch review of normal PRs (saves Claude usage) |
 
 Sources: vals.ai model pages for both models (fetched 2026-10-11), and Artificial Analysis for GPT-6.1 Sol.
@@ -70,7 +71,7 @@ Sources: vals.ai model pages for both models (fetched 2026-10-11), and Artificia
 4. **Owner:** phone test (Low + Mid, where required). **Merge:** Codex under D15 until the owner changes the instruction.
 
 Stop rules:
-- Codex fails twice on the same problem → Claude rescue (diagnosis first).
+- Codex fails twice on the same problem → Claude rescue diagnosis only; Codex applies the findings.
 - Fails a third time → the owner hires the expert.
 - A phase takes more than 2× its estimate → pause.
 
@@ -80,7 +81,7 @@ Full details, prompts and "you check" steps are in `build-process-guide.md` §7.
 
 | Phase | Tasks |
 |---|---|
-| 0 Proofs | PH0-T01 repo + CI · PH0-T02a ⭐ Claude independent geometry fixtures · PH0-T02 ⭐ geometry core · PH0-T03 ⭐ core-model + undo · PH0-T04 2D view · PH0-T05 ⭐ 3D view · PH0-T06 perf page · PH0-T07 Android build + phone benchmark · PH0-T08 ⭐ local save + kill test → **expert review** |
+| 0 Proofs | PH0-T01 repo + CI · PH0-T02a ⭐ independent geometry fixtures (**merged PR #60, before D16**) · PH0-T02 ⭐ geometry core · PH0-T03 ⭐ core-model + undo · PH0-T04 2D view · PH0-T05 ⭐ 3D view · PH0-T06 perf page · PH0-T07 Android build + phone benchmark · PH0-T08 ⭐ local save + kill test → **expert review** |
 | 1 Foundation | PH1-T01…T05 |
 | 2 2D editor | PH2-T01…T03, PH2-T04a ⭐ fixtures, PH2-T04 ⭐ doors/windows, PH2-T05, PH2-T06 |
 | 3 3D | PH3-T01, PH3-T02 ⭐ worker/stale guard, PH3-T03…T06 |
@@ -95,7 +96,7 @@ Full details, prompts and "you check" steps are in `build-process-guide.md` §7.
 - Do not write code before the owner approves a plan.
 - Do not build features outside the current task, especially electrical features, website pages, AI, multiplayer or iOS.
 - Do not save Konva or Three.js state as project data.
-- Do not edit `tests/fixtures/independent/`.
+- Do not alter independent cases/expected values to make code pass. D16 permits Codex's initial exact copy from Claude's source PR comment for PH2-T04a/PH5-T03a, with the comment linked in the fixture PR; disputed corrections require owner resolution and a corrected Claude source comment.
 - Do not weaken or delete tests.
 - Do not put secrets in code or chat.
 - Do not add GPL/AGPL code or unlicensed assets.
@@ -151,19 +152,21 @@ ph0-t01-skeleton, run pnpm check, open a PR with actual output and an Owner summ
 
 After that, use the task prompt template in `build-process-guide.md` §7.1 for every task.
 
-**Claude Code prompts.** Use claude.ai/code connected to the same repo; it reads AGENTS.md too.
+**Claude Code prompts.** Use claude.ai/code connected to the same repo; it reads AGENTS.md too. D16 applies to every Claude session: review only, no development/file edits/commits/pushes; reply in a PR comment or chat. Independent cases/expected values must be supplied in a PR comment.
 
 ⭐ **Deep review (Opus):**
 ```text
 Read AGENTS.md and docs/codex-start-here.md. Review ONLY the diff of PR #[N] (task [PHx-Tyy]) against the
 combined-research sections it names. Max 10 real problems, most serious first: file + line, why wrong,
-a concrete failing test. Also list important cases the tests do not cover. Do not rewrite code.
+a concrete failing test. Also list important cases the tests do not cover. Reply in a PR comment or chat.
+Do not develop, edit files, commit or push (D16).
 ```
 
 **Weekly batch review (Sonnet: run `/model sonnet` first):**
 ```text
 Read AGENTS.md. Review ONLY the diffs of PRs merged this week: #[N1], #[N2], ... Max 10 real problems overall,
-most serious first: PR, file + line, why wrong, failing test idea. Keep it short. Do not rewrite code.
+most serious first: PR, file + line, why wrong, failing test idea. Keep it short; reply in a PR comment or chat.
+Do not develop, edit files, commit or push (D16).
 ```
 
-**Independent fixtures (Opus, before the matching ⭐ task):** use the "Independent fixture prompt" in `build-process-guide.md` §7.1.
+**Independent cases (Opus, before PH2-T04/PH5-T03):** use the Claude C1 comment prompt in `build-process-guide.md` §7.1, then give its source-comment URL to Codex's transcription prompt. Claude never writes fixture files or opens/pushes a fixture PR. PH0-T02a's existing PR #60 remains unchanged.
