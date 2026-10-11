@@ -13,8 +13,8 @@ This file carries **every decision made so far**, including decisions made in ch
 - **Platform:** one TypeScript codebase. Web app + Android app via Capacitor. Google Play distribution.
 - **Money:** freemium. Google Play Billing subscription, ads only outside the editor, optional rewarded unlock. AI credits only later.
 - **Core promise:** measurements you can trust, 2D = 3D always, and your work is never lost.
-- **Owner:** not a programmer. He tests on two phones (Low: Galaxy A0x/Redmi A; Mid: Galaxy A3x/A5x), approves plans and merges PRs.
-- **Current state:** PH0-T01 now has a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build and Chromium smoke checks pass; see [`verification/ph0-t01.md`](verification/ph0-t01.md). There is no editor, geometry implementation, 3D, saving or Android build yet. Research/main merge, GitHub CI and owner review are separate gates; ten-user interview completion is not confirmed. Next engineering task is PH0-T02a after the geometry specification differences are agreed.
+- **Owner:** not a programmer. He tests on two phones (Low: Galaxy A0x/Redmi A; Mid: Galaxy A3x/A5x) and approves plans. Merge authority follows D11 below.
+- **Current state:** Research PR #1 and PH0-T01 PR #2 are merged into main. PH0-T01 provides a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build, Chromium smoke checks, fresh Codex review and implementation CI passed; see [`verification/ph0-t01.md`](verification/ph0-t01.md) and PR #2 for evidence and limits. The 54 playbook task issues are live; PH0-T01 issue #3 is closed. There is no editor, geometry implementation, 3D, saving or Android build yet; ten-user interview completion is not confirmed. Next engineering task is PH0-T02a after the geometry specification differences are agreed, with independent fixtures written by Claude.
 
 ## 2. Owner decisions (binding)
 
@@ -30,6 +30,7 @@ This file carries **every decision made so far**, including decisions made in ch
 | D8 | Independent test fixtures for the riskiest modules are written by Claude before Codex implements: PH0-T02a geometry, PH2-T04a openings, PH5-T03a save races | build-process-guide §7 |
 | D9 | AI features only after the first Play release, and only if a spike shows value; Gemini terms require an 18+ audience | Part I, §O.3 |
 | D10 | Never copy Planner 5D code, assets, UI or private APIs | §O.1 |
+| D11 | **Merge delegation (2026-10-11):** the owner said, "mere next instructions tak pr tum khud merge karoge". Until he changes this instruction, Codex may merge prepared PRs after all applicable CI, review and task acceptance gates pass. This changes only who clicks Merge; plan approval, real phone testing, Claude checks and unresolved specification decisions remain required where applicable. Older owner-merge examples in the guide are superseded by this decision. | Owner instruction; AGENTS.md §2 |
 
 ## 3. Which model for which job (benchmark-based, 2026-10-11)
 
@@ -61,8 +62,8 @@ Sources: vals.ai model pages for both models (fetched 2026-10-11), and Artificia
 2. **GitHub Actions** must be green.
 3. **Check:**
    - **⭐ task:** Claude Opus deep-reviews the PR diff. Codex fixes the findings. Only then merge.
-   - **Normal task:** the owner tests on the phones and merges. Once a week Claude Sonnet reviews all PRs merged that week, and Codex fixes the findings in a new PR.
-4. **Owner:** phone test (Low + Mid) → merge.
+   - **Normal task:** the owner performs the task's required phone checks; Codex merges under D11 after the other gates pass. Once a week Claude Sonnet reviews all PRs merged that week, and Codex fixes the findings in a new PR.
+4. **Owner:** phone test (Low + Mid, where required). **Merge:** Codex under D11 until the owner changes the instruction.
 
 Stop rules:
 - Codex fails twice on the same problem → Claude rescue (diagnosis first).

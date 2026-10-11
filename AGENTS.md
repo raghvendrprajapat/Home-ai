@@ -17,7 +17,7 @@ If code, this file and the spec disagree, **stop and ask the owner**. Do not gue
   - Explain everything in simple words.
   - Never ask him to read or edit code.
   - Always give step-by-step phone test instructions.
-  - He approves plans, tests on phones and clicks Merge.
+  - He approves plans and tests on phones. On 2026-10-11 he authorized Codex to merge PRs until his next instruction. Codex may merge only after all applicable task checks/reviews pass; this permission does not waive phone tests, Claude reviews or specification decisions.
 - **Codex = main builder.** Plans, implements, writes tests, runs checks and self-reviews for nearly every task.
 - **Claude Code = second checker** (limited usage, so it is used sparingly):
   - ⭐ tasks: deep review before merge; independent test fixtures for the riskiest modules.
