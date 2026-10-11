@@ -1,6 +1,7 @@
-import { StrictMode } from 'react';
+import { lazy, StrictMode, Suspense } from 'react';
 import { createRoot } from 'react-dom/client';
 import { App } from './App';
+const PerfPage = lazy(() => import('./perf/PerfPage'));
 
 const container = document.getElementById('root');
 
@@ -10,6 +11,6 @@ if (!container) {
 
 createRoot(container).render(
   <StrictMode>
-    <App />
+    {window.location.pathname === '/perf' ? <Suspense fallback={<main>Loading performance lab…</main>}><PerfPage /></Suspense> : <App />}
   </StrictMode>,
 );
