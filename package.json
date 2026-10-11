@@ -11,10 +11,12 @@
   },
   "scripts": {
     "dev": "pnpm --filter @gharplan/web dev",
-    "lint": "eslint apps/web/src apps/web/vite.config.ts packages/geometry/src packages/core-model/src vitest.config.ts eslint.config.mjs",
+    "lint": "eslint apps/web/src apps/web/vite.config.ts packages/geometry/src packages/core-model/src packages/core-model/scripts vitest.config.ts eslint.config.mjs",
     "typecheck": "tsc --project tsconfig.json && pnpm --recursive typecheck",
     "test": "vitest run",
-    "check": "pnpm lint && pnpm typecheck && pnpm test",
+    "schema:generate": "node packages/core-model/scripts/generate-schema.mjs",
+    "schema:check": "node packages/core-model/scripts/generate-schema.mjs --check",
+    "check": "pnpm schema:check && pnpm lint && pnpm typecheck && pnpm test",
     "build": "pnpm --filter @gharplan/web build"
   },
   "devDependencies": {

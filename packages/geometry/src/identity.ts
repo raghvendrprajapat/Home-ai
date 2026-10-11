@@ -17,7 +17,7 @@ function cycleKey(boundary: string[], plan: Plan): string {
 }
 
 /** Exact cycle first, conservative overlap next, then explicit split/merge rules. */
-export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan): { rooms: Room[]; checkRoomNamesHint: boolean } {
+export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, reservedIds: readonly string[] = []): { rooms: Room[]; checkRoomNamesHint: boolean } {
   const oldStrips = wallStrips(oldPlan).map(s => s.rect);
   const old = oldPlan.rooms.map(room => {
     const polygon = room.boundary.map(id => {
@@ -42,7 +42,7 @@ export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan): { 
       siblingsByOld.set(source, [...(siblingsByOld.get(source) ?? []), { n: i, overlap }]);
     }
   }
-  const used = new Set([...plan.junctions, ...plan.walls, ...oldPlan.rooms].map(e => e.id));
+  const used = new Set([...reservedIds, ...[...plan.junctions, ...plan.walls, ...oldPlan.rooms].map(e => e.id)]);
   const assigned = new Set<number>(); let checkRoomNamesHint = false;
   const rooms = derived.faces.map((face, i) => {
     let source = exact.get(faceKeys[i]!) ?? -1;
