@@ -1,13 +1,13 @@
 {
   "checkedOn": "2026-10-11",
   "method": "Official npm metadata for every resolved registry package before installation; bundled notices remain applicable.",
-  "packageCount": 212,
+  "packageCount": 217,
   "licenseCounts": {
-    "MIT": 160,
+    "MIT": 164,
     "MIT-0": 2,
     "Apache-2.0": 17,
     "BSD-2-Clause": 8,
-    "BSD-3-Clause": 3,
+    "BSD-3-Clause": 4,
     "ISC": 7,
     "MPL-2.0": 12,
     "BlueOak-1.0.0": 2,
@@ -479,6 +479,18 @@
       "source": "https://registry.npmjs.org/ajv/6.15.0"
     },
     {
+      "name": "ajv",
+      "version": "8.20.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/ajv/8.20.0"
+    },
+    {
+      "name": "ajv-formats",
+      "version": "3.0.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/ajv-formats/3.0.1"
+    },
+    {
       "name": "ansi-regex",
       "version": "5.0.1",
       "license": "MIT",
@@ -701,6 +713,12 @@
       "source": "https://registry.npmjs.org/fast-levenshtein/2.0.6"
     },
     {
+      "name": "fast-uri",
+      "version": "3.1.8",
+      "license": "BSD-3-Clause",
+      "source": "https://registry.npmjs.org/fast-uri/3.1.8"
+    },
+    {
       "name": "fdir",
       "version": "6.5.0",
       "license": "MIT",
@@ -779,6 +797,12 @@
       "source": "https://registry.npmjs.org/ignore/7.0.12"
     },
     {
+      "name": "immer",
+      "version": "11.1.21",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/immer/11.1.21"
+    },
+    {
       "name": "imurmurhash",
       "version": "0.1.4",
       "license": "MIT",
@@ -825,6 +849,12 @@
       "version": "0.4.1",
       "license": "MIT",
       "source": "https://registry.npmjs.org/json-schema-traverse/0.4.1"
+    },
+    {
+      "name": "json-schema-traverse",
+      "version": "1.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/json-schema-traverse/1.0.0"
     },
     {
       "name": "json-stable-stringify-without-jsonify",

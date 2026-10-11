@@ -1,5 +1,19 @@
 # PH0-T01 dependency register
 
+## PH0-T03 schema and command history (2026-10-11, recorded before installation)
+
+| Dependency | Exact version | License | Purpose | Evidence |
+|---|---|---|---|---|
+| immer | 11.1.21 | MIT | Immutable atomic updates and forward/inverse command patches | [Official metadata](https://registry.npmjs.org/immer/11.1.21) |
+| ajv | 8.20.0 | MIT | Compile the accepted Draft 2020-12 project schema to reproducible standalone validation; no runtime dynamic code generation in the app | [Official metadata](https://registry.npmjs.org/ajv/8.20.0) |
+| ajv-formats | 3.0.1 | MIT | RFC date-time validation in the generated schema validator | [Official metadata](https://registry.npmjs.org/ajv-formats/3.0.1) |
+| fast-deep-equal | 3.1.3 | MIT | Ajv transitive schema/compiler dependency | [Official metadata](https://registry.npmjs.org/fast-deep-equal/3.1.3) |
+| require-from-string | 2.0.2 | MIT | Ajv build-time standalone generation dependency | [Official metadata](https://registry.npmjs.org/require-from-string/2.0.2) |
+| json-schema-traverse | 1.0.0 | MIT | Ajv build-time schema traversal | [Official metadata](https://registry.npmjs.org/json-schema-traverse/1.0.0) |
+| fast-uri | 3.1.8 | BSD-3-Clause | Ajv's resolved 3.x URI parser | [Official metadata](https://registry.npmjs.org/fast-uri/3.1.8) |
+
+Ajv is selected to use the existing authoritative JSON Schema rather than maintain a separate shape definition. Compile-time generation avoids `unsafe-eval` in the browser; checked-in output must match regeneration. Runtime semantic geometry/reference checks remain custom core-model functions. The resolved fast-uri 3.x license/version is checked before installing the resolved graph.
+
 ## PH0-T02 property testing (2026-10-11, recorded before installation)
 
 | Dependency | Exact version | License | Purpose | Evidence |

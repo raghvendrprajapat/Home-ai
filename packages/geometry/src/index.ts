@@ -11,6 +11,7 @@ export * from './graph';
 export * from './derive';
 export * from './regions';
 export * from './spatial';
+export * from './identity';
 
 /** Pure candidate transaction; core-model is the sole committer of canonical state. */
 export function applyGeometry(input: Plan, operation: Operation): GeometryResult {

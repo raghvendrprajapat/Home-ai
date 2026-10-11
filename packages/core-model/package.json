@@ -11,6 +11,9 @@
     "typecheck": "tsc --project tsconfig.json"
   },
   "dependencies": {
-    "@gharplan/geometry": "workspace:*"
+    "@gharplan/geometry": "workspace:*",
+    "ajv": "8.20.0",
+    "ajv-formats": "3.0.1",
+    "immer": "11.1.21"
   }
 }

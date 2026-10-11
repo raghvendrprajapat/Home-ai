@@ -70,10 +70,10 @@ function wallBoxes(plan: Plan) {
 }
 
 /** One union pass + one node/split pass, with exact integer positions; no convergence loop. */
-export function normalizePlan(input: Plan): { plan: Plan; lineage: Lineage[] } {
+export function normalizePlan(input: Plan, reservedIds: readonly string[] = []): { plan: Plan; lineage: Lineage[] } {
   validateInputs(input);
   const plan: Plan = { junctions: input.junctions.map(j => ({ ...j })), walls: input.walls.map(w => ({ ...w })), rooms: input.rooms.map(r => ({ ...r, boundary: [...r.boundary] })) };
-  const used = new Set([...plan.junctions, ...plan.walls, ...plan.rooms].map(e => e.id));
+  const used = new Set([...reservedIds, ...[...plan.junctions, ...plan.walls, ...plan.rooms].map(e => e.id)]);
   const coords = new Map<string, Junction>(); const remap = new Map<string, string>();
   plan.junctions = plan.junctions.filter(j => {
     const key = `${j.floorId}:${pointKey([j.x, j.y])}`, old = coords.get(key);
