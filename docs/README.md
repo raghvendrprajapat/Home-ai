@@ -29,7 +29,7 @@ Examples: [`examples/sample-project.json`](examples/sample-project.json), valida
 
 ## Build process
 
-**[`build-process-guide.md`](build-process-guide.md)**: how to build the app step by step with Claude Code (main builder) and Codex (reviewer and independent tests). It covers setup, rule files, the task cycle, ready prompts for every task, phone testing, safety rules, when to hire experts, and the timeline.
+**[`build-process-guide.md`](build-process-guide.md)**: how to build the app step by step with **Codex as the main builder** and Claude Code only for high-risk checks (independent tests, reviews, rescues), to save Claude usage. It covers setup, rule files, the task cycle, ready prompts for every task, phone testing, safety rules, when to hire experts, and the timeline.
 
 ## Older documents (history)
 
