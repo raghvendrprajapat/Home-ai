@@ -5,6 +5,14 @@
 Columns: ID · Preconditions · Input · Expected · Auto/Manual · Pass threshold · Evidence.
 Tooling: Vitest + fast-check (unit/property), Playwright (E2E, screenshots), perf harness page (Doc 7 T-0.6), real devices via Chrome remote debugging.
 
+## 0. Test conventions (preconditions and evidence for every test)
+Unless a row says otherwise:
+- **Preconditions:** a clean app install (or fresh test DB) and the fixture `docs/examples/sample-project.json` loaded. Property tests use seeded random generators and must log the seed.
+- **Automated tests:** run in CI (Vitest/Playwright). **Evidence** = CI log + JUnit report kept as a build artifact. A failure keeps its seed or fixture file.
+- **Manual or device tests:** device model, RAM, Android version, WebView version, app build hash and date. **Evidence** = screen recording + the perf-harness JSON log (fps, p95 frame time, draw calls, heap) + a filled checklist, stored in `docs/benchmarks/`.
+- **Thresholds:** the "Pass" column. A test with no numeric threshold passes only on exact equality or a 100% pass rate.
+- **Reference devices:** Doc 4 §3.8 (Low = Samsung Galaxy A0x/Redmi A-series class, Mid = Samsung Galaxy A3x/A5x class, Desktop = 2020+ laptop with Chrome).
+
 ## 1. Data model (DM)
 | ID | Pre | Input | Expected | A/M | Pass | Evidence |
 |---|---|---|---|---|---|---|
@@ -46,7 +54,7 @@ Tooling: Vitest + fast-check (unit/property), Playwright (E2E, screenshots), per
 | SYNC-08 | Multi-floor (v1.1) | floor groups at correct elevation | A | exact |
 
 ## 4. Rendering (REN) & performance (PERF)
-Reference devices (Doc 2 §10): Low, Mid, Desktop. Record device model + Android + WebView version.
+Reference devices: Doc 4 §3.8 (named device classes) and §0 above. Record device model + Android + WebView version. Add one comparison run per PERF test in **Chrome on the same phone**, to separate WebView overhead from our code.
 
 | ID | Scenario | Measure | A/M | Pass |
 |---|---|---|---|---|

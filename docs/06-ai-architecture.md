@@ -12,7 +12,10 @@
 | Typical tech | Diffusion / image-generation models | Vision models + structured output + **deterministic geometry post-processing + human correction** |
 | Failure mode | Pretty but not buildable; users may believe it matches their real furniture | Wrong wall length silently breaks every later decision |
 
-Planner 5D's own evidence supports this split: Design Generator is image-based ("built on Stable Diffusion…") while its B2B floor plan recognition includes **a human designer review** before delivery (Doc 1 R-AI-01/02).
+Planner 5D's own products follow this split (Doc 1 §2.4, verified 2026-10-11):
+- **Visual:** AI Studio resells third-party image and video models (Nano Banana, GPT Image, Seedream, FLUX, Kling, Veo…) on a credit balance.
+- **Structural:** floor-plan recognition takes **10 min–24 h**, accepts only clean top-down plans (no sketches or perspective photos) and cannot be cancelled once started. Together with the round-1 B2B page mentioning designer review, this suggests a human in the loop (INFERRED).
+- **Structural AI they already ship:** Smart Wizard, AI Designer and **Copilot**, which turns text instructions into editable projects. NL editing is therefore not unique to us.
 
 **Rule for our product:** structural AI output is never applied directly. It becomes ordinary commands that pass the same validator/normalizer as user edits, and the user confirms on a review screen.
 
@@ -42,7 +45,7 @@ graph LR
 |---|---|---|
 | Preprocess | OpenCV (Apache-2.0): grayscale, adaptive threshold, deskew via Hough angle histogram, remove small components (text) | Phone photos of paper plans have perspective → ask user to crop 4 corners (perspective transform) |
 | Wall detection v1 | Classical: thick dark strokes → morphology open/close → distance transform → skeleton → Hough/LSD segments | Works on clean CAD prints; fails on hand sketches and textured scans. Cheap, runs server-side in Python |
-| Wall detection v2 | Segmentation model (e.g. trained on CubiCasa5K-style data) | **CubiCasa5K license for commercial use is UNKNOWN** (Doc 1 U-08) — legal check before training; needs GPU hosting or a managed endpoint |
+| Wall detection v2 | Segmentation model trained on **our own consented/licensed plans** | **CubiCasa5K is CC BY-NC 4.0 (non-commercial) — it cannot be used to train a model for this commercial app** (VERIFIED, LICENSE file). It may be used only for private, non-commercial experiments, if at all. Needs GPU hosting or a managed endpoint |
 | Doors/windows | v1: gaps in walls + arc symbols (template matching); v2: object detector | Arc symbols vary by country/drafter |
 | OCR/dimensions & labels | Vision LLM with structured JSON output: list of room labels with approximate pixel positions, dimension strings ("12'6\"", "3600") with bounding lines | LLMs can misread digits — always show to user |
 | Scale calibration | (a) user drags a ruler over a known wall and types its length (always available); (b) auto: match OCR'd dimension to detected wall pixel length, require ≥ 2 consistent dimensions (ratio spread ≤ 2%) | Without calibration, output is unusable — calibration step is mandatory |
@@ -84,19 +87,30 @@ for item in proposal sorted by size desc:
 | Wall segmentation | Few hosted options | PyTorch model on GPU serverless | Start classical CV; only train if correction time is too high |
 | Classical CV | — | OpenCV in a Python container (Cloud Run / Fly.io / Supabase isn't suited for heavy Python) | Yes |
 
-### 4.1 Cost per request (ESTIMATES — verify on official pricing pages before launch)
+#### 4.0 Self-hosted model licenses (VERIFIED from LICENSE files, 2026-10-11)
+| Model / library | Use | License | Usable in our closed-source paid app? |
+|---|---|---|---|
+| OpenCV | Preprocessing, lines, morphology | Apache-2.0 | Yes (keep NOTICE) |
+| Tesseract | OCR of dimension text | Apache-2.0 | Yes |
+| SAM 2 (Meta) | Interactive segmentation / annotation help | Apache-2.0 | Yes (code); check checkpoint terms at download |
+| RT-DETR | Door/window symbol detection | Apache-2.0 | Yes |
+| Ultralytics YOLO | Detection | **AGPL-3.0** | **Avoid** unless buying their commercial license (AGPL can force source disclosure of a networked service) |
+| CubiCasa5K dataset | Training data | **CC BY-NC 4.0** | **No** commercial use |
+
+Provider rate limits are per account and tier. They are shown in each provider's console and are **not** published as one number, so read them at integration time and set our own per-user limits below them.
+
+### 4.1 Cost per request (official prices read 2026-10-11; per-request totals are estimates)
 
 | Item | Price basis | Source / status |
 |---|---|---|
-| Claude Sonnet 5.5 | $2 / M input tokens, $10 / M output tokens | Anthropic model table cached 2026-10-06 (verify) |
-| Claude Haiku 5.5 | $0.10 / M input, $0.50 / M output (≤ 100K-token prompts) | same |
-| Claude Opus 5.5 | $4 / M input, $20 / M output | same |
-| Gemini 2.5 Flash Image | ~$0.039 / image | third-party snapshot of Google pricing, Feb 2026 — unverified |
-| Gemini 3 Pro Image | ~$0.134 / image (1K/2K), ~$0.24 (4K) | third-party, Oct 2026 — unverified |
-| Imagen 4 Fast/Std/Ultra | ~$0.02 / $0.04 / $0.06 per image | third-party — unverified |
-| OpenAI image API | not found in research | UNKNOWN |
+| Claude Sonnet 5.5 | $2 / M input tokens, $10 / M output tokens | VERIFIED Anthropic pricing page (V09) |
+| Claude Haiku 5.5 | $0.10 / M input, $0.50 / M output (prompts ≤ 100K tokens) | VERIFIED (V09) |
+| Claude Opus 5.5 | $4 / M input, $20 / M output | VERIFIED (V09) |
+| Gemini Nano Banana 2.1 (image) | **$0.0336 per 1K image**, $0.0504 per 2K, $0.113 per 4K (standard); half price on Batch | VERIFIED Gemini API pricing page (V07). Free tier: "Used to improve our products: Yes"; paid: No → **use paid tier for user photos** |
+| Gemini older Flash Image | $0.039 per 1024×1024 image | VERIFIED (V07) |
+| OpenAI gpt-image models | priced per 1M tokens (e.g. gpt-image-2 image output $15/M tokens) | VERIFIED page (V08); per-image cost depends on size/quality — **not converted**, use their calculator |
 
-Worked estimate, floor-plan OCR/labels with Sonnet 5.5: assume ~5k input tokens (image + instructions; real image token count depends on resolution — measure with the token counting endpoint) and ~3k output tokens → 5,000×$2/1M + 3,000×$10/1M ≈ **$0.04 per plan** (+ CV compute, small). Restyle: 4 images × ~$0.04 ≈ **$0.16 per request** at the cheaper image tier. These are planning numbers only.
+Worked estimate, floor-plan OCR/labels with Sonnet 5.5: assume ~5k input tokens (image + instructions; real image token count depends on resolution — measure with the token counting endpoint) and ~3k output tokens → 5,000×$2/1M + 3,000×$10/1M ≈ **$0.04 per plan** (+ CV compute, small). Restyle: 4 images × $0.0336 ≈ **$0.13 per request** (Nano Banana 2.1, 1K, standard; ≈ $0.07 on Batch if 24 h delay is acceptable). These are planning numbers only.
 
 **Important for Raghvendr:** ChatGPT Plus and Gemini Pro *consumer* subscriptions do not give you API access for an app; API usage is billed separately on each provider's developer platform. Use the subscriptions for research/prototyping prompts, not as the app's backend.
 

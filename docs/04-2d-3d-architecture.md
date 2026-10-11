@@ -174,6 +174,33 @@ Spatial hash grid (cell 1 000 mm) of walls, junctions, openings, furniture footp
 
 During drags we apply **preview transactions** (not pushed to undo stack) and commit one command on release. Preview runs normalization only for affected walls; full validation on commit.
 
+#### 2.11.1 Keyboard shortcuts (desktop web)
+| Key | Action |
+|---|---|
+| W / R / D / O / F | Wall tool / Room-rectangle / Door / Opening (window) / Furniture catalog |
+| V or Esc | Select tool / cancel current drawing |
+| Enter | Confirm typed length or value |
+| Del / Backspace | Delete selection |
+| Ctrl/Cmd+Z, Ctrl/Cmd+Shift+Z (or Ctrl+Y) | Undo / redo |
+| Ctrl/Cmd+C, V, D | Copy / paste / duplicate |
+| Ctrl/Cmd+A | Select all furniture on current floor |
+| Arrow keys (Shift = ×10) | Nudge selection 10 mm (100 mm) |
+| Q / E | Rotate selected furniture −15° / +15° |
+| Shift (hold) | Disable snapping while dragging |
+| Space + drag, mouse wheel | Pan / zoom |
+| 2 / 3 / Tab | 2D view / 3D view / toggle |
+| G (in 3D) | Toggle walk mode; WASD move, mouse look, +/− eye height |
+Touch equivalents are buttons in the toolbar/context menu (every action reachable without a keyboard, NFR-009).
+
+#### 2.11.2 Constraint handling
+Hard constraints (command rejected if violated): invariants I1–I7 (§2.3); thickness 50–600 mm; height 1 000–6 000 mm; opening fits host wall; furniture size > 0.
+Soft constraints (allowed, warned): furniture overlap (FR-017); furniture outside any room; door swing hitting furniture.
+Edit-propagation rules when one value changes:
+- **Wall length edit:** the user picks which end moves (a, b, or both symmetric). The moving junction keeps its other walls attached, so their lengths and angles change. If any other wall would fall below 10 mm or cross another wall, the command is rejected and the conflicting wall is shown.
+- **Room W×D edit (rectangle rooms):** the room's two right-side or two bottom-side junctions move. Neighbouring rooms that share those walls resize too, and a preview shows this before commit.
+- **Angle lock:** walls drawn at 0°/90° keep their angle when a connected junction moves, unless the user drags with Shift. This is implemented by moving the neighbour junction along the wall's axis, not by a general solver.
+- No general constraint solver in v1 (dimensions "driving" geometry like CAD). This is a deliberate scope limit (Doc 9 §6).
+
 ### 2.12 What needs custom code vs libraries
 
 | Piece | Custom | Library |
@@ -197,7 +224,7 @@ Drawing a wall exactly over another; T-junction onto wall with a door at that po
 | License | MIT | Apache-2.0 | MIT | Proprietary (runtime fee terms changed over time — verify) | MIT |
 | Web/WebView fit | Excellent, small | Excellent, larger bundle | Wraps Three.js | Web export heavy (WASM, large download) | Web export exists, large; mobile web weaker |
 | Shares code with 2D web editor | Yes (same TS app) | Yes | Yes | No (C#, separate app) | No (GDScript/C#) |
-| Proven in this product category | Yes — Planner 5D job ad cites Three.js (Doc 1 §1.7); blueprint3d | Yes (many configurators) | Same as Three.js | Yes (native apps) | Less |
+| Proven in this product category | Yes — blueprint3d (MIT) and many web planners; note Planner 5D's own Android app appears native (Doc 1 §1.2) | Yes (many configurators) | Same as Three.js | Yes (native apps) | Less |
 | Claude Code suitability | Very high (huge corpus, stable API) | High | High, but declarative layer adds lifecycle subtleties for imperative incremental updates | Medium (editor-centric, scenes are binary/YAML, hard to test headless) | Medium |
 | Mobile perf | Good if budgets respected | Good | Same as Three.js + React reconcile overhead | Best native perf | Good native |
 | **Verdict** | **Chosen** (ADR-006) | Strong alternative | Use for UI-only overlays at most | Reject for v1 | Reject for v1 |
@@ -278,7 +305,16 @@ source (GLB/FBX/OBJ from licensed source)
 Every asset must have a license record; build fails without it (AST-01).
 
 ### 3.8 Realistic performance targets & assumptions
-See PRD-NFR-001..006. Assumptions: sample project size as defined; Chrome-based Android System WebView current version; no other heavy apps open. **Unvalidated** until Phase 0 benchmark; if Low device fails, fallback is reduced pixel ratio, no normal maps, merged walls, and finally "2D-first mode" with on-demand 3D snapshots.
+See PRD-NFR-001..006. Assumptions: sample project size as defined; Chrome-based Android System WebView current version; no other heavy apps open.
+
+**Named reference devices (PROPOSED, chosen from India market data in Doc 1 / source log; buy or borrow and record the exact model, RAM, GPU, Android and WebView version before testing):**
+| Tier | Device class to use | Why |
+|---|---|---|
+| Low | Samsung Galaxy A0x series or Redmi A-series (≈ ₹7–10k, 3–4 GB RAM) | Budget phones are a large share of Indian users; the segment is shrinking but large (IDC/press, 2026) |
+| Mid | Samsung Galaxy A3x/A5x series (≈ ₹20–30k, 6–8 GB RAM) | Samsung A-series named as Samsung's growth driver in India (press, 2026) |
+| Desktop | Any 2020+ laptop with integrated GPU, Chrome stable | Web version |
+
+**Competitor context:** Planner 5D's Android app appears to use a native graphics stack (Kotlin + OpenGL/Vulkan/Filament per job ad, Doc 1 §1.2). Our WebView approach therefore carries a real risk of a performance gap. Phase 0 must compare our Capacitor build against **Chrome on the same phone** and against Planner 5D's app (subjective smoothness, recorded on video) on the same Low and Mid devices. **Unvalidated** until Phase 0 benchmark; if Low device fails, fallback is reduced pixel ratio, no normal maps, merged walls, and finally "2D-first mode" with on-demand 3D snapshots.
 
 ## 4. Single source of truth & synchronization
 
@@ -371,29 +407,41 @@ Each entity has `rev` (incremented in the command). A **consistency check** in d
 - Writes are atomic: write to temp key/file then rename/swap pointer.
 
 ## 6. Electrical layer (differentiator, v1.1)
-Entities `ElectricalPoint {id, roomId?, wallId?, kind: switchboard|socket|light|fan|ac|db, position, height, circuitId?}`. Wall-hosted points use (wallId, offset, height) like openings, so they move with walls. Export: per-room counts → simple bill of quantities (link to shop catalogue later). **No load calculations or code compliance claims in v1** (liability).
+Competitive context (Doc 1 §2.6):
+- Planner 5D lets users place sockets and switches as objects, with no wiring.
+- Homestyler auto-generates circuits.
+
+So our value is the **Indian workflow plus a priced bill of quantities**, not "points on a plan".
+
+Entities: `ElectricalPoint {id, kind: switchboard|socket6A|socket16A|light|fan|ac|geyser|inverter|db|tv|data, mount: 'wall'|'ceiling', wallId?, offset?, roomId?, position?, height, modules? (switchboard size), label?}`.
+- Wall points use (wallId, offset, height) like openings, so they move with walls.
+- Ceiling points (fans, lights) use roomId plus a position inside the room polygon; they are re-validated when the room changes. This fixes audit gap A-06.
+
+Output: per-room counts, then a bill of quantities. The BOQ maps each point kind to shop SKUs (e.g. modular plate size, socket type, MCB rating for a DB) and prices them from a CSV price list that the shop owner can edit.
+
+**No load calculation, wire sizing, auto-routing or code-compliance claims in v1** (liability). The output says "for estimation; final design by a licensed electrician".
 
 ## 7. User flows (Part J)
 
-For each flow: entry → screens → actions → system response → loading/error → recovery → success.
+Each row gives: **Entry** · **Screens** · **Actions → system response** · **Loading** · **Error → recovery** · **Success**.
 
-| # | Flow | Key details |
-|---|---|---|
-| F1 | First-time onboarding | Splash → 3 swipe cards (draw, furnish, 3D) → "Try: draw your first room" interactive coach marks → done. Skip always visible. Success: room created (PRD-FR-038). |
-| F2 | Create blank project | Project list → "+" → name & units sheet → editor (2D). Error: storage full → message + "free space" help. |
-| F3 | Create a room | Room tool → drag rectangle or enter W×D → room created with 4 walls, label & area. |
-| F4 | Draw custom walls | Wall tool → taps with loupe → length bubble updates live → type exact length → close loop → room auto-detected (toast "Room added: 12.4 m²"). Error: invalid geometry → wall turns red, tooltip reason. |
-| F5 | Precise dimensions | Select wall → bottom sheet: length, thickness, height; "Which end moves?" toggle (a / b / both). |
-| F6 | Doors/windows | Catalog tab "Doors & Windows" → drag onto wall (highlights valid wall) → offset handles + numeric distance to nearest corner. Invalid → snaps back with message. |
-| F7 | Add furniture | Catalog → search/categories → tap to place at view centre or drag → auto back-to-wall snap when near wall. Loading: thumbnail placeholder box until GLB loads. Error: download failed → retry icon; box stays. |
-| F8 | Edit furniture dimensions | Select → sheet W/D/H (lock proportions toggle). |
-| F9 | 2D → 3D | Phone: toggle button top-right; tablet/desktop: split view. Loading: walls appear instantly, furniture streams in. |
-| F10 | Navigate 3D | Orbit by default; "Walk" button → joystick; exit returns to orbit. |
-| F11 | Change materials | Select wall side/floor in 2D or 3D → material grid → applied instantly. |
-| F12 | AI redesign (v2) | 3D view → "AI Style" → choose style → credit cost shown → consent (first time) → progress (≤ 60 s) → result gallery labelled "AI image, not your exact furniture" → save to gallery. Errors: timeout/refusal → no credit charged. |
-| F13 | Save & reopen | Autosave indicator (cloud icon states: saved/saving/offline). Reopen from list; if recovery data exists → dialog "Restore unsaved changes?". |
-| F14 | Duplicate project | List → ⋮ → Duplicate → "Copy of X" with new IDs. |
-| F15 | Export | ⋮ → Export → PNG (free, watermark) / PDF (premium) → Android share sheet. |
-| F16 | Upgrade | Paywall from premium item/feature → plan comparison → Play Billing sheet → success → entitlement refresh. Error: pending purchase → "Processing" state; cancelled → back to editor unchanged. |
+| # | Flow | Entry | Screens | Actions → system response | Loading | Error → recovery | Success |
+|---|---|---|---|---|---|---|---|
+| F1 | First-time onboarding (FR-038) | First app launch | Splash → 3 cards → editor with coach marks | Swipe/skip → coach mark "tap 4 corners" → room appears with area | Splash ≤ 2 s; catalog thumbnails lazy-load | WebGL unavailable → "3D not supported on this phone, 2D works" banner; skip always available | First room created (analytics `room_closed`) |
+| F2 | Create blank project (FR-001) | Project list "+" | Name & units sheet → editor | Enter name, pick metric/imperial → empty 2D canvas with grid | Instant | Storage write fails → "Phone storage full" + export/clear-space help; project stays in memory | Project listed after restart |
+| F3 | Create a room (FR-005) | Room tool | 2D editor + W×D sheet | Drag rectangle or type 3600 × 3000 → 4 walls + room label + area | — | W or D < 300 mm → field error, nothing created | Room with correct area (GEO-03) |
+| F4 | Draw custom walls (FR-002/003/004) | Wall tool | 2D editor with loupe | Tap points; length bubble live; type exact length; tap first point → loop closes → toast "Room added: 12.4 m²" | — | Invalid geometry → wall red + reason; command rejected, model unchanged; undo available | Closed room detected |
+| F5 | Precise dimensions (FR-004/007) | Select wall | Bottom sheet | Edit length/thickness/height; choose which end moves (a/b/both) → connected walls follow | — | Door no longer fits → error "Door D1 doesn't fit", value reverts | Stored value = typed value (GEO-06) |
+| F6 | Doors/windows (FR-008/009) | Catalog "Doors & Windows" | Catalog → editor | Drag onto wall (valid walls highlight) → offset handles + distance to corner | GLB placeholder frame until loaded | Dropped off-wall or overlapping → snaps back with message | Hole visible in 3D (SYNC-03) |
+| F7 | Add furniture (FR-014/015/043) | Catalog | Catalog sheet → editor | Search/category → tap places at view centre or drag → back-to-wall snap near walls | Box with dimensions until GLB loads | Download fails → retry icon on box; box keeps size so layout work continues | Item in 2D and 3D at same transform |
+| F8 | Edit furniture dimensions (FR-016) | Select item | Property sheet | Edit W/D/H, lock-proportions toggle → model rescales | — | Value ≤ 0 or > 10 m → field error | Bounding box = entered size |
+| F9 | 2D → 3D (FR-019) | Toggle (phone) / split view (tablet) | 3D view | Scene builds from model; selection carried over | Walls/floors immediate; furniture streams in; progress chip | Context lost → "Restoring 3D…" auto-rebuild; if it fails twice → 2D-only mode message | 3D hash = model hash |
+| F10 | Navigate 3D (FR-020/021) | 3D view | Orbit; "Walk" button | Drag rotate, pinch zoom, two-finger pan; Walk = joystick + look | — | Camera stuck/lost → "Reset view" button | Can't pass through walls in walk mode |
+| F11 | Change materials (FR-018) | Select wall side/floor (2D or 3D) | Material grid sheet | Tap swatch → applied | Texture placeholder colour until KTX2 loads | Texture fails → base colour kept, retry | Change persisted after reload |
+| F12 | AI redesign (FR-032, v2) | 3D view → "AI Style" | Style picker → consent (first time) → progress → gallery | Choose style → cost in credits shown → job starts | Progress with cancel, ≤ 60 s target | Timeout/refusal/offline → message, **no credits charged**, retry | Image saved, labelled "AI image, not your exact furniture" |
+| F13 | Save & reopen (FR-022/023) | Automatic; project list | Editor status icon; recovery dialog | Every edit autosaved locally; cloud icon: saved/saving/offline/conflict | Opening large project: progress bar | Journal newer than snapshot → "Restore unsaved changes?"; cloud conflict → "Conflicted copy created" | Reopened project identical (SYNC-07) |
+| F14 | Duplicate project (FR-024) | List ⋮ | — | Duplicate → "Copy of X" with new IDs | — | Storage full → message, original untouched | Both projects open independently (REL-03) |
+| F15 | Export (FR-025) | ⋮ → Export | Format sheet → Android share sheet | PNG (free, watermark) / PDF (Premium or watermarked free, see PRD §15) | Rendering progress | Out of memory → lower resolution offered | File shared to WhatsApp etc. |
+| F16 | Upgrade (FR-029) | Premium item/feature tap | Paywall → Play Billing sheet | Plan comparison with renewal terms → purchase → entitlement refresh | "Processing purchase…" for pending | Cancelled → back unchanged; pending → keeps checking, restore button | Premium unlocked ≤ 10 s (MON-01) |
 
 Responsive layouts: **Phone portrait** — full-screen canvas, bottom toolbar, bottom-sheet properties, 2D/3D toggle. **Tablet/landscape** — left tool rail, right properties panel, optional split 2D|3D. **Desktop web** — same as tablet plus keyboard shortcuts and hover states.

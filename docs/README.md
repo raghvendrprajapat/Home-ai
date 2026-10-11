@@ -1,6 +1,6 @@
 # Home-ai — Planner 5D-inspired Home Planner: Research & Engineering Blueprint
 
-Prepared 2026-10-10. These are planning documents only. **No app code exists yet.**
+Prepared 2026-10-10; **research completed with live internet access on 2026-10-11 (round 2)**. These are planning documents only. **No app code exists yet.**
 
 ## Documents
 
@@ -17,14 +17,30 @@ Prepared 2026-10-10. These are planning documents only. **No app code exists yet
 | 9 | [Cost, risk, feasibility](09-cost-risk-feasibility.md) | Costs at 100–100k users, risks, legal/IP, **final recommendation** |
 | 10 | [Decision register](10-decision-register.md) | Why each technology was chosen |
 | 11 | [Audit & traceability](11-audit-traceability.md) | Self-audit, gaps found, Evidence→Requirement→Design→Task→Test matrix |
+| 12 | [Prompt coverage check](12-prompt-coverage-check.md) | Was every demand of the master prompt delivered? Complete / Partial / Blocked per item |
+| — | [Source log](research/source-log.md) | Every page opened in round 2, with date and what it supported |
 
 Examples: [`examples/sample-project.json`](examples/sample-project.json) (validated against [`examples/project.schema.json`](examples/project.schema.json)).
 
-## Plain-language summary (for Raghvendr)
+## Plain-language summary (for Raghvendr, updated after round 2)
 
-- **Planner 5D** is a mature product: a web and mobile editor (its job ads mention Three.js/WebGL), a 10,000+ item catalog, 4K renders, and AI features. Even its AI floor-plan reader uses **a human designer to check the result**. Copying all of it is not realistic for one person.
-- **What you can realistically build:** a fast, accurate floor planner with live 3D for Android (and web), in Hindi and English, with **electrical point planning** (switch boards, fans, lights). None of the competitors researched here advertised electrical planning. That link to your electrical shop is the strongest idea in this plan, but it is unproven. Check it with your customers first.
-- **Technology:** one TypeScript web app (React + Three.js), packaged for the Play Store with Capacitor. Supabase is the backend from v1.0. AI comes later and only through a server.
-- **First step:** a small proof of concept (Phase 0) that shows that drawing walls, finding rooms and showing 3D works correctly and smoothly on two real Android phones.
-- **Honest effort:** roughly 9–19 months part-time with Claude Code, plus some paid expert review. Expected cash cost before launch is about $500–5,000, mostly 3D furniture models and expert help. These are estimates, not guarantees.
-- **Not yet verified:** live Planner 5D pages and Play Store data could not be opened from the research environment, and several prices come from third-party sites. Doc 1 §4 and Doc 9 §7 list what you should check yourself.
+- **Planner 5D is big and mature:**
+  - 5 crore+ Android downloads and ★4.3 in India (#5 top-grossing in House & Home).
+  - Native Android graphics (from their job ads).
+  - 8,000–10,000 furniture items.
+  - AI: plan recognition (takes 10 min–24 h), image AI Studio, and a "Copilot" that builds a project from a text description.
+- **Its documented weak spots:**
+  - Sync overwrites ("most recent version replaces older", no history except on Android).
+  - Shared walls are awkward to edit.
+  - Some features only work on web.
+  - Free users complain about the paywall.
+  - No Hindi.
+- **Correction from round 1:** electrical planning alone is **not unique**. Planner 5D lets you place sockets and switches, and Homestyler auto-draws circuits. What we did not find is an India-first, Hindi app that turns a house plan into a **priced electrical bill of materials from your shop**. Check this with 5–10 of your electrician customers before building it.
+- **Verified money facts:**
+  - Google Play keeps **15%** of subscriptions in India (11% with alternative billing).
+  - You need **12 testers for 14 days** before launch.
+  - Supabase costs $25/month once live (its free plan pauses after a week of no use).
+  - An AI room picture costs about **$0.034 per image** (Gemini).
+- **Technology:** unchanged (web app + Three.js + Capacitor for Android), but the risk that 3D is slow on cheap phones inside a WebView is now rated higher. Phase 0 must test this first, and Document 10 ADR-007 has a backup plan.
+- **Honest effort:** 9–19 months part-time with Claude Code plus some paid expert review. About $500–10,000 cash before launch, depending mostly on how much paid help and bought 3D models you use. Estimates, not guarantees.
+- **What only you can do:** try Planner 5D/Homestyler on your phone, screenshot their INR prices, and talk to customers (Doc 12, last section).

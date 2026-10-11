@@ -15,7 +15,7 @@ A fast, honest, mobile-first home planner that lets an Indian homeowner or small
 | P3 Student / hobbyist | Likes design | Play with layouts, styles |
 | P4 Shop owner (Raghvendr) | Sells switches, wires, fans, lights | Turn plans into bills of material / leads (later) |
 
-Market size: **not estimated here** — no verified data was collected for India home-design app demand. Recommended deep research: Play Store category rankings + keyword volume (use Perplexity Pro, Doc 9 §7).
+Market size: **not estimated in numbers.** Demand evidence from Google Play India (2026-10-11, Doc 1 §3.1): Planner 5D has 5 Cr+ installs and ranks #5 top-grossing in House & Home. Five other home-design apps have 1 Cr+ installs each. Install counts show interest; they are not a market-size or revenue estimate. Still needed: keyword volume and willingness-to-pay interviews (Doc 9 §7).
 
 ## 3. Jobs-to-be-done
 - JTBD-1: "When I am planning a room, I want to check if my furniture fits so I don't buy the wrong size."
@@ -23,7 +23,7 @@ Market size: **not estimated here** — no verified data was collected for India
 - JTBD-3: "When wiring a new house, I want to mark switch/fan/light points on the plan so the electrician follows it."
 - JTBD-4: "When I have a builder's plan image, I want it converted so I don't redraw it." (later, AI)
 
-## 4. User problems (from research, Doc 1 §1.8)
+## 4. User problems (from research, Doc 1 §1.2 and §3.1: sync overwrites, shared-wall problems, paywall complaints, no Hindi)
 Billing confusion, slow apps, lost work, steep learning curve, imperial-first tools.
 
 ## 5. Value proposition
@@ -78,7 +78,7 @@ User story pattern: "As P1, I want …, so that …" is given where not obvious.
 | PRD-FR-031 | AI floor-plan import: upload image → AI draft walls/openings → user correction screen → accept | C | v2 | Doc 6 | Output always valid geometry; user can fix every element | AI-01..05 |
 | PRD-FR-032 | AI restyle image from 3D screenshot or room photo (visual only, clearly labelled) | C | v2 | Doc 6, credits | Image returned or clear error in ≤ 60 s; credits deducted only on success | AI-06, AI-08 |
 | PRD-FR-033 | AI furnish suggestion: proposes furniture placement as editable objects | C | v2 | Doc 6 | All placed objects inside room, no overlaps, door swing clear | AI-07 |
-| PRD-FR-034 | Electrical layer: place switch boards, sockets, light/fan points; per-room count list; export list | S | v1.1 | Data model | Point counts in export equal points in model | GEO-13, UX-09 |
+| PRD-FR-034 | Electrical layer (Indian conventions): place modular switch boards (module count), sockets (6A/16A), light, fan, AC, geyser, inverter and DB points on walls/ceilings; per-room counts; **bill of quantities priced from the shop's own price list**; Hindi labels. *Placing symbols alone is not unique — Planner 5D allows sockets/switches as objects, and Homestyler auto-lays-out circuits (Doc 1 §2.6). The BOQ and India-specific workflow are the differentiator.* | S | v1.1 | Data model | Point counts in export equal points in model | GEO-13, UX-09 |
 | PRD-FR-035 | Share read-only web link | C | v1.1 | FR-023 | Link viewer cannot edit; owner can revoke | SEC-03 |
 | PRD-FR-036 | Multi-select, copy/paste, duplicate furniture | S | v1.0 | FR-015 | Duplicates get new IDs, offset 200 mm | SYNC-06 |
 | PRD-FR-037 | Room properties: name, type, ceiling height, floor material | M | MVP | FR-006 | Room props survive wall edits that keep the room (room identity rules Doc 4 §2.7) | GEO-14 |
@@ -91,7 +91,7 @@ User story pattern: "As P1, I want …, so that …" is given where not obvious.
 
 ## 10. Non-functional requirements (measurable)
 
-Reference devices (assumption, to be bought/borrowed — Doc 8 §6): **Low** = Android with 3 GB RAM, Mali-G52 class GPU; **Mid** = 6 GB RAM, Adreno 6xx/Mali-G57 class; **Desktop** = any laptop with integrated GPU from 2020+ in Chrome.
+Reference devices (named device classes in Doc 4 §3.8; record exact models): **Low** = Android with 3 GB RAM, Mali-G52 class GPU; **Mid** = 6 GB RAM, Adreno 6xx/Mali-G57 class; **Desktop** = any laptop with integrated GPU from 2020+ in Chrome.
 
 | ID | Requirement | Threshold | Verify |
 |---|---|---|---|
@@ -145,11 +145,12 @@ graph LR
 Local-first: IndexedDB (web) / Capacitor filesystem-backed storage on Android; journal of commands since last snapshot; recovery dialog on launch if journal is newer than snapshot.
 
 ## 15. Monetization requirements
-- Free: unlimited projects, basic catalog, PNG export with small watermark, banner ads on non-editor screens.
+- Free: unlimited projects, basic catalog, PNG export with small watermark, banner ads on non-editor screens, **rewarded ad to unlock one premium item for 72 h** (Planner 5D used this model in 2020 per a Play review; Doc 1 §3.1). Note: Planner 5D gives a PDF report to all plans (Doc 1 R-PM-05), so a free watermarked PDF plan export should be considered.
 - Premium (monthly/yearly via Play Billing): full catalog, no ads, PDF export without watermark, multi-floor, electrical layer export.
 - Credits (v2): AI features consume credits; Premium includes a monthly allowance; extra credit packs as in-app products.
 - Price points: **to be decided after research**; do not copy Planner 5D USD prices — Indian price sensitivity is different.
-- Google Play fee: recurring subscriptions now 10% service fee + 5% billing fee when using Play Billing in US/UK/EEA from 30 Jun 2026; other regions roll out until 2027 (secondary sources, verify in Play Console help) — model 15% for India until confirmed.
+- Google Play fee (VERIFIED, Play Console Help, 2026-10-11): **India is still on the old structure: 15% for auto-renewing subscriptions.** Alternative billing in India costs the Play fee minus 4%, i.e. 11%. The new 10%/20% structure applies only to EEA/UK/US (from 30 Jun 2026) and AU/JP (from 30 Sep 2026) for now.
+- Competitor reference prices (USD, official pages): Planner 5D Premium $19.99/mo or $59.99/yr; Homestyler Pro+ $6.8/mo; RoomSketcher Pro $24/mo or $144/yr. Indian prices: UNKNOWN (Doc 1 U-06).
 
 ## 16. Analytics & success metrics
 Activation: % new users who create ≥ 1 room in session 1 (target ≥ 60%). Engagement: D7 retention (target set after first cohort; no invented benchmark). Monetization: free→paid conversion, ARPDAU from ads. Quality: crash-free ≥ 99.5%, ANR rate below Play "bad behavior" threshold.
@@ -169,4 +170,53 @@ Real-time collaboration, path-traced photoreal rendering, DWG export, user-uploa
 2. PRD-NFR-001..007, 015 pass on the Low and Mid reference devices (recorded evidence).
 3. Billing tested with Play license testers: purchase, restore, cancel, grace period.
 4. Data safety form, privacy policy, account deletion URL complete.
-5. No P0/P1 open bugs; closed-testing track ≥ 14 days with ≥ the number of testers Play currently requires for new personal developer accounts (verify the current rule in Play Console; it has been 12 testers for 14 days for new personal accounts).
+5. No P0/P1 open bugs; closed test with **≥ 12 testers opted in continuously for 14 days** (VERIFIED rule for personal accounts created after 13 Nov 2023; Play Console Help).
+
+## Appendix A — User story for every functional requirement
+Personas: P1 homeowner, P2 contractor/electrician, P3 hobbyist, P4 shop owner (§2).
+
+| ID | User story |
+|---|---|
+| PRD-FR-001 | As P1, I want to start a named project in metres so that my plan matches my real house. |
+| PRD-FR-002 | As P1, I want to tap corner points to draw walls so that I can trace my real layout. |
+| PRD-FR-003 | As P1, I want walls to snap to corners and lines so that they join without gaps. |
+| PRD-FR-004 | As P2, I want to type exact wall lengths so that the plan is as accurate as my tape measure. |
+| PRD-FR-005 | As P1, I want to create a room by entering width × depth so that simple rooms take seconds. |
+| PRD-FR-006 | As P1, I want rooms and their areas to appear automatically so that I know carpet area without maths. |
+| PRD-FR-007 | As P2, I want to set wall thickness and height so that 230 mm brick and 115 mm partitions look right. |
+| PRD-FR-008 | As P1, I want to drop doors and windows on walls so that the plan shows openings. |
+| PRD-FR-009 | As P1, I want the app to stop me placing a door that doesn't fit so that I don't get impossible plans. |
+| PRD-FR-010 | As P1, I want to drag a corner and have connected walls follow so that editing stays tidy. |
+| PRD-FR-011 | As P1, I want undo/redo so that I can experiment without fear. |
+| PRD-FR-012 | As P3, I want feet-inches or metres so that I can use the unit I know. |
+| PRD-FR-013 | As P1, I want to pinch-zoom and pan so that I can work on a small phone screen. |
+| PRD-FR-014 | As P1, I want to browse and search furniture so that I find a bed or sofa quickly. |
+| PRD-FR-015 | As P1, I want to move and rotate furniture so that I can try arrangements. |
+| PRD-FR-016 | As P1, I want to set furniture size so that it matches the item I plan to buy. |
+| PRD-FR-017 | As P1, I want overlaps highlighted so that I notice when things don't fit. |
+| PRD-FR-018 | As P1, I want to change wall colours and floor tiles so that I can choose finishes with family. |
+| PRD-FR-019 | As P1, I want the 3D view to match my 2D edits so that I can trust what I see. |
+| PRD-FR-020 | As P1, I want to rotate and zoom the 3D view so that I understand the space. |
+| PRD-FR-021 | As P1, I want to walk through the house at eye height so that it feels real. |
+| PRD-FR-022 | As P1, I want my work saved automatically so that a crash never loses it. |
+| PRD-FR-023 | As P2, I want my projects on phone and web so that I can show clients anywhere. |
+| PRD-FR-024 | As P2, I want to duplicate and rename projects so that I can make versions for clients. |
+| PRD-FR-025 | As P2, I want to export a dimensioned plan image/PDF so that I can share it on WhatsApp. |
+| PRD-FR-026 | As P1, I want several floors so that I can plan a G+1 house. |
+| PRD-FR-027 | As P1, I want stairs between floors so that the 3D model is complete. |
+| PRD-FR-028 | As P1, I want 1BHK/2BHK templates so that I start from something close to my home. |
+| PRD-FR-029 | As P1, I want to subscribe in Google Play so that paying and cancelling are simple and trusted. |
+| PRD-FR-030 | As P1 (free user), I want ads only outside the editor and an ad-to-unlock option so that I can use the app without paying. |
+| PRD-FR-031 | As P2, I want to convert a builder's plan image so that I don't redraw it. |
+| PRD-FR-032 | As P1, I want a styled AI picture of my room so that I get decoration ideas. |
+| PRD-FR-033 | As P1, I want furniture suggestions placed for me so that I get a starting layout. |
+| PRD-FR-034 | As P2, I want to mark switch boards, fan, light and socket points with a priced list so that I can quote a wiring job. As P4, I want that list priced from my shop so that it brings sales. |
+| PRD-FR-035 | As P2, I want a view-only link so that a client can see the plan without installing the app. |
+| PRD-FR-036 | As P1, I want to copy furniture so that I can repeat chairs quickly. |
+| PRD-FR-037 | As P1, I want to name rooms (incl. pooja room, balcony) and set ceiling height so that the plan is clear. |
+| PRD-FR-038 | As a new user, I want a short guided first room so that I learn in a minute. |
+| PRD-FR-039 | As any user, I want to delete my account and data so that I control my privacy. |
+| PRD-FR-040 | (Won't v1) As P2, I want to edit live with a client. |
+| PRD-FR-041 | (Won't v1) As P1, I want photoreal renders. |
+| PRD-FR-042 | (Won't v1) As P2, I want DWG/DXF for AutoCAD. |
+| PRD-FR-043 | As P1, I want furniture to snap to walls so that it sits flush. |

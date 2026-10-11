@@ -14,7 +14,7 @@
 
 ## 2. Canonical project document (TypeScript)
 
-The JSON Schema is `docs/examples/project.schema.json`; the full example is `docs/examples/sample-project.json` (2 rooms, 7 walls incl. an interior partition that forms two T-junctions at j2 and j5 with different wall thicknesses (230/115 mm), 2 doors, 2 windows, 4 furniture items, 3 electrical points). Both are validated in Doc 8 test DM-01.
+The JSON Schema is `docs/examples/project.schema.json`; the full example is `docs/examples/sample-project.json` (2 rooms, 7 walls incl. an interior partition that forms two T-junctions at j2 and j5 with different wall thicknesses (230/115 mm), 2 doors, 2 windows, 4 furniture items, 4 electrical points (3 wall-mounted incl. modular switch boards, 1 ceiling fan), 2 ceiling lights). Both are validated in Doc 8 test DM-01.
 
 ```ts
 export interface ProjectDoc {
@@ -23,7 +23,7 @@ export interface ProjectDoc {
   createdAt: string; updatedAt: string; revision: number;   // revision increments on every cloud save
   floors: Floor[]; junctions: Junction[]; walls: Wall[]; openings: Opening[];
   rooms: Room[]; furniture: FurnitureItem[]; materials: MaterialDef[];
-  electrical: ElectricalPoint[]; cameras: CameraPreset[];
+  electrical: ElectricalPoint[]; lights: Light[]; cameras: CameraPreset[];
 }
 export interface Floor { id: Id; name: string; level: number; elevation: Mm; defaultWallHeight: Mm }
 export interface Junction { id: Id; floorId: Id; x: Mm; y: Mm }
@@ -32,9 +32,29 @@ export interface Opening { id: Id; wallId: Id; kind: 'door'|'window'|'opening'; 
 export interface Room { id: Id; floorId: Id; boundary: Id[]; name: string; type: RoomType; ceilingHeight: Mm; floorMaterial: Id; rev: number }
 export interface FurnitureItem { id: Id; floorId: Id; assetId: Id; position: {x: Mm; y: Mm}; elevation: Mm; rotationDeg: number; size: {w: Mm; d: Mm; h: Mm}; materialOverrides: Record<string, Id>; groupId?: Id; rev: number }
 export interface MaterialDef { id: Id; name: string; baseColor: `#${string}`; textureAssetId?: Id; uvScaleMm?: Mm; roughness: number; metalness: number }
-export interface ElectricalPoint { id: Id; kind: 'switchboard'|'socket'|'light'|'fan'|'ac'|'db'; wallId: Id; offset: Mm; height: Mm; label?: string; rev: number }
+export type ElectricalKind = 'switchboard'|'socket6A'|'socket16A'|'light'|'fan'|'ac'|'geyser'|'inverter'|'db'|'tv'|'data';
+export type ElectricalPoint =
+  | { id: Id; kind: ElectricalKind; mount: 'wall'; wallId: Id; offset: Mm; height: Mm; modules?: number; label?: string; rev: number }
+  | { id: Id; kind: ElectricalKind; mount: 'ceiling'; roomId: Id; position: {x: Mm; y: Mm}; height: Mm; label?: string; rev: number };
+export interface Light {            // lighting entity (renders as emissive fixture; real light only on High tier)
+  id: Id; floorId: Id; kind: 'point'|'spot'|'strip'|'ambient'; position: {x: Mm; y: Mm}; height: Mm;
+  lumens: number; colorTempK: number; castsShadow: boolean; fixtureAssetId?: Id; rev: number }
 export interface CameraPreset { id: Id; name: string; mode: 'orbit'|'walk'; position: [Mm, Mm, Mm]; target: [Mm, Mm, Mm] } // model frame, z up
 type Mm = number; // integer millimetres
+
+// Catalog-side entities (not inside the project document)
+export interface TextureAsset { id: Id; url: string; sha256: string; widthPx: number; heightPx: number;
+  colorSpace: 'srgb'|'linear'; tileSizeMm: Mm; license: LicenseRecord }
+export interface CatalogAsset { id: Id; category: string; nameEn: string; nameHi?: string; dims: {w: Mm; d: Mm; h: Mm};
+  lods: {lod: 0|1; url: string; bytes: number; sha256: string; tris: number}[]; thumbUrl: string;
+  tier: 'free'|'premium'; materialSlots: string[]; license: LicenseRecord; version: number }
+export interface LicenseRecord { source: string; url: string; type: 'CC0'|'CC-BY'|'MIT-asset'|'purchased'|'commissioned'|'own';
+  attribution?: string; commercialUse: boolean; redistributionInApp: boolean; checkedOn: string }
+export interface SharingPermission { id: Id; projectId: Id; granteeUserId?: Id; linkTokenHash?: string;
+  role: 'viewer'|'commenter'|'editor'; createdAt: string; revokedAt?: string }   // v1 uses 'viewer' links only
+export interface RenderJob { id: Id; userId: Id; projectId: Id; revision: number; cameraId: Id;
+  quality: 'draft'|'hd'|'4k'; status: 'queued'|'running'|'succeeded'|'failed'|'canceled';
+  outputUrl?: string; costUsdMicros?: number; createdAt: string; finishedAt?: string } // reserved; no server renders in v1
 ```
 
 Notes:
@@ -103,7 +123,8 @@ create table project_shares (
   id uuid primary key default gen_random_uuid(),
   project_id text references projects(id) on delete cascade,
   token text unique not null,                  -- random 128-bit, url-safe
-  role text not null check (role in ('viewer')),
+  role text not null check (role in ('viewer','commenter','editor')),  -- v1 issues 'viewer' only
+  grantee_user_id uuid references profiles(id),                    -- null = link share
   created_at timestamptz default now(), revoked_at timestamptz
 );
 
@@ -151,6 +172,17 @@ create table catalog_assets (
   version int not null default 1, published boolean default false
 );
 create table catalog_asset_files (asset_id text references catalog_assets(id), lod int, url text, bytes int, sha256 text, primary key (asset_id, lod));
+create table texture_assets (
+  id text primary key, url text not null, sha256 text not null, width_px int, height_px int,
+  color_space text check (color_space in ('srgb','linear')), tile_size_mm int,
+  license_source text not null, license_url text not null, license_type text not null, attribution text
+);
+create table electrical_price_list (           -- shop-owned BOQ prices (FR-034); editable via CSV import
+  owner_id uuid references profiles(id) on delete cascade,
+  kind text not null, variant text not null default '', sku text, description text,
+  unit_price_paise int not null check (unit_price_paise >= 0),
+  primary key (owner_id, kind, variant)
+);
 ```
 
 **RLS (must exist before any client access):**

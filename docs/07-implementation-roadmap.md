@@ -91,6 +91,31 @@ Tests: PERF-01..07, REN-06, REL-04. Exit: NFR table met on reference devices.
 Tasks: T-8.1 Play Billing integration (plugin/RevenueCat) + server verification + Real-time developer notifications; T-8.2 entitlements gating; T-8.3 AdMob banners (non-editor screens) + consent (UMP) where required; T-8.4 paywall screen with clear renewal terms; T-8.5 analytics events; T-8.6 privacy policy, data safety form, content rating; T-8.7 closed testing track (current tester rule) ; T-8.8 store listing (screenshots, Hindi + English); T-8.9 release checklist.
 Tests: MON-01..05, SEC-*, full regression. Exit: PRD §19 release criteria.
 
+### 2.0 Objective, deliverable and starter prompt per phase (1–8)
+| Phase | Objective | Deliverable | Claude Code starter prompt (one task at a time) |
+|---|---|---|---|
+| 1 | Stable skeleton everyone builds on | Monorepo, CI, React shell, CLAUDE.md, i18n, migrations framework | "Do T-1.1 from docs/07: create the pnpm workspace and ESLint import boundaries exactly as in §1. Add a CI workflow running lint, typecheck and tests. Show me the CI output." |
+| 2 | A user can draw a correct, dimensioned plan by touch and mouse | Working 2D editor (walls, rooms, openings, snapping, numeric entry, undo, PNG export) | "Do T-2.2: implement snapping per docs/04 §2.9 with the priority order and px tolerances given. Write tests for every priority case and the zoom-independence rule, then run them." |
+| 3 | 3D always equals the model, smoothly | Three.js view with walls/openings/floors, orbit + walk, quality tiers, context-loss recovery | "Do T-3.2: build wall meshes with holes per docs/04 §3.3 using the footprint corners from packages/geometry. Add SYNC-03 as an automated test. Don't use CSG libraries." |
+| 4 | Furnish rooms with legal, light assets | Asset pipeline, licensed 100-item catalog, placement/rotate/resize, materials | "Do T-4.1: write tools/asset-pipeline with gltf-transform to apply the normalisation and LOD steps in docs/04 §3.7. Fail the build if an item has no license record (AST-01)." |
+| 5 | Never lose work; optional cloud | Journal + recovery, project list ops, Supabase with RLS, Google sign-in, conflicted copies, account deletion | "Do T-5.5: implement the save protocol in docs/05 §5 (baseRevision check in one SQL update). Write the REL-05 two-client test and run it." |
+| 6 | Decide with data whether AI is worth it | Spike report (cost/quality/latency), then the gated features | "Do T-6.0: build a script that runs our 50-plan eval set through the pipeline in docs/06 §2 and writes the metrics in §2.3 to a CSV. Don't build any UI." |
+| 7 | Smooth and stable on Low/Mid phones | Profiling report, optimisations, memory-leak fixes, lifecycle fixes | "Do T-7.3: add a test page that opens and closes the sample project 50 times and logs renderer.info.memory and heap. Fix any growth and show before/after numbers." |
+| 8 | Ship to Play Store legally and safely | Billing, ads, analytics, policies, closed test, store listing | "Do T-8.1: integrate Play Billing per ADR-011 with server-side purchase verification (MON-04). List the license-tester steps I must do by hand." |
+
+### 2.1 Key risks per phase
+| Phase | Key risks | Mitigation |
+|---|---|---|
+| 0 PoC | Geometry edge cases; WebView 3D too slow on Low phone (competitor appears native, Doc 1 §1.2) | Property tests; benchmark vs Chrome on same phone; ADR-007 fallback decided before Phase 1 |
+| 1 Foundation | Over-engineering the shell; dependency sprawl | Only listed packages; license check per dependency |
+| 2 2D editor | Touch drawing imprecision; snapping feels wrong; undo misses normalization effects | Loupe + numeric entry; user test with 3 people; SYNC-06 property test |
+| 3 3D | Memory leaks; context loss; mitered corners mismatch 2D | REN-06/07; shared footprint function |
+| 4 Furniture | Asset licensing; heavy models; wrong scale/origin | AST-01..03 CI gate; LOD budgets |
+| 5 Persistence | Data loss on WebView storage eviction; sync conflicts; RLS mistakes | REL-01..07; SEC-01/02; conflicted copies |
+| 6 AI | Cost overrun; poor recognition quality; dataset licensing (CubiCasa5K non-commercial) | Spike + gates (Doc 6 §6); credits; own consented dataset |
+| 7 Mobile | Low-end GPU/thermal throttling; Android back-button/lifecycle bugs | Quality tiers; real-device checklist |
+| 8 Release | Play policy rejection (deletion, data safety, billing); 12-tester/14-day closed test delays launch | Start closed test early with shop customers as testers; checklist from V03–V06 |
+
 ## 3. Dependency order
 ```mermaid
 graph LR

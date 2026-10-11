@@ -1,58 +1,79 @@
 # Document 9 — Cost, Risk & Feasibility Assessment
 
-All prices are **estimates from third-party snapshots or stated assumptions** unless marked verified. Re-check official pricing pages (Supabase, Cloudflare, Google Play, AI providers) before committing money.
+Round 2 (2026-10-11): Supabase, Cloudflare R2, Google Play fees, Gemini, OpenAI and Anthropic prices were **read on the official pages** (source log V01–V09). Everything else is an estimate and is labelled as one. Prices change; recheck on the day you buy.
 
-## 1. Fixed costs (monthly unless noted)
+## 1. Fixed costs
 
-| Item | Estimate | Basis |
+| Item | Cost | Basis |
 |---|---|---|
 | Google Play developer account | already owned | user profile |
-| Supabase | $0 (Free) during development → ~$25/mo Pro at launch | third-party snapshot of Pro price; Free tier pauses inactive projects (verify) |
-| Cloudflare R2 (catalog) | ~$0–2 | ~$0.015/GB-month, zero egress (third-party snapshot); catalog of 100–500 items ≈ 1–5 GB |
-| Web hosting (Pages/Netlify) | $0 at this scale | free tiers (verify limits) |
-| Domain | ~$10–15/year | typical, estimate |
-| Error monitoring (Sentry or similar) | $0 free tier initially | verify quotas |
-| Claude Code / AI coding tool | depends on your plan | your Claude plan; not estimated here |
-| Test devices (Low + Mid Android) | one-time ~₹10k–25k if not already owned | estimate |
-| 3D assets for MVP (100 items) | $0 (CC0/compatible) to ~$1,000–3,000 if buying/commissioning | wide estimate; depends on sourcing |
-| Expert review (geometry/3D, security) | ~$500–3,000 one-time for a few days of freelance review | estimate; strongly recommended |
+| Supabase | **$0 Free** in development (50k MAU, 500 MB DB, 1 GB files, 5 GB egress; **paused after 1 week of inactivity**, max 2 projects) → **$25/mo Pro** at launch (100k MAU, 8 GB disk, 100 GB files, 250 GB egress, daily backups kept 7 days, $10 compute credit covers a Micro instance) | VERIFIED V01 |
+| Cloudflare R2 (catalog) | $0.015/GB-month; Class A $4.50/M, Class B $0.36/M requests; **egress free** → catalog of 1–5 GB ≈ $0.02–0.08/mo plus requests | VERIFIED V02 |
+| Web hosting (Pages/Netlify) | $0 at this scale | free tiers (estimate; verify limits) |
+| Domain | ~$10–15/year | estimate |
+| Error monitoring | $0 free tier initially | estimate; verify quotas |
+| Claude Code / AI coding tool | your plan | not estimated |
 
-## 2. Variable costs by MAU (infrastructure only, no AI)
+## 1a. One-time and recurring non-infrastructure costs (estimates)
 
-Assumptions: 3 projects/user, 300 KB gz per project version, 20 versions kept → ~18 MB/user worst case (most far less); catalog served from R2 (no egress fee); Supabase Pro quotas (third-party: 100k MAU auth, 8 GB DB, 100 GB file storage, ~250 GB egress — verify).
-
-| MAU | Infra / month (est.) | Notes |
+| Line | Estimate | Notes |
 |---|---|---|
-| 100 | $0–5 | Free tiers |
-| 1,000 | ~$25–35 | Supabase Pro to avoid pausing + backups |
-| 10,000 | ~$30–80 | Storage may exceed 100 GB if versions not pruned → prune to 20 |
-| 100,000 | ~$150–600 | Larger compute add-on, storage/egress overages; still small vs AI |
+| Development labour | Your own time: 9–19 months part-time (Doc 7). If hiring help at an assumed ₹1,500–4,000/hour for a freelance web/3D developer, **20–60 hours of expert help ≈ ₹30k–2.4 lakh** | Rate is an assumption, not a quote; get 2–3 quotes |
+| Expert reviews | Geometry/3D review after Phase 0 (1–2 days), security review before launch (1 day) ≈ **$500–3,000** total | estimate |
+| Test devices | Low + Mid Android (Doc 4 §3.8) ≈ **₹30k–40k** if buying both new; ₹0 if borrowed | price classes from Indian market (estimate) |
+| Testing labour | 12 closed testers for 14 days (Play rule, V04) — friends/customers; time cost only | VERIFIED rule |
+| 3D assets (100 items) | $0 (CC0 + Sweet Home 3D catalog models, license permits commercial use — C05) up to ~$1,000–3,000 if buying/commissioning | estimate |
+| Maintenance | Plan ~15–20% of build effort per year (Android/WebView updates, library upgrades, Play policy changes) | rule of thumb, not data |
+| Legal (privacy policy/terms review) | ₹10k–50k one-time if using a lawyer | estimate |
 
-**Highest marginal cost features:** (1) AI image generation, (2) AI plan recognition with GPU models, (3) server-side rendering (excluded in v1), (4) unpruned version history.
+## 2. Variable infrastructure cost by MAU (no AI)
+
+Assumptions:
+- 3 projects/user.
+- 300 KB gzipped per stored version, 20 versions kept → ≤ 18 MB/user worst case.
+- About 5 MB/user/month of project download egress from Supabase.
+- Catalog from R2 (free egress), about 200 cached asset requests/user/month.
+
+| MAU | Supabase | R2 | Total / month (est.) | Notes |
+|---|---|---|---|---|
+| 100 | $0 (Free) — or $25 to avoid pausing | ≈ $0 | **$0–25** | Free plan pauses after 1 week inactivity → not suitable for a live app |
+| 1,000 | $25 | ≈ $0.1 | **≈ $25–30** | within Pro quotas |
+| 10,000 | $25 + storage over 100 GB (≈ 180 GB worst case → 80 GB × $0.0213 ≈ $2) | ≈ $1 | **≈ $28–40** | prune versions to keep under quota |
+| 100,000 | $25 + compute upgrade (Medium $60 − $10 credit) + storage (≈ 1.7 TB × $0.0213 ≈ $36) + egress (≈ 500 GB, 250 GB over × $0.09 ≈ $23) | ≈ $7–10 | **≈ $150–250** | MAU at quota edge (100k included, then $0.00325/MAU) |
+
+**Highest marginal costs:**
+1. AI image generation.
+2. AI plan recognition with human correction or GPU models.
+3. Server rendering (excluded in v1; Planner 5D's 4K/360° renders take 30 min–24 h server time, Doc 1 R-3D-03).
+4. Unpruned version history.
 
 ## 3. AI cost scenarios (only if Phase 6 ships)
-Assumption (hypothetical, for sizing only): 10% of MAU use restyle 3×/month at ~$0.16/request (4 images at ~$0.04) and 2% use plan recognition once at ~$0.05.
+Assumptions (hypothetical, for sizing only):
+- 10% of MAU use restyle 3×/month at **$0.134/request**: 4 images × $0.0336 (VERIFIED Nano Banana 2.1 1K price, V07).
+- 2% use plan recognition once at ≈ $0.05 (Sonnet 5.5 estimate, Doc 6 §4.1) + CV compute.
 
 | MAU | Restyle | Recognition | Total AI / month |
 |---|---|---|---|
-| 1,000 | $48 | $1 | ~$49 |
-| 10,000 | $480 | $10 | ~$490 |
-| 100,000 | $4,800 | $100 | ~$4,900 |
+| 1,000 | $40 | $1 | ≈ $41 |
+| 10,000 | $402 | $10 | ≈ $412 |
+| 100,000 | $4,020 | $100 | ≈ $4,120 |
 
-→ AI must be credit-gated (Doc 6 §5); never unlimited on a low-price subscription.
+Batch pricing (half price, 24 h turnaround) would roughly halve restyle cost. Planner 5D gates AI with **credits that expire every 30 days** (Doc 1 §1.1); we should do the same. → AI must be credit-gated (Doc 6 §5), never unlimited on a low-price subscription.
 
 ## 4. Revenue model comparison (no revenue promised)
 
-| Model | Pros | Cons |
+| Model | Pros | Cons / evidence |
 |---|---|---|
-| Ads only | Zero friction | Low eCPM in India (not researched here — do deep research); ads in a design canvas hurt UX |
-| Freemium subscription (recommended core) | Predictable; matches competitors | Requires clear value (catalog, export, multi-floor, electrical) |
-| Credits (for AI) | Matches variable cost | Users dislike opaque credits → show cost in ₹ equivalent |
+| Ads | Zero friction for free users | India eCPM is low: unofficial sources say banner ≈ $0.10–1.00 (one developer reported $0.08 banner / $0.70 interstitial). **No official figure** → measure in your own AdMob account. Ads inside a design canvas hurt UX |
+| Rewarded ad → unlock premium item for 72 h | Proven in this category (Planner 5D used it in 2020 per a Play review) | Revenue per view unknown for India |
+| Freemium subscription (recommended core) | Predictable; matches all competitors | Needs clear value: full catalog, multi-floor, electrical BOQ, no watermark |
+| Credits (for AI) | Matches variable cost | Show cost in ₹; credits expire monthly (competitor practice) |
 | One-time unlock | Simple for Indian users | No recurring revenue to fund AI/assets |
+| Brand tie-ups (e.g. paint/tiles/switch brands) | Room Planner advertises Asian Paints colours (Doc 1 §3.1) | Needs traction first |
 
-Recommended: Free + ads on non-editor screens → Premium monthly/yearly → AI credits add-on. Google Play fee: model 15% for subscriptions until India terms are confirmed (Doc 2 §15).
+Google Play fee for India (VERIFIED V03): **15%** on auto-renewing subscriptions; **11%** if using alternative billing in India.
 
-Break-even formula (fill in after research): `monthly_profit = paying_users × net_price × (1 − play_fee) + ad_revenue − infra − AI_cost − tools`. Do not assume a conversion rate; measure it in closed testing.
+Break-even formula: `monthly_profit = paying_users × net_price × (1 − 0.15) + ad_revenue − infra − AI_cost − tools`. Do not assume a conversion rate; measure it in closed testing.
 
 ## 5. Risk register
 
@@ -78,7 +99,9 @@ Break-even formula (fill in after research): `monthly_profit = paying_users × n
 - **Auth/access:** RLS everywhere; signed URLs short-lived.
 - **Payments:** Google Play Billing for digital goods in the Android app (Play policy); server verification.
 - **AI privacy:** consent, 30-day deletion, provider data-use review.
-- **User data deletion:** in-app + web URL (Play requires a deletion path for apps with accounts — verify current policy text).
+- **User data deletion:** in-app path **and** a web link, plus the Data safety deletion answers (VERIFIED Play Console Help V05).
+- **Third-party model licenses:** avoid AGPL (Ultralytics YOLO) and non-commercial datasets (CubiCasa5K is CC BY-NC 4.0) — Doc 6 §4.0.
+- **Competitor IP:** Planner 5D's terms reserve all rights to its software, catalog and materials (P04) — use none of their assets, names or UI artwork.
 - **Backups:** managed DB backups + storage versioning.
 
 ## 6. Feasibility of each subsystem with Claude Code
@@ -98,12 +121,22 @@ Break-even formula (fill in after research): `monthly_profit = paying_users × n
 | Real-time multiplayer | Not realistic within constraints | Exclude |
 | Subscription system | Feasible with plugin/RevenueCat | Must test with license testers |
 
-## 7. Research still needed (tell Raghvendr explicitly)
-1. **Deep research (Perplexity Pro):** Indian Play Store demand for home-design apps, top competitors' installs/ratings, user complaints in Hindi reviews.
-2. Electrician/contractor interviews (5–10 from your customers): would they use an electrical point planner? What would they pay?
-3. AdMob eCPM ranges for India in this category (AdMob/industry reports).
-4. Hands-on test of Planner 5D on your phone for the UNKNOWN items (Doc 1 §4).
-5. Official pricing pages for Supabase, R2, AI providers on the day you start building.
+## 7. Research status (round 2) and what is still needed
+Done on 2026-10-11:
+- Planner 5D official pages, 246 help articles, Play and App Store listings.
+- Competitor pricing pages and Play India stats.
+- Vendor prices, Play fee, tester and deletion policies, licenses.
+
+Still needed:
+1. **Customer interviews (most important):** 5–10 electricians/contractors and 5 homeowners from your shop.
+   - Would a Hindi plan + electrical points + priced BOQ app save them time?
+   - What would they pay?
+   - What do they use today (paper, WhatsApp photos, AutoCAD via a draftsman)?
+2. **INR prices** of Planner 5D, Homestyler and Room Planner subscriptions: open each app's paywall on an Indian phone and screenshot it.
+3. **AdMob India eCPM:** no official data exists publicly; measure in your own account with a test app.
+4. **Hands-on tests on your phone:** Planner 5D and Homestyler (incl. Homestyler's Plumbing & Electrical tool) — record what is free vs paid and how smooth 3D is on a cheap phone.
+5. Floorplanner subscription prices, and HomeByMe / Live Home 3D official prices (pages not captured).
+6. Recheck vendor prices on the day you start paying.
 
 ## 8. Final recommendation (Part 22)
 
@@ -115,6 +148,6 @@ Break-even formula (fill in after research): `monthly_profit = paying_users × n
 - **Do not attempt initially:** AI recognition, photoreal rendering, collaboration, multi-floor, iOS, user-uploaded models.
 - **Libraries:** TypeScript, React, Vite, Three.js, Immer (patches), Zustand, earcut, fast-check, Vitest, Playwright, Capacitor, Supabase, gltf-transform.
 - **Effort range:** MVP ≈ 75–115 experienced-engineer days (sum of the Phase 0–5, 7, 8 E-ranges in Doc 7); for a beginner with Claude Code, plan **9–19 months part-time** (sum of the B-ranges), with a budget for **some paid expert review**. These are estimates, not promises.
-- **Cash cost to MVP launch (excluding your time):** roughly **$500–5,000**, dominated by assets and expert help; monthly infra stays small (< $50) until thousands of users.
+- **Cash cost to MVP launch (excluding your time):** roughly **$500 to $10,000**, the sum of the §1a lines. The low end is free assets, borrowed phones and one short expert review. The high end is bought assets, both test phones, legal review and ~60 hours of paid developer help (INR amounts converted at an assumed ≈ ₹83/$, not a quoted rate). Monthly infrastructure stays small (≈ $25–40) until tens of thousands of users (§2).
 - **Architecture for expansion:** pure-TS canonical model + command bus + read-only renderers (Doc 4 §4) — it lets you add AI, electrical layer, multi-floor, and a future native renderer without rewriting the data model.
-- **Commercially viable MVP (hypothesis to validate):** fast accurate 2D plan + 3D view + ~100–300 India-relevant furniture items + PNG/PDF export + **electrical point planning with a points list** + honest Premium subscription. The electrical layer is the clearest reason someone would choose this over Planner 5D — validate it with your own customers before building beyond Phase 2.
+- **Commercially viable MVP (hypothesis to validate):** fast accurate 2D plan + 3D view + ~100–300 India-relevant furniture items + PNG/PDF export + **electrical point planning with a points list** + honest Premium subscription. **Correction from round 2:** electrical "points on a plan" is **not unique**. Planner 5D lets users place sockets and switches, and Homestyler auto-generates circuits for $6.8/month. The remaining gap we found is an **India-first, Hindi, cheap-phone app that turns a plan into a priced electrical bill of quantities from a local shop**. None of the Play searches showed one, though that is not proof none exists. Validate this with your own customers before building beyond Phase 2. If they don't want it, the app still competes on reliability (shared walls, version history and conflict-safe sync are documented Planner 5D weaknesses — Doc 1 §1.2) and Indian context.

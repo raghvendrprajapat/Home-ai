@@ -80,7 +80,7 @@ Defined fully in Doc 4. Key constraints: WebGL2 required (fallback message if un
 | Ads | Google AdMob via maintained Capacitor plugin | ADR-012 |
 | AI | Provider-agnostic server proxy; vision LLM for structured output, separate image model for visuals | ADR-013 (Doc 6) |
 
-Pricing references (third-party snippets, **verify before relying**): Supabase Pro ~$25/month with included quotas; Cloudflare R2 ~$0.015/GB-month storage, zero egress fees. See Doc 9.
+Pricing (VERIFIED on official pages 2026-10-11): Supabase Pro $25/month (100k MAU, 8 GB disk, 100 GB files, 250 GB egress, 7-day daily backups); the Free plan pauses after 1 week of inactivity, so it is not for production. Cloudflare R2 $0.015/GB-month with free egress. See Doc 9 §1–2.
 
 ## 5. Database
 Postgres; relational tables for users/projects/permissions/billing/jobs; **project content as a versioned JSON document** stored in object storage (large) with metadata row in Postgres. Detailed schema in Doc 5.
