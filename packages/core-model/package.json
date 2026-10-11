@@ -1,0 +1,16 @@
+{
+  "name": "@gharplan/core-model",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc --project tsconfig.json"
+  },
+  "dependencies": {
+    "@gharplan/geometry": "workspace:*"
+  }
+}

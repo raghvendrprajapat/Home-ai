@@ -14,7 +14,7 @@ This file carries **every decision made so far**, including decisions made in ch
 - **Money:** freemium. Google Play Billing subscription, ads only outside the editor, optional rewarded unlock. AI credits only later.
 - **Core promise:** measurements you can trust, 2D = 3D always, and your work is never lost.
 - **Owner:** not a programmer. He tests on two phones (Low: Galaxy A0x/Redmi A; Mid: Galaxy A3x/A5x), approves plans and merges PRs.
-- **Current state:** research and planning are complete. **No app code exists yet.** The next step is owner interviews with 10 users, then Phase 0 task PH0-T01.
+- **Current state:** PH0-T01 now has a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build and Chromium smoke checks pass; see [`verification/ph0-t01.md`](verification/ph0-t01.md). There is no editor, geometry implementation, 3D, saving or Android build yet. Research/main merge, GitHub CI and owner review are separate gates; ten-user interview completion is not confirmed. Next engineering task is PH0-T02a after the geometry specification differences are agreed.
 
 ## 2. Owner decisions (binding)
 
