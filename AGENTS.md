@@ -64,8 +64,11 @@ If code, this file and the spec disagree, **stop and ask the owner**. Do not gue
 - **⭐ tasks** (label `star`: geometry core, core-model/undo, 3D sync/stale guard, openings, local save, cloud save/RLS, billing, release) are not merged until Claude's deep review findings are fixed.
 - If you fail twice on the same problem, stop and say so plainly. The owner will bring in the other agent.
 
-## 6. Commands (fill in when PH0-T01 creates them)
-- `pnpm install`: install
+## 6. Commands (PH0-T01; run from repository root)
+- Runtime: Node 24.19.0 (`.node-version`), pnpm 11.19.0 (`packageManager`).
+- `pnpm install --frozen-lockfile`: install the recorded dependency graph
 - `pnpm check`: lint + typecheck + tests (required before commit)
 - `pnpm dev`: run the web app locally
+- `pnpm build`: build the web application
+- See `apps/web/README.md` for the current shell and validation limits.
 - Android build steps: see `docs/benchmarks/phase0.md` (created in PH0-T07)
