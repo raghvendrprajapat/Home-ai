@@ -70,3 +70,8 @@ Sources: each action's official GitHub `releases/latest`, tag-ref and license en
 After lockfile-only resolution and before installing packages, all 210 resolved registry package versions were checked against official npm license metadata and recorded in `dependency-licenses.json`. The check found no unknown licenses and no GPL/AGPL candidates. It includes optional platform packages, so its count can exceed the installed package count.
 
 Licenses present: MIT, MIT-0, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, MPL-2.0, BlueOak-1.0.0 and CC0-1.0. Preserve applicable bundled license/notice files when distributing dependency code. MPL-2.0 file-level obligations still apply if such code is modified/distributed; this task does not modify third-party code. Registry metadata is not a legal opinion or proof that every bundled file was inspected.
+# PH0-T04 renderer dependency (2026-10-11)
+
+| Package | Pinned version | License | Purpose / risk |
+|---|---|---|---|
+| konva | 10.7.1 | MIT | Imperative browser canvas display and picking. No canonical model state is stored in Konva. Optional native canvas/skia peers are not installed; real browser tests cover drawing. Official exact-version npm metadata verified before installation. |
