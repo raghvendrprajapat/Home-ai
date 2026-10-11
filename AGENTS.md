@@ -18,13 +18,13 @@ If code, this file and the spec disagree, **stop and ask the owner**. Do not gue
   - Never ask him to read or edit code.
   - Always give step-by-step phone test instructions.
   - He approves plans and tests on phones. On 2026-10-11 he authorized Codex to merge PRs until his next instruction. Codex may merge only after all applicable task checks/reviews pass; this permission does not waive phone tests, Claude reviews or specification decisions.
-- **Codex = main builder.** Plans, implements, writes tests, runs checks and self-reviews for nearly every task.
-- **Claude Code = second checker** (limited usage, so it is used sparingly):
-  - ⭐ tasks: deep review before merge; independent test fixtures for the riskiest modules.
+- **Codex = main builder.** Plans, implements, writes tests, runs checks, opens/pushes PR branches and applies review findings.
+- **Claude Code = review-only second checker (D16, 2026-10-11).** Claude does no development work, never edits development files or commits, and never pushes to the repo. Results are PR comments or chat:
+  - ⭐ tasks: plan/deep reviews before merge.
   - Normal tasks: weekly batch review of merged PRs.
-  - Rescue: after Codex fails twice on the same problem.
+  - Rescue diagnosis: after Codex fails twice on the same problem; Codex applies the fixes.
   - Security review before release.
-  - Claude does not rewrite Codex's implementation except in a rescue the owner asked for.
+  - Independent fixtures PH2-T04a/PH5-T03a: Claude supplies cases and expected values as text in a **PR comment**; Codex copies them exactly and links that comment. Claude does not create fixture files or PRs. PR #60's geometry fixtures predate D16 and remain protected.
 - **GitHub Actions (CI)** runs lint, types, tests and builds on every PR. Red CI = never merge.
 
 ## 3. Scope (owner decisions; do not change without the owner)
@@ -53,7 +53,7 @@ If code, this file and the spec disagree, **stop and ask the owner**. Do not gue
 - **Tests:**
   - Every geometry function gets unit tests + at least one fast-check property test, with analytic expected values (not values produced by the same code).
   - Make the listed test IDs from the spec pass.
-- **Independent fixtures:** files under `tests/fixtures/independent/` are written by the *other* agent. Never edit them to make your code pass. If one looks wrong, explain why in the PR and ask the owner.
+- **Independent fixtures:** expected cases/values come from Claude, not the implementation. For PH2-T04a/PH5-T03a, Codex may initially copy Claude's source PR-comment data into `tests/fixtures/independent/` **exactly as given, without changing any value**, and must link the source comment in the fixture PR. Verify the copy against the comment before merge. Never edit accepted fixtures (including PR #60) to make code pass. If a case is wrong, incomplete or not ready to copy, explain why in the PR and ask the owner; obtain a corrected Claude source comment before a separately approved correction. Do not invent or silently repair expected values.
 - Run `pnpm check` (lint + typecheck + tests) before every commit. **Never skip, delete or weaken a test.**
 - **Evidence:** report actual command output. Screenshots and "it works" are not evidence of geometry, saving or performance.
 - **Every PR description ends with an "Owner summary"** in simple English:
