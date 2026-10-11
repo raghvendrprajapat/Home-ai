@@ -1,6 +1,6 @@
 {
   "fixtureSet": "two-squares (F-TWO-SQ)",
-  "specRefs": ["§H.6 second analytic fixture", "§E.7", "GEO-010", "D14"],
+  "specRefs": ["§H.6 second analytic fixture", "§E.7", "GEO-010", "D13"],
   "cases": [
     {
       "id": "TWOSQ-01",

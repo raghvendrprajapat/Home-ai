@@ -1,16 +1,16 @@
 {
   "fixtureSet": "closing-gap",
-  "specRefs": ["§E.1", "§E.4 I5", "§E.10", "§E.13", "D15", "GEO-016"],
+  "specRefs": ["§E.1 raw input versus canonical input", "§E.4 I5", "§E.10", "§E.13", "D14", "GEO-016 input stages"],
   "notes": [
-    "D15: sub-millimetre gaps exist only in raw pointer/preview input. Raw values are quantized to integer mm before the command; an endpoint that lands on an existing junction reuses that junction.",
-    "Here only quantization + junction reuse are tested (geometry/normalizer, PH0-T02). The full pointer path with pixel snap tolerances is tested in PH2-T03 and must reuse these inputs."
+    "D14: sub-millimetre gaps exist only in raw pointer/preview input. The input layer resolves snapping (§E.10, screen-pixel tolerances) and quantizes once when it builds an integer-mm command. The geometry normalizer never receives a 0.4 mm gap.",
+    "GAP-01 is input-adapter data: it is verified when the drawing/snapping layer exists (PH2-T03), not as a PH0-T02 engine test. GAP-02 and GAP-03 are canonical-command cases."
   ],
   "cases": [
     {
       "id": "GAP-01",
       "tests": ["GEO-016"],
-      "earliestTask": "PH0-T02 (quantize + reuse junction); PH2-T03 (full snapping path)",
-      "description": "Three walls of a 4000 x 3000 rectangle exist. The user closes the loop; the raw pointer end point is 0.4 mm away from the start junction j1.",
+      "earliestTask": "PH2-T03",
+      "description": "Three walls of a 4000 x 3000 rectangle exist. The user closes the loop; the raw pointer end point is 0.4 mm away from the start junction j1. Junction snap closes the loop on j1 and reuses its ID.",
       "plan": {
         "junctions": [
           { "id": "j1", "x": 0, "y": 0 },
@@ -24,9 +24,10 @@
           { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 }
         ]
       },
-      "operation": { "op": "addWallRaw", "from": [0.3, 2999.8], "to": [0.4, 0.0], "thickness": 200, "height": 3000 },
+      "operation": { "op": "addWallRaw", "from": [0, 3000], "to": [0.4, 0], "zoomPxPerMm": 1, "thickness": 200, "height": 3000 },
       "expect": {
         "accepted": true,
+        "committedCommand": { "op": "addWall", "fromJunction": "j4", "toJunction": "j1" },
         "wallCount": 4,
         "junctionCount": 4,
         "faceCount": 1,
@@ -45,8 +46,8 @@
         ]
       },
       "arithmetic": [
-        "Quantize to nearest integer mm: (0.3, 2999.8) -> (0, 3000) = j4; (0.4, 0.0) -> (0, 0) = j1.",
-        "Both endpoints are existing junctions, so the new wall is j4 -> j1 and no new junction is created (junctionCount stays 4; a duplicate junction at (0,0) would violate I5).",
+        "Raw end (0.4, 0) is 0.4 mm from j1 (0,0). At zoom 1 CSS px/mm that is 0.4 px, inside the 12 px junction acquire radius (§E.10 priority 1), so the end snaps to exactly j1 and the command uses j1's ID. The start (0, 3000) is exactly j4.",
+        "No new junction is created (junctionCount stays 4; a second junction at (0,0) would violate I5).",
         "The loop closes: 1 bounded face. Clear: X 100..3900 = 3800, Y 100..2900 = 2800 -> 10,640,000 mm2.",
         "Centreline signed area 4000 x 3000 = 12,000,000 with corners in screen-clockwise order."
       ]
@@ -55,15 +56,24 @@
       "id": "GAP-02",
       "tests": ["GEO-016"],
       "earliestTask": "PH0-T02",
-      "description": "Same as GAP-01, but the raw end point is 0.6 mm off in X. Quantization gives x = 1, which is 1 mm from j1: NOT merged by I5 (only < 1 mm merges). The model must not silently close on j1; the quantized wall is diagonal, so the command is rejected.",
+      "description": "Canonical (integer) command that ends 1 mm beside j1 instead of on it: the engine must not 'helpfully' close the loop. The wall (0,3000)->(1,0) is diagonal, so it is rejected.",
       "plan": "same as GAP-01",
-      "operation": { "op": "addWallRaw", "from": [0.3, 2999.8], "to": [0.6, 0.0], "thickness": 200, "height": 3000 },
+      "operation": { "op": "addWall", "from": [0, 3000], "to": [1, 0], "thickness": 200, "height": 3000 },
       "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "non-orthogonal" },
       "arithmetic": [
-        "Quantize: (0.3, 2999.8) -> (0, 3000); (0.6, 0.0) -> (1, 0).",
-        "New wall (0,3000) -> (1,0): dx = 1, dy = -3000 -> not axis-aligned -> rejected in L0 (I4). The model is unchanged.",
-        "This shows why sub-mm closing must be handled by snapping BEFORE the command (§E.10 priority 1, junction snap), not by the model guessing."
+        "dx = 1, dy = -3000 -> not axis-aligned -> rejected in L0 (I4). The model is unchanged.",
+        "(1,0) is 1 mm from j1, which is not 'closer than 1 mm' (I5), so the engine has no rule that merges it. Closing such gaps is the snapping layer's job (GAP-01)."
       ]
+    },
+    {
+      "id": "GAP-03",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T03",
+      "description": "A canonical command that carries a fractional coordinate is invalid and rejected without change. It must never be repaired by treating it as pointer input.",
+      "plan": "same as GAP-01",
+      "operation": { "op": "addWall", "from": [0, 3000], "to": [0.4, 0], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "non-integer" },
+      "arithmetic": ["0.4 is not an integer. Canonical commands carry integer mm only (§E.1, D14), so the command is rejected; the open model stays exactly as it was."]
     }
   ]
 }

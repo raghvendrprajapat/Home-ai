@@ -1,6 +1,6 @@
 {
   "fixtureSet": "sample-project",
-  "specRefs": ["§H.6", "§E.6", "§E.7", "§E.8", "GEO-001", "GEO-010", "DM-003", "D14"],
+  "specRefs": ["§H.6", "§E.6", "§E.7", "§E.8", "GEO-001", "GEO-010", "DM-003", "D13"],
   "cases": [
     {
       "id": "SAMPLE-01",
@@ -112,7 +112,7 @@
       },
       "arithmetic": [
         "Living clear width = (4600-57.5) - 115 = 4542.5 - 115 = 4427.5; depth 4770.",
-        "Living = 4427.5 x 4770 = 17,710,000 + 3,409,175 = 21,119,175 mm2. Rounded label 21.1192 m2 in H.6 = 21,119,200 mm2, i.e. 25 mm2 more: tests must use the exact value (D14). Display '21.12'.",
+        "Living = 4427.5 x 4770 = 17,710,000 + 3,409,175 = 21,119,175 mm2. Rounded label 21.1192 m2 in H.6 = 21,119,200 mm2, i.e. 25 mm2 more: tests must use the exact value (D13). Display '21.12'.",
         "Bedroom clear width = 7885 - (4600+57.5) = 7885 - 4657.5 = 3227.5; area = 3227.5 x 4770 = 12,910,000 + 2,485,175 = 15,395,175 mm2. Display 15.395175 -> '15.40'.",
         "Change: +100 x 4770 = +477,000 mm2 for Living and -477,000 for Bedroom (H.6: +/-0.4770 m2). Check: 20,642,175 + 477,000 = 21,119,175; 15,872,175 - 477,000 = 15,395,175.",
         "Centreline: 4600 x 5000 = 23,000,000; 3400 x 5000 = 17,000,000.",

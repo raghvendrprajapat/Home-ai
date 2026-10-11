@@ -1,9 +1,9 @@
 {
   "fixtureSet": "segments-and-limits",
-  "specRefs": ["§E.4 I1, I2, I8", "§E.12.2", "D11", "D15", "GEO-016"],
+  "specRefs": ["§E.4 I1, I2, I8", "§E.12.2", "D11", "D14", "GEO-016"],
   "notes": [
-    "Boundary values: length >= 10 mm (I2); coordinates in [-100000, 100000] (I8); thickness 50..1000 inclusive (D11); height 1000..6000 inclusive (§E.12.2); all stored coordinates are integers (D15).",
-    "LIM cases use op 'validate' (a saved/loaded model). They may be wired in PH0-T02 (geometry invariants) or PH0-T03 (validateProject); either way every case must be covered by PH0-T03."
+    "Boundary values: length >= 10 mm (I2); coordinates in [-100000, 100000] (I8); thickness 50..1000 inclusive (D11); height 1000..6000 inclusive (§E.12.2); all stored coordinates are integers (D14).",
+    "LIM cases use op 'validate' (a saved/loaded model). Geometry-invariant cases may be wired in PH0-T02; LIM-04 (fractional) and LIM-05 (NaN) are canonical-input checks for the schema/core validator (PH0-T03, GEO-016 input stages). Every LIM case must be covered by PH0-T03."
   ],
   "cases": [
     {
@@ -88,20 +88,20 @@
     {
       "id": "LIM-04",
       "tests": ["GEO-016"],
-      "earliestTask": "PH0-T02",
-      "description": "A saved model with a fractional coordinate (0.4 mm) is invalid (D15).",
+      "earliestTask": "PH0-T03",
+      "description": "A saved model with a fractional coordinate (0.4 mm) is invalid (D14).",
       "plan": {
         "junctions": [{ "id": "j1", "x": 0.4, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
         "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }]
       },
       "operation": { "op": "validate" },
       "expect": { "accepted": false, "errorKind": "non-integer" },
-      "arithmetic": ["0.4 is not an integer; stored coordinates must be integer mm (§E.1, D15). The validator must reject it, not round it."]
+      "arithmetic": ["0.4 is not an integer; stored coordinates must be integer mm (§E.1, D14). The validator must reject it, not round it."]
     },
     {
       "id": "LIM-05",
       "tests": ["GEO-016"],
-      "earliestTask": "PH0-T02",
+      "earliestTask": "PH0-T03",
       "description": "NaN coordinate (from a bad numeric parse) is invalid.",
       "plan": {
         "junctions": [{ "id": "j1", "x": "NaN", "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],

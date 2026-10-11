@@ -2,7 +2,7 @@
 
 **Written by:** Claude Code (second checker), before the geometry code exists (decision D8).
 **Used by:** PH0-T02 (geometry core) and the later tasks named in each case's `earliestTask`.
-**Spec:** `docs/combined-research.md` §E.1, §E.4–E.8, §H.6, Part M (GEO-001…006, GEO-010, GEO-011, GEO-016, GEO-021); decisions D11, D12, D14, D15 in `docs/codex-start-here.md`.
+**Spec:** `docs/combined-research.md` §E.1, §E.4–E.8, §H.6, Part M (GEO-001…006, GEO-010, GEO-011, GEO-016, GEO-021); decisions D11, D12, D13, D14 in `docs/codex-start-here.md`.
 
 > **Rule for the builder (AGENTS.md §5):** never edit, delete or weaken anything in this folder to make code pass.
 > If a case looks wrong, explain why in the PR (with your own arithmetic) and ask the owner. The other agent then re-checks it.
@@ -20,8 +20,8 @@ None of the values was produced by running geometry code.
 | `t-junction.json` | Wall endpoint on another wall's interior (and the reverse) splits at one shared junction | GEO-003, GEO-004 |
 | `rejections.json` | X-crossings and non-orthogonal walls rejected atomically in L0 (add and move) | GEO-003 |
 | `collinear-overlap.json` | Collinear overlaps (25 %, contained, duplicate, reversed duplicate, different thickness) | GEO-005 |
-| `segments-and-limits.json` | 9/10/11 mm walls; coordinate domain; NaN; fractional coordinates; thickness and height limits | GEO-016, I2, I8, D11, D15, §E.12.2 |
-| `closing-gap.json` | A raw 0.4 mm closing gap closes the loop on the existing junction | GEO-016, D15 |
+| `segments-and-limits.json` | 9/10/11 mm walls; coordinate domain; NaN; fractional coordinates; thickness and height limits | GEO-016, I2, I8, D11, D14, §E.12.2 |
+| `closing-gap.json` | A raw 0.4 mm closing gap snaps to the existing junction (input layer, PH2-T03); canonical near-miss and fractional commands are rejected | GEO-016, D14 |
 | `split-merge.json` | A partition splits a room; deleting it merges the rooms; room identity rules | GEO-011 (geometry part), §E.8 |
 | `small-rooms.json` | Rooms below / at / above 0.25 m² clear area; zero or negative usable space rejected | GEO-021, D12 |
 
@@ -45,9 +45,9 @@ Each file is JSON: `{ "fixtureSet", "specRefs", "cases": [...] }`. Each case has
 | `op` | Meaning |
 |---|---|
 | `analyze` | No change. Compute faces, clear areas and footprints of `plan` |
-| `validate` | Validate `plan` as a saved/loaded model (hard constraints I1–I8, D11, D15, §E.12.2) |
+| `validate` | Validate `plan` as a saved/loaded model (hard constraints I1–I8, D11, D14, §E.12.2) |
 | `addWall` | Add one wall from `from` to `to` (integer mm) with `thickness` and `height`, then normalize (§E.5). If an endpoint lies exactly on an existing junction, that junction must be reused |
-| `addWallRaw` | Same, but `from`/`to` are raw pointer values (floats). They are quantized to integer mm first (D15), then treated as `addWall` |
+| `addWallRaw` | Input-adapter case (D14): `from`/`to` are raw pointer values (floats) at view zoom `zoomPxPerMm`. The input layer applies snapping (§E.10, screen-pixel tolerances) and quantizes once, then issues the integer `addWall` shown in `expect.committedCommand`. Wired when the snapping layer exists (PH2-T03) |
 | `moveJunctions` | Move all listed junctions to the new integer positions **in one atomic command** |
 | `deleteWall` | Delete the named wall, then normalize and recompute rooms |
 
@@ -61,7 +61,7 @@ Each file is JSON: `{ "fixtureSet", "specRefs", "cases": [...] }`. Each case has
 | `faces[].corners` | The face's corner points in order. **Orientation rule (GEO-001):** a room face listed in this order has a **positive** signed area `½·Σ(xᵢ·yᵢ₊₁ − xᵢ₊₁·yᵢ)` in model coordinates (Y down), i.e. clockwise on screen, the same order as the rooms stored in `docs/examples/sample-project.json`. Compare as a cyclic sequence (any start corner, same direction). Junctions that lie on a straight edge between two corners (collinear, e.g. T-junction stems on the other side) are not corners and must be ignored |
 | `faces[].centrelineSignedAreaMm2` | Signed shoelace area of the corner polygon (centrelines) with the orientation above |
 | `faces[].clearRect` | `[minX, minY, maxX, maxY]` of the clear (inside-walls) rectangle; multiples of 0.5 mm |
-| `faces[].clearAreaMm2` | Unrounded clear (carpet) area in mm² (D14) |
+| `faces[].clearAreaMm2` | Unrounded clear (carpet) area in mm² (D13) |
 | `faces[].smallSpaceWarning` | D12: `true` iff 0 < unrounded clear area < 250 000 mm² |
 | `faces[].roomId` | Expected room ID after the operation; `"<new>"` means a newly generated ID (not any old ID) |
 | `junctionsAt[]` | `{at, id?, degree}`: there is exactly one junction at `at`; if `id` is given it must be that existing ID; `degree` = number of walls meeting there |
@@ -71,13 +71,13 @@ Each file is JSON: `{ "fixtureSet", "specRefs", "cases": [...] }`. Each case has
 | `footprintUnionAreaMm2` | Area of the union of all wall bodies and junction caps (§E.6) |
 | `outerBoundaryRect` | `[minX, minY, maxX, maxY]` of the union of all wall footprints |
 | `thresholdAreaMm2` | Area of a door threshold quad (opening width × wall thickness). `operation.withOpening` adds that opening for the analysis |
-| `faces[].displayLabelM2` | Expected label text: clear area in m² with 2 decimals (§E.7), rounded half up. Tested separately from the exact area (D14) |
+| `faces[].displayLabelM2` | Expected label text: clear area in m² with 2 decimals (§E.7), rounded half up. Tested separately from the exact area (D13) |
 | `newRoomCopiesPropertiesFrom`, `checkRoomNamesHint` | §E.8 split rule: the new room copies the old room's properties and the user sees a "check room names" hint |
 | `errorKind` | With `accepted: false`, a hint of the reason (free text; tests may ignore the wording) |
 
 ### Tolerances
 
-- Areas: |actual − expected| ≤ 1 mm² (D14, GEO-010). Rounded m² labels are a separate test.
+- Areas: |actual − expected| ≤ 1 mm² (D13, GEO-010). Rounded m² labels are a separate test.
 - `clearRect` values: ≤ 0.001 mm (they are exact multiples of 0.5 mm).
 - Junction coordinates and wall lengths: exact integers.
 - Counts, IDs, `accepted`, `smallSpaceWarning`: exact.
