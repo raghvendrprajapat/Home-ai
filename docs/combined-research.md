@@ -1016,6 +1016,8 @@ function zoomAt(v: View, f: Vec2, factor: number): View {   // wheel or pinch ab
 
 During a drag, compute from the pointer-down original plus the total displacement. Never keep rounding small deltas, which drifts (Codex). Pinch uses the midpoint and the ratio of finger distances. Pan and zoom never send model commands.
 
+**Raw input versus canonical input (owner decision D14):** fractional coordinates from `screenToWorld` are transient pointer/preview values. Resolve snapping in that layer, then quantize once when constructing an integer-mm command. A raw closing candidate 0.4 mm from an existing junction snaps to that exact target under the documented screen-pixel controls and reuses its ID. The geometry normalizer receives integer coordinates; it does not receive a 0.4 mm canonical gap. Fractional coordinates in a saved/imported project or canonical command are invalid and must be rejected without changing the open model; never repair those silently by treating them as pointer input. See GEO-016.
+
 ## E.2 2D library evaluation
 
 | Option | Pros | Cons | Verdict |
@@ -1270,7 +1272,7 @@ Every action also has a button (touch) and a DOM control (accessibility, NFR-009
 | Door filled in 3D | Box wall + decorative door model | Mesh void probe (SYNC-002) |
 | Window opens a floor gap | Every opening treated as a door | Solid below sill probe (SYNC-002) |
 | Mesh cracks at a junction | Overlapping or gapped caps | Single ownership + edge/manifold test (GEO-006) |
-| Closing a loop with a 0.4 mm gap | Float comparison | Snap/merge < 1 mm (GEO-016) |
+| Raw pointer closure 0.4 mm from an existing junction | Confusing transient floats with canonical integer coordinates | Input layer snaps to existing target, quantizes once and reuses its ID; fractional canonical input rejected (GEO-016) |
 | Dragging a junction across another wall | Crossing not detected | Reject in L0 / split later (GEO-003) |
 | 5 walls at one junction; 179.9° near-straight join | Miter blow-up | Cap polygon + miter limit (GEO-006) |
 | Deleting a wall that splits a room; undo after a merge | Normalization effects lost | Patch-based undo (SYNC-007) |
@@ -1805,17 +1807,19 @@ y=5000  j6 ──w5── j5 ──w4── j4
 
 | Expected result | Value |
 |---|---|
-| Living carpet area (inside walls: 4500 − 115 − 57.5 by 5000 − 230) | **20.6422 m²** |
-| Bedroom carpet area (3500 − 57.5 − 115 by 4770) | **15.8722 m²** |
+| Living carpet area (inside walls: 4500 − 115 − 57.5 by 5000 − 230) | **20,642,175 mm²** = 20.642175 m²; rounded reference 20.6422 m² |
+| Bedroom carpet area (3500 − 57.5 − 115 by 4770) | **15,872,175 mm²** = 15.872175 m²; rounded reference 15.8722 m² |
 | Main door (w5) interval | 1000…2000 mm from j5; end guard 165 mm satisfied |
 | Bedroom door (w7, 115 mm wall) interval | 550…1450 mm |
 | Living window (w1) | 1500…3000 mm, sill 900, height 1200 → solid wall below 900 mm |
 
 **Required automated proof (DM-001…004; written in Phase 0/1, not yet run):**
 1. load → validate (0 errors) → serialize → byte-identical canonical JSON;
-2. `MoveWall(w7, +100 mm in X)` (moves j2 and j5 together, so the partition stays orthogonal as L0 requires) → living becomes **21.1192 m²** (+0.4770) and bedroom **15.3952 m²** (−0.4770), and all openings stay valid;
+2. `MoveWall(w7, +100 mm in X)` (moves j2 and j5 together, so the partition stays orthogonal as L0 requires) → living becomes **21,119,175 mm²** (+477,000 mm²) and bedroom **15,395,175 mm²** (−477,000 mm²), and all openings stay valid. The four-decimal references 21.1192 / 15.3952 m² are rounded illustrations, not exact area assertions;
 3. undo → canonical JSON identical to the original;
 4. headless 3D build → 7 wall meshes, 2 floor meshes, 2 door thresholds, 4 opening instances.
+
+**Area precision (owner decision D13):** compare unrounded derived clear areas in mm² with the specified tolerance. Derived areas may be fractional even though canonical lengths are integer mm; do not round them to integers. Rounded m² reference values illustrate the result only. Test application label formatting separately with E.7's two-decimal display precision. The geometry/core functions implementing these checks do not exist yet.
 
 **Second analytic fixture (Codex F-TWO-SQ, for GEO-010):** two 4 m × 4 m centreline rooms with 200 mm walls.
 
@@ -2387,7 +2391,7 @@ L0 = Phases 0–4 + local durability. C1 (Play v1.0) = L0 + Phase 5 (cloud optio
 |---|---|---|---|---|---|
 | DM-001 | FR-001, FR-003 | `sample-project.json` (+ templates) | Schema + `validateProject` → 0 errors | Auto | U |
 | DM-002 | FR-001 | Load → canonical serialize | Byte-identical | Auto | J |
-| DM-003 | FR-007, FR-009 | `MoveWall(w7, +100 mm X)` | Living 21.1192 m², bedroom 15.3952 m² (±1 mm²); all openings valid | Auto | J,U |
+| DM-003 | FR-007, FR-009 | `MoveWall(w7, +100 mm X)` | Unrounded clear area: Living 21119175 mm², bedroom 15395175 mm² (±1 mm²); all openings valid; display formatting tested separately | Auto | J,U |
 | DM-004 | FR-013 | Undo after DM-003 | Canonical JSON equals original | Auto | J |
 
 ## M.3 Geometry (GEO)
@@ -2409,12 +2413,14 @@ L0 = Phases 0–4 + local durability. C1 (Play v1.0) = L0 + Phase 5 (cloud optio
 | GEO-013 | FR-011 | Openings at wall ends, overlapping, taller than wall | Valid accepted; end-guard/overlap/vertical violations rejected atomically | Auto/property | U,J |
 | GEO-014 | FR-011 | Reverse host wall; split before/after/through opening | World centre unchanged ≤ 1 mm; hinge meaning kept; through-split rejected; undo restores IDs | Auto | U,J,V |
 | GEO-015 | FR-011 | Shrink wall below opening clearance | Rejected or previewed choice; never silently clipped/moved | Auto | U,J,B |
-| GEO-016 | FR-005 | Segments 9/10/11 mm; 0.4 mm closing gap; huge coords; NaN | < 10 mm rejected; < 1 mm junctions merged; out-of-domain rejected | Auto/property | U,J |
+| GEO-016 | FR-001, FR-005, FR-006 | Integer segments 9/10/11 mm; raw pointer closure gap 0.4 mm; fractional canonical junction; huge coords; NaN | < 10 mm rejected; valid canonical shared coordinates merged; raw input snaps/quantizes before command; fractional/out-of-domain canonical input rejected unchanged | Auto/property, stages below | U,J |
 | GEO-017 | FR-001, NFR-021 | 10 000 seeded random command sequences (CI corpus) | Every accepted command passes all invariants; rejected → unchanged; failing seeds minimized and kept | Auto/property | U,J |
 | GEO-018 | FR-020 | Furniture oriented-box pairs | Overlap flags correct | Auto | U |
 | GEO-019 | FR-021 | Back-to-wall snap | Back face within 1 mm of wall inner face | Auto | U |
 | GEO-020 | FR-035 (later) | Stair fixture | Fits floor-to-floor height; specialist fixture | Auto later | U,M |
 | GEO-021 | FR-004, FR-008, FR-009, FR-013 | Closed orthogonal faces with positive clear areas below/at/above 250000 mm²; create/edit yielding zero or negative clear area | Every positive face retained; warning iff unrounded clear area < 250000 mm²; nonpositive area → clear error, rejected command, unchanged canonical model and undo history | Auto (geometry/core) + warning UI check | U,J,B |
+
+**GEO-016 input stages:** minimum-length/topology cases exercise the geometry package; fractional canonical-input rejection exercises the schema/core validator. The 0.4 mm case is input-adapter data, not a canonical project: use an existing target `(0, 0)`, raw candidate `(0.4, 0)` and zoom 1 CSS px/mm; the junction lies inside the 12 px acquire radius, so the expected committed endpoint is the exact existing target and ID. Verify closure when the drawing/snapping layer exists (PH2-T03), not as a passing PH0-T02 engine test. Also reject a canonical document containing `x = 0.4` with no model replacement. Do not modify the integer coordinate schema.
 
 **GEO-021 cases (specified here; execution pending):** face retention and analytic clear-area cases gate PH0-T02. Atomic command rejection and undo/redo gate PH0-T03; warning display gates the room UI task PH2-T02; save/reload checks gate PH0-T08. Later checks do not require those systems to exist in PH0-T02. Use isolated rectangular centreline loops with uniform wall thickness, so positive inside dimensions are `width − thickness` and `depth − thickness`. Compute expected values analytically; Claude authors the independent fixture data before PH0-T02.
 
@@ -2802,7 +2808,7 @@ NFR coverage: every NFR row in §C.5 names its tests. NFR-016 (crash-free ≥ 99
 | Codex-only facts re-fetched live on 2026-10-11 (RV-1…RV-13): Anthropic prices; RoomSketcher "not available on phones"; Supabase PITR + storage-backup exclusion; P14 wall height; P34 round walls; P28 Home Scan limits; Live Home 3D prices; HomeByMe free limits; Stripe India invite-only; OpenAI pricing; Gemini 18+ terms; Gemini image prices; Planner 5D AI-training clause | **All found as quoted.** |
 | Anthropic price discrepancy (Codex $3/$15 vs Claude $2/$10) | Both are correct, for different models (Sonnet 4.6 vs Sonnet 5.5); the newer and cheaper one is used |
 | OpenAI pricing (Codex: blocked; Claude: read) | Page now readable; gpt-image-2 image input $4/M, output $15/M (RV-10) |
-| Example files after removing electrical | `project.schema.json` + `sample-project.json`: 0 schema errors, 0 integrity problems, areas 20.6422 / 15.8722 m² |
+| Example files after removing electrical | `project.schema.json` + `sample-project.json`: 0 schema errors, 0 integrity problems; illustrative rounded area labels 20.6422 / 15.8722 m² (exact mm² oracles in §H.6) |
 | Electrical / wiring content | Removed from scope, the PRD, data model, examples and tests. Only "removed by owner decision" notes remain |
 | Marketing website | Excluded (FR-047); only the 2 Play-required pages remain (§O.3) |
 | ID cross-references | Checked by script (FR/NFR/test/ADR/TRD/task IDs: every referenced ID is defined) |

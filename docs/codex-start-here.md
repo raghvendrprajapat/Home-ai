@@ -13,8 +13,8 @@ This file carries **every decision made so far**, including decisions made in ch
 - **Platform:** one TypeScript codebase. Web app + Android app via Capacitor. Google Play distribution.
 - **Money:** freemium. Google Play Billing subscription, ads only outside the editor, optional rewarded unlock. AI credits only later.
 - **Core promise:** measurements you can trust, 2D = 3D always, and your work is never lost.
-- **Owner:** not a programmer. He tests on two phones (Low: Galaxy A0x/Redmi A; Mid: Galaxy A3x/A5x) and approves plans. Merge authority follows D13 below.
-- **Current state:** Research PR #1 and PH0-T01 PR #2 are merged into main. PH0-T01 provides a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build, Chromium smoke checks, fresh Codex review and implementation CI passed; see [`verification/ph0-t01.md`](verification/ph0-t01.md) and PR #2 for evidence and limits. The 54 playbook task issues are live; PH0-T01 issue #3 is closed. There is no editor, geometry implementation, 3D, saving or Android build yet; ten-user interview completion is not confirmed. Next engineering task is PH0-T02a after the geometry specification differences are agreed, with independent fixtures written by Claude.
+- **Owner:** not a programmer. He tests on two phones (Low: Galaxy A0x/Redmi A; Mid: Galaxy A3x/A5x) and approves plans. Merge authority follows D15 below.
+- **Current state:** Research PR #1 and PH0-T01 PR #2 are merged into main. PH0-T01 provides a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build, Chromium smoke checks, fresh Codex review and implementation CI passed; see [`verification/ph0-t01.md`](verification/ph0-t01.md) and PR #2 for evidence and limits. The 54 playbook task issues are live; PH0-T01 issue #3 is closed. There is no editor, geometry implementation, 3D, saving or Android build yet; ten-user interview completion is not confirmed. Geometry specification choices are approved as D11–D14. Next engineering task is PH0-T02a, with independent fixtures written by Claude; **do not start PH0-T02 until Claude's PH0-T02a fixtures PR is merged**.
 
 ## 2. Owner decisions (binding)
 
@@ -32,7 +32,9 @@ This file carries **every decision made so far**, including decisions made in ch
 | D10 | Never copy Planner 5D code, assets, UI or private APIs | §O.1 |
 | D11 | **Wall thickness: 50–1000 mm, inclusive, stored as integer mm.** The sample schema maximum is 1000, matching FR-007, §D.4 and §E.12.2; values outside the range are rejected. | Owner instruction; FR-007, §D.4, §E.12.2; project.schema.json |
 | D12 | **Small closed rooms:** keep every bounded face whose clear (inside) area is positive. If clear area is < 0.25 m², keep the room and show a warning such as "very small space — shaft/niche?"; at exactly 0.25 m² no small-space warning is needed. Zero or negative clear area is an invalid drawing: reject the command with a clear error and leave the model unchanged. Never silently discard a small valid room. | Owner instruction; §E.7; GEO-021 |
-| D13 | **Merge delegation (2026-10-11; formerly D11):** the owner said, "mere next instructions tak pr tum khud merge karoge". Until he changes this instruction, Codex may merge prepared PRs after all applicable CI, review and task acceptance gates pass. This changes only who clicks Merge; plan approval, real phone testing, Claude checks and unresolved specification decisions remain required where applicable. Older owner-merge examples in the guide are superseded by this decision. | Owner instruction; AGENTS.md §2 |
+| D13 | **Area tests:** use unrounded clear-area mm² with existing tolerances; m² labels are formatted and tested separately. Initial sample 20642175/15872175 mm²; moved partition 21119175/15395175 mm². | Owner approval; §H.6; DM-003 |
+| D14 | **Raw input and canonical validation:** the 0.4 mm case is transient pointer/preview input before snapping/quantization to an integer-mm command. Fractional canonical project/command coordinates are rejected unchanged. Test the stages separately. | §E.1, §E.13; GEO-016 |
+| D15 | **Merge delegation (2026-10-11; formerly D13):** the owner said, "mere next instructions tak pr tum khud merge karoge". Until he changes this instruction, Codex may merge prepared PRs after all applicable CI, review and task acceptance gates pass. This changes only who clicks Merge; plan approval, real phone testing, Claude checks and unresolved specification decisions remain required where applicable. Older owner-merge examples in the guide are superseded by this decision. | Owner instruction; AGENTS.md §2 |
 
 ## 3. Which model for which job (benchmark-based, 2026-10-11)
 
@@ -64,8 +66,8 @@ Sources: vals.ai model pages for both models (fetched 2026-10-11), and Artificia
 2. **GitHub Actions** must be green.
 3. **Check:**
    - **⭐ task:** Claude Opus deep-reviews the PR diff. Codex fixes the findings. Only then merge.
-   - **Normal task:** the owner performs the task's required phone checks; Codex merges under D13 after the other gates pass. Once a week Claude Sonnet reviews all PRs merged that week, and Codex fixes the findings in a new PR.
-4. **Owner:** phone test (Low + Mid, where required). **Merge:** Codex under D13 until the owner changes the instruction.
+   - **Normal task:** the owner performs the task's required phone checks; Codex merges under D15 after the other gates pass. Once a week Claude Sonnet reviews all PRs merged that week, and Codex fixes the findings in a new PR.
+4. **Owner:** phone test (Low + Mid, where required). **Merge:** Codex under D15 until the owner changes the instruction.
 
 Stop rules:
 - Codex fails twice on the same problem → Claude rescue (diagnosis first).
