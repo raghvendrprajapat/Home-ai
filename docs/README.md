@@ -29,6 +29,8 @@ Examples: [`examples/sample-project.json`](examples/sample-project.json), valida
 
 ## Build process
 
+**Start here for Codex/Claude Code:** [`../AGENTS.md`](../AGENTS.md) (shared rules both agents read automatically) and [`codex-start-here.md`](codex-start-here.md) (current state, all owner decisions, model guidance, and the exact prompts to paste into Codex and Claude Code).
+
 **[`build-process-guide.md`](build-process-guide.md)**: how to build the app step by step with **Codex as the main builder** and Claude Code only for high-risk checks (independent tests, reviews, rescues), to save Claude usage. It covers setup, rule files, the task cycle, ready prompts for every task, phone testing, safety rules, when to hire experts, and the timeline.
 
 ## Older documents (history)

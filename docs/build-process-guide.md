@@ -1,6 +1,6 @@
 # Build Process Guide: building GharPlan with Codex (main) and Claude Code (specialist)
 
-**Date:** 2026-10-11 (v2: Codex is the main builder because Claude Code's usage limit is lower) · **For:** Raghvendr (no coding background) · **Based on:** [`combined-research.md`](combined-research.md). Section numbers like §E.5 and task IDs like PH0-T02 refer to that document.
+**Date:** 2026-10-11 (v3: Codex builds, tests and self-verifies everything; Claude Code checks afterwards at two levels: deep review on ⭐ tasks, weekly batch review on normal tasks) · **Shared context:** [`../AGENTS.md`](../AGENTS.md) + [`codex-start-here.md`](codex-start-here.md), including the prompts to paste into Codex · **For:** Raghvendr (no coding background) · **Based on:** [`combined-research.md`](combined-research.md). Section numbers like §E.5 and task IDs like PH0-T02 refer to that document.
 
 **Purpose:** a step-by-step process to build the app with AI coding agents.
 - **Codex** does most of the work.
@@ -22,7 +22,7 @@
   | Kaun | Kaam |
   |---|---|
   | **Codex** (aapke ChatGPT Plus mein) | **Main builder.** Lagbhag har task ka plan, code, tests aur PR; normal review bhi |
-  | **Claude Code** (kam limit) | **Specialist, sirf ⭐ wale kaam:** (1) sabse risky hisson ke independent tests likhna, (2) risky PR ka doosra review, (3) jab Codex 2 baar fail ho jaaye tab bachav, (4) launch se pehle security review |
+  | **Claude Code** (kam limit) | **Doosra checker, 2 level par:** (1) ⭐ risky task ka gehra review (Opus) merge se pehle, (2) normal tasks ka **hafte mein ek baar** sab PRs ka saath mein chhota check (Sonnet), (3) sabse risky hisson ke independent tests, (4) Codex 2 baar fail ho to bachav, (5) launch se pehle security review |
   | **Aap** | Task chunna, plan approve karna, phone par test, merge karna |
   | **GitHub Actions** | Har PR par automatic tests; Android APK banana |
 
@@ -36,7 +36,7 @@
   2. Aap approve karein.
   3. Codex code + tests likhe.
   4. CI green ho.
-  5. Review: normal task ka Codex khud (nayi session), ⭐ task ka Claude.
+  5. Codex khud verify kare (self-review). ⭐ task: Claude Opus ka gehra check, phir merge. Normal task: merge, aur hafte ke ant mein Claude Sonnet saare PRs ek saath check kare.
   6. Aap phone par test karein.
   7. Merge.
 - **Andaza:** kul ~56 tasks mein se lagbhag 15 par Claude ki zaroorat (≈ har hafte 1–3 chhoti Claude sessions). Ye estimate hai; asal usage aapka plan/meter batayega.
@@ -65,8 +65,9 @@
 | C3 | **Rescue** when Codex fails **2 times** on the same problem | Fresh perspective; avoids burning Codex attempts in a loop | Only when needed |
 | C4 | **Security review before release** (`/security-review` and `/code-review` on the release diff) | Highest-impact check | 1–2 sessions |
 | C5 | **Plan review** of the 3–4 hardest tasks (PH0-T02, PH0-T05, PH3-T02, PH5-T03), before Codex writes code | Catch a wrong design before it is built | 1 short session each |
+| C6 | **Weekly batch review** (Claude Sonnet) of all normal PRs merged that week; findings become a new Codex fix PR | The owner wants every Codex task checked by Claude; batching keeps usage low | 1 session per week |
 
-Everything else (UI, catalog, i18n, export, Android setup, ads, analytics, docs) is **Codex only**.
+Everything else (UI, catalog, i18n, export, Android setup, ads, analytics, docs) is **built and self-verified by Codex**, then covered by the weekly batch review (C6).
 
 **Rule:** never let both agents edit the same files at the same time. In a ⭐ task, Claude writes **only** test fixtures or review comments, and never the implementation, unless it is a C3 rescue.
 
@@ -77,13 +78,15 @@ graph LR
   B --> CI[GitHub Actions green?]
   CI -->|no| B
   CI -->|yes| R{Task ⭐ ?}
-  R -->|normal| RC[Codex review<br/>fresh session]
-  R -->|⭐ high risk| RCl[Claude Code review<br/>diff only]
+  R -->|normal| RC[Codex self-review<br/>fresh session]
+  R -->|⭐ high risk| RCl[Claude Opus deep review<br/>diff only]
   RC --> Ph[You test on phones]
   RCl -->|findings| B
   RCl -->|ok| Ph
   Ph -->|problem| B
   Ph -->|ok| M[You merge]
+  M -->|normal PRs, once a week| W[Claude Sonnet batch review]
+  W -->|findings| F[New Codex fix PR]
 ```
 
 ---
@@ -189,55 +192,23 @@ No computer? Ask Codex to add a GitHub Actions workflow that builds a debug APK 
 - Claude Code also reads `AGENTS.md` directly when the repo has **no** `CLAUDE.md`. This needs Claude Code v2.1.277 or later.
 - In sessions where Claude can't read it, create a `CLAUDE.md` whose only line is `@AGENTS.md`. The import syntax is documented. Note: with a `CLAUDE.md` present, Claude reads only `CLAUDE.md`, so the import line is needed.
 
-So keep **one** file, `AGENTS.md`, under 200 lines (the docs advise this size):
-
-```markdown
-# Project rules for AI agents (GharPlan)
-
-## Source of truth
-- Spec: docs/combined-research.md. Task IDs (PHx-Tyy), requirements (PRD-FR/NFR), decisions (ADR),
-  tests (GEO/SYNC/...) come from there. If code and spec disagree, stop and ask.
-- Process: docs/build-process-guide.md. Codex = main builder; Claude Code = tests/review for ⭐ tasks only.
-- Out of scope: electrical/wiring features; marketing website pages; L0 walls are 0°/90° only.
-
-## Architecture rules (never break)
-1. Project data changes ONLY through core-model commands. Renderers (Konva 2D, Three.js 3D) never write the model.
-2. Model stores integer millimetres; floats only in derived data. Plan axes: X east, Y south (down), Z up.
-   Three.js mapping: (x/1000, z/1000, y/1000); Three rotation.y = −θ.
-3. document.revision = server revision only. localGeneration +1 on every edit/undo/redo, never reused.
-   Async/worker results carry {projectId, sessionId, localGeneration, dependencyHash}; stale ones are dropped.
-4. Every command is atomic: if validation fails, the model is unchanged.
-5. No secrets (API keys, service keys, signing keys) in code, logs or the app bundle.
-6. New dependency: record name, version, license in docs/decisions/dependencies.md first.
-   Never add GPL/AGPL code or non-commercial assets.
-
-## Working rules
-- One task ID per branch and PR. No unrelated refactors.
-- Before editing: list failure modes and assumptions; for non-trivial work, show a plan and wait for approval.
-- Files under tests/fixtures/independent/ are written by the OTHER agent. Never edit them to make
-  your code pass; if one looks wrong, explain why in the PR and ask the owner.
-- Every geometry function: unit tests + at least one fast-check property test, with independent
-  analytic expected values.
-- Run `pnpm check` (lint + typecheck + tests) before every commit. Never skip, delete or weaken a test.
-- Report actual command output. Screenshots are not evidence of geometry, saving or performance.
-- End every task with an "Owner summary" in simple English: what changed, how to test on a phone
-  step by step, what is NOT done, known risks.
-```
+So keep **one** file, `AGENTS.md`, under 200 lines (the docs advise this size). **It now exists at the repository root:** [`../AGENTS.md`](../AGENTS.md). Edit it there, never by copying text into chats. It points both agents to [`codex-start-here.md`](codex-start-here.md), which holds the current state, all owner decisions and the first prompts.
 
 ---
 
 ## 6. The task cycle
 
-### 6.1 Normal task (Codex only), about 75% of tasks
+### 6.1 Normal task (Codex builds and self-verifies; Claude checks weekly), about 75% of tasks
 
 | Step | You do | Who | Done when |
 |---|---|---|---|
 | 1. Pick | Open the next issue (Part 7 order) | You | — |
 | 2. Plan | Paste the task prompt (§7.1) into Codex; ask it to plan first and wait | Codex | You approve the plan |
 | 3. Build | Codex implements on a branch named after the task, runs `pnpm check`, opens a PR with the Owner summary | Codex | CI green |
-| 4. Review | Codex automatic review, **or** a *new* Codex session with the review prompt (§7.1). A fresh session does not carry the builder's assumptions | Codex | Findings fixed |
+| 4. Self-verify | Codex automatic review, **or** a *new* Codex session with the review prompt (§7.1). A fresh session does not carry the builder's assumptions | Codex | Findings fixed |
 | 5. Phone test | Follow the Owner summary on the Low + Mid phones | You | Works |
 | 6. Merge | Click Merge; close the issue | You | Done |
+| 7. Weekly | Paste the batch-review prompt (`codex-start-here.md` §8) into Claude Code with `/model sonnet`, listing that week's merged PRs; paste the findings into Codex as one fix task | Claude → Codex | Fix PR merged |
 
 ### 6.2 ⭐ task (Codex builds; Claude checks), about 25% of tasks
 
@@ -320,7 +291,7 @@ Goal: prove the hardest parts before building the product.
 
 | Task | Build | ⭐ Claude | Specific instruction (add to task prompt) | You check |
 |---|---|---|---|---|
-| PH0-T01 Repo skeleton + CI | Codex | — | "pnpm monorepo with only packages/geometry, packages/core-model, apps/web (React+Vite, TS strict); GitHub Actions: lint, typecheck, tests on every PR; AGENTS.md from docs/build-process-guide.md §5; docs/decisions/dependencies.md; pin Node LTS and pnpm." | Green CI check on the PR |
+| PH0-T01 Repo skeleton + CI | Codex | — | "pnpm monorepo with only packages/geometry, packages/core-model, apps/web (React+Vite, TS strict); GitHub Actions: lint, typecheck, tests on every PR; AGENTS.md already exists at the repo root — only fill its commands section; docs/decisions/dependencies.md; pin Node LTS and pnpm." | Green CI check on the PR |
 | PH0-T02a Independent geometry fixtures *(sub-task added by this guide)* | **Claude** | **C1** | Fixture prompt: "packages/geometry, §E.4–E.7, §H.6: sample project areas 20.6422/15.8722 m², F-TWO-SQ 14.44/16.34/0.18 m², T-junctions, rejected X-crossing and non-orthogonal walls, 0.4 mm closing gap, 9/10/11 mm segments, room split/merge" | Small PR of fixture files with hand arithmetic |
 | PH0-T02 Geometry core | Codex | **C5 + C2** | "§E.4–E.8: invariants I1–I8, normalizer with lineage, junction footprints with single ownership, half-edge faces, clear area, room identity. Make tests/fixtures/independent/geometry pass unchanged. fast-check: no crossings after normalize; grid rooms = cells; rectangle area = analytic." | All GEO tests green |
 | PH0-T03 Core model + undo | Codex | **C2** | "§G.2–G.3, §H.2–H.3: types, validateProject, AddWall/MoveJunction/MoveWall/DeleteWall/AddOpening/AddFurniture, Immer undo/redo, localGeneration. DM-001…004 (MoveWall w7 +100 → 21.1192/15.3952 m²), SYNC-007." | DM tests green |
@@ -443,8 +414,9 @@ Hindi copy: ChatGPT translates the strings, then a Hindi-speaking customer reads
 | 5 | T01 (C2), T03a (C1), T03 (C5+C2) | 4–5 |
 | 7–8 | T06 (C4), PH8-T01 (C2), PH8-T08 (C4) | 3–5 |
 | Rescues (C3) | As needed | ? |
+| Weekly batch review (C6, Sonnet) | Every week while building | ~1 per week |
 
-That is **≈ 20–26 planned short sessions over 9–19 months**, mostly bunched in Phase 0 and Phase 5. Whether this fits your plan depends on your actual limits; watch your usage and adjust.
+That is **≈ 20–26 deep (⭐) sessions plus about one light weekly batch session**, over 9–19 months. Deep sessions are mostly bunched in Phase 0 and Phase 5. Whether this fits your plan depends on your actual limits; watch your usage and adjust.
 
 ---
 
@@ -535,7 +507,8 @@ Total for reviews ≈ $500–3,000 (§N.5). Start with a small paid trial task.
   | When | What |
   |---|---|
   | 2–3 sessions | Codex tasks |
-  | 0–2 sessions | Claude ⭐ touchpoints |
+  | 0–2 sessions | Claude ⭐ deep checks |
+  | 1 session (end of week) | Claude Sonnet batch review of the week's normal PRs → Codex fix task |
   | 1 session | Phone tests + benchmarks |
   | Weekly | 5-line note in `docs/progress.md`: done / blocked / next / time / money |
 
@@ -565,5 +538,5 @@ Total for reviews ≈ $500–3,000 (§N.5). Start with a small paid trial task.
 2. Open Codex on the ChatGPT web, connect GitHub repo `Home-ai`, and turn on automatic code review if available.
 3. Check Claude Pro pricing. You only need it from PH0-T02a, so you can buy it when Phase 0 starts.
 4. Arrange the Low and Mid phones.
-5. In Codex: *"Open a PR merging claude/planner5d-reverse-engineering-lvgvo9 into main, then create GitHub issues for every task in docs/build-process-guide.md Part 7 with labels phase-N and star."* Then protect `main`.
-6. Start **PH0-T01** in Codex with the task prompt (§7.1).
+5. In Codex, paste **Prompt 1 (onboarding)** from [`codex-start-here.md`](codex-start-here.md) §8, then Prompt 2 (repo setup), then Prompt 3 (PH0-T01). These give Codex the same context and plan that Claude has.
+6. In Claude Code (when Phase 0 starts), open the same repo; it reads the same `AGENTS.md`.
