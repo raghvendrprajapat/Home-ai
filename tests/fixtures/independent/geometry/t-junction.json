@@ -1,0 +1,136 @@
+{
+  "fixtureSet": "t-junction",
+  "specRefs": ["§E.4 I3-I6", "§E.5", "GEO-003", "GEO-004"],
+  "cases": [
+    {
+      "id": "TJ-01",
+      "tests": ["GEO-003"],
+      "earliestTask": "PH0-T02",
+      "description": "New wall starts on the interior of an existing wall: the existing wall is split at ONE shared junction (not two junctions that only look joined).",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 6000, "y": 0 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [2000, 0], "to": [2000, 3000], "thickness": 200, "height": 3000 },
+      "expect": {
+        "accepted": true,
+        "wallCount": 3,
+        "junctionCount": 4,
+        "faceCount": 0,
+        "junctionsAt": [
+          { "at": [0, 0], "id": "j1", "degree": 1 },
+          { "at": [6000, 0], "id": "j2", "degree": 1 },
+          { "at": [2000, 0], "degree": 3 },
+          { "at": [2000, 3000], "degree": 1 }
+        ],
+        "wallIdOn": [
+          { "from": [2000, 0], "to": [6000, 0], "id": "w1" }
+        ],
+        "wallsAlongLine": { "axis": "y", "at": 0, "union": [[0, 6000]], "totalLength": 6000, "idsPresent": ["w1"] }
+      },
+      "arithmetic": [
+        "Split point (2000,0) is on w1's interior (0 < 2000 < 6000). Children: [0,2000] length 2000 and [2000,6000] length 4000; 2000 + 4000 = 6000 (no overlap, no gap).",
+        "Lineage rule §E.5 step 4: the older ID w1 stays on the longest piece = [2000,6000] (4000 mm). The 2000 mm piece gets a new ID.",
+        "Junction (2000,0) is shared by the two children and the new wall -> degree 3. Exactly one junction exists there.",
+        "No closed loop -> 0 bounded faces."
+      ]
+    },
+    {
+      "id": "TJ-02",
+      "tests": ["GEO-003", "GEO-004"],
+      "earliestTask": "PH0-T02",
+      "description": "New wall starts exactly on an existing END junction (L corner): no split, the existing junction ID is reused.",
+      "plan": "same as TJ-01",
+      "operation": { "op": "addWall", "from": [6000, 0], "to": [6000, 3000], "thickness": 200, "height": 3000 },
+      "expect": {
+        "accepted": true,
+        "wallCount": 2,
+        "junctionCount": 3,
+        "junctionsAt": [
+          { "at": [6000, 0], "id": "j2", "degree": 2 },
+          { "at": [6000, 3000], "degree": 1 }
+        ],
+        "wallIdOn": [
+          { "from": [0, 0], "to": [6000, 0], "id": "w1" }
+        ]
+      },
+      "arithmetic": [
+        "(6000,0) equals j2 exactly, so j2 is reused (I5: no two junctions closer than 1 mm). w1 is untouched (still 0..6000, ID w1).",
+        "Walls: w1 + new = 2. Junctions: j1, j2, (6000,3000) = 3."
+      ]
+    },
+    {
+      "id": "TJ-03",
+      "tests": ["GEO-003"],
+      "earliestTask": "PH0-T02",
+      "description": "Reverse T: the NEW wall's interior passes through an existing wall's end junction. The new wall is split there and the existing junction ID is reused.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 2000, "y": 0 },
+          { "id": "j2", "x": 2000, "y": 3000 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [0, 0], "to": [6000, 0], "thickness": 200, "height": 3000 },
+      "expect": {
+        "accepted": true,
+        "wallCount": 3,
+        "junctionCount": 4,
+        "junctionsAt": [
+          { "at": [2000, 0], "id": "j1", "degree": 3 },
+          { "at": [0, 0], "degree": 1 },
+          { "at": [6000, 0], "degree": 1 }
+        ],
+        "wallIdOn": [
+          { "from": [2000, 0], "to": [2000, 3000], "id": "w1" }
+        ],
+        "wallsAlongLine": { "axis": "y", "at": 0, "union": [[0, 6000]], "totalLength": 6000, "idsPresent": [] }
+      },
+      "arithmetic": [
+        "j1 (2000,0) lies on the new wall's interior (0 < 2000 < 6000), so the new wall becomes [0,2000] + [2000,6000] sharing j1.",
+        "j1 now has 3 walls -> degree 3. w1 is unchanged.",
+        "Walls: w1 + 2 new pieces = 3. Junctions: j1, j2, (0,0), (6000,0) = 4."
+      ]
+    },
+    {
+      "id": "TJ-04",
+      "tests": ["GEO-004"],
+      "earliestTask": "PH0-T02",
+      "description": "Move a shared T junction along its host line: all walls keep pointing at the same junction ID; no dangling references.",
+      "plan": "same as two-squares.json TWOSQ-01",
+      "operation": {
+        "op": "moveJunctions",
+        "moves": [
+          { "junction": "j2", "to": [3000, 0] },
+          { "junction": "j5", "to": [3000, 4000] }
+        ]
+      },
+      "expect": {
+        "accepted": true,
+        "wallCount": 7,
+        "junctionCount": 6,
+        "junctionsAt": [
+          { "at": [3000, 0], "id": "j2", "degree": 3 },
+          { "at": [3000, 4000], "id": "j5", "degree": 3 }
+        ],
+        "faces": [
+          { "roomId": "r_west", "clearRect": [100, 100, 2900, 3900], "clearAreaMm2": 10640000 },
+          { "roomId": "r_east", "clearRect": [3100, 100, 7900, 3900], "clearAreaMm2": 18240000 }
+        ]
+      },
+      "arithmetic": [
+        "West clear: X 100..2900 = 2800, Y 3800 -> 2800 x 3800 = 10,640,000.",
+        "East clear: X 3100..7900 = 4800, Y 3800 -> 4800 x 3800 = 18,240,000.",
+        "Sum 28,880,000 = same as before (moving an internal wall only moves area between rooms).",
+        "w1, w2, w4, w5, w7 still reference j2/j5 by ID; junction count unchanged."
+      ]
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+{
+  "fixtureSet": "split-merge",
+  "specRefs": ["§E.5", "§E.7", "§E.8", "GEO-011"],
+  "cases": [
+    {
+      "id": "SPLIT-01",
+      "tests": ["GEO-011", "GEO-003", "GEO-010"],
+      "earliestTask": "PH0-T02",
+      "description": "One 6000 x 4000 room (200 mm walls) is split by adding a 100 mm partition at x = 4000. The larger piece keeps the room ID; the smaller gets a new ID.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 6000, "y": 0 },
+          { "id": "j3", "x": 6000, "y": 4000 },
+          { "id": "j4", "x": 0, "y": 4000 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 },
+          { "id": "w4", "a": "j4", "b": "j1", "thickness": 200, "height": 3000 }
+        ],
+        "rooms": [
+          { "id": "r_hall", "boundary": ["j1", "j2", "j3", "j4"], "name": "Hall" }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [4000, 0], "to": [4000, 4000], "thickness": 100, "height": 3000 },
+      "expect": {
+        "accepted": true,
+        "wallCount": 7,
+        "junctionCount": 6,
+        "faceCount": 2,
+        "junctionsAt": [
+          { "at": [4000, 0], "degree": 3 },
+          { "at": [4000, 4000], "degree": 3 }
+        ],
+        "wallIdOn": [
+          { "from": [0, 0], "to": [4000, 0], "id": "w1" },
+          { "from": [4000, 4000], "to": [0, 4000], "id": "w3" }
+        ],
+        "faces": [
+          {
+            "roomId": "r_hall",
+            "corners": [[0, 0], [4000, 0], [4000, 4000], [0, 4000]],
+            "centrelineSignedAreaMm2": 16000000,
+            "clearRect": [100, 100, 3950, 3900],
+            "clearAreaMm2": 14630000,
+            "smallSpaceWarning": false
+          },
+          {
+            "roomId": "<new>",
+            "corners": [[4000, 0], [6000, 0], [6000, 4000], [4000, 4000]],
+            "centrelineSignedAreaMm2": 8000000,
+            "clearRect": [4050, 100, 5900, 3900],
+            "clearAreaMm2": 7030000,
+            "smallSpaceWarning": false
+          }
+        ],
+        "newRoomCopiesPropertiesFrom": "r_hall",
+        "checkRoomNamesHint": true
+      },
+      "arithmetic": [
+        "Before: clear 5800 x 3800 = 22,040,000 mm2.",
+        "Partition half thickness = 50. West clear X 100..(4000-50) = 3950 -> 3850; Y 100..3900 -> 3800; 3850 x 3800 = 14,630,000.",
+        "East clear X (4000+50) = 4050..5900 -> 1850; 1850 x 3800 = 7,030,000.",
+        "Check: 14,630,000 + 7,030,000 = 21,660,000 = 22,040,000 - 100 x 3800 (partition) = 22,040,000 - 380,000.",
+        "Identity (§E.8): exact cycle match fails (the old 4-corner cycle no longer exists). IoU of west piece vs old room = 14,630,000 / 22,040,000 = 0.664 < 0.8, so no overlap match. Split rule: the west piece holds 66.4 % (clear) or 16,000,000 / 24,000,000 = 66.7 % (centreline) of the old room, >= 50 % and unique -> keeps r_hall. East piece gets a new ID with copied properties and a 'check room names' hint.",
+        "Wall splits: w1 [0,6000] -> [0,4000] (4000, longest, keeps w1) + [4000,6000]; w3 from (6000,4000) to (0,4000) -> [6000..4000] (2000) + [4000..0] (4000, keeps w3). 4 + 2 new pieces + partition = 7 walls; 4 + 2 = 6 junctions."
+      ]
+    },
+    {
+      "id": "SPLIT-02",
+      "tests": ["GEO-011"],
+      "earliestTask": "PH0-T02",
+      "description": "Already-split plan with rooms Living (west, larger) and Store (east). Deleting the partition merges them; the larger old room's ID survives.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j5", "x": 4000, "y": 0 },
+          { "id": "j2", "x": 6000, "y": 0 },
+          { "id": "j3", "x": 6000, "y": 4000 },
+          { "id": "j6", "x": 4000, "y": 4000 },
+          { "id": "j4", "x": 0, "y": 4000 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j5", "thickness": 200, "height": 3000 },
+          { "id": "w5", "a": "j5", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w6", "a": "j3", "b": "j6", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j6", "b": "j4", "thickness": 200, "height": 3000 },
+          { "id": "w4", "a": "j4", "b": "j1", "thickness": 200, "height": 3000 },
+          { "id": "w7", "a": "j5", "b": "j6", "thickness": 100, "height": 3000 }
+        ],
+        "rooms": [
+          { "id": "r_living", "boundary": ["j1", "j5", "j6", "j4"], "name": "Living" },
+          { "id": "r_store", "boundary": ["j5", "j2", "j3", "j6"], "name": "Store" }
+        ]
+      },
+      "operation": { "op": "deleteWall", "wall": "w7" },
+      "expect": {
+        "accepted": true,
+        "faceCount": 1,
+        "faces": [
+          {
+            "roomId": "r_living",
+            "corners": [[0, 0], [6000, 0], [6000, 4000], [0, 4000]],
+            "centrelineSignedAreaMm2": 24000000,
+            "clearRect": [100, 100, 5900, 3900],
+            "clearAreaMm2": 22040000,
+            "smallSpaceWarning": false
+          }
+        ],
+        "wallsAlongLine": { "axis": "y", "at": 0, "union": [[0, 6000]], "totalLength": 6000, "idsPresent": ["w1"] }
+      },
+      "arithmetic": [
+        "Before: Living clear 3850 x 3800 = 14,630,000; Store 1850 x 3800 = 7,030,000 (same numbers as SPLIT-01).",
+        "After deleting w7: one face, clear 5800 x 3800 = 22,040,000 mm2 = 14,630,000 + 7,030,000 + 380,000 (floor that was under the partition).",
+        "Merge rule §E.8 step 4: the larger old room (Living, 14,630,000 > 7,030,000) keeps its ID -> r_living.",
+        "j5 and j6 become degree-2 collinear junctions. Whether the normalizer keeps them or merges w1+w5 / w6+w3 is up to the implementation; face corners ignore collinear junctions (see README). Coverage of the top line must be exactly [0,6000] with total length 6000 and w1 still present (it is the older/longer piece if merged)."
+      ]
+    }
+  ]
+}

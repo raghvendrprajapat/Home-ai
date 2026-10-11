@@ -1,0 +1,258 @@
+{
+  "fixtureSet": "segments-and-limits",
+  "specRefs": ["§E.4 I1, I2, I8", "§E.12.2", "D11", "D15", "GEO-016"],
+  "notes": [
+    "Boundary values: length >= 10 mm (I2); coordinates in [-100000, 100000] (I8); thickness 50..1000 inclusive (D11); height 1000..6000 inclusive (§E.12.2); all stored coordinates are integers (D15).",
+    "LIM cases use op 'validate' (a saved/loaded model). They may be wired in PH0-T02 (geometry invariants) or PH0-T03 (validateProject); either way every case must be covered by PH0-T03."
+  ],
+  "cases": [
+    {
+      "id": "SEG-01",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Wall of 9 mm on an empty plan.",
+      "plan": { "junctions": [], "walls": [] },
+      "operation": { "op": "addWall", "from": [0, 0], "to": [9, 0], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "too-short" },
+      "arithmetic": ["Length = 9 - 0 = 9 < 10 -> rejected (I2)."]
+    },
+    {
+      "id": "SEG-02",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Wall of exactly 10 mm.",
+      "plan": { "junctions": [], "walls": [] },
+      "operation": { "op": "addWall", "from": [0, 0], "to": [0, 10], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": true, "wallCount": 1, "junctionCount": 2 },
+      "arithmetic": ["Length = 10 >= 10 -> accepted (boundary is inclusive)."]
+    },
+    {
+      "id": "SEG-03",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Wall of 11 mm.",
+      "plan": { "junctions": [], "walls": [] },
+      "operation": { "op": "addWall", "from": [0, 0], "to": [11, 0], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": true, "wallCount": 1, "junctionCount": 2 },
+      "arithmetic": ["Length = 11 >= 10 -> accepted."]
+    },
+    {
+      "id": "SEG-04",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Adding a wall that ends 1 mm outside the L0 domain.",
+      "plan": { "junctions": [], "walls": [] },
+      "operation": { "op": "addWall", "from": [96000, 0], "to": [100001, 0], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "out-of-domain" },
+      "arithmetic": ["100001 > 100000 -> outside I8 -> rejected."]
+    },
+    {
+      "id": "LIM-01",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Coordinates exactly on the positive domain edge are valid.",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 96000, "y": 100000 }, { "id": "j2", "x": 100000, "y": 100000 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": true },
+      "arithmetic": ["x = 100000 and y = 100000 are within [-100000, 100000] (inclusive)."]
+    },
+    {
+      "id": "LIM-02",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Coordinates exactly on the negative domain edge are valid.",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": -100000, "y": -100000 }, { "id": "j2", "x": -100000, "y": -96000 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": true },
+      "arithmetic": ["-100000 is within the inclusive domain."]
+    },
+    {
+      "id": "LIM-03",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "y = -100001 is outside the domain.",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": -100001 }, { "id": "j2", "x": 4000, "y": -100001 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "out-of-domain" },
+      "arithmetic": ["-100001 < -100000 -> invalid (I8)."]
+    },
+    {
+      "id": "LIM-04",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "A saved model with a fractional coordinate (0.4 mm) is invalid (D15).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0.4, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "non-integer" },
+      "arithmetic": ["0.4 is not an integer; stored coordinates must be integer mm (§E.1, D15). The validator must reject it, not round it."]
+    },
+    {
+      "id": "LIM-05",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "NaN coordinate (from a bad numeric parse) is invalid.",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": "NaN", "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "not-a-number" },
+      "arithmetic": ["The adapter turns the string \"NaN\" into Number.NaN. NaN is not a finite integer -> invalid."]
+    },
+    {
+      "id": "LIM-06",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Thickness 49 mm (below D11 minimum).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 49, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "thickness" },
+      "arithmetic": ["49 < 50 -> invalid (D11)."]
+    },
+    {
+      "id": "LIM-07",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Thickness 50 mm (D11 minimum, inclusive).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 50, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": true },
+      "arithmetic": ["50 is the inclusive minimum."]
+    },
+    {
+      "id": "LIM-08",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Thickness 1000 mm (D11 maximum, inclusive).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 1000, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": true },
+      "arithmetic": ["1000 is the inclusive maximum (D11; the old schema limit of 600 was corrected in PR #58)."]
+    },
+    {
+      "id": "LIM-09",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Thickness 1001 mm (above D11 maximum).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 1001, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "thickness" },
+      "arithmetic": ["1001 > 1000 -> invalid (D11)."]
+    },
+    {
+      "id": "LIM-10",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Height 999 mm (below minimum).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 999 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "height" },
+      "arithmetic": ["999 < 1000 -> invalid (§E.12.2)."]
+    },
+    {
+      "id": "LIM-11",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Height 1000 mm (minimum, inclusive).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 1000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": true },
+      "arithmetic": ["1000 is the inclusive minimum."]
+    },
+    {
+      "id": "LIM-12",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Height 6000 mm (maximum, inclusive).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 6000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": true },
+      "arithmetic": ["6000 is the inclusive maximum."]
+    },
+    {
+      "id": "LIM-13",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Height 6001 mm (above maximum).",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 4000, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 6001 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "height" },
+      "arithmetic": ["6001 > 6000 -> invalid."]
+    },
+    {
+      "id": "LIM-14",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "A saved wall only 9 mm long is invalid.",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }, { "id": "j2", "x": 0, "y": 9 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "too-short" },
+      "arithmetic": ["Length 9 < 10 -> invalid (I2)."]
+    },
+    {
+      "id": "LIM-15",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Wall whose two ends are the same junction.",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j1", "thickness": 200, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "same-endpoints" },
+      "arithmetic": ["a = b -> invalid (I1)."]
+    },
+    {
+      "id": "LIM-16",
+      "tests": ["GEO-016"],
+      "earliestTask": "PH0-T02",
+      "description": "Wall referencing a junction that does not exist.",
+      "plan": {
+        "junctions": [{ "id": "j1", "x": 0, "y": 0 }],
+        "walls": [{ "id": "w1", "a": "j1", "b": "j9", "thickness": 200, "height": 3000 }]
+      },
+      "operation": { "op": "validate" },
+      "expect": { "accepted": false, "errorKind": "dangling-reference" },
+      "arithmetic": ["j9 is not in junctions -> invalid (I1)."]
+    }
+  ]
+}
