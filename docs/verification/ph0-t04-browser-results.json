@@ -1,0 +1,23 @@
+{
+  "scenario": "PH0-T04 real Chromium interactions",
+  "checks": [
+    "sample clear-area labels 20.64 / 15.87 m2",
+    "precise partition +100mm updates both room labels",
+    "one undo restores the full sample and empties history",
+    "redo restores edited sample",
+    "drag preview does not commit DOM canonical values/history",
+    "Escape discards preview without a commit",
+    "actual pointer release commits a valid room resize",
+    "drag creates exactly one undo entry",
+    "invalid collapsed geometry rejected with canonical model/history unchanged",
+    "responsive 320px: no horizontal overflow; visible canvas",
+    "responsive 390px: no horizontal overflow; visible canvas",
+    "responsive 768px: no horizontal overflow; visible canvas",
+    "off-centre handle grab preserves original corner + pointer delta",
+    "undo during drag removes stale preview; canvas and canonical corner agree",
+    "canvas wheel zoom anchors view and suppresses document scroll",
+    "trusted two-finger gesture cancels edit and creates no history"
+  ],
+  "errors": [],
+  "browser": "151.0.7922.173"
+}

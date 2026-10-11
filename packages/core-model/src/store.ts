@@ -12,6 +12,7 @@ enablePatches();
 export interface EditorSnapshot { document: ProjectDoc; derived: DerivedPlan; localGeneration: number; sessionId: string; canUndo: boolean; canRedo: boolean; historyTruncated: boolean }
 export type CommitResult = { ok: true; changed: boolean; changedIds: string[]; patches: Patch[]; inverse: Patch[]; checkRoomNamesHint: boolean } |
   { ok: false; errors: ValidationIssue[] };
+export type PreviewResult = { ok: true; document: Immutable<ProjectDoc>; derived: Immutable<DerivedPlan> } | { ok: false; errors: ValidationIssue[] };
 interface HistoryEntry { patches: Patch[]; inverse: Patch[]; bytes: number }
 const HISTORY_LIMIT = 20 * 1024 * 1024;
 function deriveDocument(document: ProjectDoc): DerivedPlan {
@@ -50,6 +51,13 @@ export class ProjectStore {
   getListenerErrors(): readonly string[] { return [...this.#listenerErrors]; }
   getSnapshot = (): Immutable<EditorSnapshot> => this.#snapshot;
   subscribe = (listener: () => void): (() => void) => { this.#listeners.add(listener); return () => this.#listeners.delete(listener); };
+  /** Isolated Phase 0 candidate: use the exact commit rules without changing this store. */
+  preview(command: Command): PreviewResult {
+    if (!command || typeof command !== 'object' || command.baseGeneration !== this.#generation) return { ok: false, errors: [{ code: 'stale', message: 'This preview was based on an older project.', entityIds: [] }] };
+    const candidate = new ProjectStore(this.#document, this.#sessionId, { now: () => this.#document.updatedAt });
+    const result = candidate.execute({ ...command, baseGeneration: 0 });
+    return result.ok ? { ok: true, document: candidate.#document, derived: candidate.#derived } : result;
+  }
   execute(command: Command): CommitResult {
     if (this.#publishing) return { ok: false, errors: [{ code: 'reentrant', message: 'Queue this edit until the current commit notification completes.', entityIds: [] }] };
     if (!command || typeof command !== 'object' || Array.isArray(command) || typeof command.type !== 'string' ||
