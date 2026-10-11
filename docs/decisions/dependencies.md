@@ -1,5 +1,14 @@
 # PH0-T01 dependency register
 
+## PH0-T02 property testing (2026-10-11, recorded before installation)
+
+| Dependency | Exact version | License | Purpose | Evidence |
+|---|---|---|---|---|
+| fast-check | 4.10.2 | MIT | Seeded analytic geometry and command-sequence property tests; no browser runtime dependency | [Official npm metadata](https://registry.npmjs.org/fast-check/4.10.2) |
+| pure-rand | 8.4.2 | MIT | fast-check's deterministic random generator, resolved transitive dependency | [Official npm metadata](https://registry.npmjs.org/pure-rand/8.4.2) |
+
+Node 24 satisfies fast-check's >=12.17 requirement. Pure TypeScript geometry needs no runtime dependency in this task; existing half-mm fixtures are preserved. Metadata checks are license evidence, not a legal audit.
+
 Checked against official npm version metadata and official GitHub repositories on 2026-10-11, before installation. These exact versions are selected for the skeleton; the lockfile pins their transitive dependencies. Package metadata is license evidence, supplemented by the installed-package license inventory during verification.
 
 | Dependency | Exact version | License | Purpose | Evidence |
