@@ -4,6 +4,8 @@
 
 This file carries **every decision made so far**, including decisions made in chat that are not in the other documents. Both agents get the same context from it. Update it when a decision changes; the owner asks an agent to do that.
 
+**Current authorization (D17):** develop continuously, make routine decisions, audit/test/fix, and merge green PRs. Claude reviews after agreed development and Codex verification, before commercial release. This supersedes older per-task approval, pre-build independent-fixture, weekly/plan/deep-review and rescue pause instructions throughout these documents. Preserve accepted fixtures; record any unexecuted external/device checks honestly.
+
 ---
 
 ## 1. The project in 10 lines
@@ -14,7 +16,7 @@ This file carries **every decision made so far**, including decisions made in ch
 - **Money:** freemium. Google Play Billing subscription, ads only outside the editor, optional rewarded unlock. AI credits only later.
 - **Core promise:** measurements you can trust, 2D = 3D always, and your work is never lost.
 - **Owner:** not a programmer. He tests on two phones (Low: Galaxy A0x/Redmi A; Mid: Galaxy A3x/A5x) and approves plans. Merge authority follows D15 below.
-- **Current state:** Research PR #1 and PH0-T01 PR #2 are merged into main. PH0-T01 provides a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build, Chromium smoke checks, fresh Codex review and implementation CI passed; see [`verification/ph0-t01.md`](verification/ph0-t01.md) and PR #2 for evidence and limits. The 54 playbook task issues are live; PH0-T01 issue #3 is closed. There is no editor, geometry implementation, 3D, saving or Android build yet; ten-user interview completion is not confirmed. Geometry specification choices are approved as D11–D14. PH0-T02a geometry fixtures are merged in [PR #60](https://github.com/raghvendrprajapat/Home-ai/pull/60), with PR/main CI green. Claude authored them before D16; preserve their data and provenance. PH0-T02 implementation is pending and still needs plan approval and Claude's C5/C2 reviews. Future fixture tasks follow D16's comment-to-Codex workflow.
+- **Current state:** Research PR #1 and PH0-T01 PR #2 are merged into main. PH0-T01 provides a three-package skeleton, strict TypeScript, a minimal GharPlan web shell, locked dependencies and CI. Local checks/build, Chromium smoke checks, fresh Codex review and implementation CI passed; see [`verification/ph0-t01.md`](verification/ph0-t01.md) and PR #2 for evidence and limits. The 54 playbook task issues are live; PH0-T01 issue #3 is closed. There is no editor, geometry implementation, 3D, saving or Android build yet; ten-user interview completion is not confirmed. Geometry specification choices are approved as D11–D14. PH0-T02a geometry fixtures are merged in [PR #60](https://github.com/raghvendrprajapat/Home-ai/pull/60), with PR/main CI green. Claude authored them before D16; preserve their data and provenance. PH0-T02 implementation is next under D17: the fixture prerequisite is satisfied, and Claude reviews are deferred to the final development audit. Future Claude fixture comments follow D16 exact-copy rules when supplied.
 
 ## 2. Owner decisions (binding)
 
@@ -36,6 +38,8 @@ This file carries **every decision made so far**, including decisions made in ch
 | D14 | **Raw input and canonical validation:** the 0.4 mm case is transient pointer/preview input before snapping/quantization to an integer-mm command. Fractional canonical project/command coordinates are rejected unchanged. Test the stages separately. | §E.1, §E.13; GEO-016 |
 | D15 | **Merge delegation (2026-10-11; formerly D13):** the owner said, "mere next instructions tak pr tum khud merge karoge". Until he changes this instruction, Codex may merge prepared PRs after all applicable CI, review and task acceptance gates pass. This changes only who clicks Merge; plan approval, real phone testing, Claude checks and unresolved specification decisions remain required where applicable. Older owner-merge examples in the guide are superseded by this decision. | Owner instruction; AGENTS.md §2 |
 | D16 | **Claude review-only (2026-10-11):** Claude Code does no development work and never pushes to the repository. Claude only reviews (⭐ deep reviews, weekly batch review, security review and rescue diagnosis), replying in PR comments or chat. For independent fixtures PH2-T04a and PH5-T03a, Claude writes the cases and expected values as text in a PR comment; Codex copies them into `tests/fixtures/independent/` exactly as given, without changing any value, and links the source comment in the PR. This supersedes older instructions permitting Claude development, file authoring, fixture PRs or rescue implementation. | Owner instruction; AGENTS.md §2/§5; build-process-guide C1/C3/§7.1 |
+| D17 | **Continuous development and final Claude review (2026-10-11):** owner authorized Codex to continue through agreed app development, decide routine ambiguities using best judgement, audit and verify the work, and merge checked PRs. Claude reviews only after development and Codex verification; no Claude development/push. This supersedes D7/D8/D15/D16's earlier review timing and per-task owner-approval/pause gates. Existing accepted fixtures remain unchanged. Future Claude fixture comments are deferred; Codex tests must be explicitly attributed. CI, security, real-device and external-service release requirements remain; do not describe unexecuted checks as verified or claim universal "100%" correctness. | Latest owner instruction and "Okey do it"; AGENTS.md §2/§5 |
+| D18 | **Free wall caps (Codex implementation decision under D17):** an unconnected end extends its rectangular footprint by thickness/2 beyond the centreline endpoint (a conventional square cap). L/T junction extensions use the perpendicular wall half-thickness to close the corner without double-counting union area. Room clear area subtracts these actual footprints, including dead-end stubs. Existing independent fixtures contain no free-cap expectation and remain untouched. | §E.6 ambiguity; independent geometry README open question; geometry implementation/tests |
 
 ## 3. Which model for which job (benchmark-based, 2026-10-11)
 
@@ -63,17 +67,14 @@ Sources: vals.ai model pages for both models (fetched 2026-10-11), and Artificia
 
 ## 4. How every task runs
 
-1. **Codex:** plan → owner OK → code + tests → `pnpm check` → self-review → PR with Owner summary.
-2. **GitHub Actions** must be green.
-3. **Check:**
-   - **⭐ task:** Claude Opus deep-reviews the PR diff. Codex fixes the findings. Only then merge.
-   - **Normal task:** the owner performs the task's required phone checks; Codex merges under D15 after the other gates pass. Once a week Claude Sonnet reviews all PRs merged that week, and Codex fixes the findings in a new PR.
-4. **Owner:** phone test (Low + Mid, where required). **Merge:** Codex under D15 until the owner changes the instruction.
+1. **Codex:** communicate plan → code + tests → `pnpm check` → fresh review → PR with Owner summary, under D17's standing authorization.
+2. **GitHub Actions** must be green; merge only the verified PR head.
+3. **Codex:** fix findings, record evidence and pending device/external checks, merge under D15/D17, then continue the next task.
+4. **Final review/release:** Claude reviews the completed work; Codex fixes findings. Owner/external testers execute required Low/Mid phone and service checks before commercial release.
 
 Stop rules:
-- Codex fails twice on the same problem → Claude rescue diagnosis only; Codex applies the findings.
-- Fails a third time → the owner hires the expert.
-- A phase takes more than 2× its estimate → pause.
+- Diagnose repeated failures, add regression coverage, document unresolved risks and continue unaffected work. Obtain external expertise where needed without claiming the blocked gate has passed.
+- Never merge red CI or weaken accepted fixtures. D17 supersedes older automatic pause rules.
 
 ## 5. Task order
 
@@ -93,7 +94,7 @@ Full details, prompts and "you check" steps are in `build-process-guide.md` §7.
 
 ## 6. What NOT to do
 
-- Do not write code before the owner approves a plan.
+- Do not begin an unrelated scope change; communicate plans and proceed under D17 for the agreed development.
 - Do not build features outside the current task, especially electrical features, website pages, AI, multiplayer or iOS.
 - Do not save Konva or Three.js state as project data.
 - Do not alter independent cases/expected values to make code pass. D16 permits Codex's initial exact copy from Claude's source PR comment for PH2-T04a/PH5-T03a, with the comment linked in the fixture PR; disputed corrections require owner resolution and a corrected Claude source comment.

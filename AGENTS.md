@@ -10,21 +10,18 @@ Both agents read this file. Codex reads `AGENTS.md` automatically. Claude Code r
 | `docs/build-process-guide.md` | How we work: task cycle, prompts, reviews, phone testing, safety |
 | `docs/examples/sample-project.json` + `project.schema.json` | Validated example project (fixture) |
 
-If code, this file and the spec disagree, **stop and ask the owner**. Do not guess.
+If code, this file and the spec disagree, investigate and record a reasoned resolution under D17. Ask only when necessary information or authorization is missing; never silently change accepted fixtures or product scope.
 
 ## 2. Owner and roles
 - **Owner:** Raghvendr. Not a programmer, "AI-first". Communicates in Hinglish.
   - Explain everything in simple words.
   - Never ask him to read or edit code.
   - Always give step-by-step phone test instructions.
-  - He approves plans and tests on phones. On 2026-10-11 he authorized Codex to merge PRs until his next instruction. Codex may merge only after all applicable task checks/reviews pass; this permission does not waive phone tests, Claude reviews or specification decisions.
+  - D17 (2026-10-11) authorizes continuous development, routine decisions, verification and green-PR merges without repeated plan approval. Real-phone and external-service checks remain release requirements; report them pending until actually executed.
 - **Codex = main builder.** Plans, implements, writes tests, runs checks, opens/pushes PR branches and applies review findings.
 - **Claude Code = review-only second checker (D16, 2026-10-11).** Claude does no development work, never edits development files or commits, and never pushes to the repo. Results are PR comments or chat:
-  - ⭐ tasks: plan/deep reviews before merge.
-  - Normal tasks: weekly batch review of merged PRs.
-  - Rescue diagnosis: after Codex fails twice on the same problem; Codex applies the fixes.
-  - Security review before release.
-  - Independent fixtures PH2-T04a/PH5-T03a: Claude supplies cases and expected values as text in a **PR comment**; Codex copies them exactly and links that comment. Claude does not create fixture files or PRs. PR #60's geometry fixtures predate D16 and remain protected.
+  - D17 defers Claude's deep, batch, rescue and security reviews until the agreed development and Codex verification are complete. Claude review is still required before commercial release, but is no longer a development or PR-merge prerequisite.
+  - Future independent fixtures PH2-T04a/PH5-T03a are deferred to final review. Codex must use clearly attributed analytic/property/fault-injection tests meanwhile, without claiming independent Claude authorship. If Claude later supplies fixture data in a **PR comment**, Codex copies it exactly and links it under D16. PR #60's accepted geometry fixtures remain protected.
 - **GitHub Actions (CI)** runs lint, types, tests and builds on every PR. Red CI = never merge.
 
 ## 3. Scope (owner decisions; do not change without the owner)
@@ -49,7 +46,7 @@ If code, this file and the spec disagree, **stop and ask the owner**. Do not gue
 
 ## 5. Working rules
 - **One task ID per branch and PR.** Branch name like `ph0-t02-geometry`. No unrelated refactors.
-- **Plan first:** before editing, post a plan (files, tests with independent expected values, failure modes, out-of-scope) and wait for the owner's OK. Skip only for one-line fixes.
+- **Plan first:** communicate scope, tests and failure modes, then proceed under D17's standing authorization. Record routine decisions; do not repeatedly request approval.
 - **Tests:**
   - Every geometry function gets unit tests + at least one fast-check property test, with analytic expected values (not values produced by the same code).
   - Make the listed test IDs from the spec pass.
@@ -61,8 +58,8 @@ If code, this file and the spec disagree, **stop and ask the owner**. Do not gue
   - (2) how to test on the Low and Mid phones, step by step;
   - (3) what is NOT done;
   - (4) risks.
-- **⭐ tasks** (label `star`: geometry core, core-model/undo, 3D sync/stale guard, openings, local save, cloud save/RLS, billing, release) are not merged until Claude's deep review findings are fixed.
-- If you fail twice on the same problem, stop and say so plainly. The owner will bring in the other agent.
+- **⭐ tasks** require thorough tests and a fresh Codex review before merge. Claude's review is deferred by D17; report that accurately, and keep external/device release gates pending until proven.
+- Repeated failures require diagnosis, regression tests and a documented limitation if unresolved. Continue unaffected authorized work; do not weaken tests or fabricate success.
 
 ## 6. Commands (PH0-T01; run from repository root)
 - Runtime: Node 24.19.0 (`.node-version`), pnpm 11.19.0 (`packageManager`).
