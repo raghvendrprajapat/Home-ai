@@ -1,0 +1,18 @@
+.perf-page { max-width:1440px; margin:0 auto; padding:24px; color:#213f30 }
+.perf-page header { display:flex; justify-content:space-between; gap:20px; align-items:center; margin-bottom:24px }
+.perf-page h1 { font-size:28px; margin:8px 0 }
+.perf-page h2 { font-size:18px }
+.perf-page p { color:#596b5b; font-size:14px; line-height:1.5 }
+.perf-controls,.perf-device { background:white; border:1px solid #dce5d9; border-radius:12px; padding:20px; display:flex; flex-wrap:wrap; gap:16px; margin-bottom:20px }
+.perf-page label { display:flex; flex-direction:column; gap:8px; min-width:170px; font-size:13px }
+.perf-checkbox { justify-content:center }
+.perf-checkbox input { width:20px; align-self:start }
+.perf-buttons { display:flex; flex-wrap:wrap; gap:8px; align-items:center }
+.perf-page button { min-height:44px; padding:8px 14px }
+.perf-device h2,.perf-device p { flex-basis:100%; margin:0 }
+.perf-output { margin-top:24px }
+.perf-output>div:first-child,.perf-numbers { display:flex; gap:16px; flex-wrap:wrap; align-items:center }
+.perf-output pre { padding:20px; background:#203d2e; color:#f6f4e9; border-radius:12px; max-height:600px; overflow:auto; font-size:12px }
+.perf-numbers { margin:16px 0; font-size:14px }
+.perf-page .drawing-panel { overflow:hidden }
+@media(max-width:600px) { .perf-page{padding:12px} .perf-page header{display:block} .perf-page label{min-width:0; width:100%} .perf-page .editor-toolbar{height:auto; padding:12px; flex-wrap:wrap} }

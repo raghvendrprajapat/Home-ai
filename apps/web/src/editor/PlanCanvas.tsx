@@ -6,9 +6,9 @@ import { fitView, junctionMoves, screenToWorld, snapPointer, worldToScreen, zoom
 import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
-interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean }
+interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface Drag { pointerId: number; junction: string; generation: number; start: Point2; last: Point2; pointerStart: Point2; snapTarget?: string }
-export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid }: Props) {
+export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming }: Props) {
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), stage = useRef<Konva.Stage | null>(null), library = useRef<typeof Konva | null>(null);
   const drag = useRef<Drag | null>(null), pan = useRef<{ id: number; start: Point2; view: Viewport } | null>(null);
   const touches = useRef(new Set<number>()), touchBlocked = useRef(false);
@@ -132,14 +132,18 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       const to: Point2 = event.shiftKey ? [Math.round(raw[0]), Math.round(raw[1])] : snapPointer(snapshot.document, raw, view, d.junction, 12, d.snapTarget); d.last = to;
       const target = !event.shiftKey && snapshot.document.junctions.find(j => j.id !== d.junction && j.x === to[0] && j.y === to[1]);
       if (target) d.snapTarget = target.id; else delete d.snapTarget;
+      const started = performance.now();
       const result = store.preview({ id: 'drag_preview', baseGeneration: d.generation, type: 'MoveJunctions', moves: junctionMoves(snapshot.document, d.junction, to) }); setPreview(result);
+      onTiming?.('preview', performance.now() - started);
       if (!result.ok) onMessage(result.errors[0]?.message ?? 'Invalid drawing.');
     }}
     onPointerUp={event => {
       if (touchBlocked.current) return;
       if (drag.current && drag.current.pointerId !== event.pointerId || pan.current && pan.current.id !== event.pointerId) return;
       const d = drag.current; if (d?.pointerId === event.pointerId && (d.last[0] !== d.start[0] || d.last[1] !== d.start[1])) {
+        const started = performance.now();
         const result = store.execute({ id: `drag_${d.generation}`, baseGeneration: d.generation, type: 'MoveJunctions', moves: junctionMoves(snapshot.document, d.junction, d.last) });
+        onTiming?.('command', performance.now() - started);
         onMessage(result.ok ? 'Corner updated. Undo is available.' : result.errors[0]?.message ?? 'Edit rejected.');
       }
       cancel(); if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
