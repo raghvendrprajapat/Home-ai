@@ -1,10 +1,12 @@
-import { useEffect, useState, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from 'react';
 import { parseProject, ProjectStore } from '@gharplan/core-model';
 import { formatArea } from '@gharplan/geometry';
 import sample from '../../../docs/examples/sample-project.json';
 import { PlanCanvas } from './editor/PlanCanvas';
 import { junctionMoves } from './editor/view2d';
 import './app.css';
+const ThreeView = lazy(() => import('./render3d/ThreeView').catch(() => ({ default: () =>
+  <div className="plan-canvas"><div className="three-status" role="status">The 3D engine could not load. Switch to 2D to continue; your drawing is unchanged.</div></div> })));
 
 function createDemo(): ProjectStore {
   const parsed = parseProject(JSON.stringify(sample));
@@ -15,6 +17,7 @@ export function App() {
   const [store] = useState(createDemo), snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
   const [selected, setSelected] = useState('j2'), [message, setMessage] = useState('Choose a corner and make this space your own.');
   const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0);
+  const [view, setView] = useState<'2d' | '3d'>('2d');
   const corner = snapshot.document.junctions.find(j => j.id === selected);
   useEffect(() => { setX(String(corner?.x ?? '')); setY(String(corner?.y ?? '')); }, [corner]);
   useEffect(() => {
@@ -38,10 +41,10 @@ export function App() {
     <div className="editor-layout">
       <section className="drawing-panel" aria-label="Floor plan editor">
         <div className="editor-toolbar">
-          <div className="view-tabs"><span className="active-tab">▧ &nbsp; 2D plan</span><span className="future-tab">3D · next</span></div>
-          <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label="Fit floor plan">Fit plan</button><label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> Grid</label></div>
+          <div className="view-tabs" role="group" aria-label="Drawing view"><button className={view === '2d' ? 'active-tab' : ''} aria-label="2D plan" aria-pressed={view === '2d'} onClick={() => setView('2d')}>▧ &nbsp; 2D plan</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => setView('3d')}>3D view</button></div>
+          <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label="Fit floor plan">Fit plan</button>{view === '2d' && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> Grid</label>}</div>
         </div>
-        <PlanCanvas store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} />
+        {view === '2d' ? <PlanCanvas store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">Loading 3D engine…</div></div>}><ThreeView store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
         <footer className="editor-footer"><span role="status" aria-live="polite">{message}</span><span>Ground floor · mm</span></footer>
       </section>
       <aside className="inspector" aria-label="Plan controls">

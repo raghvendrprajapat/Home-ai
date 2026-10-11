@@ -1,0 +1,31 @@
+{
+  "scenario": "PH0-T05 Chromium WebGL2 and recovery",
+  "checks": [
+    "actual WebGL2 draw with nonempty geometry at generation 0",
+    "exact partition edit updates 3D generation 1; unchanged wall w6 retained",
+    "undo/redo render generations 2/3 and correct canonical areas",
+    "view switching destroys/recreates adapters and retains edited model",
+    "keyboard orbit changes actual rendered pixels",
+    "320px layout has visible 3D canvas without horizontal overflow",
+    "390px layout has visible 3D canvas without horizontal overflow",
+    "768px layout has visible 3D canvas without horizontal overflow",
+    "real WebGL context loss/restoration renders the latest edit, generation 4",
+    "five view teardown/recreation cycles retain generation 4 without page errors",
+    "injected Worker construction failure preserves editor/model and returns to 2D",
+    "injected 3D chunk-load failure preserves editor/model and returns to 2D"
+  ],
+  "errors": [],
+  "browser": "151.0.7922.173",
+  "graphics": {
+    "version": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)"
+  },
+  "initial_scene": {
+    "testid": "three-view",
+    "renderedGeneration": "0",
+    "drawCalls": "25",
+    "meshChanges": "{\"replaced\":[\"wall:w1\",\"wall:w2\",\"wall:w3\",\"wall:w4\",\"wall:w5\",\"wall:w6\",\"wall:w7\",\"floor:r_living\",\"floor:r_bed\",\"threshold:o_main_door\",\"threshold:o_bed_door\"],\"kept\":[],\"removed\":[]}",
+    "vertexCount": "1020",
+    "meshesBuilt": "11"
+  }
+}
