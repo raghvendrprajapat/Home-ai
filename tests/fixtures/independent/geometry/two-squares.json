@@ -1,0 +1,135 @@
+{
+  "fixtureSet": "two-squares (F-TWO-SQ)",
+  "specRefs": ["§H.6 second analytic fixture", "§E.7", "GEO-010", "D13"],
+  "cases": [
+    {
+      "id": "TWOSQ-01",
+      "tests": ["GEO-010", "GEO-001"],
+      "earliestTask": "PH0-T02",
+      "description": "Two 4 m x 4 m centreline rooms side by side, all walls 200 mm. The shared wall w7 meets the outer walls in T-junctions.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 4000, "y": 0 },
+          { "id": "j3", "x": 8000, "y": 0 },
+          { "id": "j4", "x": 8000, "y": 4000 },
+          { "id": "j5", "x": 4000, "y": 4000 },
+          { "id": "j6", "x": 0, "y": 4000 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 },
+          { "id": "w4", "a": "j4", "b": "j5", "thickness": 200, "height": 3000 },
+          { "id": "w5", "a": "j5", "b": "j6", "thickness": 200, "height": 3000 },
+          { "id": "w6", "a": "j6", "b": "j1", "thickness": 200, "height": 3000 },
+          { "id": "w7", "a": "j2", "b": "j5", "thickness": 200, "height": 3000 }
+        ],
+        "rooms": [
+          { "id": "r_west", "boundary": ["j1", "j2", "j5", "j6"], "name": "West" },
+          { "id": "r_east", "boundary": ["j2", "j3", "j4", "j5"], "name": "East" }
+        ]
+      },
+      "operation": { "op": "analyze" },
+      "expect": {
+        "accepted": true,
+        "faceCount": 2,
+        "faces": [
+          {
+            "roomId": "r_west",
+            "corners": [[0, 0], [4000, 0], [4000, 4000], [0, 4000]],
+            "centrelineSignedAreaMm2": 16000000,
+            "clearRect": [100, 100, 3900, 3900],
+            "clearAreaMm2": 14440000,
+            "displayLabelM2": "14.44",
+            "smallSpaceWarning": false
+          },
+          {
+            "roomId": "r_east",
+            "corners": [[4000, 0], [8000, 0], [8000, 4000], [4000, 4000]],
+            "centrelineSignedAreaMm2": 16000000,
+            "clearRect": [4100, 100, 7900, 3900],
+            "clearAreaMm2": 14440000,
+            "displayLabelM2": "14.44",
+            "smallSpaceWarning": false
+          }
+        ]
+      },
+      "arithmetic": [
+        "Half thickness 200/2 = 100 on every side.",
+        "West clear: X 100..3900 = 3800, Y 100..3900 = 3800 -> 3800 x 3800 = 14,440,000 mm2 = 14.44 m2 (H.6).",
+        "East clear: X 4100..7900 = 3800, Y 100..3900 = 3800 -> 14,440,000 mm2. Total 28,880,000 mm2 = 28.88 m2."
+      ]
+    },
+    {
+      "id": "TWOSQ-02",
+      "tests": ["GEO-010", "GEO-004"],
+      "earliestTask": "PH0-T02",
+      "description": "Move the east exterior junctions j3 and j4 +500 mm in X in one command. Only the walls touching j3 or j4 change (in this file's numbering: w2, w3, w4). The west room is unchanged.",
+      "plan": "same as TWOSQ-01",
+      "operation": {
+        "op": "moveJunctions",
+        "moves": [
+          { "junction": "j3", "to": [8500, 0] },
+          { "junction": "j4", "to": [8500, 4000] }
+        ]
+      },
+      "expect": {
+        "accepted": true,
+        "faceCount": 2,
+        "wallCount": 7,
+        "junctionCount": 6,
+        "unchangedWalls": ["w1", "w5", "w6", "w7"],
+        "changedWalls": ["w2", "w3", "w4"],
+        "faces": [
+          {
+            "roomId": "r_west",
+            "corners": [[0, 0], [4000, 0], [4000, 4000], [0, 4000]],
+            "clearRect": [100, 100, 3900, 3900],
+            "clearAreaMm2": 14440000,
+            "smallSpaceWarning": false
+          },
+          {
+            "roomId": "r_east",
+            "corners": [[4000, 0], [8500, 0], [8500, 4000], [4000, 4000]],
+            "centrelineSignedAreaMm2": 18000000,
+            "clearRect": [4100, 100, 8400, 3900],
+            "clearAreaMm2": 16340000,
+            "displayLabelM2": "16.34",
+            "smallSpaceWarning": false
+          }
+        ]
+      },
+      "arithmetic": [
+        "East clear X: 4100 .. 8500-100 = 8400 -> 4300; Y 3800. Area = 4300 x 3800 = 16,340,000 mm2 = 16.34 m2 (H.6).",
+        "Walls with endpoint j3 or j4: w2 (j2-j3, length 4000 -> 4500), w3 (j3-j4, moved, length 4000 stays), w4 (j4-j5, length 4000 -> 4500). H.6 says 'only w2, w3, w5 change' using Codex's own numbering; in this file the same three walls are w2, w3, w4.",
+        "West room touches neither j3 nor j4, so its clear area stays 14,440,000 mm2."
+      ]
+    },
+    {
+      "id": "TWOSQ-03",
+      "tests": ["GEO-010"],
+      "earliestTask": "PH0-T05 (threshold quad); room areas from PH0-T02",
+      "description": "A 900 mm wide door in the shared 200 mm wall w7. The threshold quad under the door is 900 x 200 and is counted in neither room: both room areas stay 14,440,000 mm2 (openings do not create rooms, §E.7).",
+      "plan": "same as TWOSQ-01",
+      "operation": {
+        "op": "analyze",
+        "withOpening": { "wallId": "w7", "kind": "door", "offset": 2000, "width": 900, "height": 2100, "sill": 0 }
+      },
+      "expect": {
+        "accepted": true,
+        "faceCount": 2,
+        "thresholdAreaMm2": 180000,
+        "faces": [
+          { "roomId": "r_west", "clearAreaMm2": 14440000 },
+          { "roomId": "r_east", "clearAreaMm2": 14440000 }
+        ]
+      },
+      "arithmetic": [
+        "Threshold = door width x wall thickness = 900 x 200 = 180,000 mm2 = 0.18 m2 (H.6).",
+        "Door centre at offset 2000 from j2 along w7 -> interval 1550..2450 mm, well inside the 4000 mm wall.",
+        "The wall stays a separator in the topology, so the rooms keep 3800 x 3800 = 14,440,000 mm2 each; total floor = 28,880,000 + 180,000 threshold, the threshold belongs to no room."
+      ]
+    }
+  ]
+}

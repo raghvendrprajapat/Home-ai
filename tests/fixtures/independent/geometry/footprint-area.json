@@ -1,0 +1,119 @@
+{
+  "fixtureSet": "footprint-area",
+  "specRefs": ["§E.6", "GEO-006"],
+  "notes": [
+    "For every case: footprintUnionAreaMm2 = (outer boundary area) - (sum of clear room areas), because floor inside the outer boundary is either wall/cap or room.",
+    "Single ownership (§E.6): the sum of the areas of all individual pieces (clipped wall bodies + junction caps) must ALSO equal footprintUnionAreaMm2. A larger sum means overlap (z-fighting); a smaller union means a gap.",
+    "No gap wider than 1 mm between pieces."
+  ],
+  "cases": [
+    {
+      "id": "FOOT-01",
+      "tests": ["GEO-006"],
+      "earliestTask": "PH0-T02",
+      "description": "H.6 sample: 230 mm outer walls, 115 mm partition with T-junctions (mixed thickness).",
+      "plan": "same as sample-project.json SAMPLE-01",
+      "operation": { "op": "analyze" },
+      "expect": {
+        "footprintUnionAreaMm2": 6528550,
+        "outerBoundaryRect": [-115, -115, 8115, 5115]
+      },
+      "arithmetic": [
+        "Outer boundary: X -115..8115 = 8230, Y -115..5115 = 5230 -> 8230 x 5230 = 43,042,900 mm2.",
+        "Clear rooms: 20,642,175 + 15,872,175 = 36,514,350 mm2.",
+        "Footprint = 43,042,900 - 36,514,350 = 6,528,550 mm2.",
+        "Cross-check by pieces: outer ring = 8230 x 5230 - 7770 x 4770 = 43,042,900 - 37,062,900 = 5,980,000; partition between the inner faces of w1 and w5 = 115 x 4770 = 548,550; total 6,528,550."
+      ]
+    },
+    {
+      "id": "FOOT-02",
+      "tests": ["GEO-006"],
+      "earliestTask": "PH0-T02",
+      "description": "Two-squares plan, all walls 200 mm.",
+      "plan": "same as two-squares.json TWOSQ-01",
+      "operation": { "op": "analyze" },
+      "expect": {
+        "footprintUnionAreaMm2": 5560000,
+        "outerBoundaryRect": [-100, -100, 8100, 4100]
+      },
+      "arithmetic": [
+        "Outer: 8200 x 4200 = 34,440,000. Clear: 2 x 14,440,000 = 28,880,000. Footprint = 5,560,000.",
+        "Cross-check: ring 34,440,000 - 7800 x 3800 (29,640,000) = 4,800,000; partition 200 x 3800 = 760,000; total 5,560,000."
+      ]
+    },
+    {
+      "id": "FOOT-03",
+      "tests": ["GEO-006"],
+      "earliestTask": "PH0-T02",
+      "description": "Two-squares after moving j3 and j4 to x = 8500 (TWOSQ-02).",
+      "plan": "result of two-squares.json TWOSQ-02",
+      "operation": { "op": "analyze" },
+      "expect": {
+        "footprintUnionAreaMm2": 5760000,
+        "outerBoundaryRect": [-100, -100, 8600, 4100]
+      },
+      "arithmetic": [
+        "Outer: 8700 x 4200 = 36,540,000. Clear: 14,440,000 + 16,340,000 = 30,780,000. Footprint = 5,760,000.",
+        "Check: the only extra wall area is 500 mm more of the top and bottom walls: 2 x 500 x 200 = 200,000; 5,560,000 + 200,000 = 5,760,000."
+      ]
+    },
+    {
+      "id": "FOOT-04",
+      "tests": ["GEO-006", "GEO-010"],
+      "earliestTask": "PH0-T02",
+      "description": "One 4000 x 3000 room with mixed thickness at L corners: top wall 300 mm, the other three 100 mm. The outer corner must be a clean rectangle corner (no notch, no spike).",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 4000, "y": 0 },
+          { "id": "j3", "x": 4000, "y": 3000 },
+          { "id": "j4", "x": 0, "y": 3000 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 300, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 100, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 100, "height": 3000 },
+          { "id": "w4", "a": "j4", "b": "j1", "thickness": 100, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "analyze" },
+      "expect": {
+        "faceCount": 1,
+        "faces": [
+          {
+            "corners": [[0, 0], [4000, 0], [4000, 3000], [0, 3000]],
+            "centrelineSignedAreaMm2": 12000000,
+            "clearRect": [50, 150, 3950, 2950],
+            "clearAreaMm2": 10920000,
+            "smallSpaceWarning": false
+          }
+        ],
+        "footprintUnionAreaMm2": 2200000,
+        "outerBoundaryRect": [-50, -150, 4050, 3050]
+      },
+      "arithmetic": [
+        "Top wall half = 150, others half = 50.",
+        "Outer: X -50..4050 = 4100, Y -150..3050 = 3200 -> 13,120,000. Outer corner at j1 = intersection of top outer line y = -150 and left outer line x = -50 -> (-50,-150).",
+        "Clear: X 50..3950 = 3900, Y 150..2950 = 2800 -> 10,920,000 mm2. Inner corner at j1 = (50,150).",
+        "Footprint = 13,120,000 - 10,920,000 = 2,200,000.",
+        "Cross-check by strips: top 4100 x 300 = 1,230,000; bottom 4100 x 100 = 410,000; left and right between them: 2 x (100 x 2800) = 560,000; total 2,200,000."
+      ]
+    },
+    {
+      "id": "FOOT-05",
+      "tests": ["GEO-006"],
+      "earliestTask": "PH0-T02",
+      "description": "Room 6000 x 4000 (200 mm walls) with a 100 mm partition at x = 4000 (T-junctions with a thinner wall).",
+      "plan": "same as split-merge.json SPLIT-02",
+      "operation": { "op": "analyze" },
+      "expect": {
+        "footprintUnionAreaMm2": 4380000,
+        "outerBoundaryRect": [-100, -100, 6100, 4100]
+      },
+      "arithmetic": [
+        "Outer: 6200 x 4200 = 26,040,000. Clear: 14,630,000 + 7,030,000 = 21,660,000. Footprint = 4,380,000.",
+        "Cross-check: ring 26,040,000 - 5800 x 3800 (22,040,000) = 4,000,000; partition 100 x 3800 = 380,000; total 4,380,000."
+      ]
+    }
+  ]
+}

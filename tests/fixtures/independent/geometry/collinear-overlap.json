@@ -1,0 +1,78 @@
+{
+  "fixtureSet": "collinear-overlap",
+  "specRefs": ["§E.4 I3, I6", "§E.5", "GEO-005"],
+  "notes": [
+    "§E.5: collinear overlaps are merged into a minimal non-overlapping set, the older ID stays on the longest piece; conflicting thickness/height/material -> reject.",
+    "These cases check only what the spec fixes for certain: exact coverage, no overlap (totalLength equals the covered length), old ID survives, and the reject rule. How many pieces the line is cut into is left to the implementation."
+  ],
+  "cases": [
+    {
+      "id": "COL-01",
+      "tests": ["GEO-005"],
+      "earliestTask": "PH0-T02",
+      "description": "New wall overlaps the last 25 % of an existing wall, same properties.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 4000, "y": 0 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [3000, 0], "to": [7000, 0], "thickness": 200, "height": 3000 },
+      "expect": {
+        "accepted": true,
+        "faceCount": 0,
+        "wallsAlongLine": { "axis": "y", "at": 0, "union": [[0, 7000]], "totalLength": 7000, "idsPresent": ["w1"] },
+        "junctionsAt": [{ "at": [0, 0], "id": "j1" }]
+      },
+      "arithmetic": [
+        "Overlap = [3000, 4000] = 1000 mm = 25 % of w1's 4000 mm.",
+        "Union of [0,4000] and [3000,7000] = [0,7000] = 7000 mm. Without merging, total length would be 4000 + 4000 = 8000 (1000 counted twice); required total = 7000."
+      ]
+    },
+    {
+      "id": "COL-02",
+      "tests": ["GEO-005"],
+      "earliestTask": "PH0-T02",
+      "description": "New wall lies completely inside the existing wall, same properties.",
+      "plan": "same as COL-01",
+      "operation": { "op": "addWall", "from": [1000, 0], "to": [3000, 0], "thickness": 200, "height": 3000 },
+      "expect": {
+        "wallsAlongLine": { "axis": "y", "at": 0, "union": [[0, 4000]], "totalLength": 4000, "idsPresent": ["w1"] }
+      },
+      "arithmetic": ["[1000,3000] is inside [0,4000]; union stays [0,4000] = 4000 mm. Accept (no change in coverage) or reject are both fine, but there must never be 6000 mm of wall on the line."]
+    },
+    {
+      "id": "COL-03",
+      "tests": ["GEO-005"],
+      "earliestTask": "PH0-T02",
+      "description": "Exact duplicate (100 % overlap, same direction, same properties).",
+      "plan": "same as COL-01",
+      "operation": { "op": "addWall", "from": [0, 0], "to": [4000, 0], "thickness": 200, "height": 3000 },
+      "expect": { "modelUnchanged": true, "wallCount": 1, "junctionCount": 2 },
+      "arithmetic": ["Merging a duplicate gives back exactly w1 (I3: no two walls share both endpoints). Either 'accepted with no change' or 'rejected' is allowed; in both cases the canonical model equals the input."]
+    },
+    {
+      "id": "COL-04",
+      "tests": ["GEO-005"],
+      "earliestTask": "PH0-T02",
+      "description": "Exact duplicate drawn in the opposite direction.",
+      "plan": "same as COL-01",
+      "operation": { "op": "addWall", "from": [4000, 0], "to": [0, 0], "thickness": 200, "height": 3000 },
+      "expect": { "modelUnchanged": true, "wallCount": 1, "junctionCount": 2 },
+      "arithmetic": ["Same segment as w1 with a and b swapped; I3 forbids a second wall on j1-j2. w1 keeps its a = j1, b = j2 direction (its openings and left/right materials depend on it)."]
+    },
+    {
+      "id": "COL-05",
+      "tests": ["GEO-005"],
+      "earliestTask": "PH0-T02",
+      "description": "Overlapping wall with a DIFFERENT thickness: conflicting properties -> rejected.",
+      "plan": "same as COL-01",
+      "operation": { "op": "addWall", "from": [3000, 0], "to": [7000, 0], "thickness": 100, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "collinear-conflict" },
+      "arithmetic": ["Overlap [3000,4000] would need to be both 200 mm and 100 mm thick -> conflict -> reject (§E.5)."]
+    }
+  ]
+}

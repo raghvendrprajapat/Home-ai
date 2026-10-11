@@ -1,0 +1,186 @@
+{
+  "fixtureSet": "small-rooms",
+  "specRefs": ["§E.7 small closed rooms + invalid clear area", "D12", "GEO-021"],
+  "notes": [
+    "Square of centreline side s with 200 mm walls: clear side = s - 200, clear area = (s - 200)^2 when s > 200.",
+    "D12: keep every face with positive clear area; smallSpaceWarning iff 0 < clear < 250,000 mm2 (unrounded). Zero or negative usable width -> reject the command, model and undo history unchanged."
+  ],
+  "cases": [
+    {
+      "id": "SMALL-01",
+      "tests": ["GEO-021"],
+      "earliestTask": "PH0-T02",
+      "description": "Close a 699 x 699 square (e.g. a shaft): room kept, warning shown.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 699, "y": 0 },
+          { "id": "j3", "x": 699, "y": 699 },
+          { "id": "j4", "x": 0, "y": 699 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [0, 699], "to": [0, 0], "thickness": 200, "height": 3000 },
+      "expect": {
+        "accepted": true,
+        "faceCount": 1,
+        "faces": [
+          {
+            "corners": [[0, 0], [699, 0], [699, 699], [0, 699]],
+            "centrelineSignedAreaMm2": 488601,
+            "clearRect": [100, 100, 599, 599],
+            "clearAreaMm2": 249001,
+            "smallSpaceWarning": true
+          }
+        ]
+      },
+      "arithmetic": [
+        "Clear side = 699 - 200 = 499; area = 499 x 499 = 249,001 mm2 < 250,000 -> keep + warning.",
+        "Centreline 699 x 699 = 488,601.",
+        "Display label 0.249001 m2 -> '0.25', which is why the warning must use the unrounded value, not the label."
+      ]
+    },
+    {
+      "id": "SMALL-02",
+      "tests": ["GEO-021"],
+      "earliestTask": "PH0-T02",
+      "description": "Close a 700 x 700 square: clear area exactly 250,000 mm2 -> kept, NO warning.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 700, "y": 0 },
+          { "id": "j3", "x": 700, "y": 700 },
+          { "id": "j4", "x": 0, "y": 700 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [0, 700], "to": [0, 0], "thickness": 200, "height": 3000 },
+      "expect": {
+        "accepted": true,
+        "faceCount": 1,
+        "faces": [
+          { "clearRect": [100, 100, 600, 600], "clearAreaMm2": 250000, "smallSpaceWarning": false }
+        ]
+      },
+      "arithmetic": ["Clear side = 700 - 200 = 500; area = 500 x 500 = 250,000 mm2; not < 250,000 -> no warning (D12: 'at exactly 0.25 m2 no small-space warning')."]
+    },
+    {
+      "id": "SMALL-03",
+      "tests": ["GEO-021"],
+      "earliestTask": "PH0-T02",
+      "description": "Close a 701 x 701 square: kept, no warning.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 701, "y": 0 },
+          { "id": "j3", "x": 701, "y": 701 },
+          { "id": "j4", "x": 0, "y": 701 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [0, 701], "to": [0, 0], "thickness": 200, "height": 3000 },
+      "expect": {
+        "accepted": true,
+        "faceCount": 1,
+        "faces": [
+          { "clearRect": [100, 100, 601, 601], "clearAreaMm2": 251001, "smallSpaceWarning": false }
+        ]
+      },
+      "arithmetic": ["Clear side = 501; area = 501 x 501 = 251,001 mm2 >= 250,000 -> no warning."]
+    },
+    {
+      "id": "SMALL-04",
+      "tests": ["GEO-021"],
+      "earliestTask": "PH0-T02",
+      "description": "Close a 200 x 200 square with 200 mm walls: zero usable space -> command rejected.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 200, "y": 0 },
+          { "id": "j3", "x": 200, "y": 200 },
+          { "id": "j4", "x": 0, "y": 200 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [0, 200], "to": [0, 0], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "no-usable-space" },
+      "arithmetic": ["Clear side = 200 - 200 = 0 -> clear area 0 -> invalid drawing -> reject; the open 3-wall plan stays exactly as it was."]
+    },
+    {
+      "id": "SMALL-05",
+      "tests": ["GEO-021"],
+      "earliestTask": "PH0-T02",
+      "description": "Close a 150 x 150 square with 200 mm walls: the walls overlap the whole inside -> rejected.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 150, "y": 0 },
+          { "id": "j3", "x": 150, "y": 150 },
+          { "id": "j4", "x": 0, "y": 150 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [0, 150], "to": [0, 0], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "no-usable-space" },
+      "arithmetic": [
+        "Clear side = 150 - 200 = -50 < 0 -> no usable space -> reject.",
+        "Warning for implementers: (-50) x (-50) = +2,500. Squaring a negative width must NOT be treated as a positive area; check each clear width/height (or the signed clear polygon) before computing area."
+      ]
+    },
+    {
+      "id": "SMALL-06",
+      "tests": ["GEO-021"],
+      "earliestTask": "PH0-T02",
+      "description": "Edit (not create): shrink a valid 700 x 700 room to 200 wide by moving j2 and j3 together. Zero clear width -> the move is rejected; the room stays 700 x 700.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 700, "y": 0 },
+          { "id": "j3", "x": 700, "y": 700 },
+          { "id": "j4", "x": 0, "y": 700 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 200, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 },
+          { "id": "w4", "a": "j4", "b": "j1", "thickness": 200, "height": 3000 }
+        ],
+        "rooms": [
+          { "id": "r_shaft", "boundary": ["j1", "j2", "j3", "j4"], "name": "Shaft" }
+        ]
+      },
+      "operation": {
+        "op": "moveJunctions",
+        "moves": [
+          { "junction": "j2", "to": [200, 0] },
+          { "junction": "j3", "to": [200, 700] }
+        ]
+      },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "no-usable-space" },
+      "arithmetic": [
+        "After the move: clear width = 200 - 200 = 0, clear height = 700 - 200 = 500 -> area 0 x 500 = 0 -> invalid -> reject.",
+        "Before (unchanged): clear 500 x 500 = 250,000 mm2, room r_shaft, no warning."
+      ]
+    }
+  ]
+}

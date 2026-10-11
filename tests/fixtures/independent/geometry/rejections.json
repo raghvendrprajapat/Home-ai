@@ -1,0 +1,83 @@
+{
+  "fixtureSet": "rejections",
+  "specRefs": ["§E.4 I4", "§E.5 step 2", "D4", "GEO-003"],
+  "notes": [
+    "L0 accepts only horizontal or vertical walls and rejects proper X crossings BEFORE any change (§E.5). Every case here must leave the canonical model identical (modelUnchanged)."
+  ],
+  "cases": [
+    {
+      "id": "REJ-01",
+      "tests": ["GEO-003"],
+      "earliestTask": "PH0-T02",
+      "description": "Add a vertical wall that crosses the middle of a horizontal wall (proper X crossing).",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 4000, "y": 0 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "addWall", "from": [2000, -1000], "to": [2000, 1000], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "x-crossing" },
+      "arithmetic": [
+        "New wall x = 2000 for y in [-1000, 1000]; w1 is y = 0 for x in [0, 4000].",
+        "Intersection (2000, 0): 0 < 2000 < 4000 (interior of w1) and -1000 < 0 < 1000 (interior of the new wall) -> proper X crossing -> rejected in L0."
+      ]
+    },
+    {
+      "id": "REJ-02",
+      "tests": ["GEO-003"],
+      "earliestTask": "PH0-T02",
+      "description": "Add a clearly non-orthogonal wall.",
+      "plan": "same as REJ-01",
+      "operation": { "op": "addWall", "from": [0, 0], "to": [3000, 1000], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "non-orthogonal" },
+      "arithmetic": ["dx = 3000, dy = 1000: both non-zero -> neither horizontal nor vertical -> rejected."]
+    },
+    {
+      "id": "REJ-03",
+      "tests": ["GEO-003"],
+      "earliestTask": "PH0-T02",
+      "description": "Add a wall that is off by only 1 mm from horizontal. The model never 'fixes' it silently; making it straight is the job of snapping before the command (PH2-T03).",
+      "plan": "same as REJ-01",
+      "operation": { "op": "addWall", "from": [0, 3000], "to": [3000, 3001], "thickness": 200, "height": 3000 },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "non-orthogonal" },
+      "arithmetic": ["dx = 3000, dy = 1: dy != 0 and dx != 0 -> not axis-aligned -> rejected (I4 in L0)."]
+    },
+    {
+      "id": "REJ-04",
+      "tests": ["GEO-003"],
+      "earliestTask": "PH0-T02",
+      "description": "Drag a junction so its wall would cross another wall (E.13: 'dragging a junction across another wall').",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 4000, "y": 0 },
+          { "id": "j3", "x": 2000, "y": 1000 },
+          { "id": "j4", "x": 2000, "y": 3000 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 200, "height": 3000 },
+          { "id": "w2", "a": "j3", "b": "j4", "thickness": 200, "height": 3000 }
+        ]
+      },
+      "operation": { "op": "moveJunctions", "moves": [{ "junction": "j3", "to": [2000, -1000] }] },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "x-crossing" },
+      "arithmetic": [
+        "After the move w2 would run x = 2000, y from -1000 to 3000. It contains (2000, 0) in its interior (-1000 < 0 < 3000), which is also interior to w1 (0 < 2000 < 4000) -> X crossing -> rejected, j3 stays at (2000, 1000)."
+      ]
+    },
+    {
+      "id": "REJ-05",
+      "tests": ["GEO-003"],
+      "earliestTask": "PH0-T02",
+      "description": "Move one end junction so its wall becomes diagonal.",
+      "plan": "same as REJ-01",
+      "operation": { "op": "moveJunctions", "moves": [{ "junction": "j2", "to": [4000, 500] }] },
+      "expect": { "accepted": false, "modelUnchanged": true, "errorKind": "non-orthogonal" },
+      "arithmetic": ["w1 would go from (0,0) to (4000,500): dx = 4000, dy = 500 -> not axis-aligned -> rejected."]
+    }
+  ]
+}

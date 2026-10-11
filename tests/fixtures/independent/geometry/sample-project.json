@@ -1,0 +1,123 @@
+{
+  "fixtureSet": "sample-project",
+  "specRefs": ["§H.6", "§E.6", "§E.7", "§E.8", "GEO-001", "GEO-010", "DM-003", "D13"],
+  "cases": [
+    {
+      "id": "SAMPLE-01",
+      "tests": ["GEO-001", "GEO-010"],
+      "earliestTask": "PH0-T02",
+      "description": "H.6 sample plan (geometry only): two rooms, 230 mm outer walls, 115 mm partition w7 forming T-junctions at j2 and j5. Faces, orientation and carpet areas.",
+      "plan": {
+        "junctions": [
+          { "id": "j1", "x": 0, "y": 0 },
+          { "id": "j2", "x": 4500, "y": 0 },
+          { "id": "j3", "x": 8000, "y": 0 },
+          { "id": "j4", "x": 8000, "y": 5000 },
+          { "id": "j5", "x": 4500, "y": 5000 },
+          { "id": "j6", "x": 0, "y": 5000 }
+        ],
+        "walls": [
+          { "id": "w1", "a": "j1", "b": "j2", "thickness": 230, "height": 3000 },
+          { "id": "w2", "a": "j2", "b": "j3", "thickness": 230, "height": 3000 },
+          { "id": "w3", "a": "j3", "b": "j4", "thickness": 230, "height": 3000 },
+          { "id": "w4", "a": "j4", "b": "j5", "thickness": 230, "height": 3000 },
+          { "id": "w5", "a": "j5", "b": "j6", "thickness": 230, "height": 3000 },
+          { "id": "w6", "a": "j6", "b": "j1", "thickness": 230, "height": 3000 },
+          { "id": "w7", "a": "j2", "b": "j5", "thickness": 115, "height": 3000 }
+        ],
+        "rooms": [
+          { "id": "r_living", "boundary": ["j1", "j2", "j5", "j6"], "name": "Living" },
+          { "id": "r_bed", "boundary": ["j2", "j3", "j4", "j5"], "name": "Bedroom" }
+        ]
+      },
+      "operation": { "op": "analyze" },
+      "expect": {
+        "accepted": true,
+        "faceCount": 2,
+        "junctionsAt": [
+          { "at": [4500, 0], "id": "j2", "degree": 3 },
+          { "at": [4500, 5000], "id": "j5", "degree": 3 },
+          { "at": [0, 0], "id": "j1", "degree": 2 }
+        ],
+        "faces": [
+          {
+            "roomId": "r_living",
+            "corners": [[0, 0], [4500, 0], [4500, 5000], [0, 5000]],
+            "centrelineSignedAreaMm2": 22500000,
+            "clearRect": [115, 115, 4442.5, 4885],
+            "clearAreaMm2": 20642175,
+            "displayLabelM2": "20.64",
+            "smallSpaceWarning": false
+          },
+          {
+            "roomId": "r_bed",
+            "corners": [[4500, 0], [8000, 0], [8000, 5000], [4500, 5000]],
+            "centrelineSignedAreaMm2": 17500000,
+            "clearRect": [4557.5, 115, 7885, 4885],
+            "clearAreaMm2": 15872175,
+            "displayLabelM2": "15.87",
+            "smallSpaceWarning": false
+          }
+        ]
+      },
+      "arithmetic": [
+        "Half thickness: outer 230/2 = 115; partition 115/2 = 57.5.",
+        "Living clear X: 0+115 = 115 to 4500-57.5 = 4442.5 -> width 4327.5. Y: 0+115 = 115 to 5000-115 = 4885 -> depth 4770.",
+        "Living clear area = 4327.5 x 4770 = 17,310,000 + 3,332,175 = 20,642,175 mm2 (H.6: 20.6422 m2). Label 20.642175 m2 -> '20.64'.",
+        "Bedroom clear X: 4500+57.5 = 4557.5 to 8000-115 = 7885 -> width 3327.5. Depth 4770.",
+        "Bedroom clear area = 3327.5 x 4770 = 13,310,000 + 2,562,175 = 15,872,175 mm2 (H.6: 15.8722 m2). Label '15.87'.",
+        "Orientation: Living corners (0,0)->(4500,0)->(4500,5000)->(0,5000). Shoelace sum = 0*0-4500*0 + 4500*5000-4500*0 + 4500*5000-0*5000 + 0*0-0*5000 = 45,000,000; half = +22,500,000 = 4500 x 5000. Positive, clockwise on screen (Y down), same order as stored room boundary j1,j2,j5,j6.",
+        "Bedroom corners (4500,0)->(8000,0)->(8000,5000)->(4500,5000): centreline area 3500 x 5000 = 17,500,000, same direction, positive.",
+        "Degrees: j2 has w1, w2, w7 = 3; j5 has w4, w5, w7 = 3; j1 has w1, w6 = 2."
+      ]
+    },
+    {
+      "id": "SAMPLE-02",
+      "tests": ["GEO-010", "DM-003", "GEO-011"],
+      "earliestTask": "PH0-T02",
+      "description": "Move the partition w7 east by 100 mm (j2 and j5 together, so it stays orthogonal). Geometry part of DM-003. Room IDs stay because the junction cycles are unchanged.",
+      "plan": "same as SAMPLE-01",
+      "operation": {
+        "op": "moveJunctions",
+        "moves": [
+          { "junction": "j2", "to": [4600, 0] },
+          { "junction": "j5", "to": [4600, 5000] }
+        ]
+      },
+      "expect": {
+        "accepted": true,
+        "faceCount": 2,
+        "wallCount": 7,
+        "junctionCount": 6,
+        "faces": [
+          {
+            "roomId": "r_living",
+            "corners": [[0, 0], [4600, 0], [4600, 5000], [0, 5000]],
+            "centrelineSignedAreaMm2": 23000000,
+            "clearRect": [115, 115, 4542.5, 4885],
+            "clearAreaMm2": 21119175,
+            "displayLabelM2": "21.12",
+            "smallSpaceWarning": false
+          },
+          {
+            "roomId": "r_bed",
+            "corners": [[4600, 0], [8000, 0], [8000, 5000], [4600, 5000]],
+            "centrelineSignedAreaMm2": 17000000,
+            "clearRect": [4657.5, 115, 7885, 4885],
+            "clearAreaMm2": 15395175,
+            "displayLabelM2": "15.40",
+            "smallSpaceWarning": false
+          }
+        ]
+      },
+      "arithmetic": [
+        "Living clear width = (4600-57.5) - 115 = 4542.5 - 115 = 4427.5; depth 4770.",
+        "Living = 4427.5 x 4770 = 17,710,000 + 3,409,175 = 21,119,175 mm2. Rounded label 21.1192 m2 in H.6 = 21,119,200 mm2, i.e. 25 mm2 more: tests must use the exact value (D13). Display '21.12'.",
+        "Bedroom clear width = 7885 - (4600+57.5) = 7885 - 4657.5 = 3227.5; area = 3227.5 x 4770 = 12,910,000 + 2,485,175 = 15,395,175 mm2. Display 15.395175 -> '15.40'.",
+        "Change: +100 x 4770 = +477,000 mm2 for Living and -477,000 for Bedroom (H.6: +/-0.4770 m2). Check: 20,642,175 + 477,000 = 21,119,175; 15,872,175 - 477,000 = 15,395,175.",
+        "Centreline: 4600 x 5000 = 23,000,000; 3400 x 5000 = 17,000,000.",
+        "Junction cycles are the same (j1,j2,j5,j6 and j2,j3,j4,j5) so E.8 step 1 (exact match) keeps r_living and r_bed."
+      ]
+    }
+  ]
+}
