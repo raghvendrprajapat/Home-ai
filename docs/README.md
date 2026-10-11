@@ -1,46 +1,68 @@
 # Home-ai — Planner 5D-inspired Home Planner: Research & Engineering Blueprint
 
-Prepared 2026-10-10; **research completed with live internet access on 2026-10-11 (round 2)**. These are planning documents only. **No app code exists yet.**
+Research rounds: 2026-10-10 (round 1), 2026-10-11 (round 2, live sources), 2026-10-11 (**combined Claude + Codex document**). These are planning documents only. **No app code exists yet.**
 
-## Documents
+## Main document
 
-| # | Document | What it answers |
-|---|---|---|
-| 1 | [Research report](01-research-report.md) | What Planner 5D actually does (with evidence), competitors, risky assumptions, unknowns |
-| 2 | [PRD](02-prd.md) | What we will build, for whom, with measurable acceptance criteria (PRD-FR/NFR IDs) |
-| 3 | [TRD](03-trd.md) | System architecture, stack, backend, security, deployment |
-| 4 | [2D/3D architecture](04-2d-3d-architecture.md) | Geometry algorithms, 3D pipeline, 2D↔3D sync, user flows |
-| 5 | [Data models & APIs](05-data-models-api.md) | TypeScript types, JSON schema, SQL tables, API contracts, migrations |
-| 6 | [AI architecture](06-ai-architecture.md) | AI floor-plan import, AI design, costs, limits |
-| 7 | [Implementation roadmap](07-implementation-roadmap.md) | Phases 0–8, tasks, Claude Code prompts, exit gates |
-| 8 | [Test plan](08-test-plan.md) | Every test ID, thresholds, release gates |
-| 9 | [Cost, risk, feasibility](09-cost-risk-feasibility.md) | Costs at 100–100k users, risks, legal/IP, **final recommendation** |
-| 10 | [Decision register](10-decision-register.md) | Why each technology was chosen |
-| 11 | [Audit & traceability](11-audit-traceability.md) | Self-audit, gaps found, Evidence→Requirement→Design→Task→Test matrix |
-| 12 | [Prompt coverage check](12-prompt-coverage-check.md) | Was every demand of the master prompt delivered? Complete / Partial / Blocked per item |
-| — | [Source log](research/source-log.md) | Every page opened in round 2, with date and what it supported |
+**[`combined-research.md`](combined-research.md)** is the single combined reference. For each section it takes the stronger version from the Claude research and the Codex research, adds the other side's unique verified facts, and shows conflicts openly. Codex-only facts were re-checked live (RV-1…RV-13).
 
-Examples: [`examples/sample-project.json`](examples/sample-project.json) (validated against [`examples/project.schema.json`](examples/project.schema.json)).
+| Part | Contents |
+|---|---|
+| 0 | How to read it, evidence labels, **what was taken from where**, plain Hinglish summary |
+| A–B | Planner 5D research (features, prices, legal, reviews) and competitors (official prices, Play India data) |
+| C | PRD: 47 functional and 22 non-functional requirements, user stories (Appendix B) |
+| D | TRD and 22 technology decisions (11 fields each) |
+| E–G | 2D geometry engine, 3D engine, single source of truth / synchronization |
+| H | Data models, SQL, save protocol, complete example project |
+| I | AI architecture, verified prices and provider terms |
+| J–L | 16 user flows, Claude Code feasibility, phased roadmap |
+| M | Test plan (103 test IDs) and release gates |
+| N–P | Cost at 100/1k/10k/100k MAU, security/legal/IP, risk register |
+| Q | Traceability matrix, checks done, prompt coverage, **final recommendation** |
 
-## Plain-language summary (for Raghvendr, updated after round 2)
+**Owner decisions applied:**
+- **No electrical/wiring features.** The app and the electrical shop are separate businesses.
+- **No marketing website for now.** Only the two Play-required pages: privacy policy and account deletion.
+- **Web + Android (Capacitor), mobile-first.**
 
-- **Planner 5D is big and mature:**
-  - 5 crore+ Android downloads and ★4.3 in India (#5 top-grossing in House & Home).
-  - Native Android graphics (from their job ads).
-  - 8,000–10,000 furniture items.
-  - AI: plan recognition (takes 10 min–24 h), image AI Studio, and a "Copilot" that builds a project from a text description.
-- **Its documented weak spots:**
-  - Sync overwrites ("most recent version replaces older", no history except on Android).
-  - Shared walls are awkward to edit.
-  - Some features only work on web.
-  - Free users complain about the paywall.
-  - No Hindi.
-- **Correction from round 1:** electrical planning alone is **not unique**. Planner 5D lets you place sockets and switches, and Homestyler auto-draws circuits. What we did not find is an India-first, Hindi app that turns a house plan into a **priced electrical bill of materials from your shop**. Check this with 5–10 of your electrician customers before building it.
-- **Verified money facts:**
-  - Google Play keeps **15%** of subscriptions in India (11% with alternative billing).
-  - You need **12 testers for 14 days** before launch.
-  - Supabase costs $25/month once live (its free plan pauses after a week of no use).
-  - An AI room picture costs about **$0.034 per image** (Gemini).
-- **Technology:** unchanged (web app + Three.js + Capacitor for Android), but the risk that 3D is slow on cheap phones inside a WebView is now rated higher. Phase 0 must test this first, and Document 10 ADR-007 has a backup plan.
-- **Honest effort:** 9–19 months part-time with Claude Code plus some paid expert review. About $500–10,000 cash before launch, depending mostly on how much paid help and bought 3D models you use. Estimates, not guarantees.
-- **What only you can do:** try Planner 5D/Homestyler on your phone, screenshot their INR prices, and talk to customers (Doc 12, last section).
+Examples: [`examples/sample-project.json`](examples/sample-project.json), validated against [`examples/project.schema.json`](examples/project.schema.json) with 0 errors.
+
+## Older documents (history)
+
+The round-1/round-2 documents `01`–`12` and [`research/source-log.md`](research/source-log.md) are kept for history. Each has a "Superseded" note at the top. Electrical content has been removed from them as well.
+
+## Plain-language summary (Hinglish)
+
+- **Planner 5D:** bada aur purana product hai.
+  - Play India par 5 crore+ downloads, ★4.27, top-grossing.
+  - 8–10 hazaar furniture.
+  - AI features hain: plan recognition 10 min–24 h leta hai, image AI, aur text se project banane wala Copilot.
+- **Uski kamzoriyan (official help se):**
+  - Sync mein purana kaam overwrite ho jaata hai; version history sirf Android par hai.
+  - Grouping, lock aur round walls sirf web par.
+  - Paywall ki shikayatein hain, aur Hindi nahi hai.
+  - Kai competitors mein phone par editing hi nahi hai (RoomSketcher: "not available on phones").
+- **Hum kya banayenge:** ek chhota, bharosemand app, Android + web par.
+  - Seedhi aur 90° wali deewarein, kamre aur carpet area.
+  - Darwaze aur khidkiyan.
+  - ~30 se 100 furniture.
+  - 3D view aur undo.
+  - Kaam kabhi na khona.
+  - Hindi.
+- **Paise ke facts (verified):**
+  - Google Play India mein subscription par 15% leta hai.
+  - Launch se pehle 12 testers 14 din chahiye.
+  - Supabase $25/mahina.
+  - AI image ~$0.034.
+  - Stripe India sirf invite par milta hai, isliye Play Billing use karenge.
+  - Gemini API ki shart: app 18+ users ke liye ho.
+- **Mehnat aur paisa (estimate, vaada nahi):**
+  - Part-time 9–19 mahine.
+  - Launch tak cash $500–10,000.
+  - Server ~$25/mahina, hazaaron users tak.
+- **Ab sirf aap kya kar sakte hain:**
+  - 10 logon se baat karna.
+  - INR prices ke screenshots lena.
+  - Planner 5D/Homestyler ko apne phone par 30 minute chala kar dekhna.
+
+  Details Part Q.4 mein hain.

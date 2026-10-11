@@ -223,6 +223,7 @@
       "id": "fu_sofa",
       "floorId": "f0",
       "assetId": "a_sofa_3seat",
+      "assetVersion": 1,
       "position": {
         "x": 1300,
         "y": 4300
@@ -241,6 +242,7 @@
       "id": "fu_tv",
       "floorId": "f0",
       "assetId": "a_tv_unit",
+      "assetVersion": 1,
       "position": {
         "x": 2250,
         "y": 400
@@ -259,6 +261,7 @@
       "id": "fu_bed",
       "floorId": "f0",
       "assetId": "a_bed_queen",
+      "assetVersion": 1,
       "position": {
         "x": 6450,
         "y": 1200
@@ -279,6 +282,7 @@
       "id": "fu_wardrobe",
       "floorId": "f0",
       "assetId": "a_wardrobe_3door",
+      "assetVersion": 1,
       "position": {
         "x": 6250,
         "y": 4500
@@ -333,53 +337,6 @@
       "uvScaleMm": 1200,
       "roughness": 0.6,
       "metalness": 0
-    }
-  ],
-  "electrical": [
-    {
-      "id": "e_sb_living",
-      "kind": "switchboard",
-      "wallId": "w5",
-      "offset": 2300,
-      "height": 1200,
-      "label": "Main SB",
-      "rev": 0,
-      "mount": "wall",
-      "modules": 8
-    },
-    {
-      "id": "e_sb_bed",
-      "kind": "switchboard",
-      "wallId": "w7",
-      "offset": 1700,
-      "height": 1200,
-      "label": "Bed SB",
-      "rev": 0,
-      "mount": "wall",
-      "modules": 6
-    },
-    {
-      "id": "e_fan_bed",
-      "kind": "fan",
-      "mount": "ceiling",
-      "roomId": "r_bed",
-      "position": {
-        "x": 6250,
-        "y": 2500
-      },
-      "height": 3000,
-      "label": "Ceiling fan",
-      "rev": 0
-    },
-    {
-      "id": "e_sock_tv",
-      "kind": "socket6A",
-      "mount": "wall",
-      "wallId": "w1",
-      "offset": 1000,
-      "height": 300,
-      "label": "TV socket",
-      "rev": 0
     }
   ],
   "lights": [

@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 5 — Data Models & API Contracts
 
 ## 1. Where data lives
@@ -14,7 +16,7 @@
 
 ## 2. Canonical project document (TypeScript)
 
-The JSON Schema is `docs/examples/project.schema.json`; the full example is `docs/examples/sample-project.json` (2 rooms, 7 walls incl. an interior partition that forms two T-junctions at j2 and j5 with different wall thicknesses (230/115 mm), 2 doors, 2 windows, 4 furniture items, 4 electrical points (3 wall-mounted incl. modular switch boards, 1 ceiling fan), 2 ceiling lights). Both are validated in Doc 8 test DM-01.
+The JSON Schema is `docs/examples/project.schema.json`; the full example is `docs/examples/sample-project.json` (2 rooms, 7 walls incl. an interior partition that forms two T-junctions at j2 and j5 with different wall thicknesses (230/115 mm), 2 doors, 2 windows, 4 furniture items, 2 ceiling lights; electrical points removed 2026-10-11). Both are validated in Doc 8 test DM-01.
 
 ```ts
 export interface ProjectDoc {
@@ -23,7 +25,7 @@ export interface ProjectDoc {
   createdAt: string; updatedAt: string; revision: number;   // revision increments on every cloud save
   floors: Floor[]; junctions: Junction[]; walls: Wall[]; openings: Opening[];
   rooms: Room[]; furniture: FurnitureItem[]; materials: MaterialDef[];
-  electrical: ElectricalPoint[]; lights: Light[]; cameras: CameraPreset[];
+  lights: Light[]; cameras: CameraPreset[];
 }
 export interface Floor { id: Id; name: string; level: number; elevation: Mm; defaultWallHeight: Mm }
 export interface Junction { id: Id; floorId: Id; x: Mm; y: Mm }
@@ -32,10 +34,6 @@ export interface Opening { id: Id; wallId: Id; kind: 'door'|'window'|'opening'; 
 export interface Room { id: Id; floorId: Id; boundary: Id[]; name: string; type: RoomType; ceilingHeight: Mm; floorMaterial: Id; rev: number }
 export interface FurnitureItem { id: Id; floorId: Id; assetId: Id; position: {x: Mm; y: Mm}; elevation: Mm; rotationDeg: number; size: {w: Mm; d: Mm; h: Mm}; materialOverrides: Record<string, Id>; groupId?: Id; rev: number }
 export interface MaterialDef { id: Id; name: string; baseColor: `#${string}`; textureAssetId?: Id; uvScaleMm?: Mm; roughness: number; metalness: number }
-export type ElectricalKind = 'switchboard'|'socket6A'|'socket16A'|'light'|'fan'|'ac'|'geyser'|'inverter'|'db'|'tv'|'data';
-export type ElectricalPoint =
-  | { id: Id; kind: ElectricalKind; mount: 'wall'; wallId: Id; offset: Mm; height: Mm; modules?: number; label?: string; rev: number }
-  | { id: Id; kind: ElectricalKind; mount: 'ceiling'; roomId: Id; position: {x: Mm; y: Mm}; height: Mm; label?: string; rev: number };
 export interface Light {            // lighting entity (renders as emissive fixture; real light only on High tier)
   id: Id; floorId: Id; kind: 'point'|'spot'|'strip'|'ambient'; position: {x: Mm; y: Mm}; height: Mm;
   lumens: number; colorTempK: number; castsShadow: boolean; fixtureAssetId?: Id; rev: number }
@@ -63,7 +61,7 @@ Notes:
 - Transforms: furniture uses position + rotation about Z + size (no general 4×4 matrices). Simpler, exact, sufficient for floor-standing and wall-mounted (elevation) items.
 
 ### 2.1 Validation rules (beyond JSON Schema)
-Referential integrity (every id reference resolves), invariants I1–I7 (Doc 4 §2.3), consecutive room boundary junctions joined by a wall, opening/electrical offsets within host wall, unique ids, floor elevations strictly increasing with level. Implemented as `validateProject(doc): ValidationError[]` in `core-model`; run on load, before save, after every command (affected subset).
+Referential integrity (every id reference resolves), invariants I1–I7 (Doc 4 §2.3), consecutive room boundary junctions joined by a wall, opening offsets within host wall, unique ids, floor elevations strictly increasing with level. Implemented as `validateProject(doc): ValidationError[]` in `core-model`; run on load, before save, after every command (affected subset).
 
 ### 2.2 Demonstration: the example round-trips
 Expected derived values for `sample-project.json` (computed by the check script used to write this doc, rectangle rooms, inset by half wall thickness):
@@ -176,12 +174,6 @@ create table texture_assets (
   id text primary key, url text not null, sha256 text not null, width_px int, height_px int,
   color_space text check (color_space in ('srgb','linear')), tile_size_mm int,
   license_source text not null, license_url text not null, license_type text not null, attribution text
-);
-create table electrical_price_list (           -- shop-owned BOQ prices (FR-034); editable via CSV import
-  owner_id uuid references profiles(id) on delete cascade,
-  kind text not null, variant text not null default '', sku text, description text,
-  unit_price_paise int not null check (unit_price_paise >= 0),
-  primary key (owner_id, kind, variant)
 );
 ```
 

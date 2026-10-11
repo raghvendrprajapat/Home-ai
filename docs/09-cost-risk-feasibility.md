@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 9 — Cost, Risk & Feasibility Assessment
 
 Round 2 (2026-10-11): Supabase, Cloudflare R2, Google Play fees, Gemini, OpenAI and Anthropic prices were **read on the official pages** (source log V01–V09). Everything else is an estimate and is labelled as one. Prices change; recheck on the day you buy.
@@ -66,7 +68,7 @@ Batch pricing (half price, 24 h turnaround) would roughly halve restyle cost. Pl
 |---|---|---|
 | Ads | Zero friction for free users | India eCPM is low: unofficial sources say banner ≈ $0.10–1.00 (one developer reported $0.08 banner / $0.70 interstitial). **No official figure** → measure in your own AdMob account. Ads inside a design canvas hurt UX |
 | Rewarded ad → unlock premium item for 72 h | Proven in this category (Planner 5D used it in 2020 per a Play review) | Revenue per view unknown for India |
-| Freemium subscription (recommended core) | Predictable; matches all competitors | Needs clear value: full catalog, multi-floor, electrical BOQ, no watermark |
+| Freemium subscription (recommended core) | Predictable; matches all competitors | Needs clear value: full catalog, multi-floor, no watermark |
 | Credits (for AI) | Matches variable cost | Show cost in ₹; credits expire monthly (competitor practice) |
 | One-time unlock | Simple for Indian users | No recurring revenue to fund AI/assets |
 | Brand tie-ups (e.g. paint/tiles/switch brands) | Room Planner advertises Asian Paints colours (Doc 1 §3.1) | Needs traction first |
@@ -87,7 +89,7 @@ Break-even formula: `monthly_profit = paying_users × net_price × (1 − 0.15) 
 | K-06 | Play policy rejection (data safety, account deletion, billing rules) | Medium | Medium | Checklist Phase 8; read current policies | Owner |
 | K-07 | WebView storage cleared → lost local projects | Low–Medium | High | Persistent storage request, filesystem backup, cloud sync, export file | Dev |
 | K-08 | Trademark/IP claims (name, look-alike UI) | Low | High | Own name, own UI, no Planner 5D assets/API | Owner |
-| K-09 | Market too crowded | Medium | Medium | Electrical-layer + India focus differentiation; validate with users early | Owner |
+| K-09 | Market too crowded | Medium | Medium | India focus (Hindi, cheap phones, never-lose-work); validate with users early | Owner |
 | K-10 | Scope creep (multiplayer, photoreal) | High | Medium | Explicit exclusions PRD §18 | Owner |
 
 ## 5.1 Security, legal & IP summary (Part O)
@@ -128,13 +130,13 @@ Done on 2026-10-11:
 - Vendor prices, Play fee, tester and deletion policies, licenses.
 
 Still needed:
-1. **Customer interviews (most important):** 5–10 electricians/contractors and 5 homeowners from your shop.
-   - Would a Hindi plan + electrical points + priced BOQ app save them time?
+1. **Customer interviews (most important):** 5–10 homeowners and 3–5 small contractors/interior designers.
+   - Would a Hindi, phone-first planner that never loses work save them time?
    - What would they pay?
    - What do they use today (paper, WhatsApp photos, AutoCAD via a draftsman)?
 2. **INR prices** of Planner 5D, Homestyler and Room Planner subscriptions: open each app's paywall on an Indian phone and screenshot it.
 3. **AdMob India eCPM:** no official data exists publicly; measure in your own account with a test app.
-4. **Hands-on tests on your phone:** Planner 5D and Homestyler (incl. Homestyler's Plumbing & Electrical tool) — record what is free vs paid and how smooth 3D is on a cheap phone.
+4. **Hands-on tests on your phone:** Planner 5D and Homestyler — record what is free vs paid and how smooth 3D is on a cheap phone.
 5. Floorplanner subscription prices, and HomeByMe / Live Home 3D official prices (pages not captured).
 6. Recheck vendor prices on the day you start paying.
 
@@ -149,5 +151,5 @@ Still needed:
 - **Libraries:** TypeScript, React, Vite, Three.js, Immer (patches), Zustand, earcut, fast-check, Vitest, Playwright, Capacitor, Supabase, gltf-transform.
 - **Effort range:** MVP ≈ 75–115 experienced-engineer days (sum of the Phase 0–5, 7, 8 E-ranges in Doc 7); for a beginner with Claude Code, plan **9–19 months part-time** (sum of the B-ranges), with a budget for **some paid expert review**. These are estimates, not promises.
 - **Cash cost to MVP launch (excluding your time):** roughly **$500 to $10,000**, the sum of the §1a lines. The low end is free assets, borrowed phones and one short expert review. The high end is bought assets, both test phones, legal review and ~60 hours of paid developer help (INR amounts converted at an assumed ≈ ₹83/$, not a quoted rate). Monthly infrastructure stays small (≈ $25–40) until tens of thousands of users (§2).
-- **Architecture for expansion:** pure-TS canonical model + command bus + read-only renderers (Doc 4 §4) — it lets you add AI, electrical layer, multi-floor, and a future native renderer without rewriting the data model.
-- **Commercially viable MVP (hypothesis to validate):** fast accurate 2D plan + 3D view + ~100–300 India-relevant furniture items + PNG/PDF export + **electrical point planning with a points list** + honest Premium subscription. **Correction from round 2:** electrical "points on a plan" is **not unique**. Planner 5D lets users place sockets and switches, and Homestyler auto-generates circuits for $6.8/month. The remaining gap we found is an **India-first, Hindi, cheap-phone app that turns a plan into a priced electrical bill of quantities from a local shop**. None of the Play searches showed one, though that is not proof none exists. Validate this with your own customers before building beyond Phase 2. If they don't want it, the app still competes on reliability (shared walls, version history and conflict-safe sync are documented Planner 5D weaknesses — Doc 1 §1.2) and Indian context.
+- **Architecture for expansion:** pure-TS canonical model + command bus + read-only renderers (Doc 4 §4) — it lets you add AI, multi-floor, and a future native renderer without rewriting the data model.
+- **Commercially viable MVP (hypothesis to validate):** fast accurate 2D plan + 3D view + ~100–300 India-relevant furniture items + PNG/PDF export + honest Premium subscription. Electrical planning was removed from scope by owner decision (2026-10-11). Differentiation to validate: India-first, Hindi, complete editor on cheap phones, never-lose-work saving (shared walls, version history and conflict-safe sync are documented Planner 5D weaknesses).

@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 10 — Engineering Decision Register
 
 Fields per decision: **Choice · Reason · Alternatives · Pros · Cons · License · Performance · Integration complexity · Maintenance risk · Claude Code fit · Confidence**. Confidence = High / Medium / Low, based on evidence available on 2026-10-10. License facts are from general knowledge of these projects and must be re-checked in each package's LICENSE file when added (CLAUDE.md rule).

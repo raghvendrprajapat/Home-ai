@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 4 — 2D / 3D Engine & Synchronization Architecture
 
 All content here is **PROPOSED** architecture for our product. It is not a description of Planner 5D's internals.
@@ -240,7 +242,6 @@ Scene
  │   ├─ Ceilings (Group, hidden in orbit "doll-house" mode)
  │   ├─ Openings (Group) → door/window GLB instances
  │   ├─ Furniture (Group) → GLB instances / InstancedMesh for repeated items
- │   └─ Electrical (Group, v1.1) → small icons/meshes
  ├─ Helpers: selection outline, grid, measurement labels (CSS2D or sprite)
  └─ Camera (Perspective) + controls (Orbit | Walk)
 ```
@@ -406,20 +407,8 @@ Each entity has `rev` (incremented in the command). A **consistency check** in d
 - On start: load latest snapshot + replay journal; if replay fails validation, open last good snapshot and keep the broken file in `recovery/` for support.
 - Writes are atomic: write to temp key/file then rename/swap pointer.
 
-## 6. Electrical layer (differentiator, v1.1)
-Competitive context (Doc 1 §2.6):
-- Planner 5D lets users place sockets and switches as objects, with no wiring.
-- Homestyler auto-generates circuits.
-
-So our value is the **Indian workflow plus a priced bill of quantities**, not "points on a plan".
-
-Entities: `ElectricalPoint {id, kind: switchboard|socket6A|socket16A|light|fan|ac|geyser|inverter|db|tv|data, mount: 'wall'|'ceiling', wallId?, offset?, roomId?, position?, height, modules? (switchboard size), label?}`.
-- Wall points use (wallId, offset, height) like openings, so they move with walls.
-- Ceiling points (fans, lights) use roomId plus a position inside the room polygon; they are re-validated when the room changes. This fixes audit gap A-06.
-
-Output: per-room counts, then a bill of quantities. The BOQ maps each point kind to shop SKUs (e.g. modular plate size, socket type, MCB rating for a DB) and prices them from a CSV price list that the shop owner can edit.
-
-**No load calculation, wire sizing, auto-routing or code-compliance claims in v1** (liability). The output says "for estimation; final design by a licensed electrician".
+## 6. Electrical layer — removed
+Electrical planning is out of scope by owner decision (2026-10-11): the app and the electrical shop stay separate.
 
 ## 7. User flows (Part J)
 

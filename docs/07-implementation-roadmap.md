@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 7 — Claude Code Implementation Roadmap
 
 ## 0. How to read effort estimates

@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 1 — Planner 5D Research Report (round 2, live sources)
 
 **Evidence date:** 2026-10-11 (pages opened directly). Round 1 (2026-10-10) used search snippets only; every round-1 claim was rechecked and **corrections are listed in §6**.
@@ -89,10 +91,10 @@ Columns condensed: **Status** · **How it behaves in Planner 5D** (interaction, 
 | R-ID-03 | Resize furniture | VERIFIED P03h | Basic: free items' dimensions editable; Premium: all items | — | W/D/H fields · 3 | FR-016 |
 | R-ID-04 | Materials/textures/colours | VERIFIED P03h, P06 | 600+ colours/textures in free; custom texture upload "without limits" (Basic); copy texture from object (web) | Texture conflicts at misaligned wall joins (P03t) | Material library + per-side wall paint · 4 | FR-018 |
 | R-ID-05 | Upload own 3D models | VERIFIED P02, P03u | Premium: from image/URL; PRO: .obj/.fbx/.blend/.stl; conversion up to 15 min | Texture support depends on the model | Excluded v1 · 7 | — |
-| R-ID-06 | Budget widget / price estimator | VERIFIED P02 | Premium budget widget; PRO price estimator | — | **Electrical BOQ list (FR-034)** is our analogue · 4 | FR-034 |
+| R-ID-06 | Budget widget / price estimator | VERIFIED P02 | Premium budget widget; PRO price estimator | — | Not planned (electrical/shop BOQ removed: electrical planning is out of scope by owner decision (2026-10-11); see combined-research.md) | — |
 | R-ID-07 | Collision, grouping, alignment, lock | VERIFIED P03q | Grouping **web only**; Lock Furniture **web only**; align via snapping (Android); "3-axis rotation", "slant items"; hide objects | Platform gaps; review asks for "layering/stacking order" and "rotate a whole room" | Multi-select, group, lock in shared core (all platforms same code) · 5 | FR-017, FR-036, FR-043 |
 | R-ID-08 | Item search by text/image | VERIFIED P03 (search-for-items-using-an-image) | AI Studio image search; text search | — | Text search only v1 · 2 | FR-014 |
-| R-ID-09 | Electrical items | VERIFIED P03a | "does not support creating full electrical layouts… can't design electrical wiring, cables, or connections"; you **can place** "Power sockets, Light switches, Other electrical fixtures" | — | Our differentiator must go beyond placing symbols (see §2.6) · 5 | FR-034 |
+| R-ID-09 | Electrical items | VERIFIED P03a | "does not support creating full electrical layouts… can't design electrical wiring, cables, or connections"; you **can place** "Power sockets, Light switches, Other electrical fixtures" | — | Not planned (removed: electrical planning is out of scope by owner decision (2026-10-11); see combined-research.md) | — |
 
 ### 2.3 3D visualization
 
@@ -127,22 +129,8 @@ Columns condensed: **Status** · **How it behaves in Planner 5D** (interaction, 
 | R-PM-06 | Projects | VERIFIED P02 | Unlimited projects on Free; folders/Spaces; duplicate; merge projects | Same |
 | R-PM-07 | Account deletion | VERIFIED P03u | In-app (web/Android) and other platforms; data deleted within 30 days; subscription must be cancelled separately | Matches Play policy (V05) |
 
-### 2.6 Electrical planning — the competitive picture (important correction)
-
-| Product | What it does with electrical | Source |
-|---|---|---|
-| Planner 5D | Place sockets/switches/fixtures as objects; **no wiring/circuits** | VERIFIED P03a |
-| Homestyler | **Plumbing & Electrical tool**: place panels, **Auto Layout** generates circuits/pipes, manual editing, 3D diagram; in Pro+ ($6.8/mo) | VERIFIED C03; tool behaviour from official forum guide C04 (via search) |
-| Electrical House Wiring (Aink Studio, Play) | Learning app: Indian-style diagrams (MCB/RCCB/DB, inverter, geyser), calculators; **not a floor-plan tool** | OBSERVED C06 (1 L+ installs, ★4.48) |
-| ArcSite, magicplan | Professional field drawing/estimating apps (paid, global) | OBSERVED C06 |
-| India-specific "house plan + electrical points + BOQ" app in Hindi | **Not found** in Play searches for "house wiring plan", "electrical floor plan", "ghar ka naksha" | OBSERVED C06 (absence in search results is not proof of absence) |
-
-**Implication (PROPOSED):** "electrical layer" alone is **not** unique. Our positioning has to be specific:
-- Indian conventions: modular switch boards (e.g. 6/8/12-module), fan/light/socket/AC/geyser/inverter points, DB/MCB.
-- Points list → **bill of quantities priced from Raghvendr's shop**.
-- Hindi UI.
-- Works on cheap phones.
-- No auto-routing or load calculation in v1, for liability reasons (Doc 4 §6).
+### 2.6 Electrical planning — removed from scope
+The owner decided on 2026-10-11 that the app and the electrical shop stay separate businesses, so electrical planning is not part of this product. The competitor facts read earlier stay in the source log (P03a, C03, C04) as research history only.
 
 ---
 
@@ -163,7 +151,6 @@ Columns condensed: **Status** · **How it behaves in Planner 5D** (interaction, 
 | Sweet Home 3D (mobile) | AI Photo Editor Lab srl | 3.63 | 2,693 | 5 L+ | 25 Nov 2025 |
 | ArcSite | ArcSite | 4.55 | 2,960 | 5 L+ | 24 Sep 2026 |
 | Shree Naksha Ghar (Indian) | nakshaghar.in | 4.42 | 223 | 50K+ | 9 Sep 2025 |
-| Electrical House Wiring (learning) | Aink Studio | 4.48 | 825 | 1 L+ | 13 Aug 2026 |
 
 Notes:
 - Room Planner advertises **Asian Paints** colours (OBSERVED), an Indian brand tie-up model worth copying with local brands.
@@ -171,16 +158,16 @@ Notes:
 
 ### 3.2 Capability & pricing comparison
 
-| Product | Platforms | 2D/3D | AI | Electrical | Pricing (source) | Export |
-|---|---|---|---|---|---|---|
-| Planner 5D | Web, iOS, Android, Win, Mac, visionOS | Live 2D/3D, renders server-side | Recognition, AI Studio, Smart Wizard, AI Designer, **Copilot**, Home Scan | Place sockets/switches only | Free / $19.99 / $49.99 mo (P02) | PDF all; DWG/DXF PRO |
-| RoomSketcher | Web, apps | 2D/3D, live 3D, 360 | 1 free AI floor-plan conversion, AI render | Not found | Free; Pro $24/mo or $144/yr; Team $70/mo or $420/yr; credits (C02) | Print to scale |
-| Floorplanner | Web | 2D/3D | Not found on pricing page | Not found | Free (5 projects, 3 floors, SD watermark); credits $8.15/5 … $163/100; subscriptions **not captured** (C01) | SD→8K images |
-| Homestyler | Web, apps | 2D/3D, renders | AI tools, 180–380 AI credits/mo | **Auto circuit & pipe layout** | Free; Pro+ $6.8/mo; Master+ $11.8/mo; Team $19.6/seat (C03) | Renders, panoramas |
-| HomeByMe | Web, apps | 2D/3D, realistic images | Not verified | Not found | Official page not captured; aggregator: Starter free, paid tiers via sales (C07) | — |
-| Live Home 3D | Win, Mac, iOS, Android | 2D/3D | Not verified | Not found | Official page not captured; aggregator: Standard $5.99/mo or $19.99/yr, Pro $14.99/mo or $39.99/yr; lifetime options (C07) | — |
-| Sweet Home 3D | Desktop (Java), JS, mobile | 2D/3D | No | No | Free (GPL); catalog models OK for commercial use (C05) | OBJ etc. |
-| blueprint3d | Web library | 2D/3D (Three.js) | No | No | **MIT** (V10) — reading reference | — |
+| Product | Platforms | 2D/3D | AI | Pricing (source) | Export |
+|---|---|---|---|---|---|
+| Planner 5D | Web, iOS, Android, Win, Mac, visionOS | Live 2D/3D, renders server-side | Recognition, AI Studio, Smart Wizard, AI Designer, **Copilot**, Home Scan | Free / $19.99 / $49.99 mo (P02) | PDF all; DWG/DXF PRO |
+| RoomSketcher | Web, apps | 2D/3D, live 3D, 360 | 1 free AI floor-plan conversion, AI render | Free; Pro $24/mo or $144/yr; Team $70/mo or $420/yr; credits (C02) | Print to scale |
+| Floorplanner | Web | 2D/3D | Not found on pricing page | Free (5 projects, 3 floors, SD watermark); credits $8.15/5 … $163/100; subscriptions **not captured** (C01) | SD→8K images |
+| Homestyler | Web, apps | 2D/3D, renders | AI tools, 180–380 AI credits/mo | Free; Pro+ $6.8/mo; Master+ $11.8/mo; Team $19.6/seat (C03) | Renders, panoramas |
+| HomeByMe | Web, apps | 2D/3D, realistic images | Not verified | Official page not captured; aggregator: Starter free, paid tiers via sales (C07) | — |
+| Live Home 3D | Win, Mac, iOS, Android | 2D/3D | Not verified | Official page not captured; aggregator: Standard $5.99/mo or $19.99/yr, Pro $14.99/mo or $39.99/yr; lifetime options (C07) | — |
+| Sweet Home 3D | Desktop (Java), JS, mobile | 2D/3D | No | Free (GPL); catalog models OK for commercial use (C05) | OBJ etc. |
+| blueprint3d | Web library | 2D/3D (Three.js) | No | **MIT** (V10) — reading reference | — |
 
 Performance comparison between products: **not measured** (would need the same test project on the same devices; see Doc 8 §6 device list).
 
@@ -206,7 +193,7 @@ Draw → rooms with real dimensions → doors/windows → furniture → 3D → s
 | RISK-05 | AI cost vs revenue | Official prices now verified (V07–V09); Planner 5D gates AI with expiring credits | Doc 9 §3 |
 | RISK-06 | WebGL context loss | unchanged | REN-07 |
 | RISK-07 | Beginner maintaining AI-written geometry code | unchanged | Doc 7 §4 |
-| RISK-08 | Differentiation | **New**: electrical "points on plan" exists (Planner 5D objects; Homestyler auto circuits) and NL editing exists (Copilot) | Customer interviews before building FR-034 beyond Phase 2 |
+| RISK-08 | Differentiation | NL editing already exists at the leader (Copilot); electrical scope removed by owner decision | Customer interviews before Phase 2 ends |
 
 ---
 
@@ -233,7 +220,7 @@ Draw → rooms with real dimensions → doors/windows → furniture → 3D → s
 
 | Round-1 statement | Round-2 finding |
 |---|---|
-| "None of the competitors advertise electrical layout" | **Wrong.** Homestyler has auto circuit layout; Planner 5D lets users place sockets and switches (§2.6) |
+| "None of the competitors advertise electrical layout" | Wrong, but now moot: electrical planning was removed from scope (§2.6) |
 | Collaboration "view-only by default, fuller on web" | Partly right. Help: live collaboration on **Web and iOS**; pricing page claims shared editing on every plan (conflict noted) |
 | "Planner 5D uses Three.js" (job ad) | That ad is gone (404). The current Android job points to native OpenGL/Vulkan/Filament. The web engine is unknown |
 | "100M users not found" | Found as a company claim on official pages (100M+/120M+), not audited |

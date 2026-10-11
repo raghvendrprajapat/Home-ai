@@ -1,36 +1,37 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 2 — Product Requirements Document (PRD)
 
 Working name: **GharPlan** (placeholder — check trademark/Play Store availability before use).
 Status: Draft v0.1 · 2026-10-10 · Owner: Raghvendr
 
 ## 1. Product vision
-A fast, honest, mobile-first home planner that lets an Indian homeowner or small contractor draw their house to real dimensions, furnish it, and see it in 3D on a ₹10–20k Android phone — and, as a differentiator, plan **electrical points and fittings** in the same model.
+A fast, honest, mobile-first home planner that lets an Indian homeowner or small contractor draw their house to real dimensions, furnish it, and see it in 3D on a ₹10–20k Android phone.
 
 ## 2. Target users & personas
 
 | Persona | Description | Main job |
 |---|---|---|
 | P1 Homeowner "Sunita" | Building or renovating a 2–3 BHK; uses a mid-range Android phone; not technical | See if furniture fits, choose colours, show family |
-| P2 Small contractor / electrician "Imran" | Does wiring and interiors for local clients | Quick dimensioned plan + electrical point plan to share on WhatsApp |
+| P2 Small contractor / interior designer "Imran" | Does interiors for local clients | Quick dimensioned plan + 3D view to share on WhatsApp |
 | P3 Student / hobbyist | Likes design | Play with layouts, styles |
-| P4 Shop owner (Raghvendr) | Sells switches, wires, fans, lights | Turn plans into bills of material / leads (later) |
 
 Market size: **not estimated in numbers.** Demand evidence from Google Play India (2026-10-11, Doc 1 §3.1): Planner 5D has 5 Cr+ installs and ranks #5 top-grossing in House & Home. Five other home-design apps have 1 Cr+ installs each. Install counts show interest; they are not a market-size or revenue estimate. Still needed: keyword volume and willingness-to-pay interviews (Doc 9 §7).
 
 ## 3. Jobs-to-be-done
 - JTBD-1: "When I am planning a room, I want to check if my furniture fits so I don't buy the wrong size."
 - JTBD-2: "When I discuss with family/contractor, I want a 3D picture so everyone imagines the same thing."
-- JTBD-3: "When wiring a new house, I want to mark switch/fan/light points on the plan so the electrician follows it."
+- JTBD-3: "When I change my plan on another phone, I don't want to lose my work."
 - JTBD-4: "When I have a builder's plan image, I want it converted so I don't redraw it." (later, AI)
 
 ## 4. User problems (from research, Doc 1 §1.2 and §3.1: sync overwrites, shared-wall problems, paywall complaints, no Hindi)
 Billing confusion, slow apps, lost work, steep learning curve, imperial-first tools.
 
 ## 5. Value proposition
-Accurate plan in minutes · smooth 3D on budget phones · never lose work · clear pricing · electrical planning built-in.
+Accurate plan in minutes · smooth 3D on budget phones · never lose work · clear pricing · Hindi.
 
 ## 6. Competitive positioning
-Not competing on photoreal rendering or catalog size (10K+ items at Planner 5D). Competing on: speed, reliability, Indian context, electrical layer, price.
+Not competing on photoreal rendering or catalog size (10K+ items at Planner 5D). Competing on: speed, reliability, Indian context, price.
 
 ## 7. Product scope
 Android app (Capacitor-wrapped web app) + same app on the web. One shared codebase.
@@ -78,7 +79,7 @@ User story pattern: "As P1, I want …, so that …" is given where not obvious.
 | PRD-FR-031 | AI floor-plan import: upload image → AI draft walls/openings → user correction screen → accept | C | v2 | Doc 6 | Output always valid geometry; user can fix every element | AI-01..05 |
 | PRD-FR-032 | AI restyle image from 3D screenshot or room photo (visual only, clearly labelled) | C | v2 | Doc 6, credits | Image returned or clear error in ≤ 60 s; credits deducted only on success | AI-06, AI-08 |
 | PRD-FR-033 | AI furnish suggestion: proposes furniture placement as editable objects | C | v2 | Doc 6 | All placed objects inside room, no overlaps, door swing clear | AI-07 |
-| PRD-FR-034 | Electrical layer (Indian conventions): place modular switch boards (module count), sockets (6A/16A), light, fan, AC, geyser, inverter and DB points on walls/ceilings; per-room counts; **bill of quantities priced from the shop's own price list**; Hindi labels. *Placing symbols alone is not unique — Planner 5D allows sockets/switches as objects, and Homestyler auto-lays-out circuits (Doc 1 §2.6). The BOQ and India-specific workflow are the differentiator.* | S | v1.1 | Data model | Point counts in export equal points in model | GEO-13, UX-09 |
+| PRD-FR-034 | **Retired** — electrical layer removed: out of scope by owner decision (2026-10-11). ID not reused. | — | — | — | — | — |
 | PRD-FR-035 | Share read-only web link | C | v1.1 | FR-023 | Link viewer cannot edit; owner can revoke | SEC-03 |
 | PRD-FR-036 | Multi-select, copy/paste, duplicate furniture | S | v1.0 | FR-015 | Duplicates get new IDs, offset 200 mm | SYNC-06 |
 | PRD-FR-037 | Room properties: name, type, ceiling height, floor material | M | MVP | FR-006 | Room props survive wall edits that keep the room (room identity rules Doc 4 §2.7) | GEO-14 |
@@ -132,7 +133,6 @@ graph LR
   Furniture --> Billing[FR-029,030]
   Walls --> AIimport[FR-031]
   Rooms --> AIfurnish[FR-033]
-  Rooms --> Electrical[FR-034]
 ```
 
 ## 13. Mobile usability requirements
@@ -146,7 +146,7 @@ Local-first: IndexedDB (web) / Capacitor filesystem-backed storage on Android; j
 
 ## 15. Monetization requirements
 - Free: unlimited projects, basic catalog, PNG export with small watermark, banner ads on non-editor screens, **rewarded ad to unlock one premium item for 72 h** (Planner 5D used this model in 2020 per a Play review; Doc 1 §3.1). Note: Planner 5D gives a PDF report to all plans (Doc 1 R-PM-05), so a free watermarked PDF plan export should be considered.
-- Premium (monthly/yearly via Play Billing): full catalog, no ads, PDF export without watermark, multi-floor, electrical layer export.
+- Premium (monthly/yearly via Play Billing): full catalog, no ads, PDF export without watermark, multi-floor.
 - Credits (v2): AI features consume credits; Premium includes a monthly allowance; extra credit packs as in-app products.
 - Price points: **to be decided after research**; do not copy Planner 5D USD prices — Indian price sensitivity is different.
 - Google Play fee (VERIFIED, Play Console Help, 2026-10-11): **India is still on the old structure: 15% for auto-renewing subscriptions.** Alternative billing in India costs the Play fee minus 4%, i.e. 11%. The new 10%/20% structure applies only to EEA/UK/US (from 30 Jun 2026) and AU/JP (from 30 Sep 2026) for now.
@@ -158,7 +158,7 @@ Events: `project_created`, `wall_drawn`, `room_closed`, `furniture_placed`, `vie
 
 ## 17. Prioritization summary
 Must (MVP): FR-001–015, 018–020, 022, 024, 025, 037, 038; release-must: FR-029, FR-039 (with accounts).
-Should: FR-016, 017, 021, 023, 026, 028, 030, 034, 036, 043.
+Should: FR-016, 017, 021, 023, 026, 028, 030, 036, 043. (FR-034 retired.)
 Could: FR-027, 031, 032, 033, 035.
 Won't (v1): FR-040, 041, 042.
 
@@ -173,7 +173,7 @@ Real-time collaboration, path-traced photoreal rendering, DWG export, user-uploa
 5. No P0/P1 open bugs; closed test with **≥ 12 testers opted in continuously for 14 days** (VERIFIED rule for personal accounts created after 13 Nov 2023; Play Console Help).
 
 ## Appendix A — User story for every functional requirement
-Personas: P1 homeowner, P2 contractor/electrician, P3 hobbyist, P4 shop owner (§2).
+Personas: P1 homeowner, P2 contractor/interior designer, P3 hobbyist (§2).
 
 | ID | User story |
 |---|---|
@@ -210,7 +210,7 @@ Personas: P1 homeowner, P2 contractor/electrician, P3 hobbyist, P4 shop owner (�
 | PRD-FR-031 | As P2, I want to convert a builder's plan image so that I don't redraw it. |
 | PRD-FR-032 | As P1, I want a styled AI picture of my room so that I get decoration ideas. |
 | PRD-FR-033 | As P1, I want furniture suggestions placed for me so that I get a starting layout. |
-| PRD-FR-034 | As P2, I want to mark switch boards, fan, light and socket points with a priced list so that I can quote a wiring job. As P4, I want that list priced from my shop so that it brings sales. |
+| PRD-FR-034 | (Retired: electrical planning out of scope.) |
 | PRD-FR-035 | As P2, I want a view-only link so that a client can see the plan without installing the app. |
 | PRD-FR-036 | As P1, I want to copy furniture so that I can repeat chairs quickly. |
 | PRD-FR-037 | As P1, I want to name rooms (incl. pooja room, balcony) and set ceiling height so that the plan is clear. |

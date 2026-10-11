@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 8 — Testing & Quality Assurance Plan
 
 **Status:** No tests have been executed yet — this is the plan. Only the sample-project schema/integrity check (DM-01, partial) was run while writing these docs.
@@ -36,7 +38,7 @@ Unless a row says otherwise:
 | GEO-10 | Unit round-trip display↔parse; large coords; NaN input | stable; NaN rejected | A | 100% |
 | GEO-11 | Furniture OBB pairs (fixtures) | overlap flags correct | A | 100% |
 | GEO-12 | Stair fit (v1.2) | run/rise within limits for floor height | A | exact |
-| GEO-13 | Electrical points on walls; move/resize wall | points stay on wall; counts unchanged | A | exact |
+| GEO-13 | (Retired: electrical points removed from scope) | — | — | — |
 | GEO-14 | Edits that keep/split/merge rooms | identity rules Doc 4 §2.7 hold; props preserved | A | 100% |
 | GEO-15 | Furniture back-to-wall snap | back face within 1 mm of wall face | A | ≤ 1 mm |
 | GEO-16 | §2.13 named failure scenarios (11 cases) | each handled as specified (split/merge/reject) | A | 100% |
@@ -102,7 +104,7 @@ Reference devices: Doc 4 §3.8 (named device classes) and §0 above. Record devi
 | UX-06 | Doors/windows flow | A | pass |
 | UX-07 | Furniture flow | A | pass |
 | UX-08 | Export PNG labels correct | A (OCR-free: compare render-model labels list) | pass |
-| UX-09 | Electrical count export | A | exact |
+| UX-09 | (Retired: electrical points removed from scope) | — | — |
 | UX-10 | Accessibility: axe-core on non-canvas screens; touch targets ≥ 48 dp; TalkBack walkthrough | A + M | 0 critical axe issues |
 | UX-11 | No hard-coded strings (lint), Hindi layout check | A + M | pass |
 | UX-12 | First-time user test: 5 people draw 2-room plan + furnish | M | median ≤ 10 min (target to revisit) |

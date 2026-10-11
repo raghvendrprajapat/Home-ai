@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 12 — Master-prompt coverage check
 
 **Question answered:** did the research deliver every piece of data the master research prompt asked for?
@@ -61,13 +63,13 @@ Status key: **✅ Complete** · **🟡 Partial** (answered, with a stated gap) �
 | AI (8) | room design, furnishing, image redesign, plan recognition, layout generation, style recs, image generation, AI editing | R-AI-01…06 | ✅ |
 | Project management (8) | save/load, sync, templates, duplication, export, sharing, collaboration, version history | R-PM-01…07 | ✅ |
 | Monetization (6) | free vs premium, subscriptions, paid rendering, catalog limits, AI credits, commercial licensing | Doc 1 §1.1 | ✅ |
-| "Mark unsupported items as potential features" | e.g. electrical wiring (not supported), version history on web/iOS (not supported) → our FR-034, FR-023 | ✅ |
+| "Mark unsupported items as potential features" | e.g. version history on web/iOS (not supported) → our FR-023 | ✅ |
 
 ## Part B — §5 Competitors
 
 | Demand | Where | Status |
 |---|---|---|
-| Floorplanner, HomeByMe, RoomSketcher, Sweet Home 3D, Homestyler, Live Home 3D | Doc 1 §3.2 (+ Play stats §3.1, + Indian/electrical apps) | 🟡 official prices missing for 3 (C01, C07) |
+| Floorplanner, HomeByMe, RoomSketcher, Sweet Home 3D, Homestyler, Live Home 3D | Doc 1 §3.2 (+ Play stats §3.1, + Indian apps) | 🟡 official prices missing for 3 (C01, C07) |
 | Compare editor, 2D/3D sync, furniture, rendering, AI, ease of use, platforms, pricing, export, performance, complexity | Doc 1 §3.2 columns + §2 | 🟡 ease of use and performance not measured (needs hands-on/devices) |
 | Minimum useful feature set | Doc 1 §3.3 | ✅ |
 | Essential vs expensive enhancements | Doc 1 §3.3, PRD §17–18, Doc 9 §2 "highest marginal costs" | ✅ |
@@ -101,7 +103,7 @@ All 15 topics, the 8-step wall-drag example, a sequence diagram, pseudocode and 
 | 21 entities | Users (profiles), Projects, Floors, Rooms, Walls, Junctions, Doors+Windows (Opening), Furniture, Transforms (position/rotation/size), Materials, Textures (TextureAsset), Lighting (Light), Cameras (CameraPreset), Assets (CatalogAsset), Asset catalogs (catalog.json + catalog_assets), Project versions, Subscriptions, AI requests (ai_jobs), Rendering jobs (render_jobs/RenderJob), Sharing permissions (project_shares/SharingPermission) — Doc 5 §2–3 | ✅ (Light, TextureAsset, SharingPermission roles, RenderJob added in round 2) |
 | ER diagram, TS interfaces, JSON Schema, SQL tables, relationships, validation, indexes, versioning, migration | Doc 5 §2–§6, `examples/project.schema.json` | ✅ |
 | Storage split (relational / JSON / object / device) | Doc 5 §1 | ✅ |
-| Complete example project | `examples/sample-project.json` (2 rooms, 7 walls, 2 doors, 2 windows, 4 furniture, 4 electrical points, 2 lights) — validated: 0 schema errors, 0 integrity problems; interior areas 20.6422 m² and 15.8722 m² | ✅ |
+| Complete example project | `examples/sample-project.json` (2 rooms, 7 walls, 2 doors, 2 windows, 4 furniture, 2 lights; electrical points removed 2026-10-11) — validated: 0 schema errors, 0 integrity problems; interior areas 20.6422 m² and 15.8722 m² | ✅ |
 | Demonstrate serialize → load → edit → render | Specified as DM-01..04 and SYNC-07; needs Phase 0 code | ⛔ |
 
 ## Part I — §12 AI
@@ -155,7 +157,7 @@ Docs 1–10 present, plus Doc 11 (audit and traceability) and Doc 12 (this check
 All 8 questions answered in Doc 9 §8 and updated with the round-2 correction about differentiation. **✅**
 
 ## What only you can close (⛔ items)
-1. Use Planner 5D and Homestyler hands-on on your phone (free vs paid, smoothness, Homestyler's electrical tool).
+1. Use Planner 5D and Homestyler hands-on on your phone (free vs paid, smoothness).
 2. Screenshot INR prices on the paywalls.
-3. Interview 5–10 electricians/contractors and 5 homeowners.
+3. Interview 5–10 homeowners and 3–5 small contractors/interior designers.
 4. Phase 0 code: this produces the load/edit/render demonstration and the first real performance numbers.

@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 3 — Technical Requirements Document (TRD)
 
 Every decision below is summarized here; the full 11-field analysis (technology, reason, alternatives, pros, cons, licensing, performance, integration complexity, maintenance risk, Claude Code compatibility, confidence) is in **Doc 10 (ADR-xxx)**.

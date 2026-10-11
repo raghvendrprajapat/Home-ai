@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 6 — AI Architecture & Feasibility
 
 **Bottom line:** AI is **not** part of the MVP. It is added in Phase 6 only after the core editor works and after a cost/quality spike (Doc 7 Phase 6 gate). No accuracy numbers are claimed anywhere in this document — they must be measured on our own test set.

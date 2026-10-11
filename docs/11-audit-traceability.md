@@ -1,3 +1,5 @@
+> **Superseded (2026-10-11):** the combined Claude + Codex document [`combined-research.md`](combined-research.md) is now the main reference. This file is kept as history. Electrical planning has been removed from the product scope by owner decision.
+
 # Document 11 — Audit & Traceability Matrix
 
 This is a **self-audit by the same author** of Docs 1–10. It is not proof of correctness. External validation recommended in §4.
@@ -15,7 +17,7 @@ Limitation: the script checks that IDs exist and are linked, not that the linked
 | A-03 | PRD vs feature inventory | Planner 5D features not in our PRD: 360° panoramas, CAD export, 3D model upload, budget widget, live collaboration, 4K renders. | Info | Deliberate (PRD §18 exclusions / Won't). Budget widget could be a cheap Could item later — **missing requirement, added to backlog**. |
 | A-04 | PRD vs feature inventory | Stairs/roof/terrain UNKNOWN in Planner 5D; we include stairs as Could, exclude roofs/terrain. | Info | OK |
 | A-05 | TRD vs PRD | **Contradiction:** PRD says MVP is local-only (no backend), but PRD-FR-029 (subscriptions, release-must) needs server-side purchase verification (TRD §4, MON-04). | High | Resolution: v1.0 release includes a minimal backend (Supabase edge function for billing verification) even if cloud sync ships at the same time or later. Roadmap already orders Phase 5 before Phase 8. |
-| A-06 | Data models vs editing operations | Electrical points are wall-hosted only, but ceiling lights/fans are ceiling-mounted. The sample uses a wall "fan feed" point as a workaround. | Medium | **Missing:** add `mount: 'wall'| **Fixed in round 2:** `mount: wall|ceiling` added to ElectricalPoint (schema, sample, Doc 4 §6, Doc 5). |
+| A-06 | Data models vs editing operations | (Obsolete: electrical points removed from scope 2026-10-11.) | — | — | — |
 | A-07 | Data models vs editing operations | No entity for light fixtures as lights (only furniture items with emissive materials). | Low | Consistent with Doc 4 §3.4 (visual-only lights in v1); revisit with renderer quality work. |
 | A-08 | Data models vs editing operations | Stairs (PRD-FR-027) need cross-floor references; schema has none. | Low (Could) | Design when FR-027 is scheduled; schema bump v2 with migration. |
 | A-09 | Data models vs editing operations | Templates (PRD-FR-028) storage not specified. | Low | Templates = fixture JSON files on CDN loaded through the same validator. |
@@ -27,7 +29,7 @@ Limitation: the script checks that IDs exist and are linked, not that the linked
 | A-15 | Testing vs failure modes | AI thresholds (AI-03, AI-05) are intentionally undefined until a baseline exists. | Info | Phase 6 spike must set them before build. |
 | A-16 | Unsupported assumption | Performance targets (NFR-001..006, TRD §10 budgets) are not measured. | High | Phase 0 exit gate. |
 | A-17 | Unsupported assumption | Effort estimates (Doc 7) are judgment, not data. | Medium | Track actual time per phase; re-plan after Phase 0. |
-| A-18 | Unsupported assumption | Electrical-layer demand is a hypothesis. | Medium | Customer interviews (Doc 9 §7). |
+| A-18 | Unsupported assumption | Demand for our differentiators is a hypothesis (electrical layer since removed). | Medium | Customer interviews (Doc 9 §7). |
 | A-19 | Legal | Google Play fee structure and tester requirements are from secondary sources / memory. | Medium | **Resolved:** 15% subscription fee for India (11% with alternative billing) and the 12-testers/14-days rule verified in Play Console Help (V03, V04). |
 
 ## 3. Traceability matrix (Evidence → Requirement → Design → Task → Test)
@@ -64,7 +66,7 @@ Limitation: the script checks that IDs exist and are linked, not that the linked
 | R-AI-01 | FR-031 AI plan import | Doc 6 §2 | T-6.3 | AI-01..05 |
 | R-AI-02 | FR-032 AI restyle | Doc 6 §3–5 | T-6.2 | AI-06, AI-08 |
 | R-AI-03 | FR-033 AI furnish | Doc 6 §3 solver | T-6.4 | AI-07 |
-| Doc 1 §2.6 (R-ID-09) | FR-034 electrical layer | Doc 4 §6, Doc 5 ElectricalPoint + electrical_price_list | (v1.1) | GEO-13, UX-09 |
+| Doc 1 §2.6 | FR-034 (retired: electrical removed from scope) | — | — | — |
 | R-PM-03 (partial) | FR-035 share link | Doc 5 project_shares | (v1.1) | SEC-03 |
 | R-ID-07 | FR-036 multi-select/copy | Doc 4 §2.11 | T-2.6 | SYNC-06 |
 | R-FP-06 | FR-037 room props/ceiling | Doc 4 §2.7 | T-2.9 | GEO-14 |
@@ -80,9 +82,9 @@ Limitation: the script checks that IDs exist and are linked, not that the linked
 
 ## 3a. Round 2 evidence update (2026-10-11)
 What changed after live access:
-- **Research claims:** every Planner 5D statement in Doc 1 now carries a source ID from `docs/research/source-log.md`. Round-1 claims that turned out wrong are listed in Doc 1 §6. The biggest correction: electrical "points on a plan" is not unique (Planner 5D allows placing sockets and switches; Homestyler auto-lays-out circuits).
-- **Requirements changed by evidence:** FR-034 rewritten (Indian BOQ focus); PRD §15 verified fees and rewarded-ad unlock; PRD §19 verified tester rule.
-- **Design changes:** ceiling-mounted electrical points and a `Light` entity (schema + sample re-validated: 0 errors, 0 integrity problems); ADR-007 now has an explicit native-renderer fallback; AI license table (no AGPL YOLO, no CubiCasa5K).
+- **Research claims:** every Planner 5D statement in Doc 1 now carries a source ID from `docs/research/source-log.md`. Round-1 claims that turned out wrong are listed in Doc 1 §6. The biggest correction then: electrical "points on a plan" is not unique. (Electrical planning was later removed from scope, 2026-10-11.)
+- **Requirements changed by evidence:** FR-034 retired on 2026-10-11 (electrical out of scope); PRD §15 verified fees and rewarded-ad unlock; PRD §19 verified tester rule.
+- **Design changes:** a `Light` entity (electrical points later removed) (schema + sample re-validated: 0 errors, 0 integrity problems); ADR-007 now has an explicit native-renderer fallback; AI license table (no AGPL YOLO, no CubiCasa5K).
 - **Still not verifiable without accounts or devices:** INR prices, AdMob India eCPM, Planner 5D's web 3D engine, 3D collision behaviour, Floorplanner/HomeByMe/Live Home 3D official prices, real-device performance of our build.
 - **New risk RISK-08 (differentiation)** recorded in Doc 1 §4; mitigation = customer interviews before building FR-034 beyond Phase 2.
 
@@ -93,5 +95,5 @@ Automated checks re-run after round-2 edits: see §1 (the counts there are updat
 2. **Real-device benchmark** on at least 2 Android phones you physically own (Phase 0).
 3. **Security review** of RLS policies and billing verification before production (Phase 8).
 4. **License review** of the asset register (and the app's dependency list) before the first public release.
-5. **User tests** with 5 homeowners and 5 electricians from Raghvendr's customer base (Phase 2 exit and before Phase 6).
+5. **User tests** with 5 homeowners and 3–5 small contractors/interior designers (Phase 2 exit and before Phase 6).
 6. Re-run this document's cross-reference script after every documentation change (keep it in `tools/` once the repo has code).
