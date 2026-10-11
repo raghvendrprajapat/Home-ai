@@ -475,12 +475,12 @@ All budgets are PROPOSED, not measured.
 | PRD-FR-001 | **Canonical project model**: one versioned document in integer millimetres; both views read it | M · L0 | — | Every entity has a unique stable ID; all references resolve; values finite; unsupported schema version rejected without replacing the open project | DM-001, DM-002, GEO-017, SYNC-011, REL-001 |
 | PRD-FR-002 | **Project list**: create (name, units), open, rename, duplicate, delete to trash (30 days for cloud) | M · L0 | FR-001 | New project opens ≤ 1 s and is listed after restart; duplicate gets new IDs for all entities and original is unchanged; cancelling create never overwrites another project | UX-002, REL-008 |
 | PRD-FR-003 | **Templates**: 1BHK, 2BHK, room presets | S · C1 | FR-001 | Template opens as a new editable copy with valid geometry | UX-002, DM-001 |
-| PRD-FR-004 | **Rectangle room tool** (W × D, drag or typed) | M · L0 | FR-005 | Creates 4 centreline walls + 1 room atomically; adjoining existing walls are split/reused; preview shows centreline and inside (clear) sizes; W or D < 300 mm rejected with message | GEO-001, GEO-010, UX-003 |
+| PRD-FR-004 | **Rectangle room tool** (W × D, drag or typed) | M · L0 | FR-005 | Creates 4 centreline walls + 1 room atomically when clear area is positive; adjoining existing walls are split/reused; preview shows centreline and inside (clear) sizes; W or D < 300 mm or nonpositive clear area rejected with message and no change; small positive rooms follow E.7 | GEO-001, GEO-010, GEO-021, UX-003 |
 | PRD-FR-005 | **Draw straight walls**: tap/click points, live length, double-tap/Esc/"Done" ends; L0 = 0°/90° only | M · L0 (free angle S · v1.1) | FR-006, FR-008 | Chain of N points → N−1 walls sharing junctions; closing on first point creates a loop; endpoint on a wall makes a T-junction; X-crossing or non-orthogonal segment rejected before commit in L0; segment < 10 mm rejected; preview leaves no trace | GEO-001, GEO-003, GEO-016, UX-004 |
 | PRD-FR-006 | **Snapping & grid**: junction > wall line (T) > alignment guide > grid; screen-pixel tolerance; hold-to-disable | M · L0 | FR-015 | Snap acquire 12 px for junctions / 8 px others, release at 1.5× acquire; snapped point equals target exactly (integer mm); no flicker at threshold; grid steps adapt to zoom (10/50/100/500/1000 mm) | GEO-009 |
 | PRD-FR-007 | **Exact dimensions & wall properties**: type length; edit thickness 50–1000 mm and height 1000–6000 mm; choose which end moves | M · L0 | FR-005, FR-008 | Typed 3 450 mm stores 3 450 mm exactly; connected walls stay joined; out-of-range values rejected; label says centreline or inside length | GEO-002, GEO-007, UX-005 |
 | PRD-FR-008 | **Junction & wall editing**: drag junctions/walls; connected walls follow | M · L0 | FR-001 | Shared junction keeps one ID; move is all-or-nothing; collinear overlaps merged or rejected by a documented rule; openings never left dangling; impossible move leaves the model unchanged and shows the conflicting wall | GEO-004, GEO-005, GEO-006, SYNC-001 |
-| PRD-FR-009 | **Automatic rooms & carpet area** | M · L0 | FR-008 | Every closed loop becomes a room in the same edit; open loops show "not closed" and no area; area = inside walls ("carpet area"), never centreline; deleting a wall merges rooms correctly | GEO-001, GEO-010, GEO-011, SYNC-004 |
+| PRD-FR-009 | **Automatic rooms & carpet area** | M · L0 | FR-008 | Every valid closed face with positive clear area becomes a room in the same edit; < 0.25 m² kept with small-space warning, nonpositive clear area rejects the command unchanged (E.7); open loops show "not closed" and no area; area = inside walls ("carpet area"), never centreline; deleting a wall merges rooms correctly | GEO-001, GEO-010, GEO-011, GEO-021, SYNC-004 |
 | PRD-FR-010 | **Room properties**: name (incl. pooja room, balcony), type, ceiling height, floor material | M · L0 | FR-009 | Properties survive edits that keep the room; on split/merge the documented identity rule applies and ambiguous cases ask the user | GEO-011 |
 | PRD-FR-011 | **Doors & windows** on walls: offset, width, height, sill, swing side | M · L0 | FR-008 | Opening stays within its wall with end margin; overlaps rejected; door sill = 0; sill + height ≤ wall height; reversing a wall keeps world position; wall shrink that breaks an opening is refused or previewed before commit; hole visible in 3D | GEO-013, GEO-014, GEO-015, SYNC-002, UX-006 |
 | PRD-FR-012 | **Selection**: tap/click, multi-select, delete with dependency notice | M · L0 (multi S) | FR-013 | Top-most eligible item selected, with cycling for overlaps; delete shows dependent openings; one delete = one undo entry | GEO-012, UX-005 |
@@ -1129,7 +1129,7 @@ detectFaces(graph):
   next(h: u→v) = outgoing half-edge at v immediately clockwise from twin(h) (v→u)
   walk unvisited half-edges following next() → cycles (each half-edge visited once; ≤ 2E steps)
   signed area (shoelace on junction centrepoints) → classify bounded faces vs the outer face
-  discard outer face per connected component; discard faces < 0.25 m² (configurable)
+  discard outer face per connected component; retain every bounded face regardless of size
   return faces as ordered junction-id cycles
 ```
 
@@ -1137,6 +1137,8 @@ detectFaces(graph):
 - **Dead-end walls** inside a room appear twice in its cycle. That is allowed (a partition stub).
 - **Islands and holes:** a free-standing loop inside a room becomes a hole of the smallest enclosing face (point-in-polygon probe off the edges). Holes are rejected in L0 until fixtures exist.
 - **Clear (carpet) area:** the room polygon offset inward using the junction footprint corners from E.6, so it matches the 3D floor exactly. Show it in m² with 2 decimals, labelled "carpet area (inside walls)".
+- **Small closed rooms (owner decision D12):** after computing the clear region from E.6, keep every bounded face whose clear (inside) area is positive as a room. If `0 < clearAreaMm2 < 250000` (0.25 m²), keep its room ID, boundary and area and show a warning label such as "very small space — shaft/niche?". At exactly 250000 mm² or above, do not show this small-space warning. Compare the unrounded clear area, not the centreline area or displayed label; the threshold is a warning only, never a face-discard filter. The warning is derived from the current clear area and updates when the room is resized.
+- **Invalid clear area:** zero or negative clear (inside) area is an invalid drawing. Reject the entire creating/editing command with a clear error such as "These walls leave no usable space inside the room"; the model and undo history remain unchanged. Validate this before committing wall/junction normalization and room recomputation. This does not change the signed centreline-face orientation convention above: winding is normalized before evaluating usable clear area. See GEO-021.
 - **Openings do not create rooms.** A doorway cuts the wall mesh, but the wall is still a separator in the topology.
 
 ## E.8 Room identity across edits
@@ -2212,7 +2214,7 @@ L0 = Phases 0–4 + local durability. C1 (Play v1.0) = L0 + Phase 5 (cloud optio
 | Task | Work | Evidence |
 |---|---|---|
 | PH0-T01 | Monorepo skeleton (`geometry`, `core-model`, `apps/web`), CI: lint/types/tests | CI green |
-| PH0-T02 | `geometry`: orientation, intersection incl. collinear, wall graph, normalizer, footprints/caps, faces, clear area; L0 rejects X/non-orthogonal | GEO-001…017; analytic fixtures (H.6) |
+| PH0-T02 | `geometry`: orientation, intersection incl. collinear, wall graph, normalizer, footprints/caps, faces, clear area; L0 rejects X/non-orthogonal | GEO-001…017, GEO-021 geometry cases; analytic fixtures (H.6); command/UI/recovery assertions at their dependent tasks |
 | PH0-T03 | `core-model`: types per Part H, `validateProject`, commands AddWall/MoveJunction/MoveWall/DeleteWall/AddOpening/AddFurniture, undo via patches, generations | DM-001…004, SYNC-007 |
 | PH0-T04 | Minimal Konva view: draw walls, drag junctions, show areas | UX-004 (manual) |
 | PH0-T05 | Minimal Three.js view: walls with door/window holes, thresholds, floors, orbit, dirty-set rebuild, stale guard | SYNC-001, SYNC-002, SYNC-006 |
@@ -2412,6 +2414,20 @@ L0 = Phases 0–4 + local durability. C1 (Play v1.0) = L0 + Phase 5 (cloud optio
 | GEO-018 | FR-020 | Furniture oriented-box pairs | Overlap flags correct | Auto | U |
 | GEO-019 | FR-021 | Back-to-wall snap | Back face within 1 mm of wall inner face | Auto | U |
 | GEO-020 | FR-035 (later) | Stair fixture | Fits floor-to-floor height; specialist fixture | Auto later | U,M |
+| GEO-021 | FR-004, FR-008, FR-009, FR-013 | Closed orthogonal faces with positive clear areas below/at/above 250000 mm²; create/edit yielding zero or negative clear area | Every positive face retained; warning iff unrounded clear area < 250000 mm²; nonpositive area → clear error, rejected command, unchanged canonical model and undo history | Auto (geometry/core) + warning UI check | U,J,B |
+
+**GEO-021 cases (specified here; execution pending):** face retention and analytic clear-area cases gate PH0-T02. Atomic command rejection and undo/redo gate PH0-T03; warning display gates the room UI task PH2-T02; save/reload checks gate PH0-T08. Later checks do not require those systems to exist in PH0-T02. Use isolated rectangular centreline loops with uniform wall thickness, so positive inside dimensions are `width − thickness` and `depth − thickness`. Compute expected values analytically; Claude authors the independent fixture data before PH0-T02.
+
+| Case | Centreline dimensions / thickness (mm) | Expected |
+|---|---|---|
+| Positive tiny room | 300 × 300 / 200 | Inside 100 × 100 = 10000 mm² (0.01 m²); one room retained with warning, although its centreline area is only 0.09 m² |
+| Just below warning threshold | 700 × 699 / 200 | Inside 500 × 499 = 249500 mm²; room retained with warning |
+| Exact threshold | 700 × 700 / 200 | Inside 500 × 500 = 250000 mm²; room retained without small-space warning |
+| Above threshold | 701 × 700 / 200 | Inside 501 × 500 = 250500 mm²; room retained without small-space warning |
+| No usable inside width | 300 × 700 / 300, then / 400 | Zero inside width, then overlapping inward offsets: both invalid; clear error, command rejected, canonical document and undo history equal the pre-command state. Do not accept a negative/degenerate region by multiplying signed dimensions |
+| Resize and recovery | Resize the positive cases across the warning threshold; undo/redo and save/reload | Room stays present, identity follows E.8, area and derived warning track the current geometry; rejected edits add no undo entry |
+
+Also exercise the nonpositive-area validation branch with an invalid clear-region result whose computed usable area is negative; it must reject rather than drop the face or commit other affected rooms. Verify warning display in the 2D UI when available. Until the geometry/core commands and UI exist, these are specified acceptance cases, not passing executable geometry tests.
 
 ## M.4 2D/3D consistency (SYNC)
 

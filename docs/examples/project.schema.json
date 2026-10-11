@@ -175,7 +175,7 @@
           "thickness": {
             "type": "integer",
             "minimum": 50,
-            "maximum": 600
+            "maximum": 1000
           },
           "height": {
             "type": "integer",
