@@ -75,3 +75,18 @@ Licenses present: MIT, MIT-0, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, MPL-2
 | Package | Pinned version | License | Purpose / risk |
 |---|---|---|---|
 | konva | 10.7.1 | MIT | Imperative browser canvas display and picking. No canonical model state is stored in Konva. Optional native canvas/skia peers are not installed; real browser tests cover drawing. Official exact-version npm metadata verified before installation. |
+
+## PH0-T05 3D renderer dependencies (2026-10-11, recorded before installation)
+
+| Package | Exact version | License | Purpose / official metadata |
+|---|---|---|---|
+| three | 0.186.1 | MIT | Lazy WebGL2 renderer. [Version metadata](https://registry.npmjs.org/three/0.186.1) |
+| @types/three | 0.186.0 | MIT | Three.js type declarations. [Version metadata](https://registry.npmjs.org/@types%2fthree/0.186.0) |
+| @dimforge/rapier3d-compat | 0.12.0 | Apache-2.0 | Transitive dependency of @types/three; not used as a physics engine in this task. [Version metadata](https://registry.npmjs.org/@dimforge%2frapier3d-compat/0.12.0) |
+| @tweenjs/tween.js | 23.1.3 | MIT | Transitive dependency of @types/three; not used as a physics engine in this task. [Version metadata](https://registry.npmjs.org/@tweenjs%2ftween.js/23.1.3) |
+| @types/stats.js | 0.17.4 | MIT | Transitive dependency of @types/three; not used as a physics engine in this task. [Version metadata](https://registry.npmjs.org/@types%2fstats.js/0.17.4) |
+| @types/webxr | 0.5.24 | MIT | Transitive dependency of @types/three; not used as a physics engine in this task. [Version metadata](https://registry.npmjs.org/@types%2fwebxr/0.5.24) |
+| fflate | 0.8.3 | MIT | Transitive dependency of @types/three; not used as a physics engine in this task. [Version metadata](https://registry.npmjs.org/fflate/0.8.3) |
+| meshoptimizer | 1.1.1 | MIT | Transitive dependency of @types/three; not used as a physics engine in this task. [Version metadata](https://registry.npmjs.org/meshoptimizer/1.1.1) |
+
+Three.js and declarations are pinned. Geometry remains pure and independent of Three.js. No external 3D assets, textures or physics runtime are introduced. Browser GPU compatibility and real-phone performance remain separate gates.
