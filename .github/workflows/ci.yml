@@ -72,7 +72,10 @@ jobs:
       - name: Prepare local web assets
         run: pnpm android:sync
       - name: Prepare Android SDK components
-        run: sdkmanager 'platforms;android-36' 'build-tools;35.0.0' 'build-tools;36.0.0'
+        run: |
+          task_sdk_bin="$(node scripts/android-sdk-bin.mjs "$ANDROID_HOME")"
+          printf 'GHARPLAN_ANDROID_SDK_BIN=%s\n' "$task_sdk_bin" >> "$GITHUB_ENV"
+          "$task_sdk_bin/sdkmanager" --sdk_root="$ANDROID_HOME" 'platforms;android-36' 'build-tools;35.0.0' 'build-tools;36.0.0'
       - name: Build and lint debug APK
         working-directory: apps/web/android
         run: ./gradlew --no-daemon --max-workers=2 :app:assembleDebug :app:lintDebug
@@ -81,7 +84,7 @@ jobs:
         run: |
           ./gradlew --no-daemon --max-workers=2 :app:dependencies --configuration debugRuntimeClasspath > app/build/outputs/native-dependencies.txt
           sha256sum app/build/outputs/apk/debug/app-debug.apk > app/build/outputs/apk/debug/app-debug.apk.sha256
-          "$ANDROID_HOME/cmdline-tools/latest/bin/apkanalyzer" manifest print app/build/outputs/apk/debug/app-debug.apk > app/build/outputs/apk/debug/manifest.xml
+          "$GHARPLAN_ANDROID_SDK_BIN/apkanalyzer" manifest print app/build/outputs/apk/debug/app-debug.apk > app/build/outputs/apk/debug/manifest.xml
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/debug/app-debug.apk
           python ../../../scripts/verify-android-apk.py app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/manifest.xml > app/build/outputs/apk/debug/verification.json
       - name: Retain debug APK and build evidence
