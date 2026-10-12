@@ -1,5 +1,20 @@
 # PH0-T01 dependency register
 
+## PH0-T08 local durability (2026-10-12, recorded before installation)
+
+| Dependency | Exact version | License / primary evidence | Purpose |
+|---|---|---|---|
+| @capacitor/filesystem | 8.1.4 | MIT; [official metadata](https://registry.npmjs.org/@capacitor%2ffilesystem/8.1.4) | Private Android Data mirror; core >=8 is compatible with pinned 8.5.3 |
+| @capacitor/synapse | 1.0.4 | ISC; [official metadata](https://registry.npmjs.org/@capacitor%2fsynapse/1.0.4) | Filesystem's resolved bridge helper |
+| fake-indexeddb | 6.2.5 | Apache-2.0; [official metadata](https://registry.npmjs.org/fake-indexeddb/6.2.5) | Test actual IndexedDB transaction/CAS/abort behavior; never shipped as runtime |
+| io.ionic.libs:ionfilesystem-android | 1.1.1 | MIT; [official Maven POM](https://repo.maven.apache.org/maven2/io/ionic/libs/ionfilesystem-android/1.1.1/ionfilesystem-android-1.1.1.pom) and [primary license](https://github.com/ionic-team/ion-android-filesystem/blob/main/LICENSE), API verified | Native implementation underneath Filesystem |
+| Kotlin plugin / stdlib | 2.2.20 | Apache-2.0; official plugin build file / [primary license](https://github.com/JetBrains/kotlin/blob/master/license/LICENSE.txt) | Filesystem's native Kotlin build/runtime |
+| kotlinx-coroutines | 1.10.2 | Apache-2.0; official plugin build file / [primary license](https://github.com/Kotlin/kotlinx.coroutines/blob/master/LICENSE.txt) | Native asynchronous file I/O |
+
+Existing Immer 11.1.21 MIT is reused for replay. Filesystem's official npm archive integrity was verified before inspecting its native requirements. Its exact Maven source uses file close, and `renameTo` with copy/delete fallback: this is **not** a universal atomic-rename or fsync guarantee. The mirror will validate immutable files/commit markers and retain a previous copy; actual phone process-death, power-loss and OEM behavior remain separate evidence. New resolved npm versions must be inventoried before installation; complete native notices/security audit remains a release gate. No public/external storage permission or product secret is needed for private Data operations.
+
+Filesystem is also declared directly by `apps/web`, because Capacitor CLI discovers the native plugins from the application dependencies, rather than a transitive workspace library. APK verification requires its actual registration and packaged class. A successful JavaScript import or APK compile alone does not prove native plugin availability.
+
 ## PH0-T03 schema and command history (2026-10-11, recorded before installation)
 
 | Dependency | Exact version | License | Purpose | Evidence |

@@ -3,3 +3,4 @@ export * from './serialization';
 export * from './validation';
 export * from './commands';
 export * from './store';
+export * from './recovery';

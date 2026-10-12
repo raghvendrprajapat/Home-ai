@@ -11,7 +11,7 @@
   },
   "scripts": {
     "dev": "pnpm --filter @gharplan/web dev",
-    "lint": "eslint apps/web/src apps/web/vite.config.ts apps/web/capacitor.config.ts packages/geometry/src packages/core-model/src packages/core-model/scripts scripts/*.mjs vitest.config.ts eslint.config.mjs",
+    "lint": "eslint apps/web/src apps/web/vite.config.ts apps/web/capacitor.config.ts packages/geometry/src packages/core-model/src packages/core-model/scripts packages/persistence/src scripts/*.mjs vitest.config.ts eslint.config.mjs",
     "typecheck": "tsc --project tsconfig.json && pnpm --recursive typecheck",
     "test": "vitest run",
     "schema:generate": "node packages/core-model/scripts/generate-schema.mjs",

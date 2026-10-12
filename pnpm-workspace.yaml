@@ -2,3 +2,4 @@ packages:
   - apps/web
   - packages/geometry
   - packages/core-model
+  - packages/persistence

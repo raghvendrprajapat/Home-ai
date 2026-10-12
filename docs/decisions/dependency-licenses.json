@@ -1,12 +1,12 @@
 {
-  "checkedOn": "2026-10-11",
-  "method": "Official npm metadata for every resolved registry package before installation; bundled notices remain applicable.",
-  "packageCount": 309,
+  "checkedOn": "2026-10-12",
+  "method": "Official npm metadata: 309 previously verified records retained unchanged; 3 new resolved versions checked before PH0-T08 installation. Bundled/native notices remain separate.",
+  "packageCount": 312,
   "licenseCounts": {
-    "MIT": 233,
+    "MIT": 234,
+    "ISC": 16,
     "MIT-0": 2,
-    "Apache-2.0": 20,
-    "ISC": 15,
+    "Apache-2.0": 21,
     "Unlicense": 2,
     "BlueOak-1.0.0": 11,
     "BSD-2-Clause": 8,
@@ -83,6 +83,18 @@
       "version": "8.5.3",
       "license": "MIT",
       "source": "https://registry.npmjs.org/%40capacitor%2Fcore/8.5.3"
+    },
+    {
+      "name": "@capacitor/filesystem",
+      "version": "8.1.4",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40capacitor%2Ffilesystem/8.1.4"
+    },
+    {
+      "name": "@capacitor/synapse",
+      "version": "1.0.4",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fsynapse/1.0.4"
     },
     {
       "name": "@csstools/color-helpers",
@@ -463,16 +475,16 @@
       "source": "https://registry.npmjs.org/%40types%2Fnode/24.19.2"
     },
     {
-      "name": "@types/react",
-      "version": "19.3.0",
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/%40types%2Freact/19.3.0"
-    },
-    {
       "name": "@types/react-dom",
       "version": "19.3.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/%40types%2Freact-dom/19.3.0"
+    },
+    {
+      "name": "@types/react",
+      "version": "19.3.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40types%2Freact/19.3.0"
     },
     {
       "name": "@types/slice-ansi",
@@ -583,16 +595,22 @@
       "source": "https://registry.npmjs.org/%40xmldom%2Fxmldom/0.9.12"
     },
     {
+      "name": "acorn-jsx",
+      "version": "5.3.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/acorn-jsx/5.3.2"
+    },
+    {
       "name": "acorn",
       "version": "8.19.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/acorn/8.19.0"
     },
     {
-      "name": "acorn-jsx",
-      "version": "5.3.2",
+      "name": "ajv-formats",
+      "version": "3.0.1",
       "license": "MIT",
-      "source": "https://registry.npmjs.org/acorn-jsx/5.3.2"
+      "source": "https://registry.npmjs.org/ajv-formats/3.0.1"
     },
     {
       "name": "ajv",
@@ -605,12 +623,6 @@
       "version": "8.20.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/ajv/8.20.0"
-    },
-    {
-      "name": "ajv-formats",
-      "version": "3.0.1",
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/ajv-formats/3.0.1"
     },
     {
       "name": "ansi-regex",
@@ -847,12 +859,6 @@
       "source": "https://registry.npmjs.org/escape-string-regexp/4.0.0"
     },
     {
-      "name": "eslint",
-      "version": "10.12.0",
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/eslint/10.12.0"
-    },
-    {
       "name": "eslint-scope",
       "version": "9.1.2",
       "license": "BSD-2-Clause",
@@ -869,6 +875,12 @@
       "version": "5.0.1",
       "license": "Apache-2.0",
       "source": "https://registry.npmjs.org/eslint-visitor-keys/5.0.1"
+    },
+    {
+      "name": "eslint",
+      "version": "10.12.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/eslint/10.12.0"
     },
     {
       "name": "espree",
@@ -911,6 +923,12 @@
       "version": "1.4.0",
       "license": "Apache-2.0",
       "source": "https://registry.npmjs.org/expect-type/1.4.0"
+    },
+    {
+      "name": "fake-indexeddb",
+      "version": "6.2.5",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/fake-indexeddb/6.2.5"
     },
     {
       "name": "fast-check",
@@ -1003,16 +1021,16 @@
       "source": "https://registry.npmjs.org/fsevents/2.3.3"
     },
     {
-      "name": "glob",
-      "version": "13.0.6",
-      "license": "BlueOak-1.0.0",
-      "source": "https://registry.npmjs.org/glob/13.0.6"
-    },
-    {
       "name": "glob-parent",
       "version": "6.0.2",
       "license": "ISC",
       "source": "https://registry.npmjs.org/glob-parent/6.0.2"
+    },
+    {
+      "name": "glob",
+      "version": "13.0.6",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/glob/13.0.6"
     },
     {
       "name": "graceful-fs",
@@ -1189,12 +1207,6 @@
       "source": "https://registry.npmjs.org/levn/0.4.1"
     },
     {
-      "name": "lightningcss",
-      "version": "1.33.0",
-      "license": "MPL-2.0",
-      "source": "https://registry.npmjs.org/lightningcss/1.33.0"
-    },
-    {
       "name": "lightningcss-android-arm64",
       "version": "1.33.0",
       "license": "MPL-2.0",
@@ -1259,6 +1271,12 @@
       "version": "1.33.0",
       "license": "MPL-2.0",
       "source": "https://registry.npmjs.org/lightningcss-win32-x64-msvc/1.33.0"
+    },
+    {
+      "name": "lightningcss",
+      "version": "1.33.0",
+      "license": "MPL-2.0",
+      "source": "https://registry.npmjs.org/lightningcss/1.33.0"
     },
     {
       "name": "locate-path",
@@ -1465,12 +1483,6 @@
       "source": "https://registry.npmjs.org/qified/0.10.1"
     },
     {
-      "name": "react",
-      "version": "19.3.0",
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/react/19.3.0"
-    },
-    {
       "name": "react-dom",
       "version": "19.3.0",
       "license": "MIT",
@@ -1481,6 +1493,12 @@
       "version": "17.0.2",
       "license": "MIT",
       "source": "https://registry.npmjs.org/react-is/17.0.2"
+    },
+    {
+      "name": "react",
+      "version": "19.3.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/react/19.3.0"
     },
     {
       "name": "readable-stream",
@@ -1657,16 +1675,16 @@
       "source": "https://registry.npmjs.org/tinyglobby/0.2.17"
     },
     {
-      "name": "tldts",
-      "version": "7.4.18",
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/tldts/7.4.18"
-    },
-    {
       "name": "tldts-core",
       "version": "7.4.18",
       "license": "MIT",
       "source": "https://registry.npmjs.org/tldts-core/7.4.18"
+    },
+    {
+      "name": "tldts",
+      "version": "7.4.18",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/tldts/7.4.18"
     },
     {
       "name": "tough-cookie",
@@ -1705,28 +1723,28 @@
       "source": "https://registry.npmjs.org/type-check/0.4.0"
     },
     {
-      "name": "typescript",
-      "version": "6.0.3",
-      "license": "Apache-2.0",
-      "source": "https://registry.npmjs.org/typescript/6.0.3"
-    },
-    {
       "name": "typescript-eslint",
       "version": "8.71.1",
       "license": "MIT",
       "source": "https://registry.npmjs.org/typescript-eslint/8.71.1"
     },
     {
-      "name": "undici",
-      "version": "8.11.2",
-      "license": "MIT",
-      "source": "https://registry.npmjs.org/undici/8.11.2"
+      "name": "typescript",
+      "version": "6.0.3",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/typescript/6.0.3"
     },
     {
       "name": "undici-types",
       "version": "7.24.6",
       "license": "MIT",
       "source": "https://registry.npmjs.org/undici-types/7.24.6"
+    },
+    {
+      "name": "undici",
+      "version": "8.11.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/undici/8.11.2"
     },
     {
       "name": "universalify",
