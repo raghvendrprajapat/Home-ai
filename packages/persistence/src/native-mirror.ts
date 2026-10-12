@@ -39,7 +39,8 @@ export class NativeMirror {
         if (names.length > 600) throw new StorageError('size', 'Native recovery directory exceeds its scan limit.');
       } catch { this.#warnings.push('A phone backup directory is unreadable or exceeds its scan limit. Its files are retained; other validated backups remain available.'); continue; }
       const valid: MirrorCandidate[] = []; let damaged = false;
-      for (const name of names.filter(n => fileName(n) && n.endsWith('.ready.json'))) {
+      for (const name of names.filter(n => n.endsWith('.ready.json'))) {
+        if (!fileName(name)) { damaged = true; continue; }
         try {
           const marker: Marker = JSON.parse(await this.io.read(`${root}/${id}/${name}`, 2048)); assertHead(marker);
           if (!eligibleMarker(marker, name, id)) throw new StorageError('corrupt', 'Invalid or unsupported native mirror marker.');
@@ -86,7 +87,8 @@ export class NativeMirror {
     // Keep the two newest validated markers in this epoch. Unknown/invalid
     // files are never removed here; a failure retains them for recovery/support.
     const names = await this.io.list(folder), records: { name: string; marker: Marker }[] = []; let preserveFolder = false;
-    for (const name of names.filter(n => fileName(n) && n.endsWith('.ready.json'))) {
+    for (const name of names.filter(n => n.endsWith('.ready.json'))) {
+      if (!fileName(name)) { preserveFolder = true; continue; }
       try {
         const m: Marker = JSON.parse(await this.io.read(`${folder}/${name}`, 2048)); assertHead(m);
         if (eligibleMarker(m, name, head.projectId) && m.epoch === head.epoch) {

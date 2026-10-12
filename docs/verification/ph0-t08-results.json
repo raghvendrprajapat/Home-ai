@@ -5,8 +5,8 @@
   "attribution": "Codex analytic/property/fault-injection tests and fresh read-only Codex review; not independent Claude fixtures",
   "check": {
     "testFiles": 10,
-    "testsPassed": 158,
-    "durationSeconds": 19.08,
+    "testsPassed": 159,
+    "durationSeconds": 19.09,
     "sdkRegressionPassed": 1,
     "skipped": 0
   },
@@ -23,7 +23,7 @@
     ],
     "pageErrors": [],
     "saveMilliseconds": [
-      354.29642198141664
+      371.0830199997872
     ],
     "limitations": [
       "Linux Chromium, not an Android WebView or phone",
@@ -42,7 +42,7 @@
       },
       {
         "point": "immediate post-edit before scheduled save attempt",
-        "editToKillMs": 115.42274395469576,
+        "editToKillMs": 86.12134598661214,
         "restoredX": 4600,
         "seq": 1,
         "result": "valid old/new state; recent unsaved edit may be absent"
@@ -54,7 +54,7 @@
         "result": "no dangling journal rows or invalid canonical state after SIGKILL"
       }
     ],
-    "profile": "/tmp/gharplan-owned-crash-profile-awrtb7du",
+    "profile": "/tmp/gharplan-owned-crash-profile-1jcj5l_0",
     "limitations": [
       "Linux Chromium process-death evidence, not Android/WebView",
       "Three diagnostic cycles, not the required physical 100-cycle gate",
@@ -63,7 +63,7 @@
     "browser": "151.0.7922.173"
   },
   "android": {
-    "build": "BUILD SUCCESSFUL in 20s",
+    "build": "BUILD SUCCESSFUL in 27s",
     "actionableTasks": 166,
     "executedTasks": 40,
     "upToDateTasks": 126,
@@ -72,7 +72,7 @@
     "apk": {
       "applicationId": "com.gharplan.app.debug",
       "bytes": 8113837,
-      "sha256": "fcbaaed68d4c5c09839341ea7a27475b14c11461740b89ea5d7efeaf57670d1e",
+      "sha256": "49cd517fcdd89c6ea2ed25a2b65df45e7df6848eda87420da0b57813e6a71b25",
       "permissions": [
         "android.permission.INTERNET",
         "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -100,5 +100,6 @@
     "pm clear/private/full device scenarios; full import/cloud restore UI",
     "Native file download/share; current native fallback retains complete JSON",
     "Specialist and final Claude review; commercial release gates"
-  ]
+  ],
+  "regression": "Unsafe ready-marker filename reproduced original-document pruning before fix; new unchanged preservation case passes in full159-test run."
 }

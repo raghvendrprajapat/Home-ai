@@ -176,6 +176,20 @@ describe('REL-005 bounded recovery and SEC-007 unsafe input', () => {
 });
 
 describe('native mirror and truthful asynchronous saved status', () => {
+  it('an unsafe ready-marker filename preserves its possible referenced originals without reading it', async () => {
+    const s = await setup(), io = new MemoryFiles(), mirror = new NativeMirror(io);
+    await mirror.write(s.meta, s.store.getSnapshot().document);
+    const markerName = [...io.files.keys()].find(n => n.endsWith('.ready.json'))!, marker = io.files.get(markerName)!;
+    const folder = markerName.slice(0, markerName.lastIndexOf('/')), documentFile = `${folder}/${JSON.parse(marker).documentFile}`;
+    const original = io.files.get(documentFile)!, unsafeName = `${folder}/future..ready.json`;
+    io.files.set(unsafeName, marker);
+    for (let i = 0; i < 3; i++) {
+      move(s.store, i % 2 ? -100 : 100); const text = serializeProject(s.store.getSnapshot().document);
+      await mirror.write({ ...s.meta, seq: i + 1, hash: await sha256(text) }, s.store.getSnapshot().document);
+    }
+    expect(io.files.get(unsafeName)).toBe(marker); expect(io.files.get(documentFile)).toBe(original);
+    expect((await mirror.read())[0]!.head.seq).toBe(3); expect(mirror.getWarnings().length).toBeGreaterThan(0);
+  });
   it('one corrupt native directory cannot hide a different valid project', async () => {
     const s = await setup(), io = new MemoryFiles(); io.files.set('gharplan-mirrors/bad_project/bad.ready.json', 'truncated');
     await new NativeMirror(io).write(s.meta, s.store.getSnapshot().document);
