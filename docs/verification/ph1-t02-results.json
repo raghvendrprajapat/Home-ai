@@ -1,0 +1,54 @@
+{
+  "task": "PH1-T02",
+  "observedOn": "2026-10-12",
+  "baseCommit": "1b309171f337e422d3dc4689f9bdde2b87397b1a",
+  "productionSchemaVersion": 1,
+  "historicalTransformers": 0,
+  "attribution": "Codex analytic/property/fault tests; synthetic framework schemas, not historical or Claude-authored fixtures",
+  "check": {
+    "testFilesPassed": 11,
+    "testsPassed": 169,
+    "seconds": 21.2,
+    "nodeTestsPassed": 5,
+    "skipped": 0
+  },
+  "build": {
+    "passed": true,
+    "milliseconds": 391,
+    "indexGzipKb": 114.36,
+    "lazyThreeGzipKb": 139.3,
+    "warning": "Lazy Three chunk exceeds500kB; warning retained"
+  },
+  "browser": {
+    "checks": [
+      "fresh production startup creates a completed initial IndexedDB checkpoint",
+      "accepted wall edit autosaves and exports schema-valid integer geometry; rounded area labels match",
+      "newer journal prompts before editing; cancel preserves bytes/meta; explicit restore returns latest geometry",
+      "restored document renders through a fresh worker/session and both views share the same model",
+      "real second tab loses CAS, retains exportable memory and cannot overwrite winner on retry or pagehide",
+      "injected quota failure rolls back real transaction, warns, keeps memory/export and retries after fault removal",
+      "corrupt sole checkpoint prevents replacement; explicit separate sample remaps all IDs and retains original meta/corrupt bytes",
+      "injected Android export UI keeps complete JSON and handles a missing clipboard API without a crash"
+    ],
+    "pageErrors": [],
+    "saveMilliseconds": [
+      347.59499598294497
+    ],
+    "limitations": [
+      "Linux Chromium, not an Android WebView or phone",
+      "Quota failure is injected into the real transaction API",
+      "No physical 100-cycle kill or <=2s phone-loss guarantee"
+    ],
+    "browser": "151.0.7922.173"
+  },
+  "sampleSchemaErrors": 0,
+  "protectedHashesUnchanged": 39,
+  "review": "Fresh read-only Codex reviewer found prototype callbacks dropped by descriptor spread and lossy nonJSON output claim; both corrected and probed. No remaining blocker reported.",
+  "pending": [
+    "Exact-head GitHub Check and Android debug at commit time",
+    "Real historical schema migration fixtures before any version bump",
+    "Full file-import/version-error UI PH1-T04",
+    "Physical Low/Mid durability/performance",
+    "Specialist/final Claude/external service/release gates"
+  ]
+}

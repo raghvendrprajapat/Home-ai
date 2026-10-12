@@ -1,6 +1,7 @@
 import { applyGeometry, assertCoordinate, detectFaces, endpoints, GeometryError, wallLength } from '@gharplan/geometry';
 import validateShape from './generated/project-validator.js';
 import { canonicalStringify, MAX_DOCUMENT_BYTES, utf8Bytes } from './serialization';
+import { CURRENT_SCHEMA_VERSION, MigrationRegistry } from './migrations';
 import type { Opening, ProjectDoc, ValidationIssue, Wall } from './types';
 
 function issue(code: string, message: string, entityIds: string[] = []): ValidationIssue { return { code, message, entityIds }; }
@@ -73,14 +74,17 @@ export function validateProject(value: unknown): ValidationIssue[] {
   return errors;
 }
 export type ParseResult = { ok: true; document: ProjectDoc } | { ok: false; errors: ValidationIssue[] };
+// Version 1 is the first documented product format. Older transforms may only
+// be registered with their actual schema and immutable golden migration cases.
+const projectMigrations = new MigrationRegistry(CURRENT_SCHEMA_VERSION, validateProject, []);
 export function parseProject(serialized: string): ParseResult {
   if (serialized.length > MAX_DOCUMENT_BYTES || utf8Bytes(serialized) > MAX_DOCUMENT_BYTES)
     return { ok: false, errors: [issue('size', 'Project exceeds the 10 MiB document limit.')] };
   try {
     const value: unknown = JSON.parse(serialized);
     try {
-      const errors = validateProject(value);
-      return errors.length ? { ok: false, errors } : { ok: true, document: value as ProjectDoc };
+      const migrated = projectMigrations.run(value);
+      return migrated.ok ? { ok: true, document: migrated.value as ProjectDoc } : migrated;
     } catch (error) {
       return { ok: false, errors: [issue('validation', error instanceof Error ? error.message : 'Project validation failed.')] };
     }
