@@ -26,6 +26,7 @@ def launch(p):
     page = browser.contexts[0].pages[0]
     page.goto('http://127.0.0.1:4173/', wait_until='networkidle')
     if page.get_by_role('heading', name='Restore your drawing', exact=True).count(): page.get_by_role('button', name='Restore saved changes', exact=True).click()
+    if page.get_by_role('button', name='Skip welcome', exact=True).count(): page.get_by_role('button', name='Skip welcome', exact=True).click()
     expect(page.get_by_test_id('plan-canvas')).to_be_visible(timeout=15000)
     page.wait_for_function("document.querySelector('[data-testid=save-status]')?.dataset.phase==='saved'",timeout=15000)
     return browser, page
@@ -35,7 +36,7 @@ def kill_owned():
 def edit(page,x):
     page.get_by_label('Corner X coordinate',exact=True).fill(str(x)); page.get_by_role('button',name='Apply coordinates',exact=False).click()
 def snapshot(page):
-    return page.evaluate('''async()=>{const db=await new Promise(resolve=>{const r=indexedDB.open('gharplan',1);r.onsuccess=()=>resolve(r.result)});return await new Promise(resolve=>{const tx=db.transaction(['projects','journal']),m=tx.objectStore('projects').getAll(),j=tx.objectStore('journal').getAll();tx.oncomplete=()=>{db.close();const active=m.result.find(x=>x.projectId==='@active').target;resolve({meta:m.result.find(x=>x.projectId===active),journal:j.result.filter(x=>x.projectId===active).map(x=>({seq:x.seq,hash:x.hash}))})}})}''')
+    return page.evaluate('''async()=>{const db=await new Promise(resolve=>{const r=indexedDB.open('gharplan');r.onsuccess=()=>resolve(r.result)});return await new Promise(resolve=>{const tx=db.transaction(['projects','journal']),m=tx.objectStore('projects').getAll(),j=tx.objectStore('journal').getAll();tx.oncomplete=()=>{db.close();const active=m.result.find(x=>x.projectId==='@active').target;resolve({meta:m.result.find(x=>x.projectId===active),journal:j.result.filter(x=>x.projectId===active).map(x=>({seq:x.seq,hash:x.hash}))})}})}''')
 with sync_playwright() as p:
     try:
         browser,page=launch(p); evidence['browser']=browser.version

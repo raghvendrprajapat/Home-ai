@@ -1,0 +1,140 @@
+{
+  "task": "PH1-T03",
+  "observedOn": "2026-10-12",
+  "baseCommit": "d5e62a3b7f5f5f1c685fac26b435c5b2d092366c",
+  "productionSchemaVersion": 1,
+  "databaseVersion": 2,
+  "storageEnvelopeVersion": 1,
+  "check": {
+    "testsPassed": 181,
+    "testFilesPassed": 14,
+    "seconds": 19.9,
+    "nodeTestsPassed": 6,
+    "skipped": 0
+  },
+  "build": {
+    "passed": true,
+    "milliseconds": 323,
+    "indexGzipKb": 124.47,
+    "lazyThreeGzipKb": 139.22,
+    "warning": "Lazy Three chunk exceeds 500kB; warning retained"
+  },
+  "browser": {
+    "checks": [
+      "welcome bilingual; cancelled create preserves all metadata; dialog Escape restores focus",
+      "blank IDs are independent; starter room 14.44 m2, resized 16.34 m2, exact undo/redo",
+      "Hindi/default units persist through reload without mutating project geometry or current units",
+      "stale Open reads current saved head from another tab; repeated Settings preserves Projects return route",
+      "rename preserves walls; duplicate replaces every ID; opening source preserves exact canonical data",
+      "active trash removes editable session; reload never recreates sample; restore returns exact canonical copy",
+      "real quota failure blocks project replacement, preserves disk and exportable memory, retry succeeds",
+      "new-project preference sets imperial display; canonical coordinates remain integer mm",
+      "Hindi settings and project cards fit 360px viewport without horizontal page overflow",
+      "Hindi touch navigation reaches actual worker-rendered 3D of the same imperial project"
+    ],
+    "pageErrors": [],
+    "limitations": [
+      "Linux Chromium software rendering; not real Android phone/Hindi font/device evidence"
+    ]
+  },
+  "retainedRecovery": {
+    "checks": [
+      "fresh production startup creates a completed initial IndexedDB checkpoint",
+      "accepted wall edit autosaves and exports schema-valid integer geometry; rounded area labels match",
+      "newer journal prompts before editing; cancel preserves bytes/meta; explicit restore returns latest geometry",
+      "restored document renders through a fresh worker/session and both views share the same model",
+      "real second tab loses CAS, retains exportable memory and cannot overwrite winner on retry or pagehide",
+      "injected quota failure rolls back real transaction, warns, keeps memory/export and retries after fault removal",
+      "corrupt sole checkpoint prevents replacement; explicit separate sample remaps all IDs and retains original meta/corrupt bytes",
+      "injected Android export UI keeps complete JSON and handles a missing clipboard API without a crash"
+    ],
+    "pageErrors": [],
+    "saveMilliseconds": [
+      329.7512400895357
+    ],
+    "limitations": [
+      "Linux Chromium, not an Android WebView or phone",
+      "Quota failure is injected into the real transaction API",
+      "No physical 100-cycle kill or <=2s phone-loss guarantee"
+    ],
+    "browser": "151.0.7922.173"
+  },
+  "crashDiagnostics": {
+    "browserCycles": [
+      {
+        "point": "after saved/transaction complete",
+        "restoredX": 4600,
+        "seq": 1,
+        "result": "exact committed metadata/journal survived SIGKILL"
+      },
+      {
+        "point": "immediate post-edit before scheduled save attempt",
+        "editToKillMs": 130.91972400434315,
+        "restoredX": 4600,
+        "seq": 1,
+        "result": "valid old/new state; recent unsaved edit may be absent"
+      },
+      {
+        "point": "real journal put / active transaction handler",
+        "restoredX": 4600,
+        "seq": 1,
+        "result": "no dangling journal rows or invalid canonical state after SIGKILL"
+      }
+    ],
+    "profile": "/tmp/gharplan-owned-crash-profile-688c__6a",
+    "limitations": [
+      "Linux Chromium process-death evidence, not Android/WebView",
+      "Three diagnostic cycles, not the required physical 100-cycle gate",
+      "During-write window uses a test-only binding and 300ms handler stall; old or new atomic state is accepted"
+    ],
+    "browser": "151.0.7922.173"
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8113837,
+    "sha256": "f31fa1f36635f1d2d9d03ac53ad0c5f061eac9094e13006c63b2c9e87e325d8c",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ],
+    "webAssetsCompared": 11,
+    "differentAssets": 0,
+    "lintErrors": 0,
+    "lintWarnings": 15,
+    "gradleSeconds": 23,
+    "tasksExecuted": 40,
+    "tasksUpToDate": 126
+  },
+  "freshReview": {
+    "attribution": "Codex read-only fresh reviewer, not Claude independent fixtures",
+    "findingsFixed": [
+      "Stale list Open reused outdated session; current document/head/trash validated plus activation CAS",
+      "Repeated Settings overwrote return route; repeated entry is idempotent"
+    ],
+    "verification": [
+      "Independent original stale-tab/settings probes passed final build",
+      "Deterministic SHA-256 recovery pause plus second-tab trash rejects stale reuse via CAS; root also replayed exact probe"
+    ],
+    "remainingConfirmedBlockers": 0
+  },
+  "sampleSchemaErrors": 0,
+  "protectedHashesUnchanged": 39,
+  "frozenInstall": "Already up to date, completed in 495ms",
+  "pending": [
+    "Exact-head GitHub Check and Android debug before merge",
+    "Issue14 Hindi/flows on physical Low/Mid phones",
+    "Issues10/11 real-device performance/100-cycle recovery",
+    "PH1-T04 full import/native file share",
+    "Specialist/final Claude/cloud/billing/security/release gates"
+  ]
+}

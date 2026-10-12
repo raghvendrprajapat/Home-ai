@@ -1,9 +1,9 @@
 {
   "checkedOn": "2026-10-12",
-  "method": "Official npm metadata: 309 previously verified records retained unchanged; 3 new resolved versions checked before PH0-T08 installation. Bundled/native notices remain separate.",
-  "packageCount": 312,
+  "method": "Official npm metadata:312 previously verified records retained unchanged;1 new resolved version checked before PH1-T03 installation. Bundled/native notices remain separate.",
+  "packageCount": 313,
   "licenseCounts": {
-    "MIT": 234,
+    "MIT": 235,
     "ISC": 16,
     "MIT-0": 2,
     "Apache-2.0": 21,
@@ -1889,6 +1889,12 @@
       "version": "0.1.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/yocto-queue/0.1.0"
+    },
+    {
+      "name": "zustand",
+      "version": "5.0.15",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/zustand/5.0.15"
     }
   ]
 }

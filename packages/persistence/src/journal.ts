@@ -56,7 +56,7 @@ export async function recover(bundle: Bundle): Promise<Recovered> {
         const repaired = proposeRoomRepair(text);
         if (!repaired || repaired.id !== meta.projectId) throw new StorageError('corrupt', 'Checkpoint project validation or identity failed.');
         const proposal: Recovered = { document: repaired, head: { projectId: meta.projectId, epoch: meta.epoch, seq: checkpoint.seq, hash: await sha256(serializeProject(repaired)) },
-          complete: false, journalNewer: false, warning: 'Room boundaries can be rebuilt from valid walls. Some room names/materials may reset; later journal entries are not applied. Accept only as a separate recovery copy.', bundle };
+          complete: false, journalNewer: false, roomRepair: true, warning: 'Room boundaries can be rebuilt from valid walls. Some room names/materials may reset; later journal entries are not applied. Accept only as a separate recovery copy.', bundle };
         if (!best || proposal.head.seq > best.head.seq) best = proposal;
         continue;
       }

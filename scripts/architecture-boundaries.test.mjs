@@ -43,6 +43,8 @@ test('actual ESLint rejects every module syntax and upward/private layer depende
     ['apps/web/src/render3d/boundary-probe.ts', "new Worker('./mesh.worker.ts');"],
     ['apps/web/src/render3d/boundary-probe.ts', "new Worker(new URL('./mesh.worker.ts', location.href));"],
     ['packages/core-model/src/boundary-probe.ts', "import x from 'ajv/../react';"],
+    ['apps/web/src/i18n/messages.ts', "import { openWorkspace } from '../storage/workspace';"],
+    ['apps/web/src/i18n/messages.ts', "import { uiStore } from '../ui/state';"],
   ];
   for (const [file, code] of bad) assert.equal((await messages(file, code)).length, 1, `${file}: ${code}`);
 });
@@ -61,6 +63,7 @@ test('actual ESLint admits downward public APIs, local helpers and bounded test 
     ['apps/web/src/boundary-probe.ts', "import { SaveCoordinator } from '@gharplan/persistence';"],
     ['apps/web/src/render3d/boundary-probe.ts', "new Worker(new URL('./mesh.worker.ts', import.meta.url), { type: 'module' });"],
     ['apps/web/src/render3d/boundary-probe.ts', "new globalThis.Worker(new URL('./mesh.worker.ts', import.meta.url));"],
+    ['apps/web/src/render3d/boundary-probe.ts', "import { message } from '../i18n/messages';"],
   ];
   for (const [file, code] of good) assert.equal((await messages(file, code)).length, 0, `${file}: ${code}`);
 });

@@ -14,12 +14,12 @@ export class IndexedProjectStorage {
   constructor(readonly db: IDBDatabase) { db.onversionchange = () => db.close(); }
   static open(factory: IDBFactory = indexedDB, name = 'gharplan'): Promise<IndexedProjectStorage> {
     return new Promise((resolve, reject) => {
-      const request = factory.open(name, 1); let abandoned = false;
+      const request = factory.open(name, 2); let abandoned = false;
       request.onupgradeneeded = () => {
         const db = request.result;
-        db.createObjectStore('projects', { keyPath: 'projectId' });
-        db.createObjectStore('checkpoints', { keyPath: ['projectId', 'seq'] });
-        db.createObjectStore('journal', { keyPath: ['projectId', 'seq'] });
+        if (!db.objectStoreNames.contains('projects')) db.createObjectStore('projects', { keyPath: 'projectId' });
+        if (!db.objectStoreNames.contains('checkpoints')) db.createObjectStore('checkpoints', { keyPath: ['projectId', 'seq'] });
+        if (!db.objectStoreNames.contains('journal')) db.createObjectStore('journal', { keyPath: ['projectId', 'seq'] });
       };
       request.onblocked = () => { abandoned = true; reject(new StorageError('unavailable', 'Another tab blocks local storage setup. Close that tab and retry.')); };
       request.onerror = () => reject(new StorageError('unavailable', 'Local storage is unavailable. Keep this page open and export your drawing.'));
@@ -28,16 +28,24 @@ export class IndexedProjectStorage {
   }
   close(): void { this.db.close(); }
   readActive(): Promise<Bundle | null> {
+    return this.#read();
+  }
+  readProject(projectId: string): Promise<Bundle | null> {
+    if (!validId(projectId)) return Promise.reject(new StorageError('corrupt', 'Invalid project selection.'));
+    return this.#read(projectId);
+  }
+  #read(projectId?: string): Promise<Bundle | null> {
     return new Promise((resolve, reject) => {
       const tx = this.db.transaction(stores, 'readonly'), projects = tx.objectStore('projects');
       let bundle: Bundle | null = null, error: unknown;
       tx.onabort = () => reject(databaseError(error ?? tx.error));
       tx.oncomplete = () => resolve(bundle);
-      const active = projects.get('@active');
+      const active = projects.get(projectId ?? '@active');
       active.onsuccess = () => {
         if (!active.result) return;
-        if (!validId(active.result.target)) { error = new StorageError('corrupt', 'Local project selection is damaged. Original data is retained.'); tx.abort(); return; }
-        const meta = projects.get(active.result.target);
+        const target = projectId ?? active.result.target;
+        if (!validId(target)) { error = new StorageError('corrupt', 'Local project selection is damaged. Original data is retained.'); tx.abort(); return; }
+        const meta = projects.get(target);
         meta.onsuccess = () => {
           try {
             if (!meta.result) throw new StorageError('corrupt', 'The selected local project is missing. Original data is retained.');
@@ -48,6 +56,44 @@ export class IndexedProjectStorage {
             journal.onsuccess = () => { bundle!.journal = journal.result; };
           } catch (e) { error = e; tx.abort(); }
         };
+      };
+    });
+  }
+  listProjects(): Promise<{ projects: ProjectMeta[]; warnings: string[] }> {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction('projects', 'readonly'), projects: ProjectMeta[] = [], warnings: string[] = []; let count = 0;
+      tx.oncomplete = () => resolve({ projects, warnings }); tx.onabort = () => reject(new StorageError('size', 'Project list could not be read within its limit. Original data is retained.'));
+      const request = tx.objectStore('projects').openCursor();
+      request.onsuccess = () => {
+        const cursor = request.result; if (!cursor) return;
+        if (cursor.key !== '@active') {
+          if (++count > 1000) { tx.abort(); return; }
+          try { assertMeta(cursor.value); if (cursor.key !== cursor.value.projectId) throw new Error('Identity mismatch.'); projects.push(cursor.value); }
+          catch { warnings.push('A saved project needs recovery. Its original data is retained.'); }
+        }
+        cursor.continue();
+      };
+    });
+  }
+  activate(expected: Head): Promise<void> { return this.#selectOrTrash(expected, null); }
+  setTrashed(expected: Head, trashed: boolean): Promise<void> { return this.#selectOrTrash(expected, trashed); }
+  #selectOrTrash(expected: Head, trashed: boolean | null): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const tx = this.db.transaction('projects', 'readwrite', { durability: 'strict' }), store = tx.objectStore('projects'); let error: unknown;
+      tx.oncomplete = () => resolve(); tx.onabort = () => reject(databaseError(error ?? tx.error));
+      const request = store.get(expected.projectId);
+      request.onsuccess = () => {
+        try {
+          assertMeta(request.result); if (!sameHead(request.result, expected)) throw new StorageError('conflict', 'The saved project changed. Refresh before selecting it.');
+          if (trashed === null) {
+            if (request.result.trashedAt) throw new StorageError('conflict', 'Restore this project from trash before opening it.');
+            store.put({ projectId: '@active', target: expected.projectId }); return;
+          }
+          const meta: ProjectMeta = { ...request.result };
+          if (trashed) meta.trashedAt ??= new Date().toISOString(); else delete meta.trashedAt;
+          store.put(meta);
+          if (trashed) { const active = store.get('@active'); active.onsuccess = () => { if (active.result?.target === expected.projectId) store.delete('@active'); }; }
+        } catch (e) { error = e; tx.abort(); }
       };
     });
   }
@@ -78,7 +124,7 @@ export class IndexedProjectStorage {
       const previous = projects.get(prepared.expected.projectId);
       previous.onsuccess = () => {
         try {
-          if (!previous.result || !sameHead(previous.result, prepared.expected)) throw new StorageError('conflict', 'Another tab saved this drawing. Your edits remain in memory; export them or reopen the saved drawing.');
+          if (!previous.result || previous.result.trashedAt || !sameHead(previous.result, prepared.expected)) throw new StorageError('conflict', 'Another tab changed or trashed this drawing. Your edits remain in memory; export them or reopen the saved drawing.');
           const journal = tx.objectStore('journal'), checkpoints = tx.objectStore('checkpoints');
           for (const entry of prepared.entries) journal.put(entry);
           for (const checkpoint of prepared.checkpoints) if (prepared.meta.checkpointSeqs.includes(checkpoint.seq)) checkpoints.put(checkpoint);
