@@ -17,6 +17,7 @@ export function boundaryViolation(filename, dependency) {
   const relative = path.posix.relative(root, file), layer = /^packages\/([^/]+)\/src\//.exec(relative)?.[1];
   const renderer = /^apps\/web\/src\/(editor|render3d)\//.test(relative);
   const app = relative.startsWith('apps/web/src/');
+  const pureUi = relative === 'apps/web/src/i18n/messages.ts' || relative === 'apps/web/src/perf/metrics.ts';
   if (!layer && !app) return null;
   if (layer && !Object.hasOwn(layers, layer)) return 'Register this package layer before importing dependencies.';
   if (typeof dependency !== 'string') return 'Calculated module loads are forbidden in protected layers; use a literal import.';
@@ -25,6 +26,7 @@ export function boundaryViolation(filename, dependency) {
     return 'Rooted or URL module imports bypass public package boundaries; use an admitted bare or relative specifier.';
   if (/^@gharplan\//.test(specifier) && specifier.split('/').length !== 2)
     return 'Import workspace packages through their public entry point, never a private subpath.';
+  if (pureUi) return specifier === '@gharplan/geometry' ? null : 'Pure UI helpers cannot import UI state, storage, native or application orchestration.';
   if (specifier === '.' || specifier.startsWith('./') || specifier.startsWith('../')) {
     const target = path.posix.resolve(path.posix.dirname(file), specifier);
     if (layer) {
@@ -37,7 +39,7 @@ export function boundaryViolation(filename, dependency) {
       return 'App imports cannot reach package implementation files; use the public workspace entry point.';
     }
     if (beneath(target, `${root}/apps/web/src/editor`) || beneath(target, `${root}/apps/web/src/render3d`) ||
-        target === `${root}/apps/web/src/perf/metrics`) return null;
+        target === `${root}/apps/web/src/perf/metrics` || target === `${root}/apps/web/src/i18n/messages`) return null;
     if (test && target.endsWith('.json') && (beneath(target, `${root}/docs/examples`) || beneath(target, `${root}/tests/fixtures`))) return null;
     return 'Render adapters cannot import app orchestration/storage; receive model data and emit commands instead.';
   }

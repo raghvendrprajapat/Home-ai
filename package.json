@@ -16,7 +16,7 @@
     "test": "vitest run",
     "schema:generate": "node packages/core-model/scripts/generate-schema.mjs",
     "schema:check": "node packages/core-model/scripts/generate-schema.mjs --check",
-    "check": "pnpm schema:check && pnpm lint && pnpm typecheck && pnpm test && node --test scripts/android-sdk-bin.test.mjs scripts/architecture-boundaries.test.mjs",
+    "check": "pnpm schema:check && pnpm lint && pnpm typecheck && pnpm test && node --test scripts/android-sdk-bin.test.mjs scripts/architecture-boundaries.test.mjs scripts/localization.test.mjs",
     "build": "pnpm --filter @gharplan/web build",
     "android:sync": "pnpm build && pnpm --filter @gharplan/web exec cap sync android",
     "android:debug": "pnpm android:sync && cd apps/web/android && ./gradlew --no-daemon --max-workers=2 :app:assembleDebug :app:lintDebug",

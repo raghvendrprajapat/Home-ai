@@ -10,6 +10,9 @@ schema = json.loads(pathlib.Path('docs/examples/project.schema.json').read_text(
 validator = jsonschema.Draft202012Validator(schema, format_checker=jsonschema.FormatChecker())
 def record(name): evidence['checks'].append(name)
 def saved(page): page.wait_for_function("document.querySelector('[data-testid=save-status]')?.dataset.phase==='saved'", timeout=15000)
+def skip_welcome(page):
+    if page.get_by_role('button', name='Skip welcome', exact=True).count():
+        page.get_by_role('button', name='Skip welcome', exact=True).click()
 def restore_if_offered(page):
     if page.get_by_role('heading', name='Restore your drawing', exact=True).count():
         page.get_by_role('button', name='Restore saved changes', exact=True).click()
@@ -23,7 +26,7 @@ def export(page, filename):
     assert not list(validator.iter_errors(data)); return data
 def current_meta(page):
     return page.evaluate('''async () => {
-      const db = await new Promise((resolve,reject) => {const r=indexedDB.open('gharplan',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+      const db = await new Promise((resolve,reject) => {const r=indexedDB.open('gharplan');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
       return await new Promise((resolve,reject) => { const tx=db.transaction('projects');const r=tx.objectStore('projects').getAll();tx.oncomplete=()=>{db.close();resolve(r.result.filter(p=>p.projectId!=='@active'))};tx.onabort=()=>reject(tx.error)});
     }''')
 with sync_playwright() as p:
@@ -31,7 +34,7 @@ with sync_playwright() as p:
     evidence['browser'] = browser.version
     context = browser.new_context(viewport={'width': 1440, 'height': 1100})
     page = context.new_page(); page.on('pageerror', lambda e: evidence['pageErrors'].append(str(e)))
-    page.goto('http://127.0.0.1:4173/', wait_until='networkidle'); expect(page.get_by_test_id('plan-canvas')).to_be_visible(); saved(page)
+    page.goto('http://127.0.0.1:4173/', wait_until='networkidle'); skip_welcome(page); expect(page.get_by_test_id('plan-canvas')).to_be_visible(); saved(page)
     baseline = current_meta(page)[0]; assert baseline['seq'] == 0
     record('fresh production startup creates a completed initial IndexedDB checkpoint')
     started = time.monotonic(); edit(page, 4600); saved(page); evidence['saveMilliseconds'].append((time.monotonic()-started)*1000)
@@ -67,7 +70,7 @@ with sync_playwright() as p:
     page.evaluate('() => { IDBObjectStore.prototype.put = window.gharplanOriginalPut; }'); page.get_by_role('button', name='Retry local save', exact=True).click(); saved(page)
     record('injected quota failure rolls back real transaction, warns, keeps memory/export and retries after fault removal')
     damaged = page.evaluate('''async id => {
-      const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('gharplan',1);r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
+      const db=await new Promise((resolve,reject)=>{const r=indexedDB.open('gharplan');r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error)});
       return await new Promise((resolve,reject)=>{const tx=db.transaction('checkpoints','readwrite'),s=tx.objectStore('checkpoints'),r=s.get([id,0]);let value;
         r.onsuccess=()=>{value=r.result;value.packed.blob=new Blob(['broken']);s.put(value)};
         tx.oncomplete=()=>{db.close();resolve({id,seq:value.seq,blobBytes:value.packed.blob.size})};tx.onabort=()=>reject(tx.error)});
@@ -79,7 +82,7 @@ with sync_playwright() as p:
     preserved = current_meta(page); assert len(preserved)==2
     assert next(m for m in preserved if m['projectId']==baseline['projectId'])==next(m for m in original_meta if m['projectId']==baseline['projectId'])
     # The original malformed checkpoint remains inspectable after the new copy.
-    retained = page.evaluate('''async id => {const db=await new Promise(resolve=>{const r=indexedDB.open('gharplan',1);r.onsuccess=()=>resolve(r.result)});return await new Promise(resolve=>{const tx=db.transaction('checkpoints'),r=tx.objectStore('checkpoints').get([id,0]);tx.oncomplete=()=>{db.close();resolve(r.result.packed.blob.text())}})}''', baseline['projectId'])
+    retained = page.evaluate('''async id => {const db=await new Promise(resolve=>{const r=indexedDB.open('gharplan');r.onsuccess=()=>resolve(r.result)});return await new Promise(resolve=>{const tx=db.transaction('checkpoints'),r=tx.objectStore('checkpoints').get([id,0]);tx.oncomplete=()=>{db.close();resolve(r.result.packed.blob.text())}})}''', baseline['projectId'])
     assert retained=='broken' and damaged['blobBytes']==6
     fresh = export(page, '/tmp/gharplan-ph0-t08-recovery-copy.json'); old_ids = {data['id']} | {e['id'] for key in ['floors','junctions','walls','openings','rooms','furniture','materials','lights','cameras'] for e in data[key]}
     new_ids = {fresh['id']} | {e['id'] for key in ['floors','junctions','walls','openings','rooms','furniture','materials','lights','cameras'] for e in fresh[key]}

@@ -6,12 +6,15 @@ import { SceneAdapter } from './scene';
 import { ScenePipeline } from './pipeline';
 import type { SceneBundle } from './types';
 import type { RenderReading } from '../perf/metrics';
+import { message } from '../i18n/messages';
+import type { Locale } from '../i18n/messages';
 
-export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false }: {
-  store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean;
+export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en' }: {
+  store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;
 }) {
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), fit = useRef<() => void>(() => undefined);
-  const [status, setStatus] = useState('Building your 3D space…');
+  const [status, setStatus] = useState<'building3d' | 'updating3d' | 'threeUnavailable' | 'threeLost' | 'threeFailed' | null>('building3d');
+  const language = useRef(locale); language.current = locale;
   const orbit = useRef<OrbitControls | null>(null), frameCallback = useRef(onFrame); frameCallback.current = onFrame;
   const problemCallback = useRef(onUnavailable); problemCallback.current = onUnavailable;
   const pendingCallback = useRef(onScenePending); pendingCallback.current = onScenePending;
@@ -19,12 +22,12 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     const element = host.current!, container = mount.current!;
     let renderer: THREE.WebGLRenderer;
     try { renderer = new THREE.WebGLRenderer({ antialias: false, powerPreference: 'low-power' }); }
-    catch { setStatus('This browser cannot start WebGL2. Continue editing in 2D.'); onMessage('3D is unavailable here. Your drawing is unchanged.'); problemCallback.current?.('WebGL2 initialization failed.'); return; }
+    catch { setStatus('threeUnavailable'); onMessage(message(language.current, 'threeUnavailable')); problemCallback.current?.('WebGL2 initialization failed.'); return; }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
     renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
     const gl = renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info');
     const gpuRenderer = debug ? String(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)) : 'unknown', graphicsVersion = String(gl.getParameter(gl.VERSION));
-    renderer.domElement.setAttribute('aria-label', 'Interactive 3D floor plan'); renderer.domElement.setAttribute('role', 'img');
+    renderer.domElement.setAttribute('aria-label', message(language.current, 'canvas3d')); renderer.domElement.setAttribute('role', 'img');
     renderer.domElement.tabIndex = 0; container.appendChild(renderer.domElement);
     const scene = new THREE.Scene(); scene.background = new THREE.Color('#eef2e9');
     const adapter = new SceneAdapter(); scene.add(adapter.group);
@@ -47,8 +50,8 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     };
     const resize = () => { const width = element.clientWidth, height = element.clientHeight; if (!width || !height) return; renderer.setSize(width, height); camera.aspect = width / height; camera.updateProjectionMatrix(); invalidate(); };
     const observer = new ResizeObserver(resize); observer.observe(element); resize();
-    const contextLost = (event: Event) => { event.preventDefault(); lost = true; setStatus('Graphics paused. Waiting for the browser to restore the view…'); element.dataset.contextState = 'lost'; problemCallback.current?.('Graphics context lost.'); };
-    const contextRestored = () => { lost = false; element.dataset.contextState = 'restored'; setStatus(adapter.group.visible ? '' : 'Building your 3D space…'); invalidate(); };
+    const contextLost = (event: Event) => { event.preventDefault(); lost = true; setStatus('threeLost'); element.dataset.contextState = 'lost'; problemCallback.current?.('Graphics context lost.'); };
+    const contextRestored = () => { lost = false; element.dataset.contextState = 'restored'; setStatus(adapter.group.visible ? null : 'building3d'); invalidate(); };
     renderer.domElement.addEventListener('webglcontextlost', contextLost); renderer.domElement.addEventListener('webglcontextrestored', contextRestored);
     const keyboard = (event: KeyboardEvent) => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '-', '='].includes(event.key)) return;
@@ -68,18 +71,18 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
       observer.disconnect(); controls.removeEventListener('change', invalidate); controls.dispose();
       renderer.domElement.removeEventListener('webglcontextlost', contextLost); renderer.domElement.removeEventListener('webglcontextrestored', contextRestored); renderer.domElement.removeEventListener('keydown', keyboard);
       adapter.dispose(); renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove(); fit.current = () => undefined;
-      orbit.current = null; setStatus('The 3D worker could not start. Continue editing in 2D.'); onMessage('3D could not start. Your drawing is unchanged.'); problemCallback.current?.('3D worker startup failed.'); return;
+      orbit.current = null; setStatus('threeUnavailable'); onMessage(message(language.current, 'threeUnavailable')); problemCallback.current?.('3D worker startup failed.'); return;
     }
     const pipeline = new ScenePipeline(store, worker, {
-      pending: () => { adapter.group.visible = false; element.dataset.renderedGeneration = ''; setStatus('Updating 3D…'); pendingCallback.current?.(); invalidate(); },
+      pending: () => { adapter.group.visible = false; element.dataset.renderedGeneration = ''; setStatus('updating3d'); pendingCallback.current?.(); invalidate(); },
       ready: result => {
         bundle = result; adapter.apply(result, store.getSnapshot().document); adapter.group.visible = true; generation = store.getSnapshot().localGeneration;
         element.dataset.meshChanges = JSON.stringify(adapter.lastChanges); element.dataset.vertexCount = String(result.stats.vertices);
         element.dataset.meshesBuilt = String(result.stats.meshesBuilt);
         if (first) { first = false; fit.current(); }
-        if (!lost) setStatus(''); onMessage('3D matches the current drawing. Furniture is shown as size placeholders.'); invalidate();
+        if (!lost) setStatus(null); onMessage(message(language.current, 'threeReady')); invalidate();
       },
-      failed: message => { setStatus(message); onMessage(message); problemCallback.current?.(message); },
+      failed: reason => { setStatus('threeFailed'); onMessage(message(language.current, 'threeFailed')); problemCallback.current?.(reason); },
     });
     const animate = () => {
       if (disposed) return; frame = requestAnimationFrame(animate);
@@ -98,10 +101,11 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     };
   }, [store, onMessage]);
   useEffect(() => { fit.current(); }, [fitRequest]);
+  useEffect(() => { host.current?.querySelector('canvas')?.setAttribute('aria-label', message(locale, 'canvas3d')); }, [locale]);
   useEffect(() => { if (orbit.current) orbit.current.autoRotate = autoOrbit; }, [autoOrbit]);
   return <div className="plan-canvas three-canvas" ref={host} data-testid="three-view">
     <div className="three-mount" ref={mount} />
-    {status && <div className="three-status" role="status">{status}</div>}
-    <div className="canvas-hint">Drag to orbit · two fingers to pan/zoom · arrow keys to orbit<br />Furniture size placeholders · textures arrive later</div>
+    {status && <div className="three-status" role="status">{message(locale, status)}</div>}
+    <div className="canvas-hint">{message(locale, 'threeHint')}<br />{message(locale, 'dimensionsFurniture')}</div>
   </div>;
 }

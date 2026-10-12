@@ -1,0 +1,118 @@
+import { formatArea } from '@gharplan/geometry';
+export type Locale = 'en' | 'hi';
+export const messages = {
+  projects: ['Projects', 'प्रोजेक्ट'], settings: ['Settings', 'सेटिंग्स'], backEditor: ['Back to drawing', 'ड्रॉइंग पर वापस'],
+  back: ['Back', 'वापस'], language: ['Language', 'भाषा'], english: ['English', 'English'], hindi: ['हिन्दी', 'हिन्दी'],
+  welcome: ['Make room for your ideas', 'अपने घर को आकार दें'], welcomeText: ['Plan measured rooms, arrange your space and see the same drawing in 3D.', 'नाप के साथ कमरे बनाएँ, जगह सजाएँ और वही ड्रॉइंग 3D में देखें।'],
+  getStarted: ['Get started', 'शुरू करें'], skipWelcome: ['Skip welcome', 'स्वागत छोड़ें'], welcomeTip: ['Your drawings save on this device. Keep exported backups too.', 'ड्रॉइंग इस डिवाइस पर सेव होती हैं। अलग बैकअप भी रखें।'],
+  projectList: ['Your drawings', 'आपकी ड्रॉइंग'], projectListText: ['Open a saved drawing or start a new one.', 'सेव ड्रॉइंग खोलें या नई शुरू करें।'],
+  newProject: ['New project', 'नया प्रोजेक्ट'], projectName: ['Project name', 'प्रोजेक्ट का नाम'], units: ['Units', 'इकाई'],
+  metric: ['Metric', 'मीट्रिक'], imperial: ['Imperial', 'फुट / इंच'], create: ['Create drawing', 'ड्रॉइंग बनाएँ'], cancel: ['Cancel', 'रद्द करें'],
+  open: ['Open', 'खोलें'], openNamed: ['Open {name}', '{name} खोलें'], rename: ['Rename', 'नाम बदलें'], duplicate: ['Duplicate', 'कॉपी बनाएँ'],
+  saveName: ['Save name', 'नाम सेव करें'], moveTrash: ['Move to trash', 'कूड़ेदान में भेजें'], trash: ['Trash', 'कूड़ेदान'],
+  showTrash: ['Show trash', 'कूड़ेदान देखें'], showProjects: ['Show drawings', 'ड्रॉइंग देखें'], restore: ['Restore', 'वापस लाएँ'],
+  trashConfirm: ['Move {name} to trash?', '{name} को कूड़ेदान में भेजें?'], trashText: ['You can restore it later. Saved drawing data stays on this device.', 'बाद में इसे वापस ला सकते हैं। सेव ड्रॉइंग का डेटा इस डिवाइस पर रहेगा।'],
+  noProjects: ['No saved drawings yet.', 'अभी कोई सेव ड्रॉइंग नहीं है।'], emptyTrash: ['Trash is empty.', 'कूड़ेदान खाली है।'],
+  refresh: ['Refresh list', 'सूची रीफ्रेश करें'], loadingProjects: ['Loading saved drawings…', 'सेव ड्रॉइंग लोड हो रही हैं…'],
+  projectListFailed: ['Saved drawings could not be listed. Existing data is untouched; retry or keep editing.', 'सेव ड्रॉइंग की सूची नहीं खुल सकी। पुराना डेटा सुरक्षित रखा गया है; दोबारा कोशिश करें या ड्रॉइंग जारी रखें।'],
+  damagedProjects: ['Some saved drawings need recovery. Their original data has not been replaced.', 'कुछ सेव ड्रॉइंग को रिकवर करना होगा। उनका पुराना डेटा बदला नहीं गया है।'],
+  operationFailed: ['This action could not finish. Your drawing and existing files are retained.', 'यह काम पूरा नहीं हो सका। ड्रॉइंग और पुरानी फ़ाइलें रखी गई हैं।'],
+  leaveBlocked: ['Saving is not complete, so another drawing cannot replace this one. Keep an exported backup and retry saving; your unsaved work stays here.', 'सेव पूरा नहीं हुआ है, इसलिए दूसरी ड्रॉइंग इसे बदल नहीं सकती। अलग बैकअप रखें और फिर सेव करें; अधूरा काम यहीं रखा गया है।'],
+  nameRequired: ['Enter a project name of 1–120 characters.', 'प्रोजेक्ट का नाम 1–120 अक्षरों में डालें।'],
+  copiedName: ['Copy of {name}', '{name} की कॉपी'], unnamed: ['My home', 'मेरा घर'], working: ['Working…', 'काम चल रहा है…'],
+  savedDate: ['Saved {date}', 'सेव: {date}'], onDevice: ['On this device', 'इस डिवाइस पर'],
+  settingsText: ['Choose the language and default units for new drawings.', 'भाषा और नई ड्रॉइंग की इकाई चुनें।'],
+  defaultUnits: ['New drawing units', 'नई ड्रॉइंग की इकाई'], currentUnits: ['Current drawing units', 'मौजूदा ड्रॉइंग की इकाई'],
+  preferenceWarning: ['These settings could not be remembered on this device. Drawing save status is shown separately.', 'ये सेटिंग्स इस डिवाइस पर याद नहीं रखी जा सकीं। ड्रॉइंग सेव होने की स्थिति अलग दिखाई जाती है।'],
+  groundFloor: ['Ground floor', 'भूतल'], baseFinish: ['Base finish', 'मूल सतह'],
+  brandTag: ['MAKE ROOM FOR YOUR IDEAS', 'अपने घर को आकार दें'], localDrawing: ['Local drawing · no cloud account needed', 'इस डिवाइस की ड्रॉइंग · क्लाउड अकाउंट जरूरी नहीं'],
+  demoMemory: ['Demo · in memory only', 'डेमो · केवल खुली स्क्रीन में'], projectInfo: ['Project information', 'प्रोजेक्ट की जानकारी'],
+  workspace: ['YOUR WORKSPACE', 'आपकी जगह'], oneFloor: ['One floor', 'एक मंज़िल'], roomsCount: ['{count} rooms', '{count} कमरे'],
+  clearArea: ['clear area', 'अंदर का क्षेत्रफल'], floorEditor: ['Floor plan editor', 'फ्लोर प्लान एडिटर'], drawingView: ['Drawing view', 'ड्रॉइंग व्यू'],
+  plan2d: ['2D plan', '2D प्लान'], view3d: ['3D view', '3D व्यू'], fitPlan: ['Fit plan', 'पूरा प्लान दिखाएँ'], fitPlanAria: ['Fit floor plan', 'पूरा फ्लोर प्लान दिखाएँ'],
+  grid: ['Grid', 'ग्रिड'], loading3d: ['Loading 3D engine…', '3D व्यू लोड हो रहा है…'], planControls: ['Plan controls', 'प्लान के नियंत्रण'],
+  precision: ['PRECISION FIRST', 'सही नाप पहले'], shapeSpace: ['Shape your space', 'अपनी जगह को आकार दें'],
+  moveCornerHelp: ['Move a corner. Connected walls stay aligned, and room areas update together.', 'कोना खिसकाएँ। जुड़ी दीवारें सीधी रहेंगी और कमरों का क्षेत्रफल साथ बदलेगा।'],
+  undo: ['Undo', 'पिछला बदलाव हटाएँ'], redo: ['Redo', 'बदलाव फिर करें'], undone: ['Last edit undone.', 'पिछला बदलाव हटाया गया।'], redone: ['Edit restored.', 'बदलाव फिर लागू हुआ।'],
+  chooseCorner: ['Choose a corner and make this space your own.', 'कोना चुनें और जगह को अपने हिसाब से बनाएँ।'],
+  wholeCoordinates: ['Enter both coordinates in whole millimetres.', 'दोनों निर्देशांक पूरे मिलीमीटर में डालें।'],
+  cornerUpdated: ['Corner updated. Undo is available.', 'कोना बदला गया। पिछला बदलाव हटा सकते हैं।'],
+  cornerUnchanged: ['The corner is already at these coordinates.', 'कोना पहले से इन निर्देशांकों पर है।'],
+  selectedCorner: ['Selected corner', 'चुना हुआ कोना'], cornerOption: ['Corner {number} · {x}, {y} mm', 'कोना {number} · {x}, {y} मिमी'],
+  xPosition: ['X position', 'X स्थिति'], yPosition: ['Y position', 'Y स्थिति'], cornerX: ['Corner X coordinate', 'कोने का X निर्देशांक'], cornerY: ['Corner Y coordinate', 'कोने का Y निर्देशांक'],
+  mm: ['mm', 'मिमी'], applyCoordinates: ['Apply coordinates', 'निर्देशांक लागू करें'], roomAreas: ['Room areas', 'कमरों का क्षेत्रफल'], insidePlan: ['Inside your plan', 'आपके प्लान के भीतर'],
+  pixelsPerMetre: ['px / m', 'पिक्सेल / मीटर'],
+  insideArea: ['Clear inside area', 'दीवारों के अंदर का क्षेत्रफल'], smallSpace: ['Very small space — shaft/niche?', 'बहुत छोटी जगह — शाफ़्ट या आला?'],
+  measured: ['Measured, not guessed.', 'सही नाप, अनुमान नहीं।'], measuredHelp: ['Areas exclude the actual wall thickness. Undo restores the complete drawing.', 'क्षेत्रफल में दीवार की मोटाई शामिल नहीं है। पिछला बदलाव हटाने पर पूरी ड्रॉइंग वापस आती है।'],
+  keepBackups: ['Keep exported backups. Clearing app data or uninstalling can delete local drawings.', 'अलग बैकअप रखें। ऐप का डेटा साफ करने या ऐप हटाने पर इस डिवाइस की ड्रॉइंग मिट सकती हैं।'],
+  memoryHelp: ['Editable in-memory proof. Reload restores the sample; export before closing.', 'यह ड्रॉइंग अभी खुली स्क्रीन में है। बंद करने से पहले एक्सपोर्ट करें।'],
+  blankPlan: ['Your drawing is empty. Start with a room, then adjust its corners.', 'ड्रॉइंग खाली है। पहले एक कमरा बनाएँ, फिर उसके कोने बदलें।'],
+  starterRoom: ['Add a starter room', 'पहला कमरा जोड़ें'], starterAdded: ['Room added. Select a corner to resize it.', 'कमरा जोड़ा गया। नाप बदलने के लिए कोना चुनें।'],
+  saveSection: ['Drawing save and recovery', 'ड्रॉइंग सेव और रिकवरी'], saving: ['Saving current changes on this device…', 'बदलाव इस डिवाइस पर सेव हो रहे हैं…'],
+  savedPhone: ['Saved on this phone.', 'इस फ़ोन पर सेव हुआ।'], savedBrowser: ['Saved in this browser on this device.', 'इस डिवाइस के ब्राउज़र में सेव हुआ।'],
+  inMemory: ['In memory only — export before closing.', 'केवल खुली स्क्रीन में — बंद करने से पहले एक्सपोर्ट करें।'],
+  partialSave: ['Local save complete; extra phone backup is pending. Keep an exported copy.', 'ड्रॉइंग स्थानीय तौर पर सेव है; अतिरिक्त फ़ोन बैकअप अधूरा है। अलग कॉपी रखें।'],
+  saveFailed: ['Saving failed. Your drawing remains open; export it before closing and retry.', 'सेव नहीं हुआ। ड्रॉइंग खुली है; बंद करने से पहले एक्सपोर्ट करें और फिर कोशिश करें।'],
+  saveConflict: ['Another tab changed this drawing. Your work is kept here; export it or recover a separate copy.', 'दूसरे टैब ने यह ड्रॉइंग बदली है। आपका काम यहीं रखा है; एक्सपोर्ट करें या अलग कॉपी रिकवर करें।'],
+  exportDrawing: ['Export drawing', 'ड्रॉइंग एक्सपोर्ट करें'], retrySave: ['Retry local save', 'फिर सेव करें'], backupTitle: ['Copy drawing backup', 'ड्रॉइंग बैकअप कॉपी करें'],
+  backupJson: ['Complete drawing backup JSON', 'ड्रॉइंग का पूरा बैकअप JSON'], copyData: ['Copy complete data', 'पूरा डेटा कॉपी करें'], closeBackup: ['Close backup copy', 'बैकअप कॉपी बंद करें'],
+  noDownload: ['No file was downloaded. Copy the complete data below into a safe backup file.', 'फ़ाइल डाउनलोड नहीं हुई है। नीचे का पूरा डेटा सुरक्षित बैकअप फ़ाइल में रखें।'],
+  copyUnavailable: ['Copy is unavailable. Select all data above and copy it manually. Keep this page open until the backup is safe.', 'कॉपी उपलब्ध नहीं है। ऊपर का पूरा डेटा चुनकर कॉपी करें। बैकअप सुरक्षित होने तक स्क्रीन खुली रखें।'],
+  copySuccess: ['Complete drawing data copied. Keep it in a safe backup file.', 'पूरी ड्रॉइंग का डेटा कॉपी हुआ। इसे सुरक्षित बैकअप फ़ाइल में रखें।'],
+  copyDenied: ['Copy permission was denied. Select all data above and copy it manually. Keep this page open until the backup is safe.', 'कॉपी की अनुमति नहीं मिली। ऊपर का पूरा डेटा चुनकर कॉपी करें। बैकअप सुरक्षित होने तक स्क्रीन खुली रखें।'],
+  checking: ['Checking your saved drawing…', 'सेव ड्रॉइंग जाँची जा रही है…'], recoveryTitle: ['Restore your drawing', 'अपनी ड्रॉइंग वापस लाएँ'],
+  localSource: ['Local saved drawing', 'स्थानीय सेव ड्रॉइंग'], nativeSource: ['Phone backup', 'फ़ोन बैकअप'],
+  repairedSource: ['Recovery repairs derived room boundaries. Room names and finishes may reset; the original stays untouched.', 'रिकवरी में कमरे की सीमाएँ सुधारी जाएँगी। कमरे के नाम और सतह बदल सकते हैं; पुराना डेटा नहीं बदलेगा।'],
+  oneRoom: ['1 room', '1 कमरा'],
+  engineLoadFailed: ['The 3D engine could not load. Switch to 2D to continue; your drawing is unchanged.', '3D व्यू लोड नहीं हो सका। 2D में काम जारी रखें; ड्रॉइंग नहीं बदली है।'],
+  recoveryHelp: ['Choose a validated saved version before editing. Damaged files stay untouched; repaired drawings and phone backups open as separate copies.', 'बदलाव से पहले जाँची गई सेव ड्रॉइंग चुनें। खराब फ़ाइलें नहीं बदली जाएँगी; ठीक की गई ड्रॉइंग और फ़ोन बैकअप अलग कॉपी में खुलेंगे।'],
+  restoreSaved: ['Restore saved changes', 'सेव बदलाव वापस लाएँ'], recoverCopy: ['Recover as a separate drawing', 'अलग ड्रॉइंग में रिकवर करें'],
+  leaveFiles: ['Leave saved files untouched', 'सेव फ़ाइलें नहीं बदलें'], showRecovery: ['Show recovery choices', 'रिकवरी के विकल्प दिखाएँ'],
+  recoveryCancelled: ['Saved files are untouched. Reopen these choices or use a separate sample.', 'सेव फ़ाइलें नहीं बदली गई हैं। विकल्प फिर खोलें या अलग नमूना लें।'],
+  separateSample: ['Open a separate sample', 'अलग नमूना खोलें'], opening: ['Opening validated drawing…', 'जाँची गई ड्रॉइंग खुल रही है…'],
+  retryOpen: ['Retry opening', 'फिर खोलें'], openingFailed: ['The saved workspace could not be opened. Reload to retry; existing files are retained.', 'सेव ड्रॉइंग नहीं खुल सकी। फिर कोशिश करें; पुरानी फ़ाइलें रखी गई हैं।'],
+  recoveryWarning: ['Some saved data needs recovery. Existing files are retained.', 'कुछ सेव डेटा को रिकवर करना होगा। पुरानी फ़ाइलें रखी गई हैं।'],
+  canvas2d: ['Interactive 2D floor plan', 'इंटरैक्टिव 2D फ्लोर प्लान'], canvas3d: ['Interactive 3D floor plan', 'इंटरैक्टिव 3D फ्लोर प्लान'],
+  loadingPlan: ['Loading floor plan…', 'फ्लोर प्लान लोड हो रहा है…'], planHint: ['Drag a corner to resize · Drag empty space to pan · Scroll to zoom', 'नाप के लिए कोना खिसकाएँ · प्लान खिसकाने के लिए खाली जगह खींचें · ज़ूम के लिए स्क्रॉल करें'],
+  drawingLoadFailed: ['The drawing view could not load. Reload to retry; the project remains in memory.', 'ड्रॉइंग व्यू नहीं खुल सका। फिर कोशिश करें; प्रोजेक्ट खुली स्क्रीन में रखा है।'],
+  dragChanged: ['The project changed during the drag. Preview cancelled.', 'खींचते समय प्रोजेक्ट बदल गया। प्रीव्यू रद्द हुआ।'],
+  dragRetry: ['The project changed during this drag. Try again.', 'खींचते समय प्रोजेक्ट बदल गया। दोबारा कोशिश करें।'],
+  dragCancelled: ['Drag cancelled. Project unchanged.', 'खींचना रद्द हुआ। प्रोजेक्ट नहीं बदला।'],
+  twoFingerCancel: ['Two-finger gesture: edit cancelled.', 'दो उँगलियों का संकेत: बदलाव रद्द हुआ।'], previewHelp: ['Preview only. Release to apply; Escape cancels.', 'यह प्रीव्यू है। लागू करने के लिए छोड़ें; Escape से रद्द करें।'],
+  building3d: ['Building your 3D space…', 'आपका 3D व्यू बन रहा है…'], updating3d: ['Updating 3D…', '3D अपडेट हो रहा है…'],
+  threeUnavailable: ['3D is unavailable on this device. Continue editing in 2D; your drawing is unchanged.', 'इस डिवाइस पर 3D उपलब्ध नहीं है। 2D में जारी रखें; ड्रॉइंग नहीं बदली है।'],
+  threeFailed: ['3D could not update. Continue in 2D or retry; your drawing is unchanged.', '3D अपडेट नहीं हुआ। 2D में जारी रखें या फिर कोशिश करें; ड्रॉइंग नहीं बदली है।'],
+  threeReady: ['3D matches the current drawing. Furniture is shown by its dimensions.', '3D मौजूदा ड्रॉइंग से मेल खाता है। फर्नीचर उसके नाप के अनुसार दिखता है।'],
+  threeLost: ['3D paused. Continue in 2D while the display recovers.', '3D रुका है। डिस्प्ले ठीक होने तक 2D में जारी रखें।'],
+  threeRestoring: ['Restoring 3D…', '3D वापस लाया जा रहा है…'],
+  threeHint: ['Drag to orbit · two fingers to pan/zoom · arrow keys to orbit', 'घुमाने के लिए खींचें · दो उँगलियों से खिसकाएँ/ज़ूम करें · तीर कुंजियों से घुमाएँ'],
+  dimensionsFurniture: ['Furniture shown by its dimensions', 'फर्नीचर अपने नाप के अनुसार दिखता है'],
+  invalidEdit: ['This change is invalid. The drawing is unchanged.', 'यह बदलाव मान्य नहीं है। ड्रॉइंग नहीं बदली है।'],
+  integerError: ['Use whole millimetres within the drawing limits.', 'ड्रॉइंग की सीमा में पूरे मिलीमीटर डालें।'],
+  orthogonalError: ['Walls must stay horizontal or vertical.', 'दीवारें क्षैतिज या ऊर्ध्वाधर रखें।'],
+  crossingError: ['Crossing or overlapping walls are not allowed here.', 'यहाँ दीवारों को आर-पार या एक-दूसरे पर नहीं रख सकते।'],
+  areaError: ['A closed space must have positive inside area. Make more room between walls.', 'बंद जगह के अंदर क्षेत्रफल शून्य से बड़ा होना चाहिए। दीवारों के बीच और जगह रखें।'],
+} as const satisfies Record<string, readonly [string, string]>;
+export type MessageKey = keyof typeof messages;
+type Slots<S extends string> = S extends `${string}{${infer Key}}${infer Rest}` ? Key | Slots<Rest> : never;
+export type MessageArgs<K extends MessageKey> = [Slots<(typeof messages)[K][0]>] extends [never] ? [values?: Record<string, string | number>] : [values: Record<Slots<(typeof messages)[K][0]>, string | number>];
+export function message<K extends MessageKey>(locale: Locale, key: K, ...args: MessageArgs<K>): string {
+  const values = (args[0] ?? {}) as Record<string, string | number>;
+  return messages[key][locale === 'hi' ? 1 : 0].replace(/\{(\w+)\}/g, (_, slot: string) => {
+    if (!Object.hasOwn(values, slot)) throw new Error('Missing translation value.');
+    return String(values[slot]);
+  });
+}
+export function areaDisplay(mm2: number, units: 'metric' | 'imperial'): { value: string; unit: string } {
+  if (!Number.isFinite(mm2) || mm2 < 0) throw new Error('Invalid area.');
+  return units === 'metric' ? { value: formatArea(mm2), unit: 'm²' } : { value: (mm2 / (304.8 * 304.8)).toFixed(2), unit: 'ft²' };
+}
+export function editError(locale: Locale, error?: { code: string; message: string }): string {
+  if (locale === 'en' && error) return error.message;
+  const code = error?.code ?? '';
+  if (/coordinates|integer|domain/.test(code)) return message(locale, 'integerError');
+  if (/axis|orthogonal|angle/.test(code)) return message(locale, 'orthogonalError');
+  if (/cross|overlap/.test(code)) return message(locale, 'crossingError');
+  if (/area|clear/.test(code)) return message(locale, 'areaError');
+  return message(locale, 'invalidEdit');
+}

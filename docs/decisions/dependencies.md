@@ -1,5 +1,13 @@
 # PH0-T01 dependency register
 
+## PH1-T03 UI state (2026-10-12, recorded before installation)
+
+| Dependency | Exact version | License / primary evidence | Purpose |
+|---|---|---|---|
+| zustand | 5.0.15 | MIT; [official version metadata](https://registry.npmjs.org/zustand/5.0.15) | UI navigation, locale and preferences only; canonical drawings stay in core-model |
+
+Official metadata confirms React >=18 and existing React 19.3.0 compatibility; Immer, React/types and use-sync-external-store peers are optional. The default React hook reuses existing React. No router/i18n dependency is added: typed English/Hindi messages and existing browser APIs suffice for the three-screen shell. Inspect/inventory any actually added lock versions before installation. Product privacy and actual device tests remain separate.
+
 ## PH0-T08 local durability (2026-10-12, recorded before installation)
 
 | Dependency | Exact version | License / primary evidence | Purpose |

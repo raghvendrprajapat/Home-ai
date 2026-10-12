@@ -585,3 +585,28 @@ select {
 .backup-copy textarea { width: 100%; box-sizing: border-box; }
 .recovery-panel { max-width: 48rem; margin: 2rem auto; padding: 1.5rem; background: #fff; border-radius: 1rem; }
 .recovery-panel button { margin: .4rem; padding: .6rem 1rem; }
+.shell-nav, .project-list-actions, .project-card-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.shell-nav button, .shell-page button, .project-dialog button, .shell-page select, .project-dialog input, .project-dialog select { min-height: 44px; padding: .6rem .85rem; }
+.shell-nav button, .shell-page button, .project-dialog button { border: 1px solid #ced9d0; border-radius: .55rem; background: #fff; color: #294c35; cursor: pointer; }
+.shell-page .primary-button, .project-dialog .primary-button { background: #315b40; color: #fff; }
+.shell-page button:disabled, .project-dialog button:disabled { opacity: .5; cursor: wait; }
+.shell-page :focus-visible, .project-dialog :focus-visible { outline: 3px solid #376cac; outline-offset: 3px; }
+.welcome-card, .settings-card { max-width: 38rem; margin: 2rem auto; padding: 1.5rem; background: #fff; border-radius: 1rem; }
+.welcome-card p, .settings-card p, .project-dialog p { line-height: 1.7; }
+.shell-page > section { padding: 1rem 1.5rem; }
+.project-list-heading { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; align-items: center; }
+.project-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: 1rem; margin: 1rem 0; }
+.project-card { background: #fff; border: 1px solid #dce4dd; border-radius: .8rem; padding: 1rem; min-width: 0; overflow-wrap: anywhere; }
+.project-thumb { background: #eef3ed; border-radius: .5rem; padding: .7rem; font-size: 2rem; }
+.project-card h3 { margin: .8rem 0; }
+.shell-page .field-label, .project-dialog .field-label { display: flex; flex-direction: column; gap: .5rem; margin: 1rem 0; }
+.project-dialog { width: min(30rem, calc(100% - 2rem)); box-sizing: border-box; max-height: calc(100dvh - 2rem); overflow: auto; border: 1px solid #dce4dd; border-radius: .8rem; padding: 1.5rem; }
+.project-dialog::backdrop { background: #10251b88; }
+.project-dialog input, .project-dialog select { width: 100%; box-sizing: border-box; border: 1px solid #a8bcae; border-radius: .4rem; }
+.shell-alert { padding: 1rem; color: #923c25; }
+@media (max-width: 600px) {
+  .shell-nav { width: 100%; }
+  .shell-page .app-header { height: auto; flex-wrap: wrap; gap: .75rem; }
+  .shell-page > section { padding: 1rem; }
+  .project-cards { grid-template-columns: 1fr; }
+}

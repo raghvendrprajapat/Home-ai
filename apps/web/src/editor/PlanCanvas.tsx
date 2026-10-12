@@ -1,14 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ProjectStore, PreviewResult } from '@gharplan/core-model';
-import { formatArea } from '@gharplan/geometry';
+import { areaDisplay, editError, message } from '../i18n/messages';
+import type { Locale } from '../i18n/messages';
 import type Konva from 'konva';
 import { fitView, junctionMoves, screenToWorld, snapPointer, worldToScreen, zoomAt } from './view2d';
 import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
-interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
+interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface Drag { pointerId: number; junction: string; generation: number; start: Point2; last: Point2; pointerStart: Point2; snapTarget?: string }
-export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming }: Props) {
+export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, locale = 'en' }: Props) {
+  const language = useRef(locale); language.current = locale;
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), stage = useRef<Konva.Stage | null>(null), library = useRef<typeof Konva | null>(null);
   const drag = useRef<Drag | null>(null), pan = useRef<{ id: number; start: Point2; view: Viewport } | null>(null);
   const touches = useRef(new Set<number>()), touchBlocked = useRef(false);
@@ -35,7 +37,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       if (disposed || !mount.current) return;
       K.pixelRatio = Math.min(window.devicePixelRatio || 1, 2); library.current = K;
       stage.current = new K.Stage({ container: mount.current, width: size.width, height: size.height }); setReady(true);
-    }).catch(() => onMessage('The drawing view could not load. Reload to retry; the project remains in memory.'));
+    }).catch(() => onMessage(message(language.current, 'drawingLoadFailed')));
     return () => { disposed = true; stage.current?.destroy(); stage.current = null; };
   }, [size.width, size.height, onMessage]);
   useEffect(() => {
@@ -44,7 +46,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     // Fit only on viewport resizing / explicit fit; edits must not jump the camera.
   }, [size.width, size.height, zoomRequest]);
   useEffect(() => {
-    if (drag.current && drag.current.generation !== snapshot.localGeneration) { cancel(); onMessage('The project changed during the drag. Preview cancelled.'); }
+    if (drag.current && drag.current.generation !== snapshot.localGeneration) { cancel(); onMessage(message(language.current, 'dragChanged')); }
   }, [snapshot.localGeneration, onMessage]);
   useEffect(() => {
     const escape = (event: KeyboardEvent) => { if (event.key === 'Escape') cancel(); };
@@ -82,7 +84,8 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       const biggest = [...face.clearRects].sort((a, b) => (b[2] - b[0]) * (b[3] - b[1]) - (a[2] - a[0]) * (a[3] - a[1]))[0]!;
       const p = worldToScreen([(biggest[0] + biggest[2]) / 2, (biggest[1] + biggest[3]) / 2], view);
       const width = Math.min(140, (biggest[2] - biggest[0]) * view.scale - 12);
-      if (width >= 60) labels.push({ x: p[0] - width / 2, y: p[1] - 21, width, text: `${room.name}\n${formatArea(face.clearAreaMm2)} m²` });
+      const area = areaDisplay(face.clearAreaMm2, document.units);
+      if (width >= 60) labels.push({ x: p[0] - width / 2, y: p[1] - 21, width, text: `${room.name}\n${area.value} ${area.unit}` });
     }
     for (const { rect: [x1, y1, x2, y2] } of derived.footprints) {
       const p = worldToScreen([x1, y1], view); layer.add(new K.Rect({ x: p[0], y: p[1], width: (x2 - x1) * view.scale, height: (y2 - y1) * view.scale, fill: '#42534b' }));
@@ -106,11 +109,11 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     }
     canvas.batchDraw();
   }, [ready, preview, snapshot, selected, view, size, showGrid]);
-  return <div ref={host} className="plan-canvas" role="application" aria-label="2D floor plan. Drag a corner, or select a corner in the controls and enter coordinates." tabIndex={0} data-testid="plan-canvas"
+  return <div ref={host} className="plan-canvas" role="application" aria-label={message(locale, 'canvas2d')} tabIndex={0} data-testid="plan-canvas"
     onPointerDown={event => {
       if (event.pointerType === 'touch') {
         touches.current.add(event.pointerId);
-        if (touches.current.size > 1) { touchBlocked.current = true; cancel(); onMessage('Two-finger gesture: edit cancelled.'); }
+        if (touches.current.size > 1) { touchBlocked.current = true; cancel(); onMessage(message(locale, 'twoFingerCancel')); }
         if (touchBlocked.current) return;
       }
       if (drag.current || pan.current) return;
@@ -119,7 +122,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       const nearest = snapshot.document.junctions.map(j => ({ j, p: worldToScreen([j.x, j.y], view) })).sort((a, b) => Math.hypot(a.p[0] - point[0], a.p[1] - point[1]) - Math.hypot(b.p[0] - point[0], b.p[1] - point[1]))[0];
       event.currentTarget.setPointerCapture(event.pointerId);
       if (event.button === 0 && nearest && Math.hypot(nearest.p[0] - point[0], nearest.p[1] - point[1]) <= tolerance) {
-        onSelect(nearest.j.id); drag.current = { pointerId: event.pointerId, junction: nearest.j.id, generation: snapshot.localGeneration, start: [nearest.j.x, nearest.j.y], last: [nearest.j.x, nearest.j.y], pointerStart: screenToWorld(point, view) }; onMessage('Preview only. Release to apply; Escape cancels.');
+        onSelect(nearest.j.id); drag.current = { pointerId: event.pointerId, junction: nearest.j.id, generation: snapshot.localGeneration, start: [nearest.j.x, nearest.j.y], last: [nearest.j.x, nearest.j.y], pointerStart: screenToWorld(point, view) }; onMessage(message(locale, 'previewHelp'));
       } else pan.current = { id: event.pointerId, start: point, view };
     }}
     onPointerMove={event => {
@@ -127,7 +130,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       const point = localPoint(event);
       if (pan.current?.id === event.pointerId) { const p = pan.current; setView({ ...p.view, x: p.view.x + point[0] - p.start[0], y: p.view.y + point[1] - p.start[1] }); }
       const d = drag.current; if (!d || d.pointerId !== event.pointerId) return;
-      if (snapshot.localGeneration !== d.generation) { cancel(); onMessage('The project changed during this drag. Try again.'); return; }
+      if (snapshot.localGeneration !== d.generation) { cancel(); onMessage(message(locale, 'dragRetry')); return; }
       const pointer = screenToWorld(point, view), raw: Point2 = [d.start[0] + pointer[0] - d.pointerStart[0], d.start[1] + pointer[1] - d.pointerStart[1]];
       const to: Point2 = event.shiftKey ? [Math.round(raw[0]), Math.round(raw[1])] : snapPointer(snapshot.document, raw, view, d.junction, 12, d.snapTarget); d.last = to;
       const target = !event.shiftKey && snapshot.document.junctions.find(j => j.id !== d.junction && j.x === to[0] && j.y === to[1]);
@@ -135,7 +138,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       const started = performance.now();
       const result = store.preview({ id: 'drag_preview', baseGeneration: d.generation, type: 'MoveJunctions', moves: junctionMoves(snapshot.document, d.junction, to) }); setPreview(result);
       onTiming?.('preview', performance.now() - started);
-      if (!result.ok) onMessage(result.errors[0]?.message ?? 'Invalid drawing.');
+      if (!result.ok) onMessage(editError(locale, result.errors[0]));
     }}
     onPointerUp={event => {
       if (touchBlocked.current) return;
@@ -144,15 +147,15 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
         const started = performance.now();
         const result = store.execute({ id: `drag_${d.generation}`, baseGeneration: d.generation, type: 'MoveJunctions', moves: junctionMoves(snapshot.document, d.junction, d.last) });
         onTiming?.('command', performance.now() - started);
-        onMessage(result.ok ? 'Corner updated. Undo is available.' : result.errors[0]?.message ?? 'Edit rejected.');
+        onMessage(result.ok ? message(locale, 'cornerUpdated') : editError(locale, result.errors[0]));
       }
       cancel(); if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
     }} onPointerCancel={event => {
-      if (drag.current?.pointerId === event.pointerId || pan.current?.id === event.pointerId) { cancel(); onMessage('Drag cancelled. Project unchanged.'); }
+      if (drag.current?.pointerId === event.pointerId || pan.current?.id === event.pointerId) { cancel(); onMessage(message(locale, 'dragCancelled')); }
     }} onLostPointerCapture={event => { if (drag.current?.pointerId === event.pointerId || pan.current?.id === event.pointerId) cancel(); }}>
     <div ref={mount} className="konva-mount" />
-    {!ready && <span className="canvas-loading">Loading floor plan…</span>}
-    <span className="canvas-hint">Drag a corner to resize · Drag empty space to pan · Scroll to zoom</span>
-    <span className="canvas-scale">{Math.round(view.scale * 1000)} px / m</span>
+    {!ready && <span className="canvas-loading">{message(locale, 'loadingPlan')}</span>}
+    <span className="canvas-hint">{message(locale, 'planHint')}</span>
+    <span className="canvas-scale">{Math.round(view.scale * 1000)} {message(locale, 'pixelsPerMetre')}</span>
   </div>;
 }

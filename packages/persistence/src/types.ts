@@ -7,6 +7,7 @@ export class StorageError extends Error {
 export interface Head { projectId: string; epoch: string; seq: number; hash: string }
 export interface ProjectMeta extends Head {
   storageVersion: 1; name: string; savedAt: string; checkpointSeqs: number[]; checkpointAt: number;
+  trashedAt?: string;
 }
 export interface Packed { codec: 'json' | 'gzip'; blob: Blob; hash: string; bytes: number }
 export interface Checkpoint extends Head { packed: Packed }
@@ -15,6 +16,7 @@ export interface Bundle { meta: ProjectMeta; checkpoints: Checkpoint[]; journal:
 export interface Recovered {
   document: ProjectDoc; head: Head; complete: boolean; journalNewer: boolean;
   warning: string | null; bundle: Bundle;
+  roomRepair?: true;
 }
 export interface Prepared {
   expected: Head; meta: ProjectMeta; entries: Journal[]; checkpoints: Checkpoint[];
@@ -31,6 +33,7 @@ export function assertMeta(meta: ProjectMeta): void {
   assertHead(meta);
   if (meta.storageVersion !== 1 || !Array.isArray(meta.checkpointSeqs) || meta.checkpointSeqs.length < 1 || meta.checkpointSeqs.length > 2 ||
       !meta.checkpointSeqs.every((n, i, all) => Number.isSafeInteger(n) && n >= 0 && n <= meta.seq && (i === 0 || n < all[i - 1]!)) ||
-      !Number.isFinite(meta.checkpointAt) || typeof meta.savedAt !== 'string' || typeof meta.name !== 'string')
+      !Number.isFinite(meta.checkpointAt) || typeof meta.savedAt !== 'string' || typeof meta.name !== 'string' ||
+      meta.trashedAt !== undefined && (typeof meta.trashedAt !== 'string' || !/^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/.test(meta.trashedAt) || !Number.isFinite(Date.parse(meta.trashedAt))))
     throw new StorageError('corrupt', 'Unsupported or corrupt local save metadata. Original data is retained.');
 }
