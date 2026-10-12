@@ -1,18 +1,18 @@
 # Local save/recovery — Low and Mid phone procedure
 
-PH0-T08 has Linux transaction/browser crash evidence and a compiled native plugin. Every physical result below is **Pending**. Issue #11 remains open. This is for a tester with USB/ADB access; the owner only changes visible controls and reports results. Use disposable test drawings in **GharPlan Debug**, never real work.
+PH0-T08 has Linux transaction/browser crash evidence and a compiled native plugin. Every physical result below is **Pending**. Issue #11 remains open. This is for a tester with USB/ADB access; the owner only changes visible controls and reports results. Use disposable test drawings in debug package **com.gharplan.app.debug**, never real work. Its launcher currently says **GharPlan**, so the tester should use the exact component below to avoid opening a separately installed release app.
 
 ## Before testing
 
 1. Use [phase0.md](phase0.md) to download/install the current CI debug APK, record its artifact/build/SHA-256 and connect each Low/Mid phone. Preserve existing drawings first; a signing-key mismatch can require uninstalling the debug package, which deletes its data. Do not uninstall/clear another app or a user's real project.
-2. Record phone model, Android/WebView version, available storage, date, battery/thermal state and exact APK. Close the performance lab; force-stop only `com.gharplan.app.debug`, then open **GharPlan Debug** normally.
+2. Record phone model, Android/WebView version, available storage, date, battery/thermal state and exact APK. Close the performance lab; run `adb shell am force-stop com.gharplan.app.debug`, then `adb shell am start -n com.gharplan.app.debug/com.gharplan.app.MainActivity` without a perf extra.
 3. The editable sample should appear. Wait for **Saved on this phone**. If it shows pending/failed phone backup, export first and record the message; this is not a durability pass.
 4. Tap **Export drawing**. Native file download is not implemented yet: copy **all** complete JSON into a safe file on the test computer using the displayed copy action or USB browser inspection. Confirm it parses and validates before considering it a backup. If clipboard access fails, the complete selectable text remains. Do not clear application data until a verified external backup exists.
 
 ## Ten diagnostic cycles per phone
 
 1. Set Corner X to **4600**, tap **Apply coordinates**, and wait for **Saved on this phone**. Record the value and timing.
-2. Tester runs `adb shell am force-stop com.gharplan.app.debug`, then opens the debug app normally. Choose **Restore saved changes** when offered. The X value must be 4600; switch to 3D and confirm it opens, then back to 2D. Export/validate the restored project; screenshots alone do not prove geometry.
+2. Tester runs `adb shell am force-stop com.gharplan.app.debug`, then `adb shell am start -n com.gharplan.app.debug/com.gharplan.app.MainActivity`. Choose **Restore saved changes** when offered. The X value must be 4600; switch to 3D and confirm it opens, then back to 2D. Export/validate the restored project; screenshots alone do not prove geometry.
 3. Alternate **4700** and **4600** through ten cycles. Some cycles should kill immediately after Apply, others before/while the save label changes, others after Saved. Keep monotonic timestamps of each accepted edit and kill.
 4. Before Saved, the last durable old/new drawing is acceptable only if edit loss is within the specified ≤2 s gate. After Saved, the exact acknowledged version must return. Invalid geometry, absent/dangling journal entries, wrong IDs, missing old work or false Saved is a failure. Save debug logs without project contents or credentials.
 5. For a recovery prompt, try **Leave saved files untouched**, reopen choices and restore. Cancellation must not overwrite the drawing. The new editor session has no prior undo history; canonical recovered geometry remains.
