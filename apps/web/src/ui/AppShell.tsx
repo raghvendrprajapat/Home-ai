@@ -9,6 +9,7 @@ import type { MessageArgs, MessageKey } from '../i18n/messages';
 import { createWorkspace, openWorkspace } from '../storage/workspace';
 import type { StartupInspection, WorkspaceSession } from '../storage/workspace';
 import { Dialog } from './Dialog';
+import { readProjectUpload } from '../storage/read-file';
 import { useUi } from './state';
 
 const nextId = () => `cp_${crypto.randomUUID().replaceAll('-', '')}`;
@@ -17,8 +18,11 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
   const ui = useUi(), t = <K extends MessageKey>(key: K, ...args: MessageArgs<K>) => message(ui.locale, key, ...args);
   const screen = !session && ui.screen === 'editor' ? 'projects' : ui.screen;
   const [projects, setProjects] = useState<ProjectMeta[]>([]), [listWarnings, setListWarnings] = useState(false), [loading, setLoading] = useState(false);
-  const [error, setError] = useState<'operationFailed' | 'nameRequired' | 'leaveBlocked' | 'projectListFailed' | null>(null), [busy, setBusy] = useState(false), [showTrash, setShowTrash] = useState(false);
-  const [modal, setModal] = useState<'create' | 'rename' | 'trash' | 'recover' | null>(null), [target, setTarget] = useState<ProjectMeta | null>(null);
+  const [error, setError] = useState<'operationFailed' | 'nameRequired' | 'leaveBlocked' | 'projectListFailed' | 'importInvalid' | 'importSize' | 'importEncoding' | 'importFuture' | 'importRead' | null>(null), [busy, setBusy] = useState(false), [showTrash, setShowTrash] = useState(false);
+  const [modal, setModal] = useState<'create' | 'rename' | 'trash' | 'recover' | 'import' | null>(null), [target, setTarget] = useState<ProjectMeta | null>(null);
+  const [imported, setImported] = useState<ProjectDoc | null>(null), [importCopyOnly, setImportCopyOnly] = useState(true);
+  const fileInput = useRef<HTMLInputElement>(null), reading = useRef<AbortController | null>(null);
+  useEffect(() => () => { reading.current?.abort(); }, []);
   const [name, setName] = useState(''), [units, setUnits] = useState(ui.units), [proposal, setProposal] = useState<Recovered | null>(null);
   const flight = useRef(false), current = useRef(session); current.current = session;
   const refresh = useCallback(async () => {
@@ -59,6 +63,33 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
     const result = store.execute({ type: 'RenameProject', name: copyName.slice(0, 120), id: 'copy_name', baseGeneration: 0 });
     if (!result.ok) throw new Error('Copy name is invalid.'); return cloneDocument(store.getSnapshot().document);
   };
+  const importConflict = async (doc: ProjectDoc): Promise<boolean> => {
+    if (!inspection.storage) return true;
+    try {
+      if (await inspection.storage.readProject(doc.id)) return true;
+      if (inspection.nativeRequired) {
+        if (!inspection.mirror) return true;
+        let timer: ReturnType<typeof setTimeout> | undefined;
+        try { return await Promise.race([inspection.mirror.hasProjectDirectory(doc.id), new Promise<boolean>(resolve => { timer = setTimeout(() => resolve(true), 1500); })]); }
+        finally { clearTimeout(timer); }
+      }
+      return false;
+    } catch { return true; }
+  };
+  const selectImport = (file: File) => perform(async () => {
+    const controller = new AbortController(); reading.current = controller;
+    const parsed = await readProjectUpload(file, { signal: controller.signal });
+    if (controller.signal.aborted) return;
+    if (!parsed.ok) { const code = parsed.errors[0]?.code; setError(code === 'future-version' ? 'importFuture' : code === 'file-size' || code === 'size' ? 'importSize' : code === 'file-encoding' ? 'importEncoding' : code?.startsWith('file-') ? 'importRead' : 'importInvalid'); return; }
+    setImported(parsed.document); setImportCopyOnly(await importConflict(parsed.document)); setModal('import');
+  });
+  const acceptImport = (asCopy: boolean) => perform(async () => {
+    if (!imported || !await canLeave()) return;
+    // Recheck after preview: another tab may have created this ID meanwhile.
+    if (!asCopy && await importConflict(imported)) { setImportCopyOnly(true); return; }
+    const doc = asCopy ? copied(imported, t('copiedName', { name: imported.name })) : imported;
+    switchTo(await createWorkspace(inspection, doc)); setModal(null); setImported(null);
+  });
   const open = (meta: ProjectMeta) => perform(async () => {
     if (!await canLeave()) return;
     const active = current.current, loaded = await read(meta);
@@ -106,11 +137,13 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
     {screen === 'settings' ? <section className="settings-card"><h2>{t('settings')}</h2><p>{t('settingsText')}</p>{language}<label className="field-label">{t('defaultUnits')}<select aria-label={t('defaultUnits')} value={ui.units} onChange={e => ui.setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>{!ui.preferencesRemembered && <p role="alert">{t('preferenceWarning')}</p>}<button onClick={() => ui.setScreen(ui.returnTo)}>{t('back')}</button></section> : <section>
       <div className="project-list-heading"><div><h2>{showTrash ? t('trash') : t('projectList')}</h2><p>{t('projectListText')}</p></div><button className="primary-button" disabled={busy} onClick={() => { setName(t('unnamed')); setUnits(ui.units); setTarget(null); setModal('create'); setError(null); }}>{t('newProject')}</button></div>
       <div className="project-list-actions"><button onClick={() => { setShowTrash(v => !v); }}>{showTrash ? t('showProjects') : t('showTrash')}</button><button disabled={loading || busy} onClick={() => { void refresh(); }}>{t('refresh')}</button></div>
+      <button disabled={busy} onClick={() => fileInput.current?.click()}>{t('importDrawing')}</button><input ref={fileInput} type="file" accept=".json,application/json" hidden aria-label={t('chooseBackup')} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; if (file) void selectImport(file); }} />{busy && <p role="status">{t('working')}</p>}
       {loading && <p role="status">{t('loadingProjects')}</p>}{listWarnings && <p role="alert">{t('damagedProjects')}</p>}
       <div className="project-cards" role="list">{projects.filter(p => !!p.trashedAt === showTrash).map(meta => <article className="project-card" key={meta.projectId} role="listitem" data-project-id={meta.projectId}><div className="project-thumb" aria-hidden="true">⌂</div><h3>{meta.name}</h3><p>{t('onDevice')}</p><div className="project-card-actions">{meta.trashedAt ? <button disabled={busy} onClick={() => { void perform(async () => { await inspection.storage!.setTrashed(meta, false); await refresh(); }); }}>{t('restore')}</button> : <><button disabled={busy} aria-label={t('openNamed', { name: meta.name })} onClick={() => { void open(meta); }}>{t('open')}</button><button disabled={busy} onClick={() => { setTarget(meta); setName(meta.name); setModal('rename'); setError(null); }}>{t('rename')}</button><button disabled={busy} onClick={() => { void duplicate(meta); }}>{t('duplicate')}</button><button disabled={busy} onClick={() => { setTarget(meta); setModal('trash'); setError(null); }}>{t('moveTrash')}</button></>}</div></article>)}</div>
       {!loading && !projects.some(p => !!p.trashedAt === showTrash) && <p>{showTrash ? t('emptyTrash') : t('noProjects')}</p>}
     </section>}
-    {modal && <Dialog title={modal === 'create' ? t('newProject') : modal === 'rename' ? t('rename') : modal === 'trash' ? t('trash') : t('recoveryTitle')} busy={busy} onCancel={() => { setModal(null); setError(null); }}>
+    {modal && <Dialog title={modal === 'create' ? t('newProject') : modal === 'rename' ? t('rename') : modal === 'trash' ? t('trash') : modal === 'import' ? t('importTitle') : t('recoveryTitle')} busy={busy} onCancel={() => { setModal(null); setError(null); }}>
+      {modal === 'import' && imported && <><p>{t('importPreview', { name: imported.name, count: imported.rooms.length, units: imported.units === 'metric' ? t('metric') : t('imperial') })}</p>{importCopyOnly ? <p>{t('importConflict')}</p> : <button disabled={busy} onClick={() => { void acceptImport(false); }}>{t('importExact')}</button>}<button disabled={busy} onClick={() => { void acceptImport(true); }}>{t('importCopy')}</button></>}
       {(modal === 'create' || modal === 'rename') && <form onSubmit={e => { e.preventDefault(); void submit(); }}><label className="field-label">{t('projectName')}<input value={name} maxLength={120} required onChange={e => setName(e.target.value)} /></label>{modal === 'create' && <label className="field-label">{t('units')}<select aria-label={t('units')} value={units} onChange={e => setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>}<button className="primary-button" disabled={busy} type="submit">{busy ? t('working') : modal === 'create' ? t('create') : t('saveName')}</button></form>}
       {modal === 'trash' && target && <><p>{t('trashConfirm', { name: target.name })}</p><p>{t('trashText')}</p><button disabled={busy} onClick={() => { void submit(); }}>{t('moveTrash')}</button></>}
       {modal === 'recover' && proposal && <><p>{t('recoveryHelp')}</p>{proposal.roomRepair && <p>{t('repairedSource')}</p>}<button disabled={busy} onClick={() => { void perform(async () => { if (!await canLeave()) return; switchTo(await createWorkspace(inspection, copied(proposal.document, t('copiedName', { name: proposal.document.name })))); setModal(null); }); }}>{t('recoverCopy')}</button></>}

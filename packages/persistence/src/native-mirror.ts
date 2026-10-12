@@ -27,6 +27,13 @@ export class NativeMirror {
   #warnings: string[] = [];
   constructor(readonly io: MirrorIo) {}
   getWarnings(): readonly string[] { return [...this.#warnings]; }
+  async hasProjectDirectory(projectId: string): Promise<boolean> {
+    if (!validId(projectId)) throw new StorageError('corrupt', 'Invalid backup identity.');
+    const names = await this.io.list(root);
+    if (names.length > 1000) throw new StorageError('size', 'Native identity scan exceeds its limit.');
+    // Even an empty/damaged directory is history: import must not reuse its ID.
+    return names.includes(projectId);
+  }
   async read(projectId?: string): Promise<MirrorCandidate[]> {
     this.#warnings = [];
     const directories = projectId ? [projectId] : await this.io.list(root);

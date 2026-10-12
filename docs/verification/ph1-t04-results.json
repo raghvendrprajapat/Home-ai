@@ -1,0 +1,158 @@
+{
+  "task": "PH1-T04",
+  "observedOn": "2026-10-12",
+  "baseCommit": "50b8ce566571a82fbb03b1c7436d7a2111dfff1a",
+  "schemaVersion": 1,
+  "databaseVersion": 2,
+  "check": {
+    "productTestsPassed": 195,
+    "filesPassed": 18,
+    "seconds": 22.25,
+    "toolingTestsPassed": 6,
+    "skipped": 0
+  },
+  "build": {
+    "milliseconds": 386,
+    "indexGzipKb": 127.1,
+    "lazyThreeGzipKb": 139.22,
+    "importWorkerKb": 129.51,
+    "retainedWarning": "Lazy Three chunk >500kB"
+  },
+  "browser": {
+    "checks": [
+      "existing-ID preview requires separate copy; cancelling writes nothing",
+      "actual picker rejects malformed/UTF8/empty/newer/fractional/unknown/oversized files atomically",
+      "worker startup failure preserves all stored originals and offers retry",
+      "explicit import copy remaps every ID without modifying the original saved head",
+      "export to fresh local storage then import/reload preserves exact canonical content and all entity IDs",
+      "imported multiroom/openings/furniture project renders in synchronized 2D and 3D with expected area labels",
+      "trashed identities are not silently resurrected or overwritten by a backup",
+      "Hindi import error tells user to update app for newer schema without data changes"
+    ],
+    "pageErrors": [],
+    "limitations": [
+      "Linux Chromium, no Android picker/provider execution",
+      "Real Low/Mid external-file export/app-data loss/import gate is pending"
+    ]
+  },
+  "retainedShell": {
+    "checks": [
+      "welcome bilingual; cancelled create preserves all metadata; dialog Escape restores focus",
+      "blank IDs are independent; starter room 14.44 m2, resized 16.34 m2, exact undo/redo",
+      "Hindi/default units persist through reload without mutating project geometry or current units",
+      "stale Open reads current saved head from another tab; repeated Settings preserves Projects return route",
+      "rename preserves walls; duplicate replaces every ID; opening source preserves exact canonical data",
+      "active trash removes editable session; reload never recreates sample; restore returns exact canonical copy",
+      "real quota failure blocks project replacement, preserves disk and exportable memory, retry succeeds",
+      "new-project preference sets imperial display; canonical coordinates remain integer mm",
+      "Hindi settings and project cards fit 360px viewport without horizontal page overflow",
+      "Hindi touch navigation reaches actual worker-rendered 3D of the same imperial project"
+    ],
+    "pageErrors": [],
+    "limitations": [
+      "Linux Chromium software rendering; not real Android phone/Hindi font/device evidence"
+    ]
+  },
+  "retainedRecovery": {
+    "checks": [
+      "fresh production startup creates a completed initial IndexedDB checkpoint",
+      "accepted wall edit autosaves and exports schema-valid integer geometry; rounded area labels match",
+      "newer journal prompts before editing; cancel preserves bytes/meta; explicit restore returns latest geometry",
+      "restored document renders through a fresh worker/session and both views share the same model",
+      "real second tab loses CAS, retains exportable memory and cannot overwrite winner on retry or pagehide",
+      "injected quota failure rolls back real transaction, warns, keeps memory/export and retries after fault removal",
+      "corrupt sole checkpoint prevents replacement; explicit separate sample remaps all IDs and retains original meta/corrupt bytes",
+      "injected Android export UI keeps complete JSON and handles a missing clipboard API without a crash"
+    ],
+    "pageErrors": [],
+    "saveMilliseconds": [
+      374.20060101430863
+    ],
+    "limitations": [
+      "Linux Chromium, not an Android WebView or phone",
+      "Quota failure is injected into the real transaction API",
+      "No physical 100-cycle kill or <=2s phone-loss guarantee"
+    ],
+    "browser": "151.0.7922.173"
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8113929,
+    "sha256": "9881c97d6763cb7b31652df950022fea340020eba42315e279c4c935efeca893",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ],
+    "webAssetsCompared": 12,
+    "differentAssets": 0,
+    "lintErrors": 0,
+    "lintWarnings": 15,
+    "javaSuites": [
+      {
+        "name": "com.gharplan.app.ProjectFileSourceTest",
+        "tests": "2",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-12T14:21:05.582Z",
+        "time": "0.013"
+      },
+      {
+        "name": "com.getcapacitor.myapp.ExampleUnitTest",
+        "tests": "1",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-12T14:21:05.569Z",
+        "time": "0.004"
+      },
+      {
+        "name": "com.gharplan.app.ProjectFileStreamsTest",
+        "tests": "3",
+        "skipped": "0",
+        "failures": "0",
+        "errors": "0",
+        "timestamp": "2026-10-12T14:21:05.600Z",
+        "time": "0.01"
+      }
+    ],
+    "gradleSeconds": 24,
+    "tasksExecuted": 40,
+    "tasksUpToDate": 130,
+    "newMeaningfulJavaTests": 5,
+    "retainedTemplateJavaTests": 1,
+    "sameSourceNativeTestResultsReusedOnLastAssetRebuild": true,
+    "nativeSourceHashes": {
+      "ProjectFileSource.java": "1a616878ba59f5cdd7753a887cef7b629d5f3bf2964c627ae982f4625cca0612",
+      "ProjectFileStreams.java": "3dd549f1d678ce41fb010d3d130e3d6f04826b918de3f0295f51f96dca397c39",
+      "ProjectFilesPlugin.java": "4a859cff4844ad1646d4576ec0c4fde3e23a74280272420635491edb7226d8e2"
+    }
+  },
+  "review": {
+    "author": "Fresh read-only Codex, not Claude",
+    "remainingConfirmedBlockers": 0,
+    "independentProbe": "Aborted current IDB writes; import acceptance blocked; original4600mm memory edit/error retained",
+    "builderRefinements": "Asynchronous own-cache cleanup cannot hold receipt; within-cache symlink aliases also rejected"
+  },
+  "protectedHashesUnchanged": 39,
+  "sampleSchemaErrors": 0,
+  "newRuntimePackages": 0,
+  "pending": [
+    "Exact-head Check and Android debug before merge",
+    "Issue15 real Low/Mid picker/providers/app-storage-loss/import/lifecycle",
+    "Issues10/11/14 physical performance/recovery/Hindi",
+    "Final Claude/specialist/security/Play/commercial gates"
+  ]
+}

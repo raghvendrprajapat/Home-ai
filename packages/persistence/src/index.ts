@@ -5,3 +5,4 @@ export * from './indexed-db';
 export * from './native-mirror';
 export * from './coordinator';
 export * from './startup';
+export * from './project-file';

@@ -7,6 +7,10 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 apk, manifest = map(pathlib.Path, sys.argv[1:3])
+registration_checked = len(sys.argv) > 3
+if registration_checked:
+    code = pathlib.Path(sys.argv[3]).read_text()
+    assert 'Lcom/gharplan/app/ProjectFilesPlugin;' in code and 'registerPlugin(Ljava/lang/Class;)V' in code, 'Compiled app-owned export plugin registration missing'
 android = '{http://schemas.android.com/apk/res/android}'
 root = ET.parse(manifest).getroot()
 assert root.attrib['package'] == 'com.gharplan.app.debug', 'Wrong debug application ID'
@@ -34,13 +38,18 @@ with zipfile.ZipFile(apk) as archive:
     plugins = json.loads(archive.read('assets/capacitor.plugins.json'))
     assert any(p.get('pkg') == '@capacitor/filesystem' and p.get('classpath') == 'com.capacitorjs.plugins.filesystem.FilesystemPlugin' for p in plugins), 'Filesystem native plugin is not registered'
     assert any(b'com/capacitorjs/plugins/filesystem/FilesystemPlugin' in archive.read(n) for n in archive.namelist() if n.startswith('classes') and n.endswith('.dex')), 'Filesystem class is not packaged'
+    dex = [archive.read(n) for n in archive.namelist() if n.startswith('classes') and n.endswith('.dex')]
+    for class_name in ['ProjectFilesPlugin', 'ProjectFileStreams', 'ProjectFileSource']:
+        assert any(('com/gharplan/app/' + class_name).encode() in data for data in dex), 'App-owned file export class missing: ' + class_name
     assert application.attrib.get(android + 'dataExtractionRules') and application.attrib.get(android + 'fullBackupContent'), 'Explicit private-data backup/transfer policy is missing'
     assert len(archive.read('assets/public/index.html')) > 0
     names = archive.namelist()
-    for prefix in ['mesh.worker-', 'ThreeView-', 'PerfPage-', 'index-']:
+    for prefix in ['mesh.worker-', 'import.worker-', 'ThreeView-', 'PerfPage-', 'index-']:
         assert any(n.startswith('assets/public/assets/' + prefix) and n.endswith('.js') and archive.getinfo(n).file_size > 0 for n in names), prefix
 result = {'applicationId': root.attrib['package'], 'bytes': apk.stat().st_size,
           'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(), 'permissions': sorted(permissions),
-          'verified': ['decoded debug manifest flags and backup policy references', 'private local HTTPS configuration', 'packaged editor/worker/3D/performance assets', 'registered and packaged native Filesystem plugin'],
+          'verified': ['decoded debug manifest flags and backup policy references', 'private local HTTPS configuration', 'packaged editor/import-worker/3D/performance assets', 'registered and packaged native Filesystem plugin', 'packaged app-owned native file export classes'],
           'limitations': ['Compilation and packaging only; no emulator or phone run', 'Debug APK size is not Play AAB download size']}
+if registration_checked: result['verified'].append('compiled MainActivity invokes app-owned ProjectFiles plugin registration')
+else: result['limitations'].append('Compiled registration invocation not inspected; supply fresh apkanalyzer class disassembly as third argument')
 print(json.dumps(result, indent=2))
