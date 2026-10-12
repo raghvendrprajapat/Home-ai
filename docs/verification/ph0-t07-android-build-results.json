@@ -1,0 +1,86 @@
+{
+  "observedOn": "2026-10-12",
+  "task": "PH0-T07",
+  "sourceBase": "a7c7351686fd1480e06c8d565ca8c17bfdf745bf",
+  "sourceState": "uncommitted task branch; local artifact is not a clean commit certificate",
+  "webCheck": {
+    "filesPassed": 9,
+    "testsPassed": 136,
+    "durationSeconds": 18.07,
+    "schemaReproducibility": "passed",
+    "lint": "passed",
+    "typecheck": "passed",
+    "productionSync": "passed"
+  },
+  "nativeBuild": {
+    "result": "BUILD SUCCESSFUL",
+    "elapsedSeconds": 20,
+    "tasks": 125,
+    "executed": 48,
+    "upToDate": 77,
+    "jdk": "Temurin 21.0.12.1+1",
+    "gradle": "8.14.3",
+    "androidGradlePlugin": "8.13.0",
+    "minSdk": 24,
+    "targetSdk": 36,
+    "buildTools": [
+      "35.0.0",
+      "36.0.0"
+    ]
+  },
+  "apk": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 4680505,
+    "sha256": "bf4175c877402e0a977dc3eaf87bc32c41acd6bd3230c0f17e3472e6f29e9f01",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags",
+      "private local HTTPS configuration",
+      "packaged editor/worker/3D/performance assets"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "signatureVerification": {
+    "result": "Verifies",
+    "schemeV2": true,
+    "signers": 1,
+    "type": "local debug signature, not Play signing"
+  },
+  "lint": {
+    "errors": 0,
+    "warnings": 16,
+    "issueCounts": {
+      "ManifestOrder": 1,
+      "GradleDependency": 1,
+      "DataExtractionRules": 1,
+      "ObsoleteSdkInt": 1,
+      "UnusedResources": 7,
+      "MonochromeLauncherIcon": 2,
+      "IconDipSize": 1,
+      "IconDuplicatesConfig": 1,
+      "IconLocation": 1
+    }
+  },
+  "toolchainIntegrity": {
+    "temurinArchiveSha256": "ce79869e1307ed8ee1e2baa86a412b1eb5b75d10a01006d788a6f968bcfaee94",
+    "sdkCommandlineArchiveOfficialSha1": "e025545c62a8e64c7559119566a569fb1dec5f60",
+    "sdkCommandlineArchiveLocalSha256": "0877a1d048fe4a24efe2eff536ca4223f7adeb58648bb81909d33c446918cfa8",
+    "gradleDistributionSha256": "ed1a8d686605fd7c23bdf62c7fc7add1c5b23b2bbc3721e661934ef4a4911d7c",
+    "gradleWrapperJarSha256": "7d3a4ac4de1c32b59bc6a4eb8ecb8e612ccd0cf1ae1e99f66902da64df296172"
+  },
+  "limitations": [
+    "No emulator or physical Android execution",
+    "No Low/Mid sustained/thermal/kill-app result",
+    "Native export, durable save and explicit OEM transfer policy pending",
+    "Debug APK bytes are not compressed Play AAB delivery size",
+    "Gradle/dependency/template warnings retained, not suppressed",
+    "No connected Android instrumentation or unit test execution claimed",
+    "CI result will be recorded after PR, not inferred from local build"
+  ]
+}

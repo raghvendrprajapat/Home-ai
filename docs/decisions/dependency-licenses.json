@@ -1,17 +1,19 @@
 {
   "checkedOn": "2026-10-11",
   "method": "Official npm metadata for every resolved registry package before installation; bundled notices remain applicable.",
-  "packageCount": 226,
+  "packageCount": 309,
   "licenseCounts": {
-    "MIT": 172,
+    "MIT": 233,
     "MIT-0": 2,
-    "Apache-2.0": 18,
+    "Apache-2.0": 20,
+    "ISC": 15,
+    "Unlicense": 2,
+    "BlueOak-1.0.0": 11,
     "BSD-2-Clause": 8,
     "BSD-3-Clause": 4,
-    "ISC": 7,
     "MPL-2.0": 12,
-    "BlueOak-1.0.0": 2,
-    "CC0-1.0": 1
+    "CC0-1.0": 1,
+    "0BSD": 1
   },
   "unknown": [],
   "forbiddenCandidates": [],
@@ -63,6 +65,24 @@
       "version": "2.5.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/%40cacheable%2Futils/2.5.0"
+    },
+    {
+      "name": "@capacitor/android",
+      "version": "8.5.3",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fandroid/8.5.3"
+    },
+    {
+      "name": "@capacitor/cli",
+      "version": "8.5.3",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fcli/8.5.3"
+    },
+    {
+      "name": "@capacitor/core",
+      "version": "8.5.3",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fcore/8.5.3"
     },
     {
       "name": "@csstools/color-helpers",
@@ -189,6 +209,60 @@
       "version": "0.4.3",
       "license": "Apache-2.0",
       "source": "https://registry.npmjs.org/%40humanwhocodes%2Fretry/0.4.3"
+    },
+    {
+      "name": "@ionic/cli-framework-output",
+      "version": "2.2.8",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40ionic%2Fcli-framework-output/2.2.8"
+    },
+    {
+      "name": "@ionic/utils-array",
+      "version": "2.1.6",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40ionic%2Futils-array/2.1.6"
+    },
+    {
+      "name": "@ionic/utils-fs",
+      "version": "3.1.7",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40ionic%2Futils-fs/3.1.7"
+    },
+    {
+      "name": "@ionic/utils-object",
+      "version": "2.1.6",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40ionic%2Futils-object/2.1.6"
+    },
+    {
+      "name": "@ionic/utils-process",
+      "version": "2.1.12",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40ionic%2Futils-process/2.1.12"
+    },
+    {
+      "name": "@ionic/utils-stream",
+      "version": "3.1.7",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40ionic%2Futils-stream/3.1.7"
+    },
+    {
+      "name": "@ionic/utils-subprocess",
+      "version": "3.0.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40ionic%2Futils-subprocess/3.0.1"
+    },
+    {
+      "name": "@ionic/utils-terminal",
+      "version": "2.3.5",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40ionic%2Futils-terminal/2.3.5"
+    },
+    {
+      "name": "@isaacs/fs-minipass",
+      "version": "4.0.1",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/%40isaacs%2Ffs-minipass/4.0.1"
     },
     {
       "name": "@jridgewell/resolve-uri",
@@ -371,6 +445,12 @@
       "source": "https://registry.npmjs.org/%40types%2Festree/1.0.9"
     },
     {
+      "name": "@types/fs-extra",
+      "version": "8.1.5",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40types%2Ffs-extra/8.1.5"
+    },
+    {
       "name": "@types/json-schema",
       "version": "7.0.15",
       "license": "MIT",
@@ -393,6 +473,12 @@
       "version": "19.3.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/%40types%2Freact-dom/19.3.0"
+    },
+    {
+      "name": "@types/slice-ansi",
+      "version": "4.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40types%2Fslice-ansi/4.0.0"
     },
     {
       "name": "@types/stats.js",
@@ -491,6 +577,12 @@
       "source": "https://registry.npmjs.org/%40vitest%2Fspy/5.0.3"
     },
     {
+      "name": "@xmldom/xmldom",
+      "version": "0.9.12",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40xmldom%2Fxmldom/0.9.12"
+    },
+    {
       "name": "acorn",
       "version": "8.19.0",
       "license": "MIT",
@@ -528,6 +620,12 @@
     },
     {
       "name": "ansi-styles",
+      "version": "4.3.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/ansi-styles/4.3.0"
+    },
+    {
+      "name": "ansi-styles",
       "version": "5.2.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/ansi-styles/5.2.0"
@@ -545,10 +643,28 @@
       "source": "https://registry.npmjs.org/assertion-error/2.0.1"
     },
     {
+      "name": "astral-regex",
+      "version": "2.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/astral-regex/2.0.0"
+    },
+    {
+      "name": "at-least-node",
+      "version": "1.0.0",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/at-least-node/1.0.0"
+    },
+    {
       "name": "balanced-match",
       "version": "4.0.4",
       "license": "MIT",
       "source": "https://registry.npmjs.org/balanced-match/4.0.4"
+    },
+    {
+      "name": "base64-js",
+      "version": "1.5.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/base64-js/1.5.1"
     },
     {
       "name": "bidi-js",
@@ -557,10 +673,40 @@
       "source": "https://registry.npmjs.org/bidi-js/1.1.0"
     },
     {
+      "name": "big-integer",
+      "version": "1.6.52",
+      "license": "Unlicense",
+      "source": "https://registry.npmjs.org/big-integer/1.6.52"
+    },
+    {
+      "name": "bplist-creator",
+      "version": "0.1.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/bplist-creator/0.1.0"
+    },
+    {
+      "name": "bplist-parser",
+      "version": "0.3.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/bplist-parser/0.3.1"
+    },
+    {
+      "name": "bplist-parser",
+      "version": "0.3.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/bplist-parser/0.3.2"
+    },
+    {
       "name": "brace-expansion",
       "version": "5.0.12",
       "license": "MIT",
       "source": "https://registry.npmjs.org/brace-expansion/5.0.12"
+    },
+    {
+      "name": "buffer-crc32",
+      "version": "0.2.13",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/buffer-crc32/0.2.13"
     },
     {
       "name": "cacheable",
@@ -573,6 +719,30 @@
       "version": "6.3.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/chai/6.3.0"
+    },
+    {
+      "name": "chownr",
+      "version": "3.0.0",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/chownr/3.0.0"
+    },
+    {
+      "name": "color-convert",
+      "version": "2.0.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/color-convert/2.0.1"
+    },
+    {
+      "name": "color-name",
+      "version": "1.1.4",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/color-name/1.1.4"
+    },
+    {
+      "name": "commander",
+      "version": "12.1.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/commander/12.1.0"
     },
     {
       "name": "cross-spawn",
@@ -617,6 +787,12 @@
       "source": "https://registry.npmjs.org/deep-is/0.1.4"
     },
     {
+      "name": "define-lazy-prop",
+      "version": "2.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/define-lazy-prop/2.0.0"
+    },
+    {
       "name": "dequal",
       "version": "2.0.3",
       "license": "MIT",
@@ -635,10 +811,28 @@
       "source": "https://registry.npmjs.org/dom-accessibility-api/0.5.16"
     },
     {
+      "name": "elementtree",
+      "version": "0.1.7",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/elementtree/0.1.7"
+    },
+    {
+      "name": "emoji-regex",
+      "version": "8.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/emoji-regex/8.0.0"
+    },
+    {
       "name": "entities",
       "version": "8.1.0",
       "license": "BSD-2-Clause",
       "source": "https://registry.npmjs.org/entities/8.1.0"
+    },
+    {
+      "name": "env-paths",
+      "version": "2.2.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/env-paths/2.2.1"
     },
     {
       "name": "es-module-lexer",
@@ -749,6 +943,12 @@
       "source": "https://registry.npmjs.org/fast-uri/3.1.8"
     },
     {
+      "name": "fd-slicer",
+      "version": "1.1.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/fd-slicer/1.1.0"
+    },
+    {
       "name": "fdir",
       "version": "6.5.0",
       "license": "MIT",
@@ -785,16 +985,40 @@
       "source": "https://registry.npmjs.org/flatted/3.4.4"
     },
     {
+      "name": "fs-extra",
+      "version": "11.4.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/fs-extra/11.4.1"
+    },
+    {
+      "name": "fs-extra",
+      "version": "9.1.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/fs-extra/9.1.0"
+    },
+    {
       "name": "fsevents",
       "version": "2.3.3",
       "license": "MIT",
       "source": "https://registry.npmjs.org/fsevents/2.3.3"
     },
     {
+      "name": "glob",
+      "version": "13.0.6",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/glob/13.0.6"
+    },
+    {
       "name": "glob-parent",
       "version": "6.0.2",
       "license": "ISC",
       "source": "https://registry.npmjs.org/glob-parent/6.0.2"
+    },
+    {
+      "name": "graceful-fs",
+      "version": "4.2.11",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/graceful-fs/4.2.11"
     },
     {
       "name": "hashery",
@@ -845,10 +1069,34 @@
       "source": "https://registry.npmjs.org/imurmurhash/0.1.4"
     },
     {
+      "name": "inherits",
+      "version": "2.0.4",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/inherits/2.0.4"
+    },
+    {
+      "name": "ini",
+      "version": "4.1.3",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/ini/4.1.3"
+    },
+    {
+      "name": "is-docker",
+      "version": "2.2.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-docker/2.2.1"
+    },
+    {
       "name": "is-extglob",
       "version": "2.1.1",
       "license": "MIT",
       "source": "https://registry.npmjs.org/is-extglob/2.1.1"
+    },
+    {
+      "name": "is-fullwidth-code-point",
+      "version": "3.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-fullwidth-code-point/3.0.0"
     },
     {
       "name": "is-glob",
@@ -861,6 +1109,12 @@
       "version": "1.0.1",
       "license": "MIT",
       "source": "https://registry.npmjs.org/is-potential-custom-element-name/1.0.1"
+    },
+    {
+      "name": "is-wsl",
+      "version": "2.2.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/is-wsl/2.2.0"
     },
     {
       "name": "isexe",
@@ -899,10 +1153,28 @@
       "source": "https://registry.npmjs.org/json-stable-stringify-without-jsonify/1.0.1"
     },
     {
+      "name": "jsonfile",
+      "version": "6.2.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/jsonfile/6.2.1"
+    },
+    {
       "name": "keyv",
       "version": "5.6.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/keyv/5.6.0"
+    },
+    {
+      "name": "kleur",
+      "version": "3.0.3",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/kleur/3.0.3"
+    },
+    {
+      "name": "kleur",
+      "version": "4.1.5",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/kleur/4.1.5"
     },
     {
       "name": "konva",
@@ -1031,6 +1303,18 @@
       "source": "https://registry.npmjs.org/minimatch/10.2.6"
     },
     {
+      "name": "minipass",
+      "version": "7.1.3",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/minipass/7.1.3"
+    },
+    {
+      "name": "minizlib",
+      "version": "3.1.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/minizlib/3.1.0"
+    },
+    {
       "name": "ms",
       "version": "2.1.3",
       "license": "MIT",
@@ -1043,6 +1327,12 @@
       "source": "https://registry.npmjs.org/nanoid/3.3.20"
     },
     {
+      "name": "native-run",
+      "version": "2.0.3",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/native-run/2.0.3"
+    },
+    {
       "name": "natural-compare",
       "version": "1.4.0",
       "license": "MIT",
@@ -1053,6 +1343,12 @@
       "version": "2.2.1",
       "license": "MIT",
       "source": "https://registry.npmjs.org/obug/2.2.1"
+    },
+    {
+      "name": "open",
+      "version": "8.4.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/open/8.4.2"
     },
     {
       "name": "optionator",
@@ -1073,6 +1369,12 @@
       "source": "https://registry.npmjs.org/p-locate/5.0.0"
     },
     {
+      "name": "package-json-from-dist",
+      "version": "1.0.1",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/package-json-from-dist/1.0.1"
+    },
+    {
       "name": "parse5",
       "version": "8.0.1",
       "license": "MIT",
@@ -1091,6 +1393,18 @@
       "source": "https://registry.npmjs.org/path-key/3.1.1"
     },
     {
+      "name": "path-scurry",
+      "version": "2.0.2",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/path-scurry/2.0.2"
+    },
+    {
+      "name": "pend",
+      "version": "1.2.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/pend/1.2.0"
+    },
+    {
       "name": "picocolors",
       "version": "1.1.1",
       "license": "ISC",
@@ -1101,6 +1415,12 @@
       "version": "4.0.7",
       "license": "MIT",
       "source": "https://registry.npmjs.org/picomatch/4.0.7"
+    },
+    {
+      "name": "plist",
+      "version": "3.1.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/plist/3.1.1"
     },
     {
       "name": "postcss",
@@ -1119,6 +1439,12 @@
       "version": "27.5.1",
       "license": "MIT",
       "source": "https://registry.npmjs.org/pretty-format/27.5.1"
+    },
+    {
+      "name": "prompts",
+      "version": "2.4.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/prompts/2.4.2"
     },
     {
       "name": "punycode",
@@ -1157,16 +1483,46 @@
       "source": "https://registry.npmjs.org/react-is/17.0.2"
     },
     {
+      "name": "readable-stream",
+      "version": "3.6.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/readable-stream/3.6.2"
+    },
+    {
       "name": "require-from-string",
       "version": "2.0.2",
       "license": "MIT",
       "source": "https://registry.npmjs.org/require-from-string/2.0.2"
     },
     {
+      "name": "rimraf",
+      "version": "6.1.3",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/rimraf/6.1.3"
+    },
+    {
       "name": "rolldown",
       "version": "1.2.13",
       "license": "MIT",
       "source": "https://registry.npmjs.org/rolldown/1.2.13"
+    },
+    {
+      "name": "safe-buffer",
+      "version": "5.2.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/safe-buffer/5.2.1"
+    },
+    {
+      "name": "sax",
+      "version": "1.1.4",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/sax/1.1.4"
+    },
+    {
+      "name": "sax",
+      "version": "1.6.1",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/sax/1.6.1"
     },
     {
       "name": "saxes",
@@ -1199,10 +1555,40 @@
       "source": "https://registry.npmjs.org/shebang-regex/3.0.0"
     },
     {
+      "name": "signal-exit",
+      "version": "3.0.7",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/signal-exit/3.0.7"
+    },
+    {
+      "name": "simple-plist",
+      "version": "1.3.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/simple-plist/1.3.1"
+    },
+    {
+      "name": "sisteransi",
+      "version": "1.0.5",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/sisteransi/1.0.5"
+    },
+    {
+      "name": "slice-ansi",
+      "version": "4.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/slice-ansi/4.0.0"
+    },
+    {
       "name": "source-map-js",
       "version": "1.2.2",
       "license": "BSD-3-Clause",
       "source": "https://registry.npmjs.org/source-map-js/1.2.2"
+    },
+    {
+      "name": "split2",
+      "version": "4.2.0",
+      "license": "ISC",
+      "source": "https://registry.npmjs.org/split2/4.2.0"
     },
     {
       "name": "std-env",
@@ -1211,10 +1597,46 @@
       "source": "https://registry.npmjs.org/std-env/4.3.0"
     },
     {
+      "name": "stream-buffers",
+      "version": "2.2.0",
+      "license": "Unlicense",
+      "source": "https://registry.npmjs.org/stream-buffers/2.2.0"
+    },
+    {
+      "name": "string-width",
+      "version": "4.2.3",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/string-width/4.2.3"
+    },
+    {
+      "name": "string_decoder",
+      "version": "1.3.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/string_decoder/1.3.0"
+    },
+    {
+      "name": "strip-ansi",
+      "version": "6.0.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/strip-ansi/6.0.1"
+    },
+    {
+      "name": "tar",
+      "version": "7.5.22",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/tar/7.5.22"
+    },
+    {
       "name": "three",
       "version": "0.186.1",
       "license": "MIT",
       "source": "https://registry.npmjs.org/three/0.186.1"
+    },
+    {
+      "name": "through2",
+      "version": "4.0.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/through2/4.0.2"
     },
     {
       "name": "tinybench",
@@ -1259,10 +1681,22 @@
       "source": "https://registry.npmjs.org/tr46/7.0.0"
     },
     {
+      "name": "tree-kill",
+      "version": "1.2.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/tree-kill/1.2.2"
+    },
+    {
       "name": "ts-api-utils",
       "version": "2.5.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/ts-api-utils/2.5.0"
+    },
+    {
+      "name": "tslib",
+      "version": "2.8.1",
+      "license": "0BSD",
+      "source": "https://registry.npmjs.org/tslib/2.8.1"
     },
     {
       "name": "type-check",
@@ -1295,10 +1729,34 @@
       "source": "https://registry.npmjs.org/undici-types/7.24.6"
     },
     {
+      "name": "universalify",
+      "version": "2.0.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/universalify/2.0.1"
+    },
+    {
+      "name": "untildify",
+      "version": "4.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/untildify/4.0.0"
+    },
+    {
       "name": "uri-js",
       "version": "4.4.1",
       "license": "BSD-2-Clause",
       "source": "https://registry.npmjs.org/uri-js/4.4.1"
+    },
+    {
+      "name": "util-deprecate",
+      "version": "1.0.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/util-deprecate/1.0.2"
+    },
+    {
+      "name": "uuid",
+      "version": "7.0.3",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/uuid/7.0.3"
     },
     {
       "name": "vite",
@@ -1355,16 +1813,58 @@
       "source": "https://registry.npmjs.org/word-wrap/1.2.5"
     },
     {
+      "name": "wrap-ansi",
+      "version": "7.0.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/wrap-ansi/7.0.0"
+    },
+    {
+      "name": "xcode",
+      "version": "3.0.1",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/xcode/3.0.1"
+    },
+    {
       "name": "xml-name-validator",
       "version": "5.0.0",
       "license": "Apache-2.0",
       "source": "https://registry.npmjs.org/xml-name-validator/5.0.0"
     },
     {
+      "name": "xml2js",
+      "version": "0.6.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/xml2js/0.6.2"
+    },
+    {
+      "name": "xmlbuilder",
+      "version": "11.0.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/xmlbuilder/11.0.1"
+    },
+    {
+      "name": "xmlbuilder",
+      "version": "15.1.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/xmlbuilder/15.1.1"
+    },
+    {
       "name": "xmlchars",
       "version": "2.2.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/xmlchars/2.2.0"
+    },
+    {
+      "name": "yallist",
+      "version": "5.0.0",
+      "license": "BlueOak-1.0.0",
+      "source": "https://registry.npmjs.org/yallist/5.0.0"
+    },
+    {
+      "name": "yauzl",
+      "version": "2.10.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/yauzl/2.10.0"
     },
     {
       "name": "yocto-queue",
