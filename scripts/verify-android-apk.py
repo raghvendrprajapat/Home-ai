@@ -31,12 +31,16 @@ with zipfile.ZipFile(apk) as archive:
     assert config['android'].get('allowMixedContent') is False
     assert 'webContentsDebuggingEnabled' not in config['android'], 'Debugging must use native build flag'
     assert config['appId'] == 'com.gharplan.app' and config['webDir'] == 'dist'
+    plugins = json.loads(archive.read('assets/capacitor.plugins.json'))
+    assert any(p.get('pkg') == '@capacitor/filesystem' and p.get('classpath') == 'com.capacitorjs.plugins.filesystem.FilesystemPlugin' for p in plugins), 'Filesystem native plugin is not registered'
+    assert any(b'com/capacitorjs/plugins/filesystem/FilesystemPlugin' in archive.read(n) for n in archive.namelist() if n.startswith('classes') and n.endswith('.dex')), 'Filesystem class is not packaged'
+    assert application.attrib.get(android + 'dataExtractionRules') and application.attrib.get(android + 'fullBackupContent'), 'Explicit private-data backup/transfer policy is missing'
     assert len(archive.read('assets/public/index.html')) > 0
     names = archive.namelist()
     for prefix in ['mesh.worker-', 'ThreeView-', 'PerfPage-', 'index-']:
         assert any(n.startswith('assets/public/assets/' + prefix) and n.endswith('.js') and archive.getinfo(n).file_size > 0 for n in names), prefix
 result = {'applicationId': root.attrib['package'], 'bytes': apk.stat().st_size,
           'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(), 'permissions': sorted(permissions),
-          'verified': ['decoded debug manifest flags', 'private local HTTPS configuration', 'packaged editor/worker/3D/performance assets'],
+          'verified': ['decoded debug manifest flags and backup policy references', 'private local HTTPS configuration', 'packaged editor/worker/3D/performance assets', 'registered and packaged native Filesystem plugin'],
           'limitations': ['Compilation and packaging only; no emulator or phone run', 'Debug APK size is not Play AAB download size']}
 print(json.dumps(result, indent=2))

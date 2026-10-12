@@ -579,3 +579,9 @@ select {
     line-height:1.8
   }
 }
+.local-saving { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e0e6df; }
+.local-saving p { font-size: .82rem; line-height: 1.5; }
+.local-saving [data-phase="error"], .local-saving [data-phase="conflict"], .local-saving [data-phase="partial"] { color: #923c25; }
+.backup-copy textarea { width: 100%; box-sizing: border-box; }
+.recovery-panel { max-width: 48rem; margin: 2rem auto; padding: 1.5rem; background: #fff; border-radius: 1rem; }
+.recovery-panel button { margin: .4rem; padding: .6rem 1rem; }

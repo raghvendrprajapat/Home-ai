@@ -4,6 +4,8 @@ import { formatArea } from '@gharplan/geometry';
 import sample from '../../../docs/examples/sample-project.json';
 import { PlanCanvas } from './editor/PlanCanvas';
 import { junctionMoves } from './editor/view2d';
+import { SaveControls } from './storage/SaveControls';
+import type { WorkspaceSession } from './storage/workspace';
 import './app.css';
 const ThreeView = lazy(() => import('./render3d/ThreeView').catch(() => ({ default: () =>
   <div className="plan-canvas"><div className="three-status" role="status">The 3D engine could not load. Switch to 2D to continue; your drawing is unchanged.</div></div> })));
@@ -13,9 +15,9 @@ function createDemo(): ProjectStore {
   if (!parsed.ok) throw new Error('Bundled sample project failed validation.');
   return new ProjectStore(parsed.document, `editor_${crypto.randomUUID()}`);
 }
-export function App() {
-  const [store] = useState(createDemo), snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
-  const [selected, setSelected] = useState('j2'), [message, setMessage] = useState('Choose a corner and make this space your own.');
+export function App({ session }: { session?: WorkspaceSession } = {}) {
+  const [store] = useState(() => session?.store ?? createDemo()), snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
+  const [selected, setSelected] = useState(() => store.getSnapshot().document.junctions[1]?.id ?? ''), [message, setMessage] = useState('Choose a corner and make this space your own.');
   const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0);
   const [view, setView] = useState<'2d' | '3d'>('2d');
   const corner = snapshot.document.junctions.find(j => j.id === selected);
@@ -32,10 +34,10 @@ export function App() {
   return <main className="workspace">
     <header className="app-header">
       <div className="brand"><span className="brand-mark" aria-hidden="true">⌂</span><h1>GharPlan</h1><span className="brand-tag">MAKE ROOM FOR YOUR IDEAS</span></div>
-      <div className="memory-status"><span aria-hidden="true" /> Demo · in memory only</div>
+      <div className="memory-status"><span aria-hidden="true" /> {session?.saving ? 'Local drawing · no cloud account needed' : 'Demo · in memory only'}</div>
     </header>
     <section className="project-bar" aria-label="Project information">
-      <div><span className="eyebrow">YOUR WORKSPACE</span><h2>A place to call home<span className="project-label">Sample 1BHK</span></h2></div>
+      <div><span className="eyebrow">YOUR WORKSPACE</span><h2>{snapshot.document.name}<span className="project-label">One floor</span></h2></div>
       <div className="plan-summary"><span>{snapshot.document.rooms.length} rooms</span><strong data-testid="total-area">{formatArea(totalArea)} <small>m² clear area</small></strong></div>
     </section>
     <div className="editor-layout">
@@ -48,6 +50,7 @@ export function App() {
         <footer className="editor-footer"><span role="status" aria-live="polite">{message}</span><span>Ground floor · mm</span></footer>
       </section>
       <aside className="inspector" aria-label="Plan controls">
+        <SaveControls store={store} {...(session ? { session } : {})} />
         <div className="inspector-title"><span className="eyebrow">PRECISION FIRST</span><h3>Shape your space</h3><p>Move a corner. Connected walls stay aligned, and room areas update together.</p></div>
         <div className="history-buttons"><button disabled={!snapshot.canUndo} onClick={() => { store.undo(); setMessage('Last edit undone.'); }} aria-label="Undo">↶ &nbsp; Undo</button><button disabled={!snapshot.canRedo} onClick={() => { store.redo(); setMessage('Edit restored.'); }} aria-label="Redo">↷ &nbsp; Redo</button></div>
         <form onSubmit={event => {
@@ -67,6 +70,6 @@ export function App() {
         <div className="tip"><span aria-hidden="true">✦</span><p><strong>Measured, not guessed.</strong><br />Areas exclude the actual wall thickness. Undo restores the complete drawing.</p></div>
       </aside>
     </div>
-    <div className="workbench-note">This is an editable proof of concept. Download and autosave arrive with the saving task; reloading currently restores the sample.</div>
+    <div className="workbench-note">{session ? 'Keep exported backups. Clearing app data or uninstalling can delete local drawings.' : 'Editable in-memory proof. Reload restores the sample; export before closing.'}</div>
   </main>;
 }

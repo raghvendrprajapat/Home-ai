@@ -1,6 +1,6 @@
 import { applyGeometry, GeometryError } from '@gharplan/geometry';
 import type { DerivedPlan } from '@gharplan/geometry';
-import { applyPatches, enablePatches, freeze, produce, produceWithPatches } from 'immer';
+import { applyPatches, enablePatches, freeze, produceWithPatches } from 'immer';
 import type { Immutable, Patch } from 'immer';
 import { applyCommand } from './commands';
 import type { Command } from './commands';
@@ -10,6 +10,7 @@ import type { AsyncTag, ProjectDoc, ValidationIssue } from './types';
 
 enablePatches();
 export interface EditorSnapshot { document: ProjectDoc; derived: DerivedPlan; localGeneration: number; sessionId: string; canUndo: boolean; canRedo: boolean; historyTruncated: boolean }
+export interface ModelChange { document: Immutable<ProjectDoc>; patches: readonly Patch[]; source: 'command' | 'undo' | 'redo' | 'server'; localGeneration: number; sessionId: string }
 export type CommitResult = { ok: true; changed: boolean; changedIds: string[]; patches: Patch[]; inverse: Patch[]; checkRoomNamesHint: boolean } |
   { ok: false; errors: ValidationIssue[] };
 export type PreviewResult = { ok: true; document: Immutable<ProjectDoc>; derived: Immutable<DerivedPlan> } | { ok: false; errors: ValidationIssue[] };
@@ -27,7 +28,7 @@ function errorMessage(error: unknown): string {
 export class ProjectStore {
   #now: () => string; #document: ProjectDoc; #derived: DerivedPlan; #generation = 0; #sessionId: string;
   #undo: HistoryEntry[] = []; #redo: HistoryEntry[] = []; #historyBytes = 0; #truncated = false;
-  #listeners = new Set<() => void>(); #listenerErrors: string[] = []; #publishing = false; #snapshot: Immutable<EditorSnapshot>;
+  #listeners = new Set<() => void>(); #changes = new Set<(change: Immutable<ModelChange>) => void>(); #listenerErrors: string[] = []; #publishing = false; #snapshot: Immutable<EditorSnapshot>;
   constructor(document: ProjectDoc, sessionId: string, options: { now?: () => string } = {}) {
     const errors = validateProject(document); if (errors.length) throw new GeometryError('project', errors.map(e => e.message).join('; '));
     if (!sessionId) throw new GeometryError('session', 'An editor session ID is required.');
@@ -39,10 +40,14 @@ export class ProjectStore {
     return freeze({ document: this.#document, derived: this.#derived, localGeneration: this.#generation, sessionId: this.#sessionId,
       canUndo: this.#undo.length > 0, canRedo: this.#redo.length > 0, historyTruncated: this.#truncated }, true);
   }
-  #publish(): void {
+  #publish(patches: readonly Patch[], source: ModelChange['source']): void {
     this.#snapshot = this.#makeSnapshot();
     this.#publishing = true;
     try {
+      const change = freeze({ document: this.#document, patches, source, localGeneration: this.#generation, sessionId: this.#sessionId }, true);
+      for (const listener of [...this.#changes]) {
+        try { listener(change); } catch (error) { this.#listenerErrors.push(errorMessage(error)); this.#listenerErrors = this.#listenerErrors.slice(-20); }
+      }
       for (const listener of [...this.#listeners]) {
         try { listener(); } catch (error) { this.#listenerErrors.push(errorMessage(error)); this.#listenerErrors = this.#listenerErrors.slice(-20); }
       }
@@ -51,6 +56,7 @@ export class ProjectStore {
   getListenerErrors(): readonly string[] { return [...this.#listenerErrors]; }
   getSnapshot = (): Immutable<EditorSnapshot> => this.#snapshot;
   subscribe = (listener: () => void): (() => void) => { this.#listeners.add(listener); return () => this.#listeners.delete(listener); };
+  subscribeChanges = (listener: (change: Immutable<ModelChange>) => void): (() => void) => { this.#changes.add(listener); return () => this.#changes.delete(listener); };
   /** Isolated Phase 0 candidate: use the exact commit rules without changing this store. */
   preview(command: Command): PreviewResult {
     if (!command || typeof command !== 'object' || command.baseGeneration !== this.#generation) return { ok: false, errors: [{ code: 'stale', message: 'This preview was based on an older project.', entityIds: [] }] };
@@ -80,7 +86,7 @@ export class ProjectStore {
       freeze(entry, true);
       this.#redo = []; this.#undo.push(entry); this.#historyBytes = this.#undo.reduce((s, e) => s + e.bytes, 0);
       while (this.#historyBytes > HISTORY_LIMIT && this.#undo.length > 1) { this.#historyBytes -= this.#undo.shift()!.bytes; this.#truncated = true; }
-      this.#document = next; this.#derived = derived; this.#generation++; this.#publish();
+      this.#document = next; this.#derived = derived; this.#generation++; this.#publish(patches, 'command');
       return { ok: true, changed: true, changedIds: effects.changedIds, patches, inverse, checkRoomNamesHint: effects.checkRoomNamesHint };
     } catch (error) {
       return { ok: false, errors: [{ code: error instanceof GeometryError ? error.code : 'command', message: error instanceof Error ? error.message : 'Edit failed.', entityIds: error instanceof GeometryError ? error.entityIds : [] }] };
@@ -94,7 +100,7 @@ export class ProjectStore {
     const errors = validateProject(next); if (errors.length) throw new GeometryError('history', 'History would produce an invalid document.');
     const derived = freeze(deriveDocument(next), true);
     source.pop(); (direction === 'undo' ? this.#redo : this.#undo).push(entry);
-    this.#document = next; this.#derived = derived; this.#generation++; this.#publish(); return true;
+    this.#document = next; this.#derived = derived; this.#generation++; this.#publish(patches, direction); return true;
   }
   undo(): boolean { return this.#history('undo'); }
   redo(): boolean { return this.#history('redo'); }
@@ -102,7 +108,8 @@ export class ProjectStore {
     if (this.#publishing) return false;
     if (!Number.isSafeInteger(expectedPreviousRevision) || !Number.isSafeInteger(confirmedRevision) || expectedPreviousRevision < 0 ||
       confirmedRevision !== expectedPreviousRevision + 1 || this.#document.revision !== expectedPreviousRevision) return false;
-    this.#document = produce(this.#document, draft => { draft.revision = confirmedRevision; }); this.#publish(); return true;
+    const [document, patches] = produceWithPatches(this.#document, draft => { draft.revision = confirmedRevision; });
+    this.#document = document; this.#publish(patches, 'server'); return true;
   }
   asyncTag(dependencies: unknown = this.#document): AsyncTag {
     return { projectId: this.#document.id, sessionId: this.#sessionId, localGeneration: this.#generation, dependencyHash: dependencyHash(dependencies) };

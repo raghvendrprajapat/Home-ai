@@ -1,0 +1,17 @@
+{
+  "name": "@gharplan/persistence",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "license": "UNLICENSED",
+  "exports": { ".": "./src/index.ts" },
+  "scripts": { "typecheck": "tsc --project tsconfig.json" },
+  "dependencies": {
+    "@capacitor/core": "8.5.3",
+    "@capacitor/filesystem": "8.1.4",
+    "@gharplan/core-model": "workspace:*",
+    "@gharplan/geometry": "workspace:*",
+    "immer": "11.1.21"
+  },
+  "devDependencies": { "fake-indexeddb": "6.2.5" }
+}

@@ -1,0 +1,105 @@
+{
+  "observedOn": "2026-10-12",
+  "task": "PH0-T08",
+  "baseCommit": "4ac14e94862edc73e6ef554ee449d9203fe4ccbb",
+  "attribution": "Codex analytic/property/fault-injection tests and fresh read-only Codex review; not independent Claude fixtures",
+  "check": {
+    "testFiles": 10,
+    "testsPassed": 159,
+    "durationSeconds": 19.09,
+    "sdkRegressionPassed": 1,
+    "skipped": 0
+  },
+  "browser": {
+    "checks": [
+      "fresh production startup creates a completed initial IndexedDB checkpoint",
+      "accepted wall edit autosaves and exports schema-valid integer geometry; rounded area labels match",
+      "newer journal prompts before editing; cancel preserves bytes/meta; explicit restore returns latest geometry",
+      "restored document renders through a fresh worker/session and both views share the same model",
+      "real second tab loses CAS, retains exportable memory and cannot overwrite winner on retry or pagehide",
+      "injected quota failure rolls back real transaction, warns, keeps memory/export and retries after fault removal",
+      "corrupt sole checkpoint prevents replacement; explicit separate sample remaps all IDs and retains original meta/corrupt bytes",
+      "injected Android export UI keeps complete JSON and handles a missing clipboard API without a crash"
+    ],
+    "pageErrors": [],
+    "saveMilliseconds": [
+      371.0830199997872
+    ],
+    "limitations": [
+      "Linux Chromium, not an Android WebView or phone",
+      "Quota failure is injected into the real transaction API",
+      "No physical 100-cycle kill or <=2s phone-loss guarantee"
+    ],
+    "browser": "151.0.7922.173"
+  },
+  "ownedBrowserProcessDeath": {
+    "browserCycles": [
+      {
+        "point": "after saved/transaction complete",
+        "restoredX": 4600,
+        "seq": 1,
+        "result": "exact committed metadata/journal survived SIGKILL"
+      },
+      {
+        "point": "immediate post-edit before scheduled save attempt",
+        "editToKillMs": 86.12134598661214,
+        "restoredX": 4600,
+        "seq": 1,
+        "result": "valid old/new state; recent unsaved edit may be absent"
+      },
+      {
+        "point": "real journal put / active transaction handler",
+        "restoredX": 4600,
+        "seq": 1,
+        "result": "no dangling journal rows or invalid canonical state after SIGKILL"
+      }
+    ],
+    "profile": "/tmp/gharplan-owned-crash-profile-1jcj5l_0",
+    "limitations": [
+      "Linux Chromium process-death evidence, not Android/WebView",
+      "Three diagnostic cycles, not the required physical 100-cycle gate",
+      "During-write window uses a test-only binding and 300ms handler stall; old or new atomic state is accepted"
+    ],
+    "browser": "151.0.7922.173"
+  },
+  "android": {
+    "build": "BUILD SUCCESSFUL in 27s",
+    "actionableTasks": 166,
+    "executedTasks": 40,
+    "upToDateTasks": 126,
+    "lintErrors": 0,
+    "lintWarnings": 15,
+    "apk": {
+      "applicationId": "com.gharplan.app.debug",
+      "bytes": 8113837,
+      "sha256": "49cd517fcdd89c6ea2ed25a2b65df45e7df6848eda87420da0b57813e6a71b25",
+      "permissions": [
+        "android.permission.INTERNET",
+        "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+      ],
+      "verified": [
+        "decoded debug manifest flags and backup policy references",
+        "private local HTTPS configuration",
+        "packaged editor/worker/3D/performance assets",
+        "registered and packaged native Filesystem plugin"
+      ],
+      "limitations": [
+        "Compilation and packaging only; no emulator or phone run",
+        "Debug APK size is not Play AAB download size"
+      ]
+    },
+    "signature": "v2; one local debug signer",
+    "compiledBackupResources": "aapt2 decoded nine domain exclusions in full-backup, cloud-backup and device-transfer"
+  },
+  "sampleSchemaErrors": 0,
+  "protectedHashesUnchanged": 39,
+  "pending": [
+    "Physical Android/WebView execution and 100-cycle REL-002 gate",
+    "<=2s phone edit loss and p95<=500ms durable journal targets",
+    "Native Filesystem fsync/power-loss and OEM transfer behavior",
+    "pm clear/private/full device scenarios; full import/cloud restore UI",
+    "Native file download/share; current native fallback retains complete JSON",
+    "Specialist and final Claude review; commercial release gates"
+  ],
+  "regression": "Unsafe ready-marker filename reproduced original-document pruning before fix; new unchanged preservation case passes in full159-test run."
+}
