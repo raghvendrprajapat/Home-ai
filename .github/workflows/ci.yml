@@ -78,15 +78,16 @@ jobs:
           "$task_sdk_bin/sdkmanager" --sdk_root="$ANDROID_HOME" 'platforms;android-36' 'build-tools;35.0.0' 'build-tools;36.0.0'
       - name: Build and lint debug APK
         working-directory: apps/web/android
-        run: ./gradlew --no-daemon --max-workers=2 :app:assembleDebug :app:lintDebug
+        run: ./gradlew --no-daemon --max-workers=2 :app:assembleDebug :app:lintDebug :app:testDebugUnitTest
       - name: Record APK and dependency evidence
         working-directory: apps/web/android
         run: |
           ./gradlew --no-daemon --max-workers=2 :app:dependencies --configuration debugRuntimeClasspath > app/build/outputs/native-dependencies.txt
           sha256sum app/build/outputs/apk/debug/app-debug.apk > app/build/outputs/apk/debug/app-debug.apk.sha256
           "$GHARPLAN_ANDROID_SDK_BIN/apkanalyzer" manifest print app/build/outputs/apk/debug/app-debug.apk > app/build/outputs/apk/debug/manifest.xml
+          "$GHARPLAN_ANDROID_SDK_BIN/apkanalyzer" dex code --class com.gharplan.app.MainActivity app/build/outputs/apk/debug/app-debug.apk > app/build/outputs/apk/debug/registration.txt
           "$ANDROID_HOME/build-tools/36.0.0/apksigner" verify --verbose app/build/outputs/apk/debug/app-debug.apk
-          python ../../../scripts/verify-android-apk.py app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/manifest.xml > app/build/outputs/apk/debug/verification.json
+          python ../../../scripts/verify-android-apk.py app/build/outputs/apk/debug/app-debug.apk app/build/outputs/apk/debug/manifest.xml app/build/outputs/apk/debug/registration.txt > app/build/outputs/apk/debug/verification.json
       - name: Retain debug APK and build evidence
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
@@ -97,4 +98,5 @@ jobs:
             apps/web/android/app/build/outputs/apk/debug/
             apps/web/android/app/build/reports/lint-results-debug.*
             apps/web/android/app/build/outputs/native-dependencies.txt
+            apps/web/android/app/build/test-results/testDebugUnitTest/
             apps/web/dist/
