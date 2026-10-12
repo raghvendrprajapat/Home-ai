@@ -1,5 +1,6 @@
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { dependencyHash, ProjectStore } from '@gharplan/core-model';
+import { Capacitor } from '@capacitor/core';
 import type { AsyncTag, ProjectDoc } from '@gharplan/core-model';
 import { PlanCanvas } from '../editor/PlanCanvas';
 import { junctionMoves } from '../editor/view2d';
@@ -84,7 +85,10 @@ export default function PerfPage() {
     runInput.current = { document: structuredClone(snapshot.document) as ProjectDoc, tag: store.asyncTag(), device: { ...device }, scriptedEdits: mode === '3d' && scriptedEdits, autoOrbit: mode === '3d', selected, fixtureKind: kind, viewport: { width: innerWidth, height: innerHeight, devicePixelRatio }, viewportChanges: [], history: { canUndo: snapshot.canUndo, canRedo: snapshot.canRedo, truncated: snapshot.historyTruncated } };
     run.current = new BenchmarkRun(mode, performance.now(), warmup, duration); heapStart.current = heapReading(performance); setElapsed(0); setRunning(true); setLatest(null); setMessage(mode === '2d' ? 'Drag a corner repeatedly through the measured period. Frame/preview timings exclude warm-up.' : 'Automatic orbit is active. Scripted edits, if selected, move a wall once per second.');
   };
-  const download = () => { const blob = new Blob([JSON.stringify({ reports }, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = 'gharplan-performance.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000); };
+  const download = () => {
+    if (Capacitor.getPlatform() === 'android') { setMessage('Android JSON download is not implemented yet. Keep this page open and retrieve its recorded JSON through the USB inspection steps in the benchmark guide.'); return; }
+    const blob = new Blob([JSON.stringify({ reports }, null, 2)], { type: 'application/json' }), url = URL.createObjectURL(blob), link = document.createElement('a'); link.href = url; link.download = 'gharplan-performance.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+  };
   const recordEndingThermal = () => setReports(all => all.map((report, i) => { if (i !== all.length - 1) return report; const d = { ...report.device, thermalEnd: device.thermalEnd }; return { ...report, device: { ...d, complete: metadataComplete(d) }, endingThermalAnnotation: { recordedAt: new Date().toISOString(), source: 'tester-reported-after-run' } }; }));
   return <main className="perf-page">
     <header><div><span className="eyebrow">ENGINEERING TEST PAGE</span><h1>GharPlan performance lab</h1><p>Local measurements from disposable projects. No data is uploaded.</p></div><a href="/">Back to editor</a></header>
