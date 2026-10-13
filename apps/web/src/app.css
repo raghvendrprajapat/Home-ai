@@ -16,13 +16,14 @@ button,input,select {
   font:inherit
 }
 button {
+  min-width:48px;
   cursor:pointer;
   border:1px solid #dbe3dc;
   background:white;
   border-radius:8px;
   padding:9px 14px;
   color:#355343;
-  min-height:44px
+  min-height:48px
 }
 button:hover:not(:disabled) {
   background:#eef4ee;
@@ -179,7 +180,7 @@ small {
 }
 .view-tabs button {
   border:0;
-  min-height:44px;
+  min-height:48px;
   font-size:12px;
   padding:8px 12px;
   white-space:nowrap
@@ -221,7 +222,7 @@ small {
   padding:7px 10px
 }
 .canvas-actions label {
-  min-height:44px;
+  min-height:48px;
   display:flex;
   gap:6px;
   align-items:center;
@@ -324,7 +325,7 @@ select {
   border-radius:7px;
   background:#fbfcf9;
   color:#405b47;
-  min-height:44px
+  min-height:48px
 }
 .coordinate-fields {
   display:grid;
@@ -350,7 +351,7 @@ select {
   background:#fbfcf9;
   color:#34573d;
   font-size:14px;
-  min-height:44px
+  min-height:48px
 }
 .primary-button {
   width:100%;
@@ -586,7 +587,7 @@ select {
 .recovery-panel { max-width: 48rem; margin: 2rem auto; padding: 1.5rem; background: #fff; border-radius: 1rem; }
 .recovery-panel button { margin: .4rem; padding: .6rem 1rem; }
 .shell-nav, .project-list-actions, .project-card-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
-.shell-nav button, .shell-page button, .project-dialog button, .shell-page select, .project-dialog input, .project-dialog select { min-height: 44px; padding: .6rem .85rem; }
+.shell-nav button, .shell-page button, .project-dialog button, .shell-page select, .project-dialog input, .project-dialog select { min-height:48px; padding: .6rem .85rem; }
 .shell-nav button, .shell-page button, .project-dialog button { border: 1px solid #ced9d0; border-radius: .55rem; background: #fff; color: #294c35; cursor: pointer; }
 .shell-page .primary-button, .project-dialog .primary-button { background: #315b40; color: #fff; }
 .shell-page button:disabled, .project-dialog button:disabled { opacity: .5; cursor: wait; }
@@ -610,3 +611,9 @@ select {
   .shell-page > section { padding: 1rem; }
   .project-cards { grid-template-columns: 1fr; }
 }
+
+.touch-loupe { position:absolute; width:100px; pointer-events:none; z-index:5; display:flex; flex-direction:column; align-items:center; padding:2px; border-radius:50px 50px 8px 8px; background:#fff; box-shadow:0 3px 18px #19392c44; }
+.touch-loupe svg { border-radius:50%; overflow:hidden; }
+.touch-loupe span { font-size:10px; line-height:20px; white-space:nowrap; color:#42534b; }
+
+label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items:center; gap:8px; }
