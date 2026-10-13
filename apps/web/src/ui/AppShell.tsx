@@ -3,6 +3,7 @@ import { createBlankProject, ProjectStore, recoveryCopy, serializeProject } from
 import type { ProjectDoc } from '@gharplan/core-model';
 import { recover, sameHead } from '@gharplan/persistence';
 import type { ProjectMeta, Recovered } from '@gharplan/persistence';
+import { DiagnosticSettings } from '../diagnostics/Settings';
 import { App } from '../App';
 import { message } from '../i18n/messages';
 import type { MessageArgs, MessageKey } from '../i18n/messages';
@@ -134,7 +135,7 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
   if (screen === 'editor' && session) return <><App key={session.store.getSnapshot().sessionId} session={session} navigation={navigation} />{error && <p className="shell-alert" role="alert">{message(ui.locale, error)}</p>}</>;
   return <main className="workspace shell-page"><header className="app-header"><h1>GharPlan</h1>{navigation}</header>
     {error && <p role="alert">{message(ui.locale, error)}</p>}
-    {screen === 'settings' ? <section className="settings-card"><h2>{t('settings')}</h2><p>{t('settingsText')}</p>{language}<label className="field-label">{t('defaultUnits')}<select aria-label={t('defaultUnits')} value={ui.units} onChange={e => ui.setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>{!ui.preferencesRemembered && <p role="alert">{t('preferenceWarning')}</p>}<button onClick={() => ui.setScreen(ui.returnTo)}>{t('back')}</button></section> : <section>
+    {screen === 'settings' ? <section className="settings-card"><h2>{t('settings')}</h2><p>{t('settingsText')}</p>{language}<label className="field-label">{t('defaultUnits')}<select aria-label={t('defaultUnits')} value={ui.units} onChange={e => ui.setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label><DiagnosticSettings />{!ui.preferencesRemembered && <p role="alert">{t('preferenceWarning')}</p>}<button onClick={() => ui.setScreen(ui.returnTo)}>{t('back')}</button></section> : <section>
       <div className="project-list-heading"><div><h2>{showTrash ? t('trash') : t('projectList')}</h2><p>{t('projectListText')}</p></div><button className="primary-button" disabled={busy} onClick={() => { setName(t('unnamed')); setUnits(ui.units); setTarget(null); setModal('create'); setError(null); }}>{t('newProject')}</button></div>
       <div className="project-list-actions"><button onClick={() => { setShowTrash(v => !v); }}>{showTrash ? t('showProjects') : t('showTrash')}</button><button disabled={loading || busy} onClick={() => { void refresh(); }}>{t('refresh')}</button></div>
       <button disabled={busy} onClick={() => fileInput.current?.click()}>{t('importDrawing')}</button><input ref={fileInput} type="file" accept=".json,application/json" hidden aria-label={t('chooseBackup')} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; if (file) void selectImport(file); }} />{busy && <p role="status">{t('working')}</p>}

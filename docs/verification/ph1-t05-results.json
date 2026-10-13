@@ -1,0 +1,135 @@
+{
+  "task": "PH1-T05",
+  "date": "2026-10-13",
+  "baseSha": "e7d733ac0a7027f000eff27f172b22c9fe068135",
+  "productTests": {
+    "passed": 203,
+    "files": 21,
+    "skipped": 0
+  },
+  "toolingTests": {
+    "passed": 8,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 6,
+    "skipped": 0,
+    "elapsedSeconds": 19.3,
+    "browser": "Chromium151.0.7922.173",
+    "rendering": "SwiftShader; touch-emulated disposable Linux browser, not phone"
+  },
+  "build": {
+    "initialGzipBytes": 128108,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114014,
+    "sha256": "fad5cea7d960492690bb83e4fbb9c9317fa5279e9d81741b1a7d199c21d80fc2",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ],
+    "webFilesByteEqual": 13,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "gradle": "BUILD SUCCESSFUL in22s;170tasks40executed130up-to-date",
+    "signature": "v2 verified",
+    "nativeHelperTests": "5 app-owned +1 retained template; unchanged Java unit source results reused by Gradle"
+  },
+  "preservation": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "sampleSchemaErrors": 0,
+    "oldLicenseRecordsPreserved": 313,
+    "currentRegistryVersions": 324
+  },
+  "freshCodexReview": {
+    "targetedTests": 8,
+    "independentFocusProbeTests": 1,
+    "blockingFindingsOutstanding": 0,
+    "claude": "Deferred underD17; no Claude authored fixtures or review claimed"
+  },
+  "productionRegressions": {
+    "shell": {
+      "checks": [
+        "welcome bilingual; cancelled create preserves all metadata; dialog Escape restores focus",
+        "blank IDs are independent; starter room 14.44 m2, resized 16.34 m2, exact undo/redo",
+        "Hindi/default units persist through reload without mutating project geometry or current units",
+        "stale Open reads current saved head from another tab; repeated Settings preserves Projects return route",
+        "rename preserves walls; duplicate replaces every ID; opening source preserves exact canonical data",
+        "active trash removes editable session; reload never recreates sample; restore returns exact canonical copy",
+        "real quota failure blocks project replacement, preserves disk and exportable memory, retry succeeds",
+        "new-project preference sets imperial display; canonical coordinates remain integer mm",
+        "Hindi settings and project cards fit 360px viewport without horizontal page overflow",
+        "Hindi touch navigation reaches actual worker-rendered 3D of the same imperial project"
+      ],
+      "pageErrors": [],
+      "limitations": [
+        "Linux Chromium software rendering; not real Android phone/Hindi font/device evidence"
+      ]
+    },
+    "files": {
+      "checks": [
+        "existing-ID preview requires separate copy; cancelling writes nothing",
+        "actual picker rejects malformed/UTF8/empty/newer/fractional/unknown/oversized files atomically",
+        "worker startup failure preserves all stored originals and offers retry",
+        "explicit import copy remaps every ID without modifying the original saved head",
+        "export to fresh local storage then import/reload preserves exact canonical content and all entity IDs",
+        "imported multiroom/openings/furniture project renders in synchronized 2D and 3D with expected area labels",
+        "trashed identities are not silently resurrected or overwritten by a backup",
+        "Hindi import error tells user to update app for newer schema without data changes"
+      ],
+      "pageErrors": [],
+      "limitations": [
+        "Linux Chromium, no Android picker/provider execution",
+        "Real Low/Mid external-file export/app-data loss/import gate is pending"
+      ]
+    },
+    "recovery": {
+      "checks": [
+        "fresh production startup creates a completed initial IndexedDB checkpoint",
+        "accepted wall edit autosaves and exports schema-valid integer geometry; rounded area labels match",
+        "newer journal prompts before editing; cancel preserves bytes/meta; explicit restore returns latest geometry",
+        "restored document renders through a fresh worker/session and both views share the same model",
+        "real second tab loses CAS, retains exportable memory and cannot overwrite winner on retry or pagehide",
+        "injected quota failure rolls back real transaction, warns, keeps memory/export and retries after fault removal",
+        "corrupt sole checkpoint prevents replacement; explicit separate sample remaps all IDs and retains original meta/corrupt bytes",
+        "injected Android export UI keeps complete JSON and handles a missing clipboard API without a crash"
+      ],
+      "pageErrors": [],
+      "saveMilliseconds": [
+        327.2901610471308
+      ],
+      "limitations": [
+        "Linux Chromium, not an Android WebView or phone",
+        "Quota failure is injected into the real transaction API",
+        "No physical 100-cycle kill or <=2s phone-loss guarantee"
+      ],
+      "browser": "151.0.7922.173"
+    }
+  },
+  "limits": [
+    "Local pinned Chromium156 install blocked403; not a passing pinned run",
+    "Both exact-head remote CI jobs must pass before merge; no unexecuted run invented here",
+    "Actual Low/Mid/Android providers/process death/Hindi pending",
+    "Live optional Sentry delivery/retention and final security/legal/Claude review pending",
+    "Full app is incomplete"
+  ]
+}
