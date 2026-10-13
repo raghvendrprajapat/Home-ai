@@ -1,4 +1,4 @@
-# GharPlan web and Android application — PH1-T04
+# GharPlan web and Android application — PH2-T01
 
 Run commands from the repository root, using Node 24.19.0 and pnpm 11.19.0:
 
@@ -19,7 +19,7 @@ The editable drawing now autosaves to transactional IndexedDB. Android additiona
 
 The workspace contains this React/Vite app, pure tested `geometry`, canonical `core-model`, and the platform-specific `persistence` package. Unit/property tests include exact areas, atomic history, snapping, solid volumes, welded surface edges, ray probes through holes, transactional abort/CAS, checkpoint replay, native I/O faults and fault-injected async results. Browser evidence and replay instructions are in `docs/verification/ph0-t04.md`, `ph0-t05.md` and `ph0-t08.md`. Screenshots do not establish geometry correctness or phone performance.
 
-CI runs on pull requests and validates the frozen install, lint, strict TypeScript checks in all packages, executed unit/property tests and a production build. Its Android debug job also builds/lints and inspects a signed debug APK. See the dependency register for exact versions, compatibility and licensing. Comprehensive Playwright E2E infrastructure starts in PH1-T05; retained browser proof scripts already exercise the current views.
+CI runs on pull requests and validates the frozen install, lint, strict TypeScript checks in all packages, executed unit/property tests and a production build. Its Android debug job also builds/lints and inspects a signed debug APK. See the dependency register for exact versions, compatibility and licensing. Required Check CI now runs Playwright E2E with its pinned Chromium, including the foundation and editor interactions; retained production browser proof scripts also exercise the current views.
 
 PH0-T06 adds the disposable `/perf` engineering page: sample and generated 200-wall / 100-object workloads, warm-up, timed 2D dragging / 3D orbit with scripted edits, actual input/build/device metadata and JSON download. It uploads nothing and never edits the main project. Use three five-minute runs after 20-second warm-up on each real phone, in Chrome and Android WebView; short diagnostics do not pass a release gate. See [`../../docs/verification/ph0-t06.md`](../../docs/verification/ph0-t06.md) for replay, exact measurements, limitations and phone steps. The cloud diagnostic exposed expensive large-plan previews/validation and 645 draw calls; those costs still need optimization. Reload clears test reports, so export first.
 
@@ -28,3 +28,5 @@ Android: `pnpm android:sync` builds/copies local assets; `pnpm android:debug` co
 File workflow/evidence and Low/Mid phone steps: [PH1-T04](../../docs/verification/ph1-t04.md). CI now also executes native Java streaming/path tests and inspects compiled custom-plugin registration. JDK/native helper tests are not Android document-provider execution.
 
 PH1-T05 retains the current drawing behind a render-crash recovery screen, exports full JSON and asks for confirmation before reload. Optional Settings error reports apply only to the current session; builds without a public Sentry DSN send nothing. Never put private keys in VITE variables. Run `pnpm e2e` after the pinned `pnpm exec playwright install --with-deps chromium`; cloud fallback `GHARPLAN_CHROMIUM_PATH=/usr/bin/chromium pnpm e2e` is a different-browser diagnostic. Tests use disposable contexts, mode=e2e and port4185; normal `pnpm build` rejects fault hooks and checks initial gzip size. See docs/verification/ph1-t05.md for executed evidence and limits.
+
+PH2-T01 adds anchored continuous pinch/wheel zoom, keyboard/Space pan, hold-to-edit touch corners with a structural loupe, overlap selection cycling and stable canvas redraws. A second finger cancels draft edits; a remaining half-pinch never resumes them. Current viewport/picks are not saved geometry. See [PH2-T01 evidence and Low/Mid instructions](../../docs/verification/ph2-t01.md). Full wall/rectangle drawing follows in PH2-T02; full object manipulation/multi-selection remains later.
