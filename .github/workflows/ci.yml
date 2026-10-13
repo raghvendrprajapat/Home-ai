@@ -41,6 +41,20 @@ jobs:
         run: pnpm check
       - name: Build web application
         run: pnpm build
+      - name: Install pinned Playwright Chromium
+        run: pnpm exec playwright install --with-deps chromium
+      - name: Browser recovery and onboarding tests
+        run: pnpm e2e
+      - name: Retain browser failure evidence
+        if: always()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: browser-evidence-${{ github.sha }}
+          retention-days: 7
+          if-no-files-found: ignore
+          path: |
+            playwright-report/
+            test-results/
 
   android:
     name: Android debug

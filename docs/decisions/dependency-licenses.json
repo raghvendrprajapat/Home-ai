@@ -1,12 +1,12 @@
 {
-  "checkedOn": "2026-10-12",
-  "method": "Official npm metadata:312 previously verified records retained unchanged;1 new resolved version checked before PH1-T03 installation. Bundled/native notices remain separate.",
-  "packageCount": 313,
+  "checkedOn": "2026-10-13",
+  "method": "Official npm exact-version metadata: 313 prior records retained unchanged; 11 new resolved versions checked before PH1-T05 installation. Bundled/native notices remain separate.",
+  "packageCount": 324,
   "licenseCounts": {
-    "MIT": 235,
+    "MIT": 242,
     "ISC": 16,
     "MIT-0": 2,
-    "Apache-2.0": 21,
+    "Apache-2.0": 25,
     "Unlicense": 2,
     "BlueOak-1.0.0": 11,
     "BSD-2-Clause": 8,
@@ -1895,6 +1895,72 @@
       "version": "5.0.15",
       "license": "MIT",
       "source": "https://registry.npmjs.org/zustand/5.0.15"
+    },
+    {
+      "name": "@playwright/test",
+      "version": "1.64.0",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/%40playwright%2Ftest/1.64.0"
+    },
+    {
+      "name": "@sentry/browser-utils",
+      "version": "11.6.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40sentry%2Fbrowser-utils/11.6.0"
+    },
+    {
+      "name": "@sentry/browser",
+      "version": "11.6.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40sentry%2Fbrowser/11.6.0"
+    },
+    {
+      "name": "@sentry/conventions",
+      "version": "0.26.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40sentry%2Fconventions/0.26.0"
+    },
+    {
+      "name": "@sentry/core",
+      "version": "11.6.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40sentry%2Fcore/11.6.0"
+    },
+    {
+      "name": "@sentry/feedback",
+      "version": "11.6.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40sentry%2Ffeedback/11.6.0"
+    },
+    {
+      "name": "@sentry/replay-canvas",
+      "version": "11.6.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40sentry%2Freplay-canvas/11.6.0"
+    },
+    {
+      "name": "@sentry/replay",
+      "version": "11.6.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40sentry%2Freplay/11.6.0"
+    },
+    {
+      "name": "playwright-core",
+      "version": "1.64.0",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/playwright-core/1.64.0"
+    },
+    {
+      "name": "playwright",
+      "version": "1.64.0",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/playwright/1.64.0"
+    },
+    {
+      "name": "web-vitals",
+      "version": "6.2.3",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/web-vitals/6.2.3"
     }
   ]
 }

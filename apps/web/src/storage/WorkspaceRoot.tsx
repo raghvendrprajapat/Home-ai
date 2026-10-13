@@ -1,15 +1,20 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { ErrorBoundary } from '../recovery/ErrorBoundary';
+import { diagnostics } from '../diagnostics/controller';
 import { AppShell } from '../ui/AppShell';
 import { useUi } from '../ui/state';
 import { message } from '../i18n/messages';
 import { openWorkspace } from './workspace';
 import type { StartupInspection, WorkspaceSession } from './workspace';
 
+const FaultGate = import.meta.env.MODE === 'e2e' ? lazy(() => import('../recovery/FaultGate')) : null;
+
 /** The inspection promise is created once by main, outside StrictMode effects. */
 export function WorkspaceRoot({ startup }: { startup: Promise<StartupInspection> }) {
   const ui = useUi(), t = (key: 'openingFailed' | 'retryOpen' | 'checking' | 'recoveryTitle' | 'recoveryHelp' | 'recoveryWarning' | 'restoreSaved' | 'recoverCopy' | 'recoveryCancelled' | 'showRecovery' | 'leaveFiles' | 'separateSample' | 'opening') => message(ui.locale, key);
   const [inspection, setInspection] = useState<StartupInspection | null>(null), [session, setSession] = useState<WorkspaceSession | null>(null);
   const [busy, setBusy] = useState(false), [cancelled, setCancelled] = useState(false), [error, setError] = useState<string | null>(null);
+  useEffect(() => diagnostics.start(), []);
   const opening = useRef(false);
   const [ready, setReady] = useState(false);
   useEffect(() => { document.documentElement.lang = ui.locale; document.documentElement.dir = 'ltr'; }, [ui.locale]);
@@ -23,7 +28,7 @@ export function WorkspaceRoot({ startup }: { startup: Promise<StartupInspection>
         try { const opened = await openWorkspace(result, result.automatic); if (live) { setSession(opened); setReady(true); } else opened.saving?.close(); }
         finally { opening.current = false; if (live) setBusy(false); }
       }
-    }).catch(() => { if (live) setError('The saved workspace could not be opened. Reload to retry; existing files are retained.'); });
+    }).catch(() => { if (live) { diagnostics.report('startup-failed'); setError('The saved workspace could not be opened. Reload to retry; existing files are retained.'); } });
     return () => { live = false; };
   }, [startup]);
   useEffect(() => {
@@ -33,7 +38,7 @@ export function WorkspaceRoot({ startup }: { startup: Promise<StartupInspection>
     window.addEventListener('pagehide', flush); document.addEventListener('visibilitychange', hidden);
     return () => { window.removeEventListener('pagehide', flush); document.removeEventListener('visibilitychange', hidden); };
   }, [session]);
-  if (ready && inspection) return <AppShell inspection={inspection} session={session} onSession={setSession} />;
+  if (ready && inspection) return <ErrorBoundary session={session}>{FaultGate ? <Suspense><FaultGate><AppShell inspection={inspection} session={session} onSession={setSession} /></FaultGate></Suspense> : <AppShell inspection={inspection} session={session} onSession={setSession} />}</ErrorBoundary>;
   if (error) return <main className="workspace"><h1>GharPlan</h1><p role="alert">{t('openingFailed')}</p><button onClick={() => location.reload()}>{t('retryOpen')}</button></main>;
   if (!inspection) return <main className="workspace"><h1>GharPlan</h1><p role="status">{t('checking')}</p></main>;
   const choose = async (index: number | null, asCopy = false) => {

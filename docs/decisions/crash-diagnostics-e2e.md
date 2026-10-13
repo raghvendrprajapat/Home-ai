@@ -1,0 +1,27 @@
+# D26: crash recovery, optional diagnostics and E2E
+
+PH1-T05; Codex under D17; 2026-10-13. Implements UX-001 / FR-030, foundation exit gates and recovery behavior; does not establish commercial release readiness.
+
+## Ownership and failure behavior
+
+WorkspaceRoot owns the canonical ProjectStore and SaveCoordinator above an inner React error boundary. A render crash unmounts the broken shell, not the current store or writer. Recovery uses existing SaveControls: complete current JSON is exportable even after quota/save failure, retry remains available, native destination verification retains PH1-T04 semantics. No raw exception or drawing is passed to diagnostics. The outer boundary covers startup/render failures before an active session; it cannot promise an unsaved drawing it does not own. Existing files are retained. React boundaries do not catch every event-handler/async/OS failure; existing operation-specific catches and startup rejection UI remain necessary.
+
+Reload is a separate explicit confirmation with the existing native HTML dialog, focus restoration and Escape. Download initiation is not durable backup acknowledgement. Users must keep/check a safe copy before confirming reload, which discards unsaved memory. The page cannot universally prevent OS process death. Crash injection is compiled only into mode=e2e/dist-e2e and never normal web/Android artifacts.
+
+## Reporting contract
+
+Optional Sentry browser11.6.0 is loaded only after an explicit checkbox opt-in and a valid configured hosted PUBLIC DSN. Consent applies to the current session only; every reload starts off. This avoids restoring a revoked opt-in after preference-write failure and avoids a new persisted identifier. No product credentials are provided. Invalid/password/private/non-HTTPS/arbitrary-destination DSNs reject with a generic build error; supported o<number>.ingest[.us/.de].sentry.io DSNs contain only a32-hex public key and numeric project path. Self-hosted reporting is not supported yet. Never put signing/service/private keys in VITE_*.
+
+Use an isolated BrowserClient/Scope, without global init or automatic integrations. No replay, tracing, profiling, feedback, sessions, breadcrumbs or automatic exception capture is enabled. Sentry11 dataCollection disables identity/IP inference, cookies, headers, bodies, query parameters, AI/GraphQL/database/queue values, stack variables/context lines; client reports are disabled. SDK source/types were inspected; removed older sendDefaultPii is not used.
+
+The controller accepts only `render-crash` and `startup-failed`, at most three of each per consent session. beforeSend reconstructs the event from fixed code/level/platform plus generated event ID/time and fixed SDK name/version/infer_ip=never; no incoming SDK metadata is retained. The final transport reconstructs the envelope again: one event only, no attachments/trace/global metadata; fixed SDK settings explicitly request no IP inference. Fetch omits credentials and referrer. Both queued-send admission and actual fetch admission check the current consent epoch. Revocation closes the client and drops future sends; requests already sent cannot be recalled. HTTP transport can reveal the IP to the service regardless of event-field filtering, as the bilingual consent notice explains. Fixed codes without raw stack/message intentionally limit diagnosis.
+
+Actual SDK transport tests inject global private project/email/attachment data and inspect the resulting envelope; they are local intercepted transport evidence, not live Sentry ingestion. Service retention, region, privacy policy and actual ingestion/deletion must be validated before enabling production reporting.
+
+## Browser and build verification
+
+Playwright1.64.0 is dev-only; CI installs its pinned Chromium156.0.8078.4/revision1248. Tests force an empty DSN and fresh disposable contexts. Six scenarios cover onboarding/skip/focus, exact save/reload and undo, unsaved render-crash export and explicit reload, reporting off/unconfigured/revoked/Hindi, invalid/collision import and new IDs, blocked storage/WebGL fallback, and small touch-emulated synchronized3D. These are browser tests, not phone performance or Android system-provider tests. No retry/skip is configured; CI forbids test.only and retains failure traces/screenshots.
+
+pnpm build verifies all production JS chunks exclude test fault markers. Its initial-JS gate walks actual static ES imports/exports from HTML entry points and counts each gzip-compressed file once; dynamic workers/3D/reporting chunks are excluded from initial download by definition. Limit600000bytes (600kB, interpreting the specification conservatively as decimal), recorded explicitly; this is not a load-time/GPU benchmark. Negative tests prove leaked lazy crash hooks and oversized shared static imports fail. Required Check CI includes E2E; Android debug still depends on Check.
+
+The local pinned-browser download was denied403 by current cloud policy. Existing Chromium151 executed the suite. Environment draft preserves55 prior custom domains and adds only cdn.playwright.dev and playwright.download.prss.microsoft.com from the official downloader; saved startup instructions distinguish versions. Review/save/publish and actual pinned-browser provisioning remain pending locally; no proxy/TLS bypass is used. CI pinned-browser success must be confirmed before merge. No core-model/schema/accepted fixture changes.

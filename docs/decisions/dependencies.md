@@ -134,3 +134,16 @@ Native template dependencies: AndroidX Activity 1.11.0, AppCompat 1.7.1, Coordin
 ### PH1-T04 file-export selection (2026-10-12)
 
 No new runtime dependency. Official `@capacitor/share@8.0.3` was considered: MIT, peer Capacitor >=8; npm metadata/tarball SHA512 and shipped Android/TypeScript API were inspected. It acknowledges share-sheet activity rather than durable destination content, so it was not installed. Small app-owned `ProjectFiles` glue uses Android ACTION_CREATE_DOCUMENT with the existing Capacitor bridge and private Filesystem cache, then bounds/verifies destination bytes. No broadened permissions/provider paths. Actual provider/OEM/lifecycle validation remains a phone gate. Existing JUnit4.13.2 native test tooling (EPL1.0, already pinned in variables.gradle) is now executed; official Maven POM license reconfirmed: https://repo.maven.apache.org/maven2/junit/junit/4.13.2/junit-4.13.2.pom. Native/transitive distributed notices remain a release requirement; npm313 prior records are unchanged.
+
+## PH1-T05 diagnostics and E2E (2026-10-12, before installation)
+
+| Dependency | Version | License / primary source | Purpose |
+|---|---|---|---|
+| @sentry/browser | 11.6.0 | MIT; https://registry.npmjs.org/@sentry%2fbrowser/11.6.0 | Optional consent-gated, allowlisted diagnostic codes; no automatic integrations |
+| @sentry/core, browser-utils, replay, replay-canvas, feedback | 11.6.0 | MIT; official npm exact-version metadata | SDK resolved dependencies; replay/feedback integrations are disabled |
+| @sentry/conventions | 0.26.0 | MIT; official npm metadata | Resolved SDK convention types |
+| @playwright/test, playwright, playwright-core | 1.64.0 | Apache-2.0; official npm exact-version metadata | Browser-only CI tests; never product runtime |
+
+Node 24.19.0 meets the documented engines. Inspect the resolved lock graph before installing; preserve prior inventory entries. Reporting defaults off, requires explicit opt-in and configured public DSN; no credentials are provided or needed for local development. Actual Sentry ingestion and physical Android recovery remain external release checks.
+
+Resolved addition web-vitals6.2.3 (MIT, https://registry.npmjs.org/web-vitals/6.2.3) was checked in the complete registry inventory before the frozen install. All324 versions are inventoried;313 previous package records are preserved verbatim. Sentry11 uses `dataCollection` controls (not the older removed sendDefaultPii flag); shipped types/source and actual transport tests are the integration evidence.
