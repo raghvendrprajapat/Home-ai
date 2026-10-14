@@ -8,10 +8,11 @@ export interface MeshData {
 }
 export interface CeilingWarning {roomIds:[string,string];wallIds:string[];heightsMm:[number,number]}
 export interface SceneBundle {
+  invalidation?: import('./dependencies').SceneInvalidation;
   ceilingWarnings?: CeilingWarning[];
   meshes: MeshData[];
   bounds: [number, number, number, number, number, number] | null;
   stats: { boxes: number; quads: number; vertices: number; wallVolumeMm3: number; meshesBuilt: number };
 }
-export interface BuildRequest { tag: AsyncTag; document: ProjectDoc }
-export type BuildReply = { tag: AsyncTag; ok: true; bundle: SceneBundle } | { tag: AsyncTag; ok: false; message: string };
+export interface BuildRequest { requestId:number; tag: AsyncTag; document: ProjectDoc }
+export type BuildReply = { requestId:number; tag: AsyncTag; ok: true; bundle: SceneBundle } | { requestId:number; tag: AsyncTag; ok: false; message: string };
