@@ -1,0 +1,119 @@
+{
+  "task": "PH2-T03",
+  "executionDate": "2026-10-14",
+  "baseSha": "057bfacc00940d9ed3fc3163a7353b834c3f914b",
+  "requiredCheck": {
+    "exitCode": 0,
+    "productTests": 244,
+    "files": 28,
+    "elapsedSeconds": 20.51,
+    "toolingTests": 8,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 23,
+    "skipped": 0,
+    "reportedElapsed": "1.2m",
+    "browser": "Chromium151.0.7922.173",
+    "rendering": "Linux SwiftShader; not Android"
+  },
+  "productionBuild": {
+    "initialGzipBytes": 141744,
+    "initialModules": 1,
+    "limitBytes": 600000,
+    "crashHooks": "absent"
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114014,
+    "sha256": "fe0f080922ad3b0dcb4da6cd3949d49623ea462ea86cafc91cba64b6812569d4",
+    "gradle": "BUILD SUCCESSFUL in22s;170tasks40executed130up-to-date",
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "webFilesByteEqual": 13,
+    "signature": "v2 verified",
+    "compiledRegistration": "fresh MainActivity verified",
+    "nativeHelpers": "5 app-owned +1 template; unchanged-source JVM results cached by Gradle"
+  },
+  "preservation": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "sampleSchemaErrors": 0
+  },
+  "freshCodexReview": {
+    "focusedTests": 11,
+    "verticalEndpointProbeCases": 6,
+    "actualBrowserPreviewCancellation": true,
+    "finalMarkerResetReviewed": true,
+    "outstandingBlockers": 0,
+    "claude": "deferred underD17; accepted fixtures unchanged"
+  },
+  "productionRegressions": {
+    "shell": {
+      "checks": [
+        "welcome bilingual; cancelled create preserves all metadata; dialog Escape restores focus",
+        "blank IDs are independent; starter room 14.44 m2, resized 16.34 m2, exact undo/redo",
+        "Hindi/default units persist through reload without mutating project geometry or current units",
+        "stale Open reads current saved head from another tab; repeated Settings preserves Projects return route",
+        "rename preserves walls; duplicate replaces every ID; opening source preserves exact canonical data",
+        "active trash removes editable session; reload never recreates sample; restore returns exact canonical copy",
+        "real quota failure blocks project replacement, preserves disk and exportable memory, retry succeeds",
+        "new-project preference sets imperial display; canonical coordinates remain integer mm",
+        "Hindi settings and project cards fit 360px viewport without horizontal page overflow",
+        "Hindi touch navigation reaches actual worker-rendered 3D of the same imperial project"
+      ],
+      "pageErrors": [],
+      "limitations": [
+        "Linux Chromium software rendering; not real Android phone/Hindi font/device evidence"
+      ]
+    },
+    "files": {
+      "checks": [
+        "existing-ID preview requires separate copy; cancelling writes nothing",
+        "actual picker rejects malformed/UTF8/empty/newer/fractional/unknown/oversized files atomically",
+        "worker startup failure preserves all stored originals and offers retry",
+        "explicit import copy remaps every ID without modifying the original saved head",
+        "export to fresh local storage then import/reload preserves exact canonical content and all entity IDs",
+        "imported multiroom/openings/furniture project renders in synchronized 2D and 3D with expected area labels",
+        "trashed identities are not silently resurrected or overwritten by a backup",
+        "Hindi import error tells user to update app for newer schema without data changes"
+      ],
+      "pageErrors": [],
+      "limitations": [
+        "Linux Chromium, no Android picker/provider execution",
+        "Real Low/Mid external-file export/app-data loss/import gate is pending"
+      ]
+    },
+    "recovery": {
+      "checks": [
+        "fresh production startup creates a completed initial IndexedDB checkpoint",
+        "accepted wall edit autosaves and exports schema-valid integer geometry; rounded area labels match",
+        "newer journal prompts before editing; cancel preserves bytes/meta; explicit restore returns latest geometry",
+        "restored document renders through a fresh worker/session and both views share the same model",
+        "real second tab loses CAS, retains exportable memory and cannot overwrite winner on retry or pagehide",
+        "injected quota failure rolls back real transaction, warns, keeps memory/export and retries after fault removal",
+        "corrupt sole checkpoint prevents replacement; explicit separate sample remaps all IDs and retains original meta/corrupt bytes",
+        "injected Android export UI keeps complete JSON and handles a missing clipboard API without a crash"
+      ],
+      "pageErrors": [],
+      "saveMilliseconds": [
+        334.2470619827509
+      ],
+      "limitations": [
+        "Linux Chromium, not an Android WebView or phone",
+        "Quota failure is injected into the real transaction API",
+        "No physical 100-cycle kill or <=2s phone-loss guarantee"
+      ],
+      "browser": "151.0.7922.173"
+    }
+  },
+  "limitations": [
+    "Both required exact-head CI jobs must pass before merge",
+    "Local pinned Chromium install denied; only151 executed locally",
+    "Real Low/Mid/Hindi/TalkBack/tape/performance/lifecycle/provider gates pending",
+    "Opening creation/catalog/cloud/billing and final reviews pending",
+    "Full app incomplete"
+  ]
+}

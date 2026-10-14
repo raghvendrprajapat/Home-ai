@@ -3,25 +3,33 @@ import type { ProjectStore, PreviewResult } from '@gharplan/core-model';
 import { areaDisplay, editError, message } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 import type Konva from 'konva';
-import { fitView, junctionMoves, screenToWorld, snapPointer, worldToScreen, zoomAt } from './view2d';
+import { fitView, junctionMoves, screenToWorld, worldToScreen, zoomAt } from './view2d';
 import { PlanGestures } from './gestures';
 import type { GestureStep, DragMotion } from './gestures';
 import { PickIndex, PickCycle } from './hit-test';
 import type { Pick } from './hit-test';
 import { TouchLoupe } from './TouchLoupe';
-import { drawingTarget } from './drawing-tools';
+import { resolveSnap, snapGridStep } from './snapping';
+import type { SnapTarget } from './snapping';
+import { formatLength } from './measurements';
+import type { PrecisionPreview } from './WallPrecision';
 import type { DrawingTool } from './drawing-tools';
 import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
-interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
+interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onEditStart?():void; onPick?(pick:Pick|null):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface Drag { pointerId: number; junction: string; generation: number; start: Point2; last: Point2; snapTarget?: string; touch: boolean; store: ProjectStore }
-export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, locale = 'en' }: Props) {
+export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onEditStart, onPick, locale = 'en' }: Props) {
   const language = useRef(locale); language.current = locale;
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), stage = useRef<Konva.Stage | null>(null), drawingLayer = useRef<Konva.Layer | null>(null), library = useRef<typeof Konva | null>(null);
   const drag = useRef<Drag | null>(null), gestures = useRef(new PlanGestures()), cycle = useRef(new PickCycle());
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null), frame = useRef<number | null>(null), latestMotion = useRef<{motion:DragMotion;shift:boolean}|null>(null);
   const panKey = useRef(false);
+  const lastSnap=useRef<SnapTarget|null>(null),[snapTarget,setSnapTarget]=useState<SnapTarget|null>(null);
+  const snapFrame=useRef<number|null>(null),pendingSnap=useRef<SnapTarget|null>(null);
+  const snapAt=(raw:Point2,origin:Point2|null,orthogonal:boolean,disabled:boolean,excludeId?:string):Point2=>{
+    const result=resolveSnap(activeStore.current.getSnapshot().document,raw,viewRef.current,{origin,orthogonal,disabled:disabled||toolRef.current?.getSnapshot().snappingEnabled===false,previous:lastSnap.current,...(excludeId?{excludeId}:{})});lastSnap.current=result.target;pendingSnap.current=result.target;if(snapFrame.current===null)snapFrame.current=requestAnimationFrame(()=>{snapFrame.current=null;setSnapTarget(pendingSnap.current);});return result.point;
+  };
   const activeStore = useRef(store); activeStore.current = store;
   const toolRef=useRef(drawing);toolRef.current=drawing;
   const toolPointer=useRef<{id:number;point:Point2;world:Point2;generation:number;epoch:number}|null>(null),toolFrame=useRef<number|null>(null);
@@ -36,10 +44,12 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
   const localPoint = (event: { clientX: number; clientY: number }): Point2 => {
     const rect = host.current!.getBoundingClientRect(); return [event.clientX - rect.left, event.clientY - rect.top];
   };
+  const resetSnap=()=>{if(snapFrame.current!==null)cancelAnimationFrame(snapFrame.current);snapFrame.current=null;pendingSnap.current=null;lastSnap.current=null;setSnapTarget(null);};
   const clearEdit = () => {
     if(holdTimer.current!==null)clearTimeout(holdTimer.current);holdTimer.current=null;
     if(frame.current!==null)cancelAnimationFrame(frame.current);frame.current=null;latestMotion.current=null;
     drag.current=null;setPreview(null);setLoupe(null);
+    resetSnap();
     if(toolFrame.current!==null)cancelAnimationFrame(toolFrame.current);toolFrame.current=null;toolPointer.current=null;
   };
   const cancel = () => {
@@ -47,14 +57,14 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     toolRef.current?.clear();
     for(const id of gestures.current.ids())if(host.current?.hasPointerCapture(id))host.current.releasePointerCapture(id);
   };
-  useEffect(()=>{if(gestures.current.phase!=='idle')cancel();},[toolState?.mode]);
+  useEffect(()=>{if(gestures.current.phase!=='idle')cancel();else resetSnap();},[toolState?.mode]);
+  useEffect(()=>{if(gestures.current.phase!=='idle')cancel();else resetSnap();},[toolState?.snappingEnabled]);
   const targetFor = (motion:DragMotion,shift:boolean):Point2|null => {
     const d=drag.current;if(!d||d.pointerId!==motion.pointerId)return null;
     const current=d.store.getSnapshot();
     if(d.store!==activeStore.current||current.localGeneration!==d.generation){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const raw:Point2=[d.start[0]+motion.delta[0]/viewRef.current.scale,d.start[1]+motion.delta[1]/viewRef.current.scale];
-    const target=shift?[Math.round(raw[0]),Math.round(raw[1])] as Point2:snapPointer(current.document,raw,viewRef.current,d.junction,12,d.snapTarget);d.last=target;
-    const snap=!shift&&current.document.junctions.find(j=>j.id!==d.junction&&j.x===target[0]&&j.y===target[1]);if(snap)d.snapTarget=snap.id;else delete d.snapTarget;
+    const target=raw[0]===d.start[0]&&raw[1]===d.start[1]?d.start:snapAt(raw,null,false,shift,d.junction);d.last=target;
     if(d.touch)setLoupe({point:motion.point,world:target});return target;
   };
   const previewMotion = (motion:DragMotion,shift:boolean) => {
@@ -100,6 +110,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
   useEffect(() => {
     if (drag.current && drag.current.generation !== snapshot.localGeneration) { cancel(); onMessage(message(language.current, 'dragChanged')); }
     cycle.current.clear();
+    resetSnap();
   }, [snapshot.localGeneration, onMessage]);
   useEffect(()=>{
     const fields={junction:'junctions',opening:'openings',furniture:'furniture',wall:'walls',room:'rooms'} as const;
@@ -140,7 +151,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     // Keep the DOM canvas stable: removing a native touch target cancels its touch stream.
     layer.destroyChildren();
     if (showGrid) {
-      const spacing = [100, 500, 1000, 5000, 10000, 50000].find(n => n * view.scale >= 28) ?? 50000;
+      const step=snapGridStep(view.scale),spacing=step*Math.pow(10,Math.max(0,Math.ceil(Math.log10(28/(step*view.scale)))));
       const [left, top] = screenToWorld([0, 0], view), [right, bottom] = screenToWorld([size.width, size.height], view);
       for (let x = Math.floor(left / spacing) * spacing; x <= right; x += spacing) {
         const sx = worldToScreen([x, 0], view)[0]; layer.add(new K.Line({ points: [sx, 0, sx, size.height], stroke: '#e4e9e5', strokeWidth: 1 }));
@@ -149,7 +160,8 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
         const sy = worldToScreen([0, y], view)[1]; layer.add(new K.Line({ points: [0, sy, size.width, sy], stroke: '#e4e9e5', strokeWidth: 1 }));
       }
     }
-    const currentPreview = toolState?.preview?.ok ? toolState.preview : preview?.ok && drag.current?.generation === snapshot.localGeneration ? preview : null;
+    const precision=precisionPreview?.projectId===snapshot.document.id&&precisionPreview.sessionId===snapshot.sessionId&&precisionPreview.generation===snapshot.localGeneration&&precisionPreview.result.ok?precisionPreview.result:null;
+    const currentPreview = toolState?.preview?.ok ? toolState.preview : preview?.ok && drag.current?.generation === snapshot.localGeneration ? preview : precision;
     const document = currentPreview ? currentPreview.document : snapshot.document, derived = currentPreview ? currentPreview.derived : snapshot.derived;
     const labels: { x: number; y: number; width: number; text: string }[] = [];
     for (const [i, face] of derived.faces.entries()) {
@@ -185,23 +197,27 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     for (const j of document.junctions) {
       const p = worldToScreen([j.x, j.y], view); layer.add(new K.Circle({ x: p[0], y: p[1], radius: j.id === selected ? 7 : 5, fill: '#fff', stroke: j.id === selected ? '#b6723f' : '#6c8979', strokeWidth: 2 }));
     }
+    for(const wall of document.walls){const a=document.junctions.find(j=>j.id===wall.a)!,b=document.junctions.find(j=>j.id===wall.b)!,length=Math.abs(b.x-a.x)+Math.abs(b.y-a.y);if(length*view.scale<80)continue;const middle=worldToScreen([(a.x+b.x)/2,(a.y+b.y)/2],view);if(middle[0]<0||middle[0]>size.width||middle[1]<0||middle[1]>size.height)continue;layer.add(new K.Text({x:middle[0]-42,y:middle[1]-24,text:formatLength(length,document.units),width:84,align:'center',fontSize:11,fontFamily:'system-ui',fill:'#34563f'}));}
+    if(snapTarget){const p=worldToScreen(snapTarget.point,view);if(snapTarget.guide){const guide=snapTarget.guide;layer.add(new K.Line({points:guide.axis==='x'?[p[0],0,p[0],size.height]:[0,p[1],size.width,p[1]],stroke:'#3b8a94',strokeWidth:1,dash:[5,4]}));}layer.add(new K.Circle({x:p[0],y:p[1],radius:9,stroke:'#3b8a94',strokeWidth:2}));}
     if(toolState?.anchor&&toolState.end){const a=worldToScreen(toolState.anchor,view),b=worldToScreen(toolState.end,view);layer.add(new K.Line({points:toolState.mode==='rectangle'?[a[0],a[1],b[0],a[1],b[0],b[1],a[0],b[1],a[0],a[1]]:[...a,...b],stroke:toolState.error?'#b33d3d':'#b6723f',strokeWidth:3,dash:[7,4]}));}
     canvas.batchDraw();
-  }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale, toolState]);
+  }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale, toolState, precisionPreview, snapTarget]);
   return <div ref={host} className="plan-canvas" role="application" aria-label={message(locale, 'canvas2d')} tabIndex={0} data-testid="plan-canvas"
-    data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id}
+    data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id} data-snap-kind={snapTarget?.kind}
     onPointerDown={event=>{
       if(event.button!==0&&event.button!==1)return;
       const point=localPoint(event),touch=event.pointerType==='touch',pick=index.picks(point,viewRef.current,touch)[0],now=performance.now();
       const drawingMode=toolRef.current?.getSnapshot().mode;
       if(drawingMode&&drawingMode!=='select'&&event.button===0&&!panKey.current){
+        onEditStart?.();
         const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,false,now);
         event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);
         if(step.cancelEdit){applyStep(step);return;}
-        const state=toolRef.current!.getSnapshot(),world=drawingTarget(snapshot.document,screenToWorld(point,viewRef.current),viewRef.current,state.anchor,drawingMode==='wall',event.shiftKey);
+        const state=toolRef.current!.getSnapshot(),world=snapAt(screenToWorld(point,viewRef.current),state.anchor,drawingMode==='wall',event.shiftKey);
         toolPointer.current={id:event.pointerId,point,world,generation:snapshot.localGeneration,epoch:state.epoch};if(touch)setLoupe({point,world});return;
       }
       const canDrag=event.button===0&&!panKey.current&&pick?.kind==='junction';
+      if(canDrag)onEditStart?.();
       const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,canDrag,now);
       event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);applyStep(step);
       if(step.cancelEdit){onMessage(message(locale,'twoFingerCancel'));return;}
@@ -215,7 +231,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     onPointerMove={event=>{
       const point=localPoint(event),step=gestures.current.move(event.pointerId,point,performance.now()),tool=toolRef.current,mode=tool?.getSnapshot().mode;
       if(tool&&mode!=='select'&&gestures.current.phase!=='pinch'&&gestures.current.phase!=='blocked'&&!panKey.current){
-        const state=tool.getSnapshot(),pointer=toolPointer.current,world=drawingTarget(snapshot.document,screenToWorld(point,viewRef.current),viewRef.current,state.anchor,mode==='wall',event.shiftKey);
+        const state=tool.getSnapshot(),pointer=toolPointer.current,world=snapAt(screenToWorld(point,viewRef.current),state.anchor,mode==='wall',event.shiftKey);
         if(pointer&&(pointer.generation!==store.getSnapshot().localGeneration||pointer.epoch!==state.epoch)){cancel();return;}
         if(pointer&&mode==='rectangle'&&!state.anchor&&Math.hypot(point[0]-pointer.point[0],point[1]-pointer.point[1])>3)tool.start(pointer.world);
         if(event.pointerType==='touch'&&pointer)setLoupe({point,world});
@@ -227,7 +243,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     onPointerUp={event=>{
       const point=localPoint(event),pointer=toolPointer.current,wasPhase=gestures.current.phase,step=gestures.current.end(event.pointerId,point,performance.now()),tool=toolRef.current;
       if(pointer&&pointer.id===event.pointerId&&tool&&wasPhase==='pan'){
-        const state=tool.getSnapshot();if(pointer.generation===store.getSnapshot().localGeneration&&pointer.epoch===state.epoch){const world=drawingTarget(snapshot.document,screenToWorld(point,viewRef.current),viewRef.current,state.anchor,state.mode==='wall',event.shiftKey);tool.point(world);}
+        const state=tool.getSnapshot();if(pointer.generation===store.getSnapshot().localGeneration&&pointer.epoch===state.epoch){const world=snapAt(screenToWorld(point,viewRef.current),state.anchor,state.mode==='wall',event.shiftKey);tool.point(world);}
         clearEdit();if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);return;
       }
       if(step.commit){
@@ -237,7 +253,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
           onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,'cornerUpdated'):editError(locale,result.errors[0]));
         }
       }else applyStep(step);
-      if(step.tap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}
+      if(step.tap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);onPick?.(chosen);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}
       if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);
     }} onDoubleClick={()=>toolRef.current?.clear()} onPointerCancel={event=>{gestures.current.cancel();gestures.current.end(event.pointerId,localPoint(event),performance.now());clearEdit();toolRef.current?.clear();onMessage(message(locale,'dragCancelled'));}}
     onLostPointerCapture={event=>{if(gestures.current.has(event.pointerId))cancel();}}>
@@ -246,5 +262,6 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     <span className="canvas-hint">{message(locale, 'planHint')}</span>
     {loupe&&<TouchLoupe point={loupe.point} world={loupe.world} view={view} size={size} snapshot={snapshot} preview={toolState?.preview??preview} locale={locale} />}
     <span className="canvas-scale">{Math.round(view.scale * 1000)} {message(locale, 'pixelsPerMetre')}</span>
+    <span className="snap-grid-label">{message(locale,'snapGridLabel',{step:snapGridStep(view.scale)})}</span>
   </div>;
 }
