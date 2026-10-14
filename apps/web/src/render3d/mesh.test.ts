@@ -177,3 +177,16 @@ describe('PH0-T05 analytic mesh proofs (Codex-authored unless explicitly named)'
     expect(restored.stats.meshesBuilt).toBe(1); expect(Math.abs(volume(restored) - volume(first))).toBeLessThan(0.1); adapter.dispose();
   });
 });
+
+it('PH2-T04 SYNC-002 Codex analytic room door/window void volumes, sills, reverse/delete and reload agree',()=>{
+ const store=new ProjectStore(rectangle(4000,3000,200,3000),'opening_mesh'),baseline=store.getSnapshot().document;
+ const add=(id:string,kind:'door'|'window',offset:number,width:number,height:number,sill:number)=>store.execute({id:`add_${id}`,baseGeneration:store.getSnapshot().localGeneration,type:'AddOpening',opening:{id,wallId:'w1',kind,assetId:'own_parametric_symbol',offset,width,height,sill,flipX:false,flipY:false}});
+ expect(add('test_door','door',1000,900,2100,0).ok).toBe(true);expect(add('test_window','window',2700,1000,1200,900).ok).toBe(true);
+ const document=structuredClone(store.getSnapshot().document) as ProjectDoc,bundle=buildScene(document);
+ // (4200*3200 -3800*2800)*3000 -900*200*2100 -1000*200*1200.
+ expect(bundle.stats.wallVolumeMm3).toBe(7782000000);expect(Math.abs(volume(bundle)-7782000000)).toBeLessThan(0.1);closed(bundle);
+ expect(hits(bundle,[1,1,-0.3],[0,0,1])).toHaveLength(0);expect(hits(bundle,[2.7,1.4,-0.3],[0,0,1])).toHaveLength(0);expect(hits(bundle,[2.7,0.5,-0.3],[0,0,1]).length).toBeGreaterThan(0);
+ expect(store.execute({id:'reverse_mesh',baseGeneration:store.getSnapshot().localGeneration,type:'ReverseWall',wallId:'w1'}).ok).toBe(true);const reversed=buildScene(structuredClone(store.getSnapshot().document) as ProjectDoc);expect(reversed.stats.wallVolumeMm3).toBe(7782000000);expect(hits(reversed,[1,1,-0.3],[0,0,1])).toHaveLength(0);
+ const reloaded=new ProjectStore(structuredClone(store.getSnapshot().document) as ProjectDoc,'opening_reload');expect(buildScene(structuredClone(reloaded.getSnapshot().document) as ProjectDoc).stats.wallVolumeMm3).toBe(7782000000);
+ expect(store.undo()).toBe(true);expect(store.execute({id:'delete_window',baseGeneration:store.getSnapshot().localGeneration,type:'DeleteOpening',openingId:'test_window'}).ok).toBe(true);expect(buildScene(structuredClone(store.getSnapshot().document) as ProjectDoc).stats.wallVolumeMm3).toBe(8022000000);expect(store.undo()).toBe(true);expect(store.undo()).toBe(true);expect(store.undo()).toBe(true);expect(store.getSnapshot().document).toEqual(baseline);
+});

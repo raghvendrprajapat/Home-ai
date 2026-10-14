@@ -12,6 +12,7 @@ import { TouchLoupe } from './TouchLoupe';
 import { resolveSnap, snapGridStep } from './snapping';
 import type { SnapTarget } from './snapping';
 import { formatLength } from './measurements';
+import { openingSymbol } from './opening-symbol';
 import type { PrecisionPreview } from './WallPrecision';
 import type { DrawingTool } from './drawing-tools';
 import type { Point2, Viewport } from './view2d';
@@ -185,6 +186,11 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       const length = Math.abs(b.x - a.x) + Math.abs(b.y - a.y), dx = (b.x - a.x) / length, dy = (b.y - a.y) / length;
       const p = worldToScreen([a.x + dx * opening.offset, a.y + dy * opening.offset], view), rotation = Math.atan2(dy, dx) * 180 / Math.PI;
       layer.add(new K.Rect({ x: p[0], y: p[1], width: opening.width * view.scale, height: wall.thickness * view.scale + 2, offsetX: opening.width * view.scale / 2, offsetY: wall.thickness * view.scale / 2 + 1, rotation, fill: opening.kind === 'window' ? '#c5dfe6' : '#f7faf7', stroke: picked?.kind==='opening'&&picked.id===opening.id?'#b6723f':opening.kind === 'window' ? '#5994a5' : '#668370', strokeWidth: 1 }));
+    }
+    for(const opening of document.openings)if(opening.kind==='door'){
+      const symbol=openingSymbol(document,opening),hinge=worldToScreen(symbol.hinge,view),leaf=worldToScreen(symbol.leaf,view);
+      layer.add(new K.Line({points:symbol.arc.flatMap(p=>[...worldToScreen(p,view)]),stroke:'#668370',strokeWidth:1,dash:[3,2]}));
+      layer.add(new K.Line({points:[...hinge,...leaf],stroke:'#668370',strokeWidth:2}));
     }
     if(picked?.kind==='furniture'){
       const object=document.furniture.find(f=>f.id===picked.id);

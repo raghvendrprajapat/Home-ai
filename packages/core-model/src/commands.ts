@@ -7,7 +7,7 @@ interface CommandBase { id: string; baseGeneration: number; roomChoices?: readon
 export type Command = CommandBase & (
   | { type: 'AddWall'; from: readonly [number, number]; to: readonly [number, number]; thickness: number; height: number }
   | { type: 'AddRectangle'; x: number; y: number; width: number; depth: number; thickness: number; height: number }
-  | { type: 'MoveJunctions'; moves: { junction: string; to: readonly [number, number] }[] }
+  | { type: 'MoveJunctions'; moves: { junction: string; to: readonly [number, number] }[]; openingPlacement?: 'a' | 'b' | 'centre' }
   | { type: 'MoveWall'; wallId: string; dx: number; dy: number }
   | { type: 'DeleteWall'; wallId: string; deleteDependents: boolean }
   | { type: 'ReverseWall'; wallId: string }
@@ -46,6 +46,9 @@ function syncEntities<T extends { id: string }>(target: T[], values: T[]): void 
 }
 export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, command: Command): CommandEffects {
   let geometryChanged = false;
+  if ('openingPlacement' in command && command.openingPlacement !== undefined &&
+      (command.type !== 'MoveJunctions' || !['a', 'b', 'centre'].includes(command.openingPlacement)))
+    throw new GeometryError('opening-placement', 'Opening placement must be A, B or centre on a junction movement.');
   const wall = (id: string) => requireEntity(draft.walls, id);
   const addWall = (from: readonly [number, number], to: readonly [number, number], thickness: number, height: number, materials?: Pick<Wall, 'leftMaterial' | 'rightMaterial'>) => {
     const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)]);
@@ -95,6 +98,13 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
         if (seen.has(move.junction)) throw new GeometryError('duplicate-move', 'A junction can only be moved once.'); seen.add(move.junction);
         const j = requireEntity(draft.junctions, move.junction); j.x = move.to[0]; j.y = move.to[1];
       }
+      for (const opening of draft.openings) {
+        const host = wall(opening.wallId), oldHost = requireEntity(previous.walls, opening.wallId);
+        const delta = wallLength(draft, host) - wallLength(previous, oldHost);
+        const shift = command.openingPlacement === 'b' ? delta : command.openingPlacement === 'centre' ? delta / 2 : 0;
+        if (!Number.isSafeInteger(shift)) throw new GeometryError('opening-placement-integer', 'Centred opening placement requires a whole-mm offset; use an even-mm length change or end A/B.', [opening.id, host.id]);
+        opening.offset += shift;
+      }
       geometryChanged = true; break;
     }
     case 'MoveWall': {
@@ -142,7 +152,12 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       const lineage = normalized.lineage.find(l => l.wallId === o.wallId);
       if (!lineage) throw new GeometryError('opening-host', 'Opening host was removed without explicit deletion.', [o.id]);
       const child = lineage.children.find(c => o.offset - o.width / 2 >= c.start && o.offset + o.width / 2 <= c.end);
-      if (!child) throw new GeometryError('opening-split', 'A wall split passes through a door/window.', [o.id]);
+      if (!child) {
+        const extent = Math.max(...lineage.children.map(c => c.end));
+        if (o.offset - o.width / 2 < 0 || o.offset + o.width / 2 > extent)
+          throw new GeometryError('opening-clearance', 'The door/window no longer fits on its resized wall.', [o.id, o.wallId]);
+        throw new GeometryError('opening-split', 'A wall split passes through a door/window.', [o.id]);
+      }
       const offset = child.reversed ? child.end - o.offset : o.offset - child.start;
       o.wallId = child.id; o.offset = offset; if (child.reversed) o.flipX = !o.flipX;
     }

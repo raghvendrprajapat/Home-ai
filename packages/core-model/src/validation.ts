@@ -1,17 +1,22 @@
-import { applyGeometry, assertCoordinate, detectFaces, endpoints, GeometryError, wallLength } from '@gharplan/geometry';
+import { applyGeometry, assertCoordinate, detectFaces, GeometryError, wallLength } from '@gharplan/geometry';
 import validateShape from './generated/project-validator.js';
 import { canonicalStringify, MAX_DOCUMENT_BYTES, utf8Bytes } from './serialization';
 import { CURRENT_SCHEMA_VERSION, MigrationRegistry } from './migrations';
-import type { Opening, ProjectDoc, ValidationIssue, Wall } from './types';
+import type { Opening, ProjectDoc, ValidationIssue, Wall, Junction } from './types';
 
 function issue(code: string, message: string, entityIds: string[] = []): ValidationIssue { return { code, message, entityIds }; }
 function cycleEqual(a: readonly string[], b: readonly string[]): boolean {
   return a.length === b.length && a.some((_, start) => b.every((id, i) => id === a[(start + i) % a.length]));
 }
-export function openingEndGuard(document: ProjectDoc, wall: Wall, end: 'a' | 'b'): number {
-  const [a, b] = endpoints(document, wall), horizontal = a.y === b.y;
+export function openingEndGuard(document: { readonly walls: readonly Wall[]; readonly junctions: readonly Junction[] }, wall: Wall, end: 'a' | 'b'): number {
+  const ends = (w: Wall) => {
+    const a = document.junctions.find(j => j.id === w.a), b = document.junctions.find(j => j.id === w.b);
+    if (!a || !b) throw new GeometryError('junction-reference', 'Wall endpoint is missing.', [w.id]);
+    return [a, b] as const;
+  };
+  const [a, b] = ends(wall), horizontal = a.y === b.y;
   const neighbors = document.walls.filter(w => w.id !== wall.id && (w.a === wall[end] || w.b === wall[end]));
-  const perpendicular = neighbors.filter(w => { const [c, d] = endpoints(document, w); return horizontal !== (c.y === d.y); });
+  const perpendicular = neighbors.filter(w => { const [c, d] = ends(w); return horizontal !== (c.y === d.y); });
   return 50 + (perpendicular.length ? Math.max(...perpendicular.map(w => w.thickness / 2)) : !neighbors.length ? wall.thickness / 2 : 0);
 }
 export function validateOpening(document: ProjectDoc, opening: Opening): ValidationIssue[] {
