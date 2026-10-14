@@ -26,12 +26,14 @@ export function polygonContains(point:Point2,polygon:readonly Point2[]):boolean 
 }
 /** Generation-owned 1m hash. Oversized bounds use a full candidate fallback, never disappear. */
 export class PickIndex {
-  private cells=new Map<string,Entry[]>();private broad:Entry[]=[];
+  private cells=new Map<string,Entry[]>();private broad:Entry[]=[];private entries:Entry[]=[];private wallBounds=new Map<string,Bounds>();
   readonly generation:number;readonly projectId:string;
   constructor(snapshot:Snapshot){
     this.generation=snapshot.localGeneration;this.projectId=snapshot.document.id;
     const doc=snapshot.document,junctions=new Map(doc.junctions.map(j=>[j.id,j]));let totalCells=0;
+    for(const f of snapshot.derived.footprints){const old=this.wallBounds.get(f.ownerId),r=f.rect;this.wallBounds.set(f.ownerId,old?[Math.min(old[0],r[0]),Math.min(old[1],r[1]),Math.max(old[2],r[2]),Math.max(old[3],r[3])]:r);}
     const add=(entry:Entry)=>{
+      this.entries.push(entry);
       const [left,top,right,bottom]=entry.bounds.map(n=>Math.floor(n/1000)) as [number,number,number,number],count=(right-left+1)*(bottom-top+1);
       if(count>4096||totalCells+count>100000){this.broad.push(entry);return;}totalCells+=count;
       for(let x=left;x<=right;x++)for(let y=top;y<=bottom;y++){const key=`${x}:${y}`,list=this.cells.get(key)??[];list.push(entry);this.cells.set(key,list);}
@@ -50,6 +52,11 @@ export class PickIndex {
       add({pick:{kind:'wall',id:wall.id},order:0,bounds:[Math.min(a.x,b.x)-half,Math.min(a.y,b.y)-half,Math.max(a.x,b.x)+half,Math.max(a.y,b.y)+half],test:(p,padding)=>segmentDistance(p,[a.x,a.y],[b.x,b.y])<=half+padding});}
     for(const face of snapshot.derived.faces){const polygons=face.clearPolygons,points=polygons.flat();
       add({pick:{kind:'room',id:face.roomId},order:0,bounds:[Math.min(...points.map(p=>p[0])),Math.min(...points.map(p=>p[1])),Math.max(...points.map(p=>p[0])),Math.max(...points.map(p=>p[1]))],test:p=>polygons.some(polygon=>polygonContains(p,polygon))});}
+  }
+  contained(a:Point2,b:Point2):Pick[] {
+    if(![...a,...b].every(Number.isFinite))throw new Error('Invalid selection box.');
+    const box=[Math.min(a[0],b[0]),Math.min(a[1],b[1]),Math.max(a[0],b[0]),Math.max(a[1],b[1])];
+    return this.entries.filter(e=>['wall','opening','furniture'].includes(e.pick.kind)).filter(e=>{const r=e.pick.kind==='wall'?this.wallBounds.get(e.pick.id)??e.bounds:e.bounds;return r[0]>=box[0]!&&r[1]>=box[1]!&&r[2]<=box[2]!&&r[3]<=box[3]!;}).map(e=>e.pick).sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);
   }
   picks(screen:Point2,view:Viewport,touch:boolean):Pick[]{
     if(!Number.isFinite(view.scale)||view.scale<0.001||view.scale>1||!screen.every(Number.isFinite)||![view.x,view.y].every(Number.isFinite))throw new Error('Invalid pick viewport.');
