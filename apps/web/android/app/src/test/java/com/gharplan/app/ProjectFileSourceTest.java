@@ -15,6 +15,10 @@ public class ProjectFileSourceTest {
         assertEquals(source.getCanonicalFile(), ProjectFileSource.resolve(cache, "exports/" + name));
         for (String path : new String[] { "../data/project.json", source.getAbsolutePath(), "exports/../project.json", "exports/user.json", "exports/gharplan-ffffffffffffffffffffffffffffffff.json" }) assertThrows(IOException.class, () -> ProjectFileSource.resolve(cache, path));
     }
+    @Test public void pngIsExplicitAndNeverAdmittedThroughDefaultJsonFormat() throws Exception {
+        File cache=temp.newFolder("pngcache"), exports=new File(cache,"exports");assertTrue(exports.mkdir());String path="exports/gharplan-0123456789abcdef0123456789abcdef.png";File source=new File(cache,path);Files.write(source.toPath(),new byte[]{1});
+        assertEquals(source.getCanonicalFile(),ProjectFileSource.resolve(cache,path,"png"));assertThrows(IOException.class,()->ProjectFileSource.resolve(cache,path));assertThrows(IOException.class,()->ProjectFileSource.resolve(cache,path,"jpeg"));assertThrows(IOException.class,()->ProjectFileSource.resolve(cache,"../"+path,"png"));
+    }
     @Test public void directoryAndFileSymlinksCannotEscapeCache() throws Exception {
         File cache = temp.newFolder("cache"), outside = temp.newFolder("outside"), target = new File(outside, name); Files.write(target.toPath(), new byte[] { 1 });
         Files.createSymbolicLink(new File(cache, "exports").toPath(), outside.toPath());

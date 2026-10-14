@@ -26,7 +26,7 @@ public class ProjectFilesPlugin extends Plugin {
     private final AtomicBoolean pending = new AtomicBoolean(false);
 
     private File source(PluginCall call) throws IOException {
-        return ProjectFileSource.resolve(getContext().getCacheDir(), call.getString("path", ""));
+        return ProjectFileSource.resolve(getContext().getCacheDir(), call.getString("path", ""), call.getString("format", "json"));
     }
     private long size(PluginCall call) throws IOException {
         Object value = call.getData().opt("bytes");
@@ -43,10 +43,12 @@ public class ProjectFilesPlugin extends Plugin {
         io.execute(() -> {
             try {
                 try (InputStream input = new FileInputStream(source(call))) { ProjectFileStreams.check(input, null, size(call), call.getString("sha256")); }
+                if ("png".equals(call.getString("format", "json"))) { try (InputStream input = new FileInputStream(source(call))) { ProjectPngSource.check(input); } }
                 getBridge().executeOnMainThread(() -> {
                     try {
-                        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType("application/json");
-                        intent.putExtra(Intent.EXTRA_TITLE, "gharplan-project.json");
+                        boolean png = "png".equals(call.getString("format", "json"));
+                        Intent intent = new Intent(Intent.ACTION_CREATE_DOCUMENT).addCategory(Intent.CATEGORY_OPENABLE).setType(png ? "image/png" : "application/json");
+                        intent.putExtra(Intent.EXTRA_TITLE, png ? "gharplan-plan.png" : "gharplan-project.json");
                         intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION | Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
                         startActivityForResult(call, intent, "destination");
                     } catch (Exception e) { reject(call, "EXPORT_PICKER"); }

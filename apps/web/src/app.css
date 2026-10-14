@@ -627,3 +627,5 @@ select {
 .touch-loupe span { font-size:10px; line-height:20px; white-space:nowrap; color:#42534b; }
 
 label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items:center; gap:8px; }
+
+.plan-image-preview{display:block;width:100%;height:auto;max-width:720px;border:1px solid var(--line,#ccd7cd);background:white}
