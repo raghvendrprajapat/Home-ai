@@ -155,6 +155,7 @@ export const messages = {
   threeUnavailable: ['3D is unavailable on this device. Continue editing in 2D; your drawing is unchanged.', 'इस डिवाइस पर 3D उपलब्ध नहीं है। 2D में जारी रखें; ड्रॉइंग नहीं बदली है।'],
   threeFailed: ['3D could not update. Continue in 2D or retry; your drawing is unchanged.', '3D अपडेट नहीं हुआ। 2D में जारी रखें या फिर कोशिश करें; ड्रॉइंग नहीं बदली है।'],
   threeReady: ['3D matches the current drawing. Furniture is shown by its dimensions.', '3D मौजूदा ड्रॉइंग से मेल खाता है। फर्नीचर उसके नाप के अनुसार दिखता है।'],
+  threeFallback: ['3D could not recover. Your drawing and Undo history are retained in 2D. You can retry 3D.', '3D वापस नहीं आ सका। आपकी ड्रॉइंग और Undo इतिहास 2D में सुरक्षित हैं। आप 3D फिर खोल सकते हैं।'],
   threeLost: ['3D paused. Continue in 2D while the display recovers.', '3D रुका है। डिस्प्ले ठीक होने तक 2D में जारी रखें।'],
   threeRestoring: ['Restoring 3D…', '3D वापस लाया जा रहा है…'],
   threeHint: ['Drag to orbit · two fingers to pan/zoom · arrow keys to orbit', 'घुमाने के लिए खींचें · दो उँगलियों से खिसकाएँ/ज़ूम करें · तीर कुंजियों से घुमाएँ'],

@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import type {ProjectDoc} from '@gharplan/core-model';
 import {expect,it} from 'vitest';
 import fc from 'fast-check';
-import {clampOrbit,encodeBookmark,bookmarkPose,fitPose,MAX_POLAR} from './camera';
+import {clampOrbit,stablePose,encodeBookmark,bookmarkPose,fitPose,MAX_POLAR} from './camera';
 import {captureBudget,pixelRatio,profiles,resolveQuality} from './quality';
 import type {CameraPose} from './camera';
 it('REN-001 property extreme pan/zoom/tilt always stays finite, above floor, bounded target/distance/polar',()=>{
@@ -36,4 +36,9 @@ it('REN-001 property integer opening dimensions map to independent horizontal/ve
 });
 it('REN-001 property quantized camera vectors reopen across bounded poses with at most0.5mm coordinate rounding',()=>{
  const v=fc.tuple(fc.integer({min:-100,max:100}),fc.integer({min:-100,max:100}),fc.integer({min:-100,max:100}));fc.assert(fc.property(v,v,(position,target)=>{const p=clampOrbit({position,target},[-40,0,-40,40,10,40],0),saved={...encodeBookmark(p,'Property'),id:'camera_property'},restored=bookmarkPose(saved);for(let i=0;i<3;i++){expect(Math.abs(restored.position[i]!-p.position[i]!)).toBeLessThanOrEqual(.0005+1e-9);expect(Math.abs(restored.target[i]!-p.target[i]!)).toBeLessThanOrEqual(.0005+1e-9);}}),{numRuns:100,seed:33313});
+});
+
+it('transient pose stabilization is idempotent and preserves canonical millimetre bookmarks',()=>{
+ fc.assert(fc.property(fc.array(fc.double({min:-1000,max:1000,noNaN:true,noDefaultInfinity:true}),{minLength:6,maxLength:6}),values=>{const pose={position:values.slice(0,3) as [number,number,number],target:values.slice(3) as [number,number,number]},stable=stablePose(pose);expect(stablePose(stable)).toEqual(stable);for(const [i,n]of [...stable.position,...stable.target].entries())expect(Math.abs(n-values[i]!)).toBeLessThanOrEqual(1e-12);}),{numRuns:100,seed:304});
+ const p={position:[6.972544223883958,8.279924905896157,9.279925021380155] as [number,number,number],target:[2.27875005826354,1.4999999999999998,2.500000115483999] as [number,number,number]};expect(encodeBookmark(stablePose(p),'camera')).toEqual(encodeBookmark(p,'camera'));
 });

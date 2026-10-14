@@ -1,0 +1,210 @@
+{
+  "task": "PH3-T04",
+  "executionDate": "2026-10-14",
+  "baseSha": "885cfd0d7f8c4333bdac4c244b85a156366c895b",
+  "requiredCheck": {
+    "exitCode": 0,
+    "productTests": 331,
+    "files": 46,
+    "elapsedSeconds": 21.32,
+    "toolingTests": 8,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 57,
+    "skipped": 0,
+    "reportedElapsed": "4.3m",
+    "browser": "Chromium151.0.7922.173",
+    "rendering": "Linux SwiftShader; not Android"
+  },
+  "actualGpuRecoveryMs": 492.7000000476837,
+  "rendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 8462164
+      },
+      {
+        "cycles": 16,
+        "usedSize": 9223712
+      },
+      {
+        "cycles": 26,
+        "usedSize": 9336848
+      }
+    ],
+    "baseline": {
+      "usedSize": 9442856,
+      "totalSize": 10194944,
+      "embedderHeapUsedSize": 1884488,
+      "backingStorageSize": 1345947
+    },
+    "after": {
+      "usedSize": 9770900,
+      "totalSize": 10457088,
+      "embedderHeapUsedSize": 1984224,
+      "backingStorageSize": 1345940
+    },
+    "heapGrowth": 0.03473991343296978,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "productionBuild": {
+    "initialGzipBytes": 158144,
+    "initialModules": 1,
+    "limitBytes": 600000,
+    "crashHooks": "absent"
+  },
+  "productionRegressions": {
+    "files": {
+      "passed": 8,
+      "pageErrors": []
+    },
+    "projects": {
+      "passed": 10,
+      "pageErrors": []
+    },
+    "recovery": {
+      "passed": 8,
+      "pageErrors": []
+    }
+  },
+  "gradle": "BUILD SUCCESSFUL in 30s;170 actionable tasks: 40 executed, 130 up-to-date",
+  "nativeHelpers": "8app-owned+1template cached UP-TO-DATE reports;0failure/error/skip, unchanged native code, not new execution",
+  "signature": "v2 verified",
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114014,
+    "sha256": "e214be50314e995f9e6bf31ed3d18e8bb01ef84990e0abc095558129f56cc17a",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packageChecks": {
+    "sha256": "e214be50314e995f9e6bf31ed3d18e8bb01ef84990e0abc095558129f56cc17a",
+    "bytes": 8114014,
+    "webFilesByteEqual": 13,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "protectedIntegrity": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "freshCodexReview": {
+    "independentFiles": 5,
+    "independentTestsPassed": 32,
+    "resolvedFindings": [
+      "partial allocation constructor/geometry rollback",
+      "cleanup despite independent disposer exceptions",
+      "monotonic overdue-draw rejection"
+    ],
+    "outstandingBlockers": 0,
+    "claude": "deferred D17/D36"
+  },
+  "warmupDiagnosis": [
+    {
+      "cycles": 6,
+      "usedSize": 8324376,
+      "totalSize": 9191424,
+      "embedderHeapUsedSize": 1952736,
+      "backingStorageSize": 1340149
+    },
+    {
+      "cycles": 16,
+      "usedSize": 9032848,
+      "totalSize": 9453568,
+      "embedderHeapUsedSize": 2618312,
+      "backingStorageSize": 1340142
+    },
+    {
+      "cycles": 26,
+      "usedSize": 9170280,
+      "totalSize": 9977856,
+      "embedderHeapUsedSize": 3362776,
+      "backingStorageSize": 1340142
+    },
+    {
+      "cycles": 36,
+      "usedSize": 9281804,
+      "totalSize": 9977856,
+      "embedderHeapUsedSize": 4495080,
+      "backingStorageSize": 1340142
+    },
+    {
+      "cycles": 86,
+      "usedSize": 9579508,
+      "totalSize": 10240000,
+      "embedderHeapUsedSize": 8240184,
+      "backingStorageSize": 1340142
+    }
+  ],
+  "initialFailures": {
+    "sixCycleWarmupHeapGrowthBeforeRootFix": 0.16757242131744654,
+    "sixCycleWarmupHeapGrowthAfterRootFix": 0.13161126994746364,
+    "meaning": "Failed initial ten-percent checks are retained; short warmup included JIT growth and the corrected OrbitControls document-listener root. Final fixed36warm/50measured is warmed V8 only.",
+    "otherResolved": [
+      "fallback notice overwritten by2D mount",
+      "observer initialized before documentElement and sampled cleanup too early",
+      "sub-ULP pose drift after quality recreation",
+      "initial unsupportedWebGL panel baseline behavior"
+    ]
+  },
+  "limitations": [
+    "Renderer-toggle cycles are not full project-open/close acceptance",
+    "Main-frame V8 only; worker heaps/native/embedder/GPU driver bytes and phones not covered",
+    "Cold six-cycle runs exceeded ten-percent heap threshold; no cold/device memory acceptance claim",
+    "One current3D view; simultaneous renderers retain earlier vendorLUT context listeners until final shared owner closes",
+    "No physicalLow/Mid/context-loss/thermal/provider/Hindi/TalkBack/browsermatrix run",
+    "No accounts/cloud/mobileoptimization/directshare/billing/security/privacy/release/finalClaude work; D36 permission required"
+  ]
+}
