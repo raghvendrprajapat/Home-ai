@@ -9,18 +9,24 @@ import type { GestureStep, DragMotion } from './gestures';
 import { PickIndex, PickCycle } from './hit-test';
 import type { Pick } from './hit-test';
 import { TouchLoupe } from './TouchLoupe';
+import { drawingTarget } from './drawing-tools';
+import type { DrawingTool } from './drawing-tools';
 import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
-interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
+interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface Drag { pointerId: number; junction: string; generation: number; start: Point2; last: Point2; snapTarget?: string; touch: boolean; store: ProjectStore }
-export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, locale = 'en' }: Props) {
+export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, locale = 'en' }: Props) {
   const language = useRef(locale); language.current = locale;
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), stage = useRef<Konva.Stage | null>(null), drawingLayer = useRef<Konva.Layer | null>(null), library = useRef<typeof Konva | null>(null);
   const drag = useRef<Drag | null>(null), gestures = useRef(new PlanGestures()), cycle = useRef(new PickCycle());
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null), frame = useRef<number | null>(null), latestMotion = useRef<{motion:DragMotion;shift:boolean}|null>(null);
   const panKey = useRef(false);
   const activeStore = useRef(store); activeStore.current = store;
+  const toolRef=useRef(drawing);toolRef.current=drawing;
+  const toolPointer=useRef<{id:number;point:Point2;world:Point2;generation:number;epoch:number}|null>(null),toolFrame=useRef<number|null>(null);
+  const [toolState,setToolState]=useState(()=>drawing?.getSnapshot());
+  useEffect(()=>{if(!drawing)return;setToolState(drawing.getSnapshot());return drawing.subscribe(()=>setToolState(drawing.getSnapshot()));},[drawing]);
   const index = useMemo(() => new PickIndex(snapshot), [snapshot]);
   const [picked, setPicked] = useState<Pick | null>(null), [loupe,setLoupe] = useState<{point:Point2;world:Point2}|null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 }), [view, setView] = useState<Viewport>({ x: 0, y: 0, scale: 0.06 });
@@ -34,11 +40,14 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     if(holdTimer.current!==null)clearTimeout(holdTimer.current);holdTimer.current=null;
     if(frame.current!==null)cancelAnimationFrame(frame.current);frame.current=null;latestMotion.current=null;
     drag.current=null;setPreview(null);setLoupe(null);
+    if(toolFrame.current!==null)cancelAnimationFrame(toolFrame.current);toolFrame.current=null;toolPointer.current=null;
   };
   const cancel = () => {
     gestures.current.cancel();clearEdit();cycle.current.clear();
+    toolRef.current?.clear();
     for(const id of gestures.current.ids())if(host.current?.hasPointerCapture(id))host.current.releasePointerCapture(id);
   };
+  useEffect(()=>{if(gestures.current.phase!=='idle')cancel();},[toolState?.mode]);
   const targetFor = (motion:DragMotion,shift:boolean):Point2|null => {
     const d=drag.current;if(!d||d.pointerId!==motion.pointerId)return null;
     const current=d.store.getSnapshot();
@@ -60,7 +69,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     frame.current=requestAnimationFrame(()=>{frame.current=null;const next=latestMotion.current;latestMotion.current=null;if(next)previewMotion(next.motion,next.shift);});
   };
   const applyStep = (step:GestureStep,shift=false) => {
-    if(step.cancelEdit)clearEdit();if(step.view)changeView(step.view);if(step.drag)schedule(step.drag,shift);
+    if(step.cancelEdit){clearEdit();if(step.phase==='pinch'||step.phase==='blocked')toolRef.current?.clear();}if(step.view&&!toolPointer.current)changeView(step.view);if(step.drag)schedule(step.drag,shift);
   };
   useEffect(() => {
     const element = host.current!;
@@ -140,7 +149,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
         const sy = worldToScreen([0, y], view)[1]; layer.add(new K.Line({ points: [0, sy, size.width, sy], stroke: '#e4e9e5', strokeWidth: 1 }));
       }
     }
-    const currentPreview = preview?.ok && drag.current?.generation === snapshot.localGeneration ? preview : null;
+    const currentPreview = toolState?.preview?.ok ? toolState.preview : preview?.ok && drag.current?.generation === snapshot.localGeneration ? preview : null;
     const document = currentPreview ? currentPreview.document : snapshot.document, derived = currentPreview ? currentPreview.derived : snapshot.derived;
     const labels: { x: number; y: number; width: number; text: string }[] = [];
     for (const [i, face] of derived.faces.entries()) {
@@ -176,13 +185,22 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     for (const j of document.junctions) {
       const p = worldToScreen([j.x, j.y], view); layer.add(new K.Circle({ x: p[0], y: p[1], radius: j.id === selected ? 7 : 5, fill: '#fff', stroke: j.id === selected ? '#b6723f' : '#6c8979', strokeWidth: 2 }));
     }
+    if(toolState?.anchor&&toolState.end){const a=worldToScreen(toolState.anchor,view),b=worldToScreen(toolState.end,view);layer.add(new K.Line({points:toolState.mode==='rectangle'?[a[0],a[1],b[0],a[1],b[0],b[1],a[0],b[1],a[0],a[1]]:[...a,...b],stroke:toolState.error?'#b33d3d':'#b6723f',strokeWidth:3,dash:[7,4]}));}
     canvas.batchDraw();
-  }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale]);
+  }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale, toolState]);
   return <div ref={host} className="plan-canvas" role="application" aria-label={message(locale, 'canvas2d')} tabIndex={0} data-testid="plan-canvas"
     data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id}
     onPointerDown={event=>{
       if(event.button!==0&&event.button!==1)return;
       const point=localPoint(event),touch=event.pointerType==='touch',pick=index.picks(point,viewRef.current,touch)[0],now=performance.now();
+      const drawingMode=toolRef.current?.getSnapshot().mode;
+      if(drawingMode&&drawingMode!=='select'&&event.button===0&&!panKey.current){
+        const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,false,now);
+        event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);
+        if(step.cancelEdit){applyStep(step);return;}
+        const state=toolRef.current!.getSnapshot(),world=drawingTarget(snapshot.document,screenToWorld(point,viewRef.current),viewRef.current,state.anchor,drawingMode==='wall',event.shiftKey);
+        toolPointer.current={id:event.pointerId,point,world,generation:snapshot.localGeneration,epoch:state.epoch};if(touch)setLoupe({point,world});return;
+      }
       const canDrag=event.button===0&&!panKey.current&&pick?.kind==='junction';
       const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,canDrag,now);
       event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);applyStep(step);
@@ -194,9 +212,24 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
         onMessage(message(locale,touch?'touchHold':'previewHelp'));
       }
     }}
-    onPointerMove={event=>applyStep(gestures.current.move(event.pointerId,localPoint(event),performance.now()),event.shiftKey)}
+    onPointerMove={event=>{
+      const point=localPoint(event),step=gestures.current.move(event.pointerId,point,performance.now()),tool=toolRef.current,mode=tool?.getSnapshot().mode;
+      if(tool&&mode!=='select'&&gestures.current.phase!=='pinch'&&gestures.current.phase!=='blocked'&&!panKey.current){
+        const state=tool.getSnapshot(),pointer=toolPointer.current,world=drawingTarget(snapshot.document,screenToWorld(point,viewRef.current),viewRef.current,state.anchor,mode==='wall',event.shiftKey);
+        if(pointer&&(pointer.generation!==store.getSnapshot().localGeneration||pointer.epoch!==state.epoch)){cancel();return;}
+        if(pointer&&mode==='rectangle'&&!state.anchor&&Math.hypot(point[0]-pointer.point[0],point[1]-pointer.point[1])>3)tool.start(pointer.world);
+        if(event.pointerType==='touch'&&pointer)setLoupe({point,world});
+        if(toolFrame.current!==null)cancelAnimationFrame(toolFrame.current);
+        const epoch=state.epoch;toolFrame.current=requestAnimationFrame(()=>{toolFrame.current=null;if(tool.getSnapshot().epoch===epoch)tool.hover(world);});return;
+      }
+      applyStep(step,event.shiftKey);
+    }}
     onPointerUp={event=>{
-      const point=localPoint(event),step=gestures.current.end(event.pointerId,point,performance.now());
+      const point=localPoint(event),pointer=toolPointer.current,wasPhase=gestures.current.phase,step=gestures.current.end(event.pointerId,point,performance.now()),tool=toolRef.current;
+      if(pointer&&pointer.id===event.pointerId&&tool&&wasPhase==='pan'){
+        const state=tool.getSnapshot();if(pointer.generation===store.getSnapshot().localGeneration&&pointer.epoch===state.epoch){const world=drawingTarget(snapshot.document,screenToWorld(point,viewRef.current),viewRef.current,state.anchor,state.mode==='wall',event.shiftKey);tool.point(world);}
+        clearEdit();if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);return;
+      }
       if(step.commit){
         const to=targetFor(step.commit,event.shiftKey),d=drag.current;clearEdit();
         if(to&&d&&(to[0]!==d.start[0]||to[1]!==d.start[1])){
@@ -206,12 +239,12 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       }else applyStep(step);
       if(step.tap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}
       if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);
-    }} onPointerCancel={event=>{gestures.current.cancel();gestures.current.end(event.pointerId,localPoint(event),performance.now());clearEdit();onMessage(message(locale,'dragCancelled'));}}
+    }} onDoubleClick={()=>toolRef.current?.clear()} onPointerCancel={event=>{gestures.current.cancel();gestures.current.end(event.pointerId,localPoint(event),performance.now());clearEdit();toolRef.current?.clear();onMessage(message(locale,'dragCancelled'));}}
     onLostPointerCapture={event=>{if(gestures.current.has(event.pointerId))cancel();}}>
     <div ref={mount} className="konva-mount" />
     {!ready && <span className="canvas-loading">{message(locale, 'loadingPlan')}</span>}
     <span className="canvas-hint">{message(locale, 'planHint')}</span>
-    {loupe&&<TouchLoupe point={loupe.point} world={loupe.world} view={view} size={size} snapshot={snapshot} preview={preview} locale={locale} />}
+    {loupe&&<TouchLoupe point={loupe.point} world={loupe.world} view={view} size={size} snapshot={snapshot} preview={toolState?.preview??preview} locale={locale} />}
     <span className="canvas-scale">{Math.round(view.scale * 1000)} {message(locale, 'pixelsPerMetre')}</span>
   </div>;
 }
