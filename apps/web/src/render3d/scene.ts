@@ -1,3 +1,5 @@
+import { materialBatches } from './batches';
+import type {QualityTier} from './quality';
 import * as THREE from 'three';
 import type { ProjectStore } from '@gharplan/core-model';
 import type { MeshData, SceneBundle } from './types';
@@ -27,7 +29,9 @@ export class SceneAdapter {
   #furniture = new Map<string, THREE.Mesh>();
   #placeholder = new THREE.MeshStandardMaterial({ color: '#778d76', roughness: 0.8 });
   #ceiling=new THREE.MeshStandardMaterial({color:'#f8f8f2',roughness:1,metalness:0,side:THREE.DoubleSide});
-  #showCeilings=false;
+  #showCeilings=false;#tier:QualityTier='mid';#batches:THREE.Mesh[]=[];
+  #instances:THREE.InstancedMesh|null=null;#instanceCount=0;
+  constructor(tier:QualityTier='mid'){this.#tier=tier;}
   #unitBox = new THREE.BoxGeometry(1, 1, 1);
   lastChanges = { replaced: [] as string[], kept: [] as string[], removed: [] as string[] };
   apply(bundle: SceneBundle, document: ReturnType<ProjectStore['getSnapshot']>['document']): void {
@@ -46,10 +50,14 @@ export class SceneAdapter {
       const geometry = bufferGeometry(data), materials = data.groups.map(g => data.category==='ceiling'?this.#ceiling:this.#materials.get(g.materialId)!);
       const mesh = previous?.mesh ?? new THREE.Mesh();
       if (previous) mesh.geometry.dispose(); else this.group.add(mesh);
-      mesh.geometry = geometry; mesh.material = materials;mesh.visible=data.category!=='ceiling'||this.#showCeilings; mesh.userData = { entityId: data.entityId, category: data.category };
+      mesh.geometry = geometry; mesh.material = materials;mesh.visible=this.#tier!=='low'&&(data.category!=='ceiling'||this.#showCeilings);mesh.castShadow=true;mesh.receiveShadow=true; mesh.userData = { entityId: data.entityId, category: data.category };
       this.#meshes.set(data.id, { data, mesh }); this.lastChanges.replaced.push(data.id);
     }
+    if(this.#tier==='low'&&(this.lastChanges.replaced.length||this.lastChanges.removed.length||!this.#batches.length)){for(const batch of this.#batches){this.group.remove(batch);batch.geometry.dispose();}this.#batches=materialBatches(bundle.meshes).map(b=>{const mesh=new THREE.Mesh(b.geometry,b.ceiling?this.#ceiling:this.#materials.get(b.materialId)!);mesh.visible=!b.ceiling||this.#showCeilings;mesh.userData={category:'structural-batch',ceiling:b.ceiling,entityRanges:b.ranges};this.group.add(mesh);return mesh;});}
     for (const [id, material] of this.#materials) if (!wantedMaterials.has(id)) { material.dispose(); this.#materials.delete(id); }
+    const instanced=this.#tier==='low'&&document.furniture.length>=3;
+    if(this.#instances&&(!instanced||this.#instanceCount!==document.furniture.length)){this.group.remove(this.#instances);this.#instances.dispose();this.#instances=null;}
+    if(instanced&&!this.#instances){this.#instances=new THREE.InstancedMesh(this.#unitBox,this.#placeholder,document.furniture.length);this.#instanceCount=document.furniture.length;this.group.add(this.#instances);}
     const furniture = new Set(document.furniture.map(f => f.id));
     for (const [id, mesh] of this.#furniture) if (!furniture.has(id)) { this.group.remove(mesh); this.#furniture.delete(id); }
     for (const item of document.furniture) {
@@ -57,12 +65,15 @@ export class SceneAdapter {
       if (!this.#furniture.has(item.id)) { this.#furniture.set(item.id, mesh); this.group.add(mesh); }
       mesh.scale.set(item.size.w / 1000, item.size.h / 1000, item.size.d / 1000);
       mesh.position.set(item.position.x / 1000, (document.floors[0]!.elevation + item.elevation + item.size.h / 2) / 1000, item.position.y / 1000);
+      mesh.visible=!instanced;mesh.castShadow=true;mesh.receiveShadow=true;
       mesh.rotation.y = -item.rotationDeg * Math.PI / 180; mesh.userData = { entityId: item.id, category: 'furniture-placeholder' };
     }
+    if(this.#instances){document.furniture.forEach((item,i)=>{const mesh=this.#furniture.get(item.id)!;mesh.updateMatrix();this.#instances!.setMatrixAt(i,mesh.matrix);});this.#instances.instanceMatrix.needsUpdate=true;this.#instances.computeBoundingBox();this.#instances.computeBoundingSphere();this.#instances.userData={category:'furniture-instances',entityIds:document.furniture.map(f=>f.id)};}
   }
-  setCeilingsVisible(visible:boolean):void{this.#showCeilings=visible;for(const {data,mesh}of this.#meshes.values())if(data.category==='ceiling')mesh.visible=visible;}
+  setCeilingsVisible(visible:boolean):void{this.#showCeilings=visible;for(const {data,mesh}of this.#meshes.values())if(data.category==='ceiling')mesh.visible=this.#tier!=='low'&&visible;for(const mesh of this.#batches)if(mesh.userData.ceiling)mesh.visible=visible;}
   mesh(id: string): THREE.Mesh | undefined { return this.#meshes.get(id)?.mesh; }
   dispose(): void {
+    for(const batch of this.#batches)batch.geometry.dispose();this.#batches=[];this.#instances?.dispose();this.#instances=null;
     for (const { mesh } of this.#meshes.values()) mesh.geometry.dispose();
     for (const material of this.#materials.values()) material.dispose();
     this.#ceiling.dispose();this.#placeholder.dispose(); this.#unitBox.dispose(); this.#meshes.clear(); this.#materials.clear(); this.#furniture.clear(); this.group.clear();

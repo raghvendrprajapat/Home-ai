@@ -1,0 +1,20 @@
+import {expect,it} from 'vitest';
+import * as THREE from 'three';
+import {captureFrame} from './capture';
+function harness(){
+ let w=640,h=480,ratio=2,target:unknown={name:'previous target'},viewport=new THREE.Vector4(1,2,600,400),scissor=new THREE.Vector4(3,4,500,300),scissorTest=true,draws=0;const allocations:number[]=[],canvas={style:{width:'640px',height:'480px'}} as HTMLCanvasElement;
+ const gl={drawingBufferWidth:1280,drawingBufferHeight:960,SAMPLES:1,getParameter:()=>4,isContextLost:()=>false};
+ const r={domElement:canvas,toneMapping:THREE.ACESFilmicToneMapping,outputColorSpace:THREE.SRGBColorSpace,getContext:()=>gl,getSize:(v:THREE.Vector2)=>v.set(w,h),getPixelRatio:()=>ratio,getViewport:(v:THREE.Vector4)=>v.copy(viewport),getScissor:(v:THREE.Vector4)=>v.copy(scissor),getScissorTest:()=>scissorTest,getRenderTarget:()=>target,getActiveCubeFace:()=>2,getActiveMipmapLevel:()=>3,
+ setSize:(width:number,height:number,style:boolean)=>{w=width;h=height;gl.drawingBufferWidth=Math.floor(w*ratio);gl.drawingBufferHeight=Math.floor(h*ratio);allocations.push(gl.drawingBufferWidth*gl.drawingBufferHeight);if(style){canvas.style.width=`${w}px`;canvas.style.height=`${h}px`;}},setPixelRatio:(v:number)=>{ratio=v;r.setSize(w,h,false);},setRenderTarget:(v:unknown)=>{target=v;},setScissorTest:(v:boolean)=>{scissorTest=v;},setViewport:(...args:[THREE.Vector4]|[number,number,number,number])=>{viewport=args.length===1?args[0].clone():new THREE.Vector4(...args);},setScissor:(v:THREE.Vector4)=>{scissor=v.clone();},render:()=>{draws++;}};
+ return {r:r as unknown as THREE.WebGLRenderer,raw:r,gl,allocations,canvas,state:()=>({w,h,ratio,target,viewport:viewport.toArray(),scissor:scissor.toArray(),scissorTest,draws})};
+}
+const gpu={maxTextureSize:4096,maxRenderbufferSize:4096,maxSamples:4};
+it('REN-006 default framebuffer copy is synchronous with live color settings and restores logical size before DPR without16M allocation',()=>{
+ const h=harness(),before=h.state(),scene=new THREE.Scene(),camera=new THREE.PerspectiveCamera(45,640/480);const pixels=captureFrame(h.r,scene,camera,2000,2000,5,'high',gpu,canvas=>{expect(canvas).toBe(h.canvas);expect(h.state().target).toBeNull();expect(h.state().scissorTest).toBe(false);expect(h.state().viewport).toEqual([0,0,2000,2000]);expect(h.raw.toneMapping).toBe(THREE.ACESFilmicToneMapping);expect(h.raw.outputColorSpace).toBe(THREE.SRGBColorSpace);expect(h.state().draws).toBe(1);return new Uint8ClampedArray(2000*2000*4);});expect(pixels.generation).toBe(5);expect(Math.max(...h.allocations)).toBe(4_000_000);const after=h.state();expect({...after,draws:before.draws}).toEqual(before);expect(after.draws).toBe(2);expect(h.canvas.style).toEqual({width:'640px',height:'480px'});expect(camera.aspect).toBe(640/480);
+});
+it('REN-006 readback/render exceptions still restore buffer/viewport/scissor/CSS; failed redraw is a distinct unavailable error',()=>{
+ for(const mode of ['copy','render','restore'] as const){const h=harness(),before=h.state();if(mode==='render'){let once=true;h.raw.render=()=>{if(once){once=false;throw new Error('render-fault');}};}if(mode==='restore')h.raw.render=()=>{throw new Error('all-renders-fail');};expect(()=>captureFrame(h.r,new THREE.Scene(),new THREE.PerspectiveCamera(),1000,750,1,'mid',gpu,()=>{if(mode==='copy')throw new Error('readback-fault');return new Uint8ClampedArray(1000*750*4);})).toThrow(mode==='restore'?'capture-restore':mode==='copy'?'readback-fault':'render-fault');const after=h.state();expect({...after,draws:before.draws}).toEqual(before);expect(h.canvas.style).toEqual({width:'640px',height:'480px'});}
+});
+it('REN-006 wrong actual drawing-buffer size/context/budget are failures, never image success',()=>{
+ const h=harness();h.raw.setSize=()=>{};expect(()=>captureFrame(h.r,new THREE.Scene(),new THREE.PerspectiveCamera(),1000,750,1,'mid',gpu,()=>new Uint8ClampedArray(1000*750*4))).toThrow('capture-size');const lost=harness();lost.gl.isContextLost=()=>true;expect(()=>captureFrame(lost.r,new THREE.Scene(),new THREE.PerspectiveCamera(),1000,750,1,'mid',gpu,()=>new Uint8ClampedArray())).toThrow('capture-context');
+});

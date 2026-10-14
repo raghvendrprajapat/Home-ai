@@ -21,6 +21,8 @@ export type Command = CommandBase & (
   | { type: 'DeleteSelection'; wallIds: readonly string[]; openingIds: readonly string[]; furnitureIds: readonly string[]; deleteDependents: boolean }
   | { type: 'DuplicateFurniture'; furnitureIds: readonly string[] }
   | { type: 'UpdateRoom'; roomId: string; properties: Partial<Pick<Room, 'name' | 'ceilingHeight' | 'floorMaterial'>> & { type?: RoomType } }
+  | { type:'AddCameraPreset'; camera:Omit<import('./types').CameraPreset,'id'> }
+  | { type:'DeleteCameraPreset'; cameraId:string }
   | { type: 'RenameProject'; name: string }
   | { type: 'SetUnits'; units: 'metric' | 'imperial' }
 );
@@ -166,6 +168,19 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       break;
     }
     case 'UpdateRoom': assignProperties(requireEntity(draft.rooms, command.roomId), command.properties, ['name', 'type', 'ceilingHeight', 'floorMaterial']); break;
+    case 'AddCameraPreset': {
+      if(draft.cameras.length>=20||command.camera.mode!=='orbit'||typeof command.camera.name!=='string'||command.camera.name.trim().length<1||command.camera.name.trim().length>60)throw new GeometryError('camera-bookmark','Choose a name of1–60characters; at most20orbit bookmarks.');
+      const {position,target}=command.camera;
+      if(!Array.isArray(position)||!Array.isArray(target)||position.length!==3||target.length!==3||[...position,...target].some(v=>!Number.isSafeInteger(v)||Math.abs(v)>1_000_000))throw new GeometryError('camera-bookmark','Camera coordinates must be three bounded integer millimetres.');
+      const delta=position.map((v,i)=>v-target[i]!),distance=Math.hypot(...delta);
+      // Up to3mm covers integer quantization; runtime orbit always clamps to1–200metres.
+      if(distance<997||distance>200_003||position[2]!<=draft.floors[0]!.elevation||target[2]!<draft.floors[0]!.elevation||delta[2]!<distance*Math.cos(85*Math.PI/180)-3)throw new GeometryError('camera-bookmark','Camera bookmark must be within orbit limits and above the floor.');
+      const used=new Set([draft.id,...[draft.floors,draft.junctions,draft.walls,draft.openings,draft.rooms,draft.furniture,draft.materials,draft.lights,draft.cameras].flat().map(e=>e.id)]),id=freshId('camera',used);
+      draft.cameras.push({...command.camera,name:command.camera.name.trim(),id});return {changedIds:[id],checkRoomNamesHint:false};
+    }
+    case 'DeleteCameraPreset': {
+      requireEntity(draft.cameras,command.cameraId);draft.cameras=draft.cameras.filter(c=>c.id!==command.cameraId);return {changedIds:[command.cameraId],checkRoomNamesHint:false};
+    }
     case 'RenameProject': draft.name = command.name; break;
     case 'SetUnits': draft.units = command.units; break;
     default: throw new GeometryError('command', 'Unsupported project command.');

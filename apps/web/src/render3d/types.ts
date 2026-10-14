@@ -16,3 +16,10 @@ export interface SceneBundle {
 }
 export interface BuildRequest { requestId:number; tag: AsyncTag; document: ProjectDoc }
 export type BuildReply = { requestId:number; tag: AsyncTag; ok: true; bundle: SceneBundle } | { requestId:number; tag: AsyncTag; ok: false; message: string };
+export interface ThreeControlsApi {
+ pose():import('./camera').CameraPose;
+ restore(pose:import('./camera').CameraPose):void;
+ reset():void;
+ focus(entityId:string):void;
+ capture(edge:1000|2000,copy:(canvas:HTMLCanvasElement)=>Uint8ClampedArray):import('./capture').CapturedPixels;
+}
