@@ -1,0 +1,10 @@
+{
+  "author": "Codex original analytic PNG fixture; no accepted Claude data",
+  "width": 2,
+  "height": 2,
+  "rgbaRows": "row0 two red opaque pixels; row1 two blue opaque pixels",
+  "base64": "iVBORw0KGgoAAAANSUhEUgAAAAIAAAACCAYAAABytg0kAAAAEklEQVR4nGP4z8DwH4QZoPR/AEPOB/n6gUr9AAAAAElFTkSuQmCC",
+  "oversizedWidthBase64": "iVBORw0KGgoAAAANSUhEUgAACAEAAAACCAYAAAAjQldiAAAAEklEQVR4nGP4z8DwH4QZoPR/AEPOB/n6gUr9AAAAAElFTkSuQmCC",
+  "crcCheckText": "123456789",
+  "crcCheckValue": 3421780262
+}

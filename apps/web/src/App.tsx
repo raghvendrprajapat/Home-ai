@@ -13,6 +13,7 @@ import type {Pick} from './editor/hit-test';
 import type { PrecisionPreview } from './editor/WallPrecision';
 import { junctionMoves } from './editor/view2d';
 import { SaveControls } from './storage/SaveControls';
+import {PlanImageControls} from './export/PlanImageControls';
 import type { WorkspaceSession } from './storage/workspace';
 import { areaDisplay, editError, message } from './i18n/messages';
 import type { MessageArgs, MessageKey } from './i18n/messages';
@@ -86,6 +87,7 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
       </section>
       <aside className="inspector" aria-label={t('planControls')}>
         <SaveControls store={store} {...(session ? { session } : {})} />
+        <PlanImageControls store={store} locale={ui.locale}/>
         <label>{t('currentProjectUnits')}<select aria-label={t('currentProjectUnits')} value={snapshot.document.units} onChange={event=>{const result=store.execute({id:`units_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:snapshot.localGeneration,type:'SetUnits',units:event.target.value as 'metric'|'imperial'});setMessage(result.ok?t('unitDisplayChanged'):editError(ui.locale,result.errors[0]));}}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>
         <div className="inspector-title"><span className="eyebrow">{t('precision')}</span><h3>{t('shapeSpace')}</h3><p>{t('moveCornerHelp')}</p></div>
         <div className="history-buttons"><button disabled={!snapshot.canUndo} onClick={() => { store.undo(); setMessage(t('undone')); }} aria-label={t('undo')}>↶ &nbsp; {t('undo')}</button><button disabled={!snapshot.canRedo} onClick={() => { store.redo(); setMessage(t('redone')); }} aria-label={t('redo')}>↷ &nbsp; {t('redo')}</button></div>
