@@ -18,6 +18,8 @@ export type Command = CommandBase & (
   | { type: 'AddFurniture'; furniture: Omit<FurnitureItem, 'rev'> }
   | { type: 'UpdateFurniture'; furnitureId: string; properties: Partial<Pick<FurnitureItem, 'position' | 'elevation' | 'rotationDeg' | 'size' | 'materialOverrides'>> }
   | { type: 'DeleteFurniture'; furnitureId: string }
+  | { type: 'DeleteSelection'; wallIds: readonly string[]; openingIds: readonly string[]; furnitureIds: readonly string[]; deleteDependents: boolean }
+  | { type: 'DuplicateFurniture'; furnitureIds: readonly string[] }
   | { type: 'UpdateRoom'; roomId: string; properties: Partial<Pick<Room, 'name' | 'ceilingHeight' | 'floorMaterial'>> & { type?: RoomType } }
   | { type: 'RenameProject'; name: string }
   | { type: 'SetUnits'; units: 'metric' | 'imperial' }
@@ -133,6 +135,36 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
     case 'AddFurniture': draft.furniture.push({ ...command.furniture, rev: 0 }); break;
     case 'UpdateFurniture': assignProperties(requireEntity(draft.furniture, command.furnitureId), command.properties, ['position', 'elevation', 'rotationDeg', 'size', 'materialOverrides']); break;
     case 'DeleteFurniture': requireEntity(draft.furniture, command.furnitureId); draft.furniture.splice(draft.furniture.findIndex(f => f.id === command.furnitureId), 1); break;
+    case 'DeleteSelection': {
+      const ids = (values: readonly string[], entities: { id: string }[]) => {
+        if (!Array.isArray(values) || values.length > 500 || values.some(id => typeof id !== 'string') || new Set(values).size !== values.length)
+          throw new GeometryError('selection', 'Selection IDs must be unique and bounded to 500 items.');
+        for (const id of values) requireEntity(entities, id);
+        return new Set(values);
+      };
+      const walls = ids(command.wallIds, draft.walls), openings = ids(command.openingIds, draft.openings), furniture = ids(command.furnitureIds, draft.furniture);
+      if (walls.size + openings.size + furniture.size > 500 || typeof command.deleteDependents !== 'boolean')
+        throw new GeometryError('selection', 'A bounded selection and explicit dependency confirmation are required.');
+      if (!command.deleteDependents && draft.openings.some(o => walls.has(o.wallId) && !openings.has(o.id)))
+        throw new GeometryError('dependent-openings', 'Confirm all selected walls and their hosted doors/windows before deleting.', [...walls]);
+      if(!walls.size&&!openings.size&&!furniture.size)break;
+      if(openings.size||walls.size)draft.openings = draft.openings.filter(o => !openings.has(o.id) && !walls.has(o.wallId));
+      if(furniture.size)draft.furniture = draft.furniture.filter(f => !furniture.has(f.id));
+      if (walls.size) { draft.walls = draft.walls.filter(w => !walls.has(w.id)); geometryChanged = true; }
+      break;
+    }
+    case 'DuplicateFurniture': {
+      if (!Array.isArray(command.furnitureIds) || command.furnitureIds.length > 500 || command.furnitureIds.some(id => typeof id !== 'string') || new Set(command.furnitureIds).size !== command.furnitureIds.length)
+        throw new GeometryError('selection', 'Furniture IDs must be unique and bounded to 500 items.');
+      const source = command.furnitureIds.map(id => requireEntity(draft.furniture, id));
+      const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)]);
+      for (const item of source) {
+        const copy = JSON.parse(JSON.stringify(item)) as FurnitureItem;
+        copy.id = freshId('furniture', used); copy.position.x += 200; copy.position.y += 200; copy.rev = 0; delete copy.groupId;
+        draft.furniture.push(copy);
+      }
+      break;
+    }
     case 'UpdateRoom': assignProperties(requireEntity(draft.rooms, command.roomId), command.properties, ['name', 'type', 'ceilingHeight', 'floorMaterial']); break;
     case 'RenameProject': draft.name = command.name; break;
     case 'SetUnits': draft.units = command.units; break;
