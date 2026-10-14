@@ -17,6 +17,7 @@ If code, this file and the spec disagree, investigate and record a reasoned reso
   - Explain everything in simple words.
   - Never ask him to read or edit code.
   - Always give step-by-step phone test instructions.
+  - D36 (2026-10-14) requires explicit owner permission BEFORE any accounts/cloud saving/sync/conflicts/version-history work; mobile optimization/direct sharing/real Low–Mid testing; billing/subscriptions/security/privacy/release packaging/final Claude review. Do not start these scopes, including preparatory implementation, until authorized. D17 continues for other editor/3D/furniture/material tasks and green merges. Existing automated product checks/debug CI remain ordinary validation; no release packaging or real-phone tests.
   - D17 (2026-10-11) authorizes continuous development, routine decisions, verification and green-PR merges without repeated plan approval. Real-phone and external-service checks remain release requirements; report them pending until actually executed.
 - **Codex = main builder.** Plans, implements, writes tests, runs checks, opens/pushes PR branches and applies review findings.
 - **Claude Code = review-only second checker (D16, 2026-10-11).** Claude does no development work, never edits development files or commits, and never pushes to the repo. Results are PR comments or chat:
