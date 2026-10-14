@@ -1,14 +1,23 @@
 import { wallStrips } from './derive';
-import { bounds, freshId, rectArea, rectIntersection } from './primitives';
+import { bounds, freshId, insidePolygon, rectArea, rectIntersection } from './primitives';
 import { clearRegion } from './regions';
 import { candidatePairs } from './spatial';
 import { GeometryError } from './types';
 import type { DerivedPlan, Plan, Point, Room } from './types';
 
 function cycleKey(boundary: string[], plan: Plan): string {
+  // A tree attached inside a room traverses each bridge in both directions.
+  // Remove immediate backtracks before comparing its enclosing cycle identity.
+  let enclosing = [...boundary];
+  for (let pass = 0; pass < boundary.length; pass++) {
+    const i = enclosing.findIndex((id, n) => id === enclosing[(n + 2) % enclosing.length]);
+    if (i < 0 || enclosing.length <= 2) break;
+    const remove = new Set([(i + 1) % enclosing.length, (i + 2) % enclosing.length]);
+    enclosing = enclosing.filter((_, n) => !remove.has(n));
+  }
   const j = new Map(plan.junctions.map(p => [p.id, p]));
-  const corners = boundary.filter((id, i) => {
-    const a = j.get(boundary[(i + boundary.length - 1) % boundary.length]!), b = j.get(id), c = j.get(boundary[(i + 1) % boundary.length]!);
+  const corners = enclosing.filter((id, i) => {
+    const a = j.get(enclosing[(i + enclosing.length - 1) % enclosing.length]!), b = j.get(id), c = j.get(enclosing[(i + 1) % enclosing.length]!);
     if (!a || !b || !c) return true;
     return (b.x - a.x) * (c.y - b.y) !== (b.y - a.y) * (c.x - b.x) ||
       (b.x - a.x) * (c.x - b.x) + (b.y - a.y) * (c.y - b.y) < 0;
@@ -17,7 +26,8 @@ function cycleKey(boundary: string[], plan: Plan): string {
 }
 
 /** Exact cycle first, conservative overlap next, then explicit split/merge rules. */
-export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, reservedIds: readonly string[] = []): { rooms: Room[]; checkRoomNamesHint: boolean } {
+export interface RoomIdentityChoice { roomId: string; point: Point }
+export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, reservedIds: readonly string[] = [], choices: readonly RoomIdentityChoice[] = []): { rooms: Room[]; checkRoomNamesHint: boolean } {
   const oldStrips = wallStrips(oldPlan).map(s => s.rect);
   const old = oldPlan.rooms.map(room => {
     const polygon = room.boundary.map(id => {
@@ -43,9 +53,24 @@ export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, res
     }
   }
   const used = new Set([...reservedIds, ...[...plan.junctions, ...plan.walls, ...oldPlan.rooms].map(e => e.id)]);
-  const assigned = new Set<number>(); let checkRoomNamesHint = false;
+  const chosen = new Map<number, number>(), chosenSource = new Map<number, number>();
+  for (const choice of choices) {
+    if (!choice || !Array.isArray(choice.point) || choice.point.length !== 2 || !choice.point.every(n => Number.isSafeInteger(n) && Math.abs(n) <= 100000))
+      throw new GeometryError('room-choice', 'Choose an integer-mm point inside the room to retain.');
+    const source = old.findIndex(o => o.room.id === choice.roomId);
+    // Rectangle partition seams are not room boundaries. Test the union's polygons,
+    // excluding only their actual orthogonal boundary segments.
+    const faces = derived.faces.flatMap((f, i) => f.clearPolygons.some(polygon => insidePolygon(choice.point, polygon) &&
+      !polygon.some((a, n) => { const b=polygon[(n+1)%polygon.length]!;return a[0]===b[0]&&choice.point[0]===a[0]&&choice.point[1]>=Math.min(a[1],b[1])&&choice.point[1]<=Math.max(a[1],b[1]) || a[1]===b[1]&&choice.point[1]===a[1]&&choice.point[0]>=Math.min(a[0],b[0])&&choice.point[0]<=Math.max(a[0],b[0]); })) ? [i] : []);
+    const face = faces[0];
+    if (source < 0 || faces.length !== 1 || face === undefined || chosen.has(face) || chosenSource.has(source) ||
+        !(exact.get(faceKeys[face]!) === source || (overlaps[face]!.get(source) ?? 0) > 0))
+      throw new GeometryError('room-choice', 'Choose one overlapping room and an inside point; each identity can be retained only once.');
+    chosen.set(face, source); chosenSource.set(source, face);
+  }
+  const assigned = new Set<number>(); let checkRoomNamesHint = choices.length > 0;
   const rooms = derived.faces.map((face, i) => {
-    let source = exact.get(faceKeys[i]!) ?? -1;
+    let source = chosen.get(i) ?? exact.get(faceKeys[i]!) ?? -1;
     let inherit = source >= 0;
     if (!inherit) {
       const candidates = [...overlaps[i]!].map(([n, overlap]) => ({ n, overlap, area: oldAreas[n]! }))
@@ -54,7 +79,8 @@ export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, res
         source = candidates[0]!.n;
         const candidate = candidates[0]!, union = candidate.area + face.clearAreaMm2 - candidate.overlap;
         const siblings = siblingsByOld.get(source) ?? [];
-        if (candidates.length > 1 && siblings.length === 1) {
+        if (chosenSource.has(source)) { inherit = chosenSource.get(source) === i; checkRoomNamesHint = true; }
+        else if (candidates.length > 1 && siblings.length === 1) {
           // Merge: larger original clear area wins, not centroid or incidental overlap order.
           const byArea = [...candidates].sort((a, b) => b.area - a.area || a.n - b.n);
           if (byArea.length > 1 && byArea[0]!.area === byArea[1]!.area)
@@ -68,6 +94,7 @@ export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, res
         } else throw new GeometryError('ambiguous-room', 'This edit changes the room identity; choose which properties to retain.');
       }
     }
+    if (chosenSource.has(source) && chosenSource.get(source) !== i) inherit = false;
     if (inherit && assigned.has(source)) throw new GeometryError('ambiguous-room', 'More than one room would inherit the same identity.');
     if (inherit) assigned.add(source);
     const properties = source >= 0 ? old[source]!.room : null;

@@ -1,6 +1,18 @@
 import { formatArea } from '@gharplan/geometry';
 export type Locale = 'en' | 'hi';
 export const messages = {
+  drawingTools: ['Drawing tools', 'ड्रॉइंग के औज़ार'], selectTool: ['Select', 'चुनें'], wallTool: ['Draw walls', 'दीवार बनाएँ'], rectangleTool: ['Rectangle room', 'आयताकार कमरा'], doneDrawing: ['Done drawing', 'ड्रॉइंग पूरी'],
+  toolIdle: ['Choose a tool or enter measured values below.', 'औज़ार चुनें या नीचे नाप डालें।'], toolStarted: ['Choose the next point. Done or Escape ends the draft.', 'अगला बिंदु चुनें। पूरी या Escape से प्रीव्यू खत्म करें।'], toolAdded: ['Drawing added. Undo removes the last command.', 'ड्रॉइंग जोड़ी गई। Undo से पिछला बदलाव हटाएँ।'], roomNamesCheck: ['Room boundaries changed. Check the room names and finishes below.', 'कमरे की सीमाएँ बदलीं। नीचे नाम और सतह जाँचें।'],
+  wallThickness: ['Wall thickness (mm)', 'दीवार की मोटाई (मिमी)'], wallHeight: ['Wall height (mm)', 'दीवार की ऊँचाई (मिमी)'], roomWidth: ['Centreline width (mm)', 'दीवार के बीच से चौड़ाई (मिमी)'], roomDepth: ['Centreline depth (mm)', 'दीवार के बीच से गहराई (मिमी)'],
+  originX: ['Start X (mm)', 'शुरू X (मिमी)'], originY: ['Start Y (mm)', 'शुरू Y (मिमी)'], endX: ['End X (mm)', 'अंत X (मिमी)'], endY: ['End Y (mm)', 'अंत Y (मिमी)'], addMeasuredRoom: ['Add measured room', 'नाप वाला कमरा जोड़ें'], addMeasuredWall: ['Add measured wall', 'नाप वाली दीवार जोड़ें'],
+  centrelineNote: ['Room sizes are measured between wall centrelines. Clear sizes subtract wall thickness.', 'कमरे की नाप दीवारों के बीच से है। अंदर की नाप से दीवार की मोटाई घटती है।'], clearSize: ['Inside size: {width} × {depth} mm', 'अंदर की नाप: {width} × {depth} मिमी'], liveLength: ['Centreline length: {length} mm', 'दीवार के बीच की लंबाई: {length} मिमी'],
+  liveRoomSize: ['Centreline size: {width} × {depth} mm', 'दीवार के बीच से नाप: {width} × {depth} मिमी'],
+  incompletePlan: ['Some walls do not close a room yet. Close the loop to see its carpet area.', 'कुछ दीवारों से कमरा अभी बंद नहीं हुआ। अंदर का क्षेत्रफल देखने के लिए सीमा बंद करें।'],
+  roomProperties: ['Room properties', 'कमरे का विवरण'], selectedRoom: ['Choose room', 'कमरा चुनें'], roomName: ['Room name', 'कमरे का नाम'], roomType: ['Room type', 'कमरे का प्रकार'], ceilingHeight: ['Ceiling height (mm)', 'छत की ऊँचाई (मिमी)'], floorFinish: ['Floor finish', 'फ़र्श की सतह'], saveRoom: ['Apply room properties', 'कमरे का विवरण लागू करें'], roomUpdated: ['Room properties updated.', 'कमरे का विवरण बदला गया।'],
+  room_living: ['Living room', 'बैठक'], room_bedroom: ['Bedroom', 'सोने का कमरा'], room_kitchen: ['Kitchen', 'रसोई'], room_bathroom: ['Bathroom', 'स्नानघर'], room_dining: ['Dining room', 'भोजन कक्ष'], room_pooja: ['Pooja room', 'पूजा कक्ष'], room_balcony: ['Balcony', 'बालकनी'], room_utility: ['Utility', 'उपयोग की जगह'], room_hall: ['Hall', 'हॉल'], room_study: ['Study', 'पढ़ने का कमरा'], room_other: ['Other', 'अन्य'],
+  roomChoiceTitle: ['Choose the room identity to retain', 'कौन से कमरे की पहचान रखनी है'], roomChoiceHelp: ['The drawing is unchanged. Choose the previous room and a whole-mm point inside the new space that should keep its name and finish. Other split pieces copy the properties with new identities; check and rename them.', 'ड्रॉइंग नहीं बदली। पुराना कमरा चुनें और नई जगह के अंदर पूरे मिमी में बिंदु दें जहाँ उसका नाम और सतह रखना है। बाकी हिस्सों को नई पहचान मिलेगी; उनके नाम जाँचें।'], retainRoom: ['Retain this room at the inside point', 'अंदर के बिंदु पर यह कमरा रखें'],
+  roomChoiceError: ['Choose a point strictly inside the new room and a previous overlapping room. The drawing is unchanged.', 'नए कमरे के अंदर बिंदु और उससे जुड़ा पुराना कमरा चुनें। ड्रॉइंग नहीं बदली।'], sharedWallError: ['Use the existing shared wall thickness and height; its finishes will be kept.', 'साझा दीवार की पुरानी मोटाई और ऊँचाई रखें; उसकी सतह नहीं बदलेगी।'], nestedRoomError: ['A separate room inside a room is not supported. Use attached partition walls instead.', 'कमरे के अंदर अलग बंद कमरा अभी नहीं बना सकते। जुड़ी विभाजन दीवारें बनाएँ।'], rectangleSizeError: ['Centreline room width and depth must each be at least 300 mm.', 'कमरे की चौड़ाई और गहराई दीवार के बीच से कम से कम 300 मिमी हों।'],
+  sharedWallValues: ['Existing shared wall: {thickness} mm thick, {height} mm high.', 'पुरानी साझा दीवार: {thickness} मिमी मोटाई, {height} मिमी ऊँचाई।'], useSharedDimensions: ['Use shared wall dimensions', 'साझा दीवार की नाप लें'],
   projects: ['Projects', 'प्रोजेक्ट'], settings: ['Settings', 'सेटिंग्स'], backEditor: ['Back to drawing', 'ड्रॉइंग पर वापस'],
   back: ['Back', 'वापस'], language: ['Language', 'भाषा'], english: ['English', 'English'], hindi: ['हिन्दी', 'हिन्दी'],
   welcome: ['Make room for your ideas', 'अपने घर को आकार दें'], welcomeText: ['Plan measured rooms, arrange your space and see the same drawing in 3D.', 'नाप के साथ कमरे बनाएँ, जगह सजाएँ और वही ड्रॉइंग 3D में देखें।'],
@@ -143,6 +155,11 @@ export function areaDisplay(mm2: number, units: 'metric' | 'imperial'): { value:
 export function editError(locale: Locale, error?: { code: string; message: string }): string {
   if (locale === 'en' && error) return error.message;
   const code = error?.code ?? '';
+  if (code==='room-choice') return message(locale,'roomChoiceError');
+  if (code==='shared-wall-properties') return message(locale,'sharedWallError');
+  if (code==='room-hole') return message(locale,'nestedRoomError');
+  if (code==='rectangle-size') return message(locale,'rectangleSizeError');
+  if (code==='no-usable-space') return message(locale,'areaError');
   if (/coordinates|integer|domain/.test(code)) return message(locale, 'integerError');
   if (/axis|orthogonal|angle/.test(code)) return message(locale, 'orthogonalError');
   if (/cross|overlap/.test(code)) return message(locale, 'crossingError');

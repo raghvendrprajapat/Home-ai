@@ -1,8 +1,9 @@
 import { assignRooms, bounds, candidatePairs, derivePlan, endpoints, freshId, GeometryError, normalizePlan, wallLength } from '@gharplan/geometry';
 import type { Draft } from 'immer';
 import type { FurnitureItem, Opening, ProjectDoc, Room, RoomType, Wall } from './types';
+import type { RoomIdentityChoice } from '@gharplan/geometry';
 
-interface CommandBase { id: string; baseGeneration: number }
+interface CommandBase { id: string; baseGeneration: number; roomChoices?: readonly RoomIdentityChoice[] }
 export type Command = CommandBase & (
   | { type: 'AddWall'; from: readonly [number, number]; to: readonly [number, number]; thickness: number; height: number }
   | { type: 'AddRectangle'; x: number; y: number; width: number; depth: number; thickness: number; height: number }
@@ -46,7 +47,7 @@ function syncEntities<T extends { id: string }>(target: T[], values: T[]): void 
 export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, command: Command): CommandEffects {
   let geometryChanged = false;
   const wall = (id: string) => requireEntity(draft.walls, id);
-  const addWall = (from: readonly [number, number], to: readonly [number, number], thickness: number, height: number) => {
+  const addWall = (from: readonly [number, number], to: readonly [number, number], thickness: number, height: number, materials?: Pick<Wall, 'leftMaterial' | 'rightMaterial'>) => {
     const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)]);
     const endpoint = ([x, y]: readonly [number, number]) => {
       const existing = draft.junctions.find(j => j.x === x && j.y === y && j.floorId === draft.floors[0]!.id);
@@ -55,15 +56,38 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
     };
     const a = endpoint(from), b = endpoint(to);
     draft.walls.push({ id: freshId('wall', used), floorId: draft.floors[0]!.id, a, b, thickness, height,
-      leftMaterial: draft.materials[0]!.id, rightMaterial: draft.materials[0]!.id, rev: 0 }); geometryChanged = true;
+      leftMaterial: materials?.leftMaterial ?? draft.materials[0]!.id, rightMaterial: materials?.rightMaterial ?? draft.materials[0]!.id, rev: 0 }); geometryChanged = true;
   };
   switch (command.type) {
     case 'AddWall': addWall(command.from, command.to, command.thickness, command.height); break;
     case 'AddRectangle': {
+      if (![command.x, command.y, command.width, command.depth, command.thickness, command.height].every(Number.isSafeInteger) ||
+          Math.abs(command.x) > 100000 || Math.abs(command.y) > 100000 || Math.abs(command.x + command.width) > 100000 || Math.abs(command.y + command.depth) > 100000)
+        throw new GeometryError('rectangle-coordinates', 'Room dimensions and coordinates must use integer mm within the drawing limits.');
       if (command.width < 300 || command.depth < 300) throw new GeometryError('rectangle-size', 'Room centreline width and depth must be at least 300 mm.');
       const { x, y, width: w, depth: d, thickness: t, height: h } = command;
-      addWall([x, y], [x + w, y], t, h); addWall([x + w, y], [x + w, y + d], t, h);
-      addWall([x + w, y + d], [x, y + d], t, h); addWall([x, y + d], [x, y], t, h); break;
+      const side = (from: readonly [number, number], to: readonly [number, number]) => {
+        const horizontal = from[1] === to[1], axis = horizontal ? 0 : 1, other = horizontal ? 1 : 0;
+        const lo = Math.min(from[axis], to[axis]), hi = Math.max(from[axis], to[axis]), forward = to[axis] > from[axis];
+        const shared = previous.walls.flatMap(wall => {
+          const [a, b] = endpoints(previous, wall), pa = [a.x, a.y] as const, pb = [b.x, b.y] as const;
+          if (pa[other] !== from[other] || pb[other] !== from[other]) return [];
+          const start = Math.max(lo, Math.min(pa[axis], pb[axis])), end = Math.min(hi, Math.max(pa[axis], pb[axis]));
+          return end > start ? [{ wall, start, end, forward: pb[axis] > pa[axis] }] : [];
+        });
+        const cuts = [...new Set([lo, hi, ...shared.flatMap(s => [s.start, s.end])])].sort((a, b) => a - b);
+        if (!forward) cuts.reverse();
+        for (let i = 1; i < cuts.length; i++) {
+          const start = cuts[i - 1]!, end = cuts[i]!, middle = (start + end) / 2;
+          const old = shared.find(s => middle > s.start && middle < s.end);
+          if (old && (old.wall.thickness !== t || old.wall.height !== h))
+            throw new GeometryError('shared-wall-properties', 'Match the existing shared wall thickness and height before adjoining this room.', [old.wall.id]);
+          const materials = old ? (forward === old.forward ? old.wall : { leftMaterial: old.wall.rightMaterial, rightMaterial: old.wall.leftMaterial }) : undefined;
+          addWall(horizontal ? [start, from[1]] : [from[0], start], horizontal ? [end, from[1]] : [from[0], end], t, h, materials);
+        }
+      };
+      side([x, y], [x + w, y]); side([x + w, y], [x + w, y + d]);
+      side([x + w, y + d], [x, y + d]); side([x, y + d], [x, y]); break;
     }
     case 'MoveJunctions': {
       const seen = new Set<string>();
@@ -105,12 +129,14 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
     default: throw new GeometryError('command', 'Unsupported project command.');
   }
   let checkRoomNamesHint = false;
+  if (command.roomChoices !== undefined && (!Array.isArray(command.roomChoices) || !geometryChanged || command.roomChoices.length > previous.rooms.length))
+    throw new GeometryError('room-choice', 'Room identity choices must accompany a geometry edit.');
   if (geometryChanged) {
     const reservedIds = [draft.id, ...[draft.floors, draft.openings, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)];
     const normalized = normalizePlan(draft, reservedIds);
     if ((command.type === 'AddWall' || command.type === 'AddRectangle') && JSON.stringify(normalized.plan.walls) === JSON.stringify(previous.walls))
       normalized.plan.junctions = previous.junctions.map(j => ({ ...j }));
-    const derived = derivePlan(normalized.plan), assignment = assignRooms(previous, normalized.plan, derived, reservedIds);
+    const derived = derivePlan(normalized.plan), assignment = assignRooms(previous, normalized.plan, derived, reservedIds, command.roomChoices);
     const rooms = assignment.rooms.map(r => ({ ...r, floorMaterial: r.floorMaterial === 'm_default' && !draft.materials.some(m => m.id === 'm_default') ? draft.materials[0]!.id : r.floorMaterial }));
     for (const o of draft.openings) {
       const lineage = normalized.lineage.find(l => l.wallId === o.wallId);

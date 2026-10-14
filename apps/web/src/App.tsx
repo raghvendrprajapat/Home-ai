@@ -3,6 +3,8 @@ import type { ReactNode } from 'react';
 import { parseProject, ProjectStore } from '@gharplan/core-model';
 import sample from '../../../docs/examples/sample-project.json';
 import { PlanCanvas } from './editor/PlanCanvas';
+import { DrawingTool } from './editor/drawing-tools';
+import { DrawingControls, RoomControls } from './editor/DrawingControls';
 import { junctionMoves } from './editor/view2d';
 import { SaveControls } from './storage/SaveControls';
 import type { WorkspaceSession } from './storage/workspace';
@@ -24,6 +26,7 @@ function createDemo(): ProjectStore {
 export function App({ session, navigation }: { session?: WorkspaceSession; navigation?: ReactNode } = {}) {
   const ui = useUi(), t = <K extends MessageKey>(key: K, ...args: MessageArgs<K>) => message(ui.locale, key, ...args);
   const [store] = useState(() => session?.store ?? createDemo()), snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
+  const [drawing] = useState(()=>new DrawingTool(store));
   const [selected, setSelected] = useState(() => store.getSnapshot().document.junctions[1]?.id ?? ''), [notice, setMessage] = useState(() => t('chooseCorner'));
   const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0);
   const [view, setView] = useState<'2d' | '3d'>('2d');
@@ -33,14 +36,18 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
   useEffect(() => { setX(String(corner?.x ?? '')); setY(String(corner?.y ?? '')); }, [corner]);
   useEffect(() => {
     const shortcut = (event: KeyboardEvent) => {
+      if(event.target instanceof HTMLInputElement||event.target instanceof HTMLTextAreaElement||event.target instanceof HTMLSelectElement)return;
+      if(!event.ctrlKey&&!event.metaKey&&!event.altKey){if(event.key.toLowerCase()==='w'){event.preventDefault();drawing.setMode('wall');}if(event.key.toLowerCase()==='r'){event.preventDefault();drawing.setMode('rectangle');}if(event.key==='Escape'||event.key.toLowerCase()==='v')drawing.setMode('select');}
       if (!(event.ctrlKey || event.metaKey) || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) return;
       if (event.key.toLowerCase() === 'z') { event.preventDefault(); if (event.shiftKey) store.redo(); else store.undo(); }
       if (event.key.toLowerCase() === 'y') { event.preventDefault(); store.redo(); }
     };
     window.addEventListener('keydown', shortcut); return () => window.removeEventListener('keydown', shortcut);
-  }, [store]);
+  }, [store,drawing]);
   const totalArea = snapshot.derived.faces.reduce((n, r) => n + r.clearAreaMm2, 0);
   const totalLabel = areaDisplay(totalArea, snapshot.document.units);
+  const unclosedWalls=snapshot.document.walls.some(w=>!snapshot.derived.faces.some(face=>face.boundary.some((id,i)=>
+    id===w.a&&face.boundary[(i+1)%face.boundary.length]===w.b||id===w.b&&face.boundary[(i+1)%face.boundary.length]===w.a)));
   return <main className="workspace">
     <header className="app-header">
       <div className="brand"><span className="brand-mark" aria-hidden="true">⌂</span><h1>GharPlan</h1><span className="brand-tag">{t('brandTag')}</span></div>
@@ -53,16 +60,17 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
     <div className="editor-layout">
       <section className="drawing-panel" aria-label={t('floorEditor')}>
         <div className="editor-toolbar">
-          <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => setView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => setView('3d')}>{t('view3d')}</button></div>
+          <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => setView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => {drawing.setMode('select');setView('3d');}}>{t('view3d')}</button></div>
           <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{view === '2d' && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
         </div>
-        {view === '2d' ? <PlanCanvas locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
+        {view === '2d' ? <PlanCanvas drawing={drawing} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
         <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span>{t('groundFloor')} · {t('mm')}</span></footer>
       </section>
       <aside className="inspector" aria-label={t('planControls')}>
         <SaveControls store={store} {...(session ? { session } : {})} />
         <div className="inspector-title"><span className="eyebrow">{t('precision')}</span><h3>{t('shapeSpace')}</h3><p>{t('moveCornerHelp')}</p></div>
         <div className="history-buttons"><button disabled={!snapshot.canUndo} onClick={() => { store.undo(); setMessage(t('undone')); }} aria-label={t('undo')}>↶ &nbsp; {t('undo')}</button><button disabled={!snapshot.canRedo} onClick={() => { store.redo(); setMessage(t('redone')); }} aria-label={t('redo')}>↷ &nbsp; {t('redo')}</button></div>
+        {view==='2d'&&<DrawingControls tool={drawing} store={store} locale={ui.locale} onMessage={setMessage}/>}
         {!snapshot.document.walls.length && <div className="blank-plan"><p>{t('blankPlan')}</p><button className="primary-button" onClick={() => {
           const result = store.execute({ type: 'AddRectangle', id: `starter_${snapshot.localGeneration}`, baseGeneration: snapshot.localGeneration, x: 0, y: 0, width: 4000, depth: 4000, thickness: 200, height: 2700 });
           if (result.ok) setFit(n => n + 1);
@@ -82,6 +90,8 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
         <section className="room-list" aria-label={t('roomAreas')}><div className="section-heading"><h3>{t('insidePlan')}</h3><span>{t('roomsCount', { count: snapshot.document.rooms.length })}</span></div>
           {snapshot.derived.faces.map((face, i) => { const label = areaDisplay(face.clearAreaMm2, snapshot.document.units); return <div className="room-row" key={face.roomId}><span className={`room-swatch swatch-${i % 2}`} aria-hidden="true" /><div><strong>{snapshot.document.rooms.find(r => r.id === face.roomId)?.name}</strong><small>{face.smallSpaceWarning ? t('smallSpace') : t('insideArea')}</small></div><span data-testid={`area-${face.roomId}`}>{label.value} <small>{label.unit}</small></span></div>; })}
         </section>
+        {unclosedWalls&&<p role="status">{t('incompletePlan')}</p>}
+        <RoomControls store={store} locale={ui.locale} onMessage={setMessage}/>
         <div className="tip"><span aria-hidden="true">✦</span><p><strong>{t('measured')}</strong><br />{t('measuredHelp')}</p></div>
       </aside>
     </div>
