@@ -206,5 +206,46 @@
     "One current3D view; simultaneous renderers retain earlier vendorLUT context listeners until final shared owner closes",
     "No physicalLow/Mid/context-loss/thermal/provider/Hindi/TalkBack/browsermatrix run",
     "No accounts/cloud/mobileoptimization/directshare/billing/security/privacy/release/finalClaude work; D36 permission required"
-  ]
+  ],
+  "diagnosticFollowup": {
+    "initialCi": {
+      "runId": 38608948409,
+      "head": "4c58ee409fc1c48fa5ba95a9badf7dd2de6fc32b",
+      "check": "FAILURE",
+      "android": "SKIPPED",
+      "browserPassed": 56,
+      "browserFailed": 1,
+      "failure": "Retained UX-004 touch hold/loupe: missing loupe at second hold; trigger unknown"
+    },
+    "unchangedScenarioModerateCpuPressure": {
+      "passed": 18,
+      "elapsed": "1.5m",
+      "rate": 2,
+      "browser": "Chromium151"
+    },
+    "heavyCpuDiagnostic": {
+      "passed": 11,
+      "failed": 1,
+      "rate": 4,
+      "meaning": "First early-pan input arrived after the150ms hold threshold; this differs from the CI missing-loupe failure, not a reproduction of it"
+    },
+    "observedScenario": {
+      "passed": 10,
+      "elapsed": "47.4s",
+      "assertionsTimeoutsInputsRetries": "unchanged",
+      "meaning": "Observation adds some CPU overhead; success is not proof of a flake fix"
+    },
+    "requiredCheckAfterObservation": {
+      "productTests": 331,
+      "files": 46,
+      "elapsedSeconds": 21.78,
+      "toolingTests": 8,
+      "skipped": 0,
+      "exitCode": 0
+    },
+    "freshReview": "No blockers; independent timer delay/ID/receiver/arguments/cancellation and failure preservation probe",
+    "artifactAccess": "403 network policy; exact artifact host added only to preserved environment draft, not applied/published",
+    "mergeGate": "New exact head must pass required Check and Android with CLEAN; initial failure remains recorded",
+    "remainingRisk": "Original missing-loupe trigger is unknown; diagnostic-only patch changes no product behavior"
+  }
 }
