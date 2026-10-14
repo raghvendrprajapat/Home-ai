@@ -337,10 +337,12 @@ select {
 .drawing-controls p {font-size:12px;line-height:1.6;color:#596b5b;}
 .drawing-controls label {display:block;font-size:12px;margin-top:10px;}
 .drawing-controls input {display:block;width:100%;min-height:48px;padding:10px;border:1px solid #dde4d9;border-radius:7px;}
+.drawing-controls input[type=checkbox] {display:inline-block;width:20px;height:20px;min-height:20px;padding:0;}
 .drawing-controls summary {min-height:48px;padding:14px 0;cursor:pointer;font-size:13px;}
 .tool-buttons {display:flex;gap:8px;flex-wrap:wrap;}
 .tool-buttons button[aria-pressed=true] {background:#34563f;color:white;}
 .room-choice {border:1px solid #b6723f;padding:12px;margin-top:16px;border-radius:8px;}
+.snap-grid-label {position:absolute;right:12px;top:36px;font-size:11px;background:rgba(255,255,255,.92);padding:5px 8px;pointer-events:none;}
 .coordinate-fields label {
   font-size:12px;
   color:#596b5b

@@ -1,36 +1,41 @@
 import { useEffect, useState, useSyncExternalStore } from 'react';
 import type { ProjectStore, RoomType } from '@gharplan/core-model';
 import { DrawingTool, drawingCommand } from './drawing-tools';
+import {parseLength} from './measurements';
 import { message, editError } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 type NumericLabel='originX'|'originY'|'endX'|'endY'|'roomWidth'|'roomDepth'|'wallThickness'|'wallHeight'|'ceilingHeight';
-function NumberField({label,value,onChange,min=-100000,max=100000,locale}:{label:NumericLabel;value:string;onChange(value:string):void;min?:number;max?:number;locale:Locale}) {
- return <label>{message(locale,label)}<input type="number" step="1" min={min} max={max} required value={value} onChange={e=>onChange(e.target.value)} /></label>;
+function NumberField({label,value,onChange,min=-100000,max=100000,locale,measured=false}:{label:NumericLabel;value:string;onChange(value:string):void;min?:number;max?:number;locale:Locale;measured?:boolean}) {
+ return <label>{message(locale,label)}<input type={measured?'text':'number'} step="1" min={min} max={max} required value={value} onChange={e=>onChange(e.target.value)} /></label>;
 }
 export function DrawingControls({tool,store,locale,onMessage}:{tool:DrawingTool;store:ProjectStore;locale:Locale;onMessage(text:string):void}) {
  const state=useSyncExternalStore(tool.subscribe,tool.getSnapshot),snapshot=useSyncExternalStore(store.subscribe,store.getSnapshot);
  const [values,setValues]=useState({x:'0',y:'0',width:'4000',depth:'3000',endX:'4000',endY:'0',thickness:'200',height:'2700'});
  const [choiceRoom,setChoiceRoom]=useState(''),[choiceX,setChoiceX]=useState(''),[choiceY,setChoiceY]=useState('');
  const sharedWall=state.error?.code==='shared-wall-properties'?snapshot.document.walls.find(w=>state.error?.entityIds.includes(w.id)):undefined;
- useEffect(()=>{tool.properties={thickness:Number(values.thickness),height:Number(values.height)};if(state.end)tool.hover(state.end);},[values.thickness,values.height,tool]);
+ const measured=(value:string)=>{try{return parseLength(value);}catch{return NaN;}};
+ useEffect(()=>{tool.properties={thickness:measured(values.thickness),height:measured(values.height)};if(state.end)tool.hover(state.end);},[values.thickness,values.height,tool]);
  useEffect(()=>{onMessage(state.error?editError(locale,state.error):message(locale,state.notice));},[state.error,state.notice,locale,onMessage]);
  useEffect(()=>{if(!snapshot.document.rooms.some(r=>r.id===choiceRoom))setChoiceRoom(snapshot.document.rooms[0]?.id??'');},[snapshot,choiceRoom]);
- const field=(key:keyof typeof values,label:NumericLabel,min?:number,max?:number)=><NumberField key={key} label={label} value={values[key]} locale={locale} onChange={v=>{if(tool.getSnapshot().unresolved)tool.clear();setValues(old=>({...old,[key]:v}));}} {...(min===undefined?{}:{min})} {...(max===undefined?{}:{max})}/>;
+ const field=(key:keyof typeof values,label:NumericLabel,min?:number,max?:number)=><NumberField key={key} label={label} value={values[key]} locale={locale} measured onChange={v=>{if(tool.getSnapshot().unresolved)tool.clear();setValues(old=>({...old,[key]:v}));}} {...(min===undefined?{}:{min})} {...(max===undefined?{}:{max})}/>;
  const numeric=(mode:'wall'|'rectangle')=>{
-  const keys=mode==='wall'?['x','y','endX','endY','thickness','height'] as const:['x','y','width','depth','thickness','height'] as const;
-  if(keys.some(k=>!values[k].trim()||!Number.isSafeInteger(Number(values[k])))){onMessage(message(locale,'integerError'));return;}
-  tool.clear();const from=[Number(values.x),Number(values.y)] as const,to=mode==='wall'?[Number(values.endX),Number(values.endY)] as const:[Number(values.x)+Number(values.width),Number(values.y)+Number(values.depth)] as const;
-  tool.commit(drawingCommand(mode,from,to,tool.properties,snapshot.localGeneration));
+  try{
+   const from=[parseLength(values.x,{coordinate:true}),parseLength(values.y,{coordinate:true})] as const;
+   const to=mode==='wall'?[parseLength(values.endX,{coordinate:true}),parseLength(values.endY,{coordinate:true})] as const:[from[0]+parseLength(values.width),from[1]+parseLength(values.depth)] as const;
+   const properties={thickness:parseLength(values.thickness),height:parseLength(values.height)};
+   tool.clear();tool.commit(drawingCommand(mode,from,to,properties,snapshot.localGeneration));
+  }catch{onMessage(message(locale,'invalidMeasuredLength'));}
  };
  return <section className="drawing-controls" aria-label={message(locale,'drawingTools')}>
   <h3>{message(locale,'drawingTools')}</h3><div className="tool-buttons" role="group" aria-label={message(locale,'drawingTools')}>
    {(['select','wall','rectangle'] as const).map(mode=><button key={mode} aria-pressed={state.mode===mode} onClick={()=>tool.setMode(mode)}>{message(locale,mode==='select'?'selectTool':mode==='wall'?'wallTool':'rectangleTool')}</button>)}
    <button onClick={()=>{tool.clear();tool.setMode('select');}}>{message(locale,'doneDrawing')}</button>
-  </div><p>{message(locale,'centrelineNote')}</p>
+  </div><p>{message(locale,'centrelineNote')}</p><p>{message(locale,'measuredEntryHint')}</p>
+  <label><input type="checkbox" checked={state.snappingEnabled} onChange={e=>tool.setSnapping(e.target.checked)}/>{message(locale,'snapEnabled')}</label>
   <div className="coordinate-fields">{field('thickness','wallThickness',50,1000)}{field('height','wallHeight',1000,6000)}</div>
   {sharedWall&&<div role="alert"><p>{message(locale,'sharedWallValues',{thickness:sharedWall.thickness,height:sharedWall.height})}</p><button onClick={()=>setValues(old=>({...old,thickness:String(sharedWall.thickness),height:String(sharedWall.height)}))}>{message(locale,'useSharedDimensions')}</button></div>}
-  {state.anchor&&state.end&&<p data-testid="drawing-size">{state.mode==='wall'?message(locale,'liveLength',{length:Math.round(Math.hypot(state.end[0]-state.anchor[0],state.end[1]-state.anchor[1]))}):<>{message(locale,'liveRoomSize',{width:Math.abs(state.end[0]-state.anchor[0]),depth:Math.abs(state.end[1]-state.anchor[1])})}<br/>{message(locale,'clearSize',{width:Math.abs(state.end[0]-state.anchor[0])-Number(values.thickness),depth:Math.abs(state.end[1]-state.anchor[1])-Number(values.thickness)})}</>}</p>}
-  <details><summary>{message(locale,'addMeasuredRoom')}</summary><form onSubmit={e=>{e.preventDefault();numeric('rectangle');}}><div className="coordinate-fields">{field('x','originX')}{field('y','originY')}{field('width','roomWidth',300,200000)}{field('depth','roomDepth',300,200000)}</div><p>{message(locale,'clearSize',{width:Number(values.width)-Number(values.thickness),depth:Number(values.depth)-Number(values.thickness)})}</p><button type="submit" className="primary-button">{message(locale,'addMeasuredRoom')}</button></form></details>
+  {state.anchor&&state.end&&<p data-testid="drawing-size">{state.mode==='wall'?message(locale,'liveLength',{length:Math.round(Math.hypot(state.end[0]-state.anchor[0],state.end[1]-state.anchor[1]))}):<>{message(locale,'liveRoomSize',{width:Math.abs(state.end[0]-state.anchor[0]),depth:Math.abs(state.end[1]-state.anchor[1])})}<br/>{Number.isFinite(measured(values.thickness))&&message(locale,'clearSize',{width:Math.abs(state.end[0]-state.anchor[0])-measured(values.thickness),depth:Math.abs(state.end[1]-state.anchor[1])-measured(values.thickness)})}</>}</p>}
+  <details><summary>{message(locale,'addMeasuredRoom')}</summary><form onSubmit={e=>{e.preventDefault();numeric('rectangle');}}><div className="coordinate-fields">{field('x','originX')}{field('y','originY')}{field('width','roomWidth',300,200000)}{field('depth','roomDepth',300,200000)}</div>{[values.width,values.depth,values.thickness].every(v=>Number.isFinite(measured(v)))&&<p>{message(locale,'clearSize',{width:measured(values.width)-measured(values.thickness),depth:measured(values.depth)-measured(values.thickness)})}</p>}<button type="submit" className="primary-button">{message(locale,'addMeasuredRoom')}</button></form></details>
   <details><summary>{message(locale,'addMeasuredWall')}</summary><form onSubmit={e=>{e.preventDefault();numeric('wall');}}><div className="coordinate-fields">{field('x','originX')}{field('y','originY')}{field('endX','endX')}{field('endY','endY')}</div><button type="submit" className="primary-button">{message(locale,'addMeasuredWall')}</button></form></details>
   {state.unresolved&&<form className="room-choice" aria-label={message(locale,'roomChoiceTitle')} onSubmit={e=>{e.preventDefault();if(!choiceX.trim()||!choiceY.trim()){onMessage(message(locale,'roomChoiceError'));return;}tool.resolve(choiceRoom,[Number(choiceX),Number(choiceY)]);}}>
    <h4>{message(locale,'roomChoiceTitle')}</h4><p>{message(locale,'roomChoiceHelp')}</p><label>{message(locale,'selectedRoom')}<select aria-label={message(locale,'selectedRoom')} value={choiceRoom} onChange={e=>setChoiceRoom(e.target.value)}>{snapshot.document.rooms.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label>
