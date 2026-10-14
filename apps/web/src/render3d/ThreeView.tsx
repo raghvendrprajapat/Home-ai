@@ -15,7 +15,7 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
   const [ceilings,setCeilings]=useState(false),[ceilingWarnings,setCeilingWarnings]=useState<CeilingWarning[]>([]);
   const adapterRef=useRef<SceneAdapter|null>(null),invalidateRef=useRef<()=>void>(()=>{});
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), fit = useRef<() => void>(() => undefined);
-  const [status, setStatus] = useState<'building3d' | 'updating3d' | 'threeUnavailable' | 'threeLost' | 'threeFailed' | null>('building3d');
+  const [status, setStatus] = useState<'building3d' | 'updating3d' | 'threeUnavailable' | 'threeLost' | 'threeFailed' | 'threePrevious' | null>('building3d');
   const language = useRef(locale); language.current = locale;
   const orbit = useRef<OrbitControls | null>(null), frameCallback = useRef(onFrame); frameCallback.current = onFrame;
   const problemCallback = useRef(onUnavailable); problemCallback.current = onUnavailable;
@@ -40,7 +40,7 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     camera.position.set(8, 9, 12);
     controls.enableDamping = true; controls.dampingFactor = 0.09; controls.minDistance = 0.4; controls.maxDistance = 400;
     controls.maxPolarAngle = Math.PI * 0.49;
-    let needsRender = true, lost = false, disposed = false, frame = 0, bundle: SceneBundle | undefined, first = true, generation = -1;
+    let needsRender = true, lost = false, disposed = false, frame = 0, bundle: SceneBundle | undefined, first = true, generation = -1, sceneState:'pending'|'current'|'stale'|'failed'='pending';
     const invalidate = () => { needsRender = true; };invalidateRef.current=invalidate; controls.addEventListener('change', invalidate);
     fit.current = () => {
       const b = bundle?.bounds; if (!b) return;
@@ -53,7 +53,7 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     const resize = () => { const width = element.clientWidth, height = element.clientHeight; if (!width || !height) return; renderer.setSize(width, height); camera.aspect = width / height; camera.updateProjectionMatrix(); invalidate(); };
     const observer = new ResizeObserver(resize); observer.observe(element); resize();
     const contextLost = (event: Event) => { event.preventDefault(); lost = true; setStatus('threeLost'); element.dataset.contextState = 'lost'; problemCallback.current?.('Graphics context lost.'); };
-    const contextRestored = () => { lost = false; element.dataset.contextState = 'restored'; setStatus(adapter.group.visible ? null : 'building3d'); invalidate(); };
+    const contextRestored = () => { lost = false; element.dataset.contextState = 'restored'; setStatus(sceneState==='current'?null:sceneState==='stale'?'threePrevious':sceneState==='failed'?'threeFailed':'building3d'); invalidate(); };
     renderer.domElement.addEventListener('webglcontextlost', contextLost); renderer.domElement.addEventListener('webglcontextrestored', contextRestored);
     const keyboard = (event: KeyboardEvent) => {
       if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', '+', '-', '='].includes(event.key)) return;
@@ -76,23 +76,23 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
       orbit.current = null; setStatus('threeUnavailable'); onMessage(message(language.current, 'threeUnavailable')); problemCallback.current?.('3D worker startup failed.'); return;
     }
     const pipeline = new ScenePipeline(store, worker, {
-      pending: () => {setCeilingWarnings([]);adapter.group.visible = false; element.dataset.renderedGeneration = ''; setStatus('updating3d'); pendingCallback.current?.(); invalidate(); },
+      pending: () => {sceneState='pending';element.dataset.sceneState=sceneState;setCeilingWarnings([]);adapter.group.visible = false; element.dataset.renderedGeneration = ''; setStatus('updating3d'); pendingCallback.current?.(); invalidate(); },
       ready: result => {
-        bundle = result; adapter.apply(result, store.getSnapshot().document);setCeilingWarnings(result.ceilingWarnings??[]);element.dataset.ceilingCount=String(result.meshes.filter(m=>m.category==='ceiling').length); adapter.group.visible = true; generation = store.getSnapshot().localGeneration;
+        bundle = result; sceneState='current';element.dataset.sceneState=sceneState;element.dataset.invalidation=JSON.stringify(result.invalidation??null);adapter.apply(result, store.getSnapshot().document);setCeilingWarnings(result.ceilingWarnings??[]);element.dataset.ceilingCount=String(result.meshes.filter(m=>m.category==='ceiling').length); adapter.group.visible = true; generation = store.getSnapshot().localGeneration;
         element.dataset.meshChanges = JSON.stringify(adapter.lastChanges); element.dataset.vertexCount = String(result.stats.vertices);
         element.dataset.meshesBuilt = String(result.stats.meshesBuilt);
         if (first) { first = false; fit.current(); }
         if (!lost) setStatus(null); onMessage(message(language.current, 'threeReady')); invalidate();
       },
-      failed: reason => { setStatus('threeFailed'); onMessage(message(language.current, 'threeFailed')); problemCallback.current?.(reason); },
+      failed: reason => {sceneState=bundle?'stale':'failed';element.dataset.sceneState=sceneState;element.dataset.renderedGeneration='';element.dataset.previousGeneration=bundle?String(generation):'';adapter.group.visible=!!bundle;setStatus(bundle?'threePrevious':'threeFailed');onMessage(message(language.current,bundle?'threePrevious':'threeFailed'));problemCallback.current?.(reason);invalidate();},
     });
     const animate = () => {
       if (disposed) return; frame = requestAnimationFrame(animate);
       controls.update(); if (!lost && needsRender) {
         renderer.render(scene, camera); needsRender = false;
-        if (adapter.group.visible) element.dataset.renderedGeneration = String(generation);
+        if (adapter.group.visible&&sceneState==='current') element.dataset.renderedGeneration = String(generation);
         element.dataset.drawCalls = String(renderer.info.render.calls);
-        if (adapter.group.visible) frameCallback.current?.({ at: performance.now(), generation, drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, renderer: gpuRenderer, graphicsVersion });
+        if (adapter.group.visible&&sceneState==='current') frameCallback.current?.({ at: performance.now(), generation, drawCalls: renderer.info.render.calls, triangles: renderer.info.render.triangles, geometries: renderer.info.memory.geometries, textures: renderer.info.memory.textures, renderer: gpuRenderer, graphicsVersion });
       }
     }; animate();
     return () => {

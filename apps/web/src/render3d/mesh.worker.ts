@@ -1,4 +1,4 @@
-import { validateProject } from '@gharplan/core-model';
+import { dependencyHash, validateProject } from '@gharplan/core-model';
 import { CachedSceneBuilder } from './mesh';
 import type { BuildReply, BuildRequest } from './types';
 
@@ -6,11 +6,12 @@ const worker = globalThis as unknown as { onmessage: (event: { data: BuildReques
 const builder = new CachedSceneBuilder();
 worker.onmessage = ({ data }) => {
   try {
+    if(!Number.isSafeInteger(data.requestId)||data.requestId<1||data.tag.projectId!==data.document.id||data.tag.dependencyHash!==dependencyHash(data.document))throw new Error('3D request does not match its drawing.');
     const errors = validateProject(data.document);
     if (errors.length) throw new Error(errors[0]!.message);
     const bundle = builder.build(data.document);
     // Transfer copies: transferring the cached buffers themselves would detach future builds.
     const output = { ...bundle, meshes: bundle.meshes.map(m => ({ ...m, positions: m.positions.slice(), normals: m.normals.slice(), uv: m.uv.slice() })) };
-    worker.postMessage({ tag: data.tag, ok: true, bundle: output }, output.meshes.flatMap(m => [m.positions.buffer, m.normals.buffer, m.uv.buffer] as ArrayBuffer[]));
-  } catch (error) { worker.postMessage({ tag: data.tag, ok: false, message: error instanceof Error ? error.message : '3D geometry build failed.' }); }
+    worker.postMessage({ requestId:data.requestId, tag: data.tag, ok: true, bundle: output }, output.meshes.flatMap(m => [m.positions.buffer, m.normals.buffer, m.uv.buffer] as ArrayBuffer[]));
+  } catch (error) { worker.postMessage({ requestId:data.requestId, tag: data.tag, ok: false, message: error instanceof Error ? error.message : '3D geometry build failed.' }); }
 };

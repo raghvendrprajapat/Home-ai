@@ -1,6 +1,6 @@
+import { sceneInvalidation } from './dependencies';
 import { applyGeometry, candidatePairs, partitionRectangles, rectArea, wallStrips } from '@gharplan/geometry';
 import type { Rect } from '@gharplan/geometry';
-import { canonicalStringify } from '@gharplan/core-model';
 import type { Opening, ProjectDoc, Wall } from '@gharplan/core-model';
 import type { MeshData, SceneBundle, CeilingWarning } from './types';
 
@@ -205,11 +205,11 @@ export function buildScene(document:ProjectDoc,cache:MeshCache=new Map()):SceneB
 
 /** Persistent worker builder. Geometry-only dependencies skip unrelated full CPU builds. */
 export class CachedSceneBuilder {
-  #source = ''; #bundle: SceneBundle | undefined; #cache: MeshCache = new Map();
+  #bundle: SceneBundle | undefined; #cache: MeshCache = new Map();
+  #previous:ProjectDoc|null=null;
   build(document: ProjectDoc): SceneBundle {
-    const source = canonicalStringify({ floors: document.floors, junctions: document.junctions, walls: document.walls,
-      openings: document.openings, rooms: document.rooms, uv: document.materials.map(m => [m.id, m.uvScaleMm ?? 1000]) });
-    if (source === this.#source && this.#bundle) return { ...this.#bundle, bounds:furnitureBounds(document,this.#bundle.bounds), stats: { ...this.#bundle.stats, meshesBuilt: 0 } };
-    const bundle = buildGeometryScene(document, this.#cache); this.#source = source; this.#bundle = bundle; return {...bundle,bounds:furnitureBounds(document,bundle.bounds)};
+    const invalidation=sceneInvalidation(this.#previous,document);
+    if (!invalidation.geometryChanged && this.#bundle) {this.#previous=structuredClone(document);return { ...this.#bundle, invalidation, bounds:furnitureBounds(document,this.#bundle.bounds), stats: { ...this.#bundle.stats, meshesBuilt: 0 } };}
+    const bundle = buildGeometryScene(document, this.#cache); this.#bundle = bundle;this.#previous=structuredClone(document); return {...bundle,invalidation,bounds:furnitureBounds(document,bundle.bounds)};
   }
 }
