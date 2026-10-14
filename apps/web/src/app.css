@@ -629,3 +629,5 @@ select {
 label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items:center; gap:8px; }
 
 .plan-image-preview{display:block;width:100%;height:auto;max-width:720px;border:1px solid var(--line,#ccd7cd);background:white}
+
+.ceiling-toggle{position:absolute;top:12px;right:12px;background:#fff;padding:0 12px;border-radius:8px;z-index:2}.ceiling-warnings{position:absolute;top:64px;right:12px;left:12px;background:#fff4dd;padding:8px 12px;border-radius:8px;max-height:100px;overflow:auto;touch-action:pan-y;overflow-wrap:anywhere}.ceiling-warnings p{margin:0}
