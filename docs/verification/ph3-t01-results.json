@@ -1,0 +1,149 @@
+{
+  "task": "PH3-T01",
+  "executionDate": "2026-10-14",
+  "baseSha": "6f0a74fab7c47e9a6b4637dc78644d6bfa00f01f",
+  "requiredCheck": {
+    "exitCode": 0,
+    "productTests": 277,
+    "files": 35,
+    "elapsedSeconds": 21.54,
+    "toolingTests": 8,
+    "skipped": 0
+  },
+  "focusedE2e": {
+    "passed": 3,
+    "reportedElapsed": "15.2s"
+  },
+  "productionBuild": {
+    "initialGzipBytes": 153363,
+    "initialModules": 1,
+    "limitBytes": 600000,
+    "crashHooks": "absent"
+  },
+  "gradle": "BUILD SUCCESSFUL in38s;170tasks40executed130up-to-date",
+  "nativeHelpers": "8app-owned+1template JVM results0failure/error/skip; native sources unchanged and tests UP-TO-DATE (not new execution)",
+  "signature": "v2 verified",
+  "freshCodexReview": {
+    "independentCeilingTestsPassed": 7,
+    "warningOverflowFindingFixed": true,
+    "outstandingBlockers": 0,
+    "claude": "deferred D17; accepted fixtures unchanged"
+  },
+  "limitations": [
+    "Local Chromium151 software SwiftShader; pinned156 CI is separate",
+    "No physical Low/Mid/TalkBack/Hindi/performance/lifecycle/provider verification",
+    "Quality/context/picking/catalog/cloud/billing and direct PNG share follow-up remain incomplete",
+    "No roof/slab/BIM/photorealism/commercial acceptance"
+  ],
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114014,
+    "sha256": "ceed5e6ab59e008b9f0493925069196c4064f2c68b79213124fab7daaa38ca9c",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packageChecks": {
+    "sha256": "ceed5e6ab59e008b9f0493925069196c4064f2c68b79213124fab7daaa38ca9c",
+    "bytes": 8114014,
+    "webFilesByteEqual": 13,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "preservation": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "productionRegressions": {
+    "shell": {
+      "checks": [
+        "welcome bilingual; cancelled create preserves all metadata; dialog Escape restores focus",
+        "blank IDs are independent; starter room 14.44 m2, resized 16.34 m2, exact undo/redo",
+        "Hindi/default units persist through reload without mutating project geometry or current units",
+        "stale Open reads current saved head from another tab; repeated Settings preserves Projects return route",
+        "rename preserves walls; duplicate replaces every ID; opening source preserves exact canonical data",
+        "active trash removes editable session; reload never recreates sample; restore returns exact canonical copy",
+        "real quota failure blocks project replacement, preserves disk and exportable memory, retry succeeds",
+        "new-project preference sets imperial display; canonical coordinates remain integer mm",
+        "Hindi settings and project cards fit 360px viewport without horizontal page overflow",
+        "Hindi touch navigation reaches actual worker-rendered 3D of the same imperial project"
+      ],
+      "pageErrors": [],
+      "limitations": [
+        "Linux Chromium software rendering; not real Android phone/Hindi font/device evidence"
+      ]
+    },
+    "files": {
+      "checks": [
+        "existing-ID preview requires separate copy; cancelling writes nothing",
+        "actual picker rejects malformed/UTF8/empty/newer/fractional/unknown/oversized files atomically",
+        "worker startup failure preserves all stored originals and offers retry",
+        "explicit import copy remaps every ID without modifying the original saved head",
+        "export to fresh local storage then import/reload preserves exact canonical content and all entity IDs",
+        "imported multiroom/openings/furniture project renders in synchronized 2D and 3D with expected area labels",
+        "trashed identities are not silently resurrected or overwritten by a backup",
+        "Hindi import error tells user to update app for newer schema without data changes"
+      ],
+      "pageErrors": [],
+      "limitations": [
+        "Linux Chromium, no Android picker/provider execution",
+        "Real Low/Mid external-file export/app-data loss/import gate is pending"
+      ]
+    },
+    "recovery": {
+      "checks": [
+        "fresh production startup creates a completed initial IndexedDB checkpoint",
+        "accepted wall edit autosaves and exports schema-valid integer geometry; rounded area labels match",
+        "newer journal prompts before editing; cancel preserves bytes/meta; explicit restore returns latest geometry",
+        "restored document renders through a fresh worker/session and both views share the same model",
+        "real second tab loses CAS, retains exportable memory and cannot overwrite winner on retry or pagehide",
+        "injected quota failure rolls back real transaction, warns, keeps memory/export and retries after fault removal",
+        "corrupt sole checkpoint prevents replacement; explicit separate sample remaps all IDs and retains original meta/corrupt bytes",
+        "injected Android export UI keeps complete JSON and handles a missing clipboard API without a crash"
+      ],
+      "pageErrors": [],
+      "saveMilliseconds": [
+        463.1618990097195
+      ],
+      "limitations": [
+        "Linux Chromium, not an Android WebView or phone",
+        "Quota failure is injected into the real transaction API",
+        "No physical 100-cycle kill or <=2s phone-loss guarantee"
+      ],
+      "browser": "151.0.7922.173"
+    }
+  },
+  "e2e": {
+    "passed": 42,
+    "skipped": 0,
+    "reportedElapsed": "2.8m",
+    "browser": "Chromium151.0.7922.173",
+    "rendering": "Linux SwiftShader; not Android"
+  }
+}

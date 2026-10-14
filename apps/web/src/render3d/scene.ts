@@ -26,6 +26,8 @@ export class SceneAdapter {
   #materials = new Map<string, THREE.MeshStandardMaterial>();
   #furniture = new Map<string, THREE.Mesh>();
   #placeholder = new THREE.MeshStandardMaterial({ color: '#778d76', roughness: 0.8 });
+  #ceiling=new THREE.MeshStandardMaterial({color:'#f8f8f2',roughness:1,metalness:0,side:THREE.DoubleSide});
+  #showCeilings=false;
   #unitBox = new THREE.BoxGeometry(1, 1, 1);
   lastChanges = { replaced: [] as string[], kept: [] as string[], removed: [] as string[] };
   apply(bundle: SceneBundle, document: ReturnType<ProjectStore['getSnapshot']>['document']): void {
@@ -41,10 +43,10 @@ export class SceneAdapter {
     for (const data of bundle.meshes) {
       const previous = this.#meshes.get(data.id);
       if (previous && sameMesh(previous.data, data)) { this.lastChanges.kept.push(data.id); continue; }
-      const geometry = bufferGeometry(data), materials = data.groups.map(g => this.#materials.get(g.materialId)!);
+      const geometry = bufferGeometry(data), materials = data.groups.map(g => data.category==='ceiling'?this.#ceiling:this.#materials.get(g.materialId)!);
       const mesh = previous?.mesh ?? new THREE.Mesh();
       if (previous) mesh.geometry.dispose(); else this.group.add(mesh);
-      mesh.geometry = geometry; mesh.material = materials; mesh.userData = { entityId: data.entityId, category: data.category };
+      mesh.geometry = geometry; mesh.material = materials;mesh.visible=data.category!=='ceiling'||this.#showCeilings; mesh.userData = { entityId: data.entityId, category: data.category };
       this.#meshes.set(data.id, { data, mesh }); this.lastChanges.replaced.push(data.id);
     }
     for (const [id, material] of this.#materials) if (!wantedMaterials.has(id)) { material.dispose(); this.#materials.delete(id); }
@@ -58,10 +60,11 @@ export class SceneAdapter {
       mesh.rotation.y = -item.rotationDeg * Math.PI / 180; mesh.userData = { entityId: item.id, category: 'furniture-placeholder' };
     }
   }
+  setCeilingsVisible(visible:boolean):void{this.#showCeilings=visible;for(const {data,mesh}of this.#meshes.values())if(data.category==='ceiling')mesh.visible=visible;}
   mesh(id: string): THREE.Mesh | undefined { return this.#meshes.get(id)?.mesh; }
   dispose(): void {
     for (const { mesh } of this.#meshes.values()) mesh.geometry.dispose();
     for (const material of this.#materials.values()) material.dispose();
-    this.#placeholder.dispose(); this.#unitBox.dispose(); this.#meshes.clear(); this.#materials.clear(); this.#furniture.clear(); this.group.clear();
+    this.#ceiling.dispose();this.#placeholder.dispose(); this.#unitBox.dispose(); this.#meshes.clear(); this.#materials.clear(); this.#furniture.clear(); this.group.clear();
   }
 }

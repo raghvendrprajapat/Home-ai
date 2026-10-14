@@ -2,7 +2,7 @@ import { applyGeometry, candidatePairs, partitionRectangles, rectArea, wallStrip
 import type { Rect } from '@gharplan/geometry';
 import { canonicalStringify } from '@gharplan/core-model';
 import type { Opening, ProjectDoc, Wall } from '@gharplan/core-model';
-import type { MeshData, SceneBundle } from './types';
+import type { MeshData, SceneBundle, CeilingWarning } from './types';
 
 type V3 = [number, number, number];
 interface Box { lo: V3; hi: V3; ownerId: string }
@@ -103,7 +103,7 @@ function triangles(quads: Quad[], materialScales: Map<string, number>, cache: Me
 }
 
 /** Pure CPU scene derivation: height-band solid union, real holes, exposed faces only. */
-export function buildScene(document: ProjectDoc, cache: MeshCache = new Map()): SceneBundle {
+function buildGeometryScene(document: ProjectDoc, cache: MeshCache): SceneBundle {
   const derived = applyGeometry(document, { op: 'analyze' });
   if (!derived.accepted) throw derived.error;
   const elevation = document.floors[0]!.elevation, walls = new Map(document.walls.map(w => [w.id, w]));
@@ -158,36 +158,50 @@ export function buildScene(document: ProjectDoc, cache: MeshCache = new Map()): 
   }
   const scales = new Map(document.materials.map(m => [m.id, m.uvScaleMm ?? 1000]));
   const compact = compactQuads(quads), result = triangles(compact, scales, cache), meshes = result.meshes; let meshesBuilt = result.built;
-  // Floors/thresholds are open upward surfaces. Never add thresholds to room areas.
-  const floor = (id: string, entityId: string, category: 'floor' | 'threshold', rects: readonly Rect[], materialId: string) => {
-    const signature = JSON.stringify([category, entityId, rects, materialId, scales.get(materialId) ?? 1000, elevation]), old = cache.get(id);
+  // Floors/thresholds face up; ceilings face down at their independent room height.
+  const plane = (id: string, entityId: string, category: 'floor' | 'threshold' | 'ceiling', rects: readonly Rect[], materialId: string, height = elevation, down = false) => {
+    const scale = category==='ceiling'?1000:scales.get(materialId)??1000;
+    const signature = JSON.stringify([category, entityId, rects, materialId, scale, height, down]), old = cache.get(id);
     if (old?.signature === signature) { meshes.push(old.mesh); return; }
-    const p: number[] = [], n: number[] = [], uv: number[] = [], scale = scales.get(materialId) ?? 1000;
-    for (const [x0, z0, x1, z1] of rects) for (const [x, z] of [[x0, z0], [x0, z1], [x1, z1], [x0, z0], [x1, z1], [x1, z0]] as [number, number][]) {
-      p.push(x / 1000, elevation / 1000, z / 1000); n.push(0, 1, 0); uv.push(x / scale, z / scale);
+    const p: number[] = [], n: number[] = [], uv: number[] = [];
+    for (const [x0, z0, x1, z1] of rects) for (const [x, z] of (down ? [[x0,z0],[x1,z1],[x0,z1],[x0,z0],[x1,z0],[x1,z1]] : [[x0,z0],[x0,z1],[x1,z1],[x0,z0],[x1,z1],[x1,z0]]) as [number,number][]) {
+      p.push(x / 1000, height / 1000, z / 1000); n.push(0, down ? -1 : 1, 0); uv.push(x / scale, z / scale);
     }
     const mesh: MeshData = { id, entityId, category, positions: new Float64Array(p), normals: new Float32Array(n), uv: new Float32Array(uv), groups: [{ start: 0, count: p.length / 3, materialId }] };
     cache.set(id, { signature, mesh }); meshes.push(mesh); meshesBuilt++;
   };
   for (const face of derived.derived.faces) {
     const room = document.rooms.find(r => r.id === face.roomId)!;
-    floor(`floor:${room.id}`, room.id, 'floor', face.clearRects, room.floorMaterial);
+    plane(`floor:${room.id}`, room.id, 'floor', face.clearRects, room.floorMaterial);
+    plane(`ceiling:${room.id}`, room.id, 'ceiling', face.clearRects, '__ceiling', elevation + room.ceilingHeight, true);
   }
   for (const opening of document.openings) if (opening.kind === 'door' && opening.sill === 0) {
     const wall = walls.get(opening.wallId)!, material = document.rooms.find(r => r.boundary.includes(wall.a) && r.boundary.includes(wall.b))?.floorMaterial ?? document.materials[0]!.id;
-    floor(`threshold:${opening.id}`, opening.id, 'threshold', [openingRect(document, wall, opening)], material);
+    plane(`threshold:${opening.id}`, opening.id, 'threshold', [openingRect(document, wall, opening)], material);
   }
   let bounds: SceneBundle['bounds'] = null;
   for (const box of boxes) {
     if (!bounds) bounds = [box.lo[0] / 1000, box.lo[1] / 1000, box.lo[2] / 1000, box.hi[0] / 1000, box.hi[1] / 1000, box.hi[2] / 1000];
     else for (const axis of [0, 1, 2] as const) { bounds[axis] = Math.min(bounds[axis], box.lo[axis] / 1000); bounds[axis + 3] = Math.max(bounds[axis + 3]!, box.hi[axis] / 1000); }
   }
+  for(const room of document.rooms)if(bounds)bounds[4]=Math.max(bounds[4],(elevation+room.ceilingHeight)/1000);
+  const warningMap=new Map<string,CeilingWarning>();
+  for(const wall of document.walls){const adjacent=document.rooms.filter(room=>room.boundary.some((id,i)=>id===wall.a&&room.boundary[(i+1)%room.boundary.length]===wall.b||id===wall.b&&room.boundary[(i+1)%room.boundary.length]===wall.a)).sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);if(adjacent.length===2&&adjacent[0]!.ceilingHeight!==adjacent[1]!.ceilingHeight){const a=adjacent[0]!,b=adjacent[1]!,key=JSON.stringify([a.id,b.id]);const warning:CeilingWarning=warningMap.get(key)??{roomIds:[a.id,b.id],wallIds:[],heightsMm:[a.ceilingHeight,b.ceilingHeight]};warning.wallIds.push(wall.id);warningMap.set(key,warning);}}
+  const ceilingWarnings=[...warningMap.values()].map(w=>({...w,wallIds:[...w.wallIds].sort()})).sort((a,b)=>JSON.stringify(a.roomIds)<JSON.stringify(b.roomIds)?-1:1);
   const vertices = meshes.reduce((sum, m) => sum + m.positions.length / 3, 0);
   if (vertices > 500_000) throw new Error('This drawing exceeds the 3D preview vertex budget. Your 2D drawing is unchanged.');
   const wanted = new Set(meshes.map(m => m.id)); for (const id of cache.keys()) if (!wanted.has(id)) cache.delete(id);
-  return { meshes, bounds, stats: { boxes: boxes.length, quads: compact.length, vertices, meshesBuilt,
+  return { meshes, bounds, ceilingWarnings, stats: { boxes: boxes.length, quads: compact.length, vertices, meshesBuilt,
     wallVolumeMm3: boxes.reduce((sum, b) => sum + (b.hi[0] - b.lo[0]) * (b.hi[1] - b.lo[1]) * (b.hi[2] - b.lo[2]), 0) } };
 }
+
+function furnitureBounds(document:ProjectDoc,structural:SceneBundle['bounds']):SceneBundle['bounds'] {
+ const result=structural?[...structural] as NonNullable<SceneBundle['bounds']>:null;let bounds=result;
+ for(const f of document.furniture){const r=f.rotationDeg*Math.PI/180,hx=(Math.abs(Math.cos(r))*f.size.w+Math.abs(Math.sin(r))*f.size.d)/2000,hz=(Math.abs(Math.sin(r))*f.size.w+Math.abs(Math.cos(r))*f.size.d)/2000,x=f.position.x/1000,z=f.position.y/1000,y=(document.floors[0]!.elevation+f.elevation)/1000,box:[number,number,number,number,number,number]=[x-hx,y,z-hz,x+hx,y+f.size.h/1000,z+hz];if(!bounds)bounds=box;else for(const axis of [0,1,2] as const){bounds[axis]=Math.min(bounds[axis],box[axis]);bounds[axis+3]=Math.max(bounds[axis+3]!,box[axis+3]!);}}
+ return bounds;
+}
+/** Pure canonical scene derivation with complete geometry/furniture framing bounds. */
+export function buildScene(document:ProjectDoc,cache:MeshCache=new Map()):SceneBundle {const bundle=buildGeometryScene(document,cache);return {...bundle,bounds:furnitureBounds(document,bundle.bounds)};}
 
 /** Persistent worker builder. Geometry-only dependencies skip unrelated full CPU builds. */
 export class CachedSceneBuilder {
@@ -195,7 +209,7 @@ export class CachedSceneBuilder {
   build(document: ProjectDoc): SceneBundle {
     const source = canonicalStringify({ floors: document.floors, junctions: document.junctions, walls: document.walls,
       openings: document.openings, rooms: document.rooms, uv: document.materials.map(m => [m.id, m.uvScaleMm ?? 1000]) });
-    if (source === this.#source && this.#bundle) return { ...this.#bundle, stats: { ...this.#bundle.stats, meshesBuilt: 0 } };
-    const bundle = buildScene(document, this.#cache); this.#source = source; this.#bundle = bundle; return bundle;
+    if (source === this.#source && this.#bundle) return { ...this.#bundle, bounds:furnitureBounds(document,this.#bundle.bounds), stats: { ...this.#bundle.stats, meshesBuilt: 0 } };
+    const bundle = buildGeometryScene(document, this.#cache); this.#source = source; this.#bundle = bundle; return {...bundle,bounds:furnitureBounds(document,bundle.bounds)};
   }
 }
