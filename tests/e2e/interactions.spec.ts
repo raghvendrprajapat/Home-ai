@@ -1,3 +1,4 @@
+import {installTouchDiagnostics,reportTouchFailure} from './touch-diagnostics';
 import {test,expect} from '@playwright/test';
 import type {Page,CDPSession} from '@playwright/test';
 import {createHash} from 'node:crypto';
@@ -72,3 +73,6 @@ test('UX-004 responsive buttons keep48CSSpx targets at mobile/tablet/desktop wit
   expect(sizes.length).toBeGreaterThan(5);for(const size of sizes){expect(size.width,`${size.label} width`).toBeGreaterThanOrEqual(48);expect(size.height,`${size.label} height`).toBeGreaterThanOrEqual(48);}
  }
 });
+
+test.beforeEach(async({page},info)=>{if(info.title.startsWith('UX-004 touch hold/loupe'))await installTouchDiagnostics(page);});
+test.afterEach(async({page},info)=>{if(info.title.startsWith('UX-004 touch hold/loupe'))await reportTouchFailure(page,info);});
