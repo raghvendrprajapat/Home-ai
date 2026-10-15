@@ -1,0 +1,150 @@
+{
+  "task": "PH4-T02",
+  "executionDate": "2026-10-15",
+  "baseSha": "96874690de166bb99c7c7c05342adedc88111526",
+  "scope": "Local bilingual catalog browse only; placement, catalog breadth and D36 scopes remain pending",
+  "check": {
+    "productTests": 354,
+    "files": 51,
+    "elapsedSeconds": 32.15,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 67,
+    "skipped": 0,
+    "reportedElapsed": "5.3m",
+    "newCatalogCases": 5,
+    "browser": "Chromium151.0.7922.173/SwiftShader; Linux, not phones"
+  },
+  "productionBuild": {
+    "initialGzipBytes": 163651,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": "BUILD SUCCESSFUL in28s;170tasks40executed130up-to-date",
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "75745ac1d8cdfb8ab6de8d4d30633a3d4e975071bd26cd2c49601fbf73ab3bfd",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packageChecks": {
+    "sha256": "75745ac1d8cdfb8ab6de8d4d30633a3d4e975071bd26cd2c49601fbf73ab3bfd",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "signature": "v2 verified",
+  "protectedIntegrity": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "freshCodexReview": {
+    "focusedTests": 9,
+    "elapsedMs": 321,
+    "temporaryReactProbes": 2,
+    "probeElapsedSeconds": 1.27,
+    "blockers": 0,
+    "independentProbeScope": "stale image events, exact-once URL release, abort and no URL allocation after unmount; not Claude-authored fixtures"
+  },
+  "retainedActualGpuRecoveryMs": 442.39999997615814,
+  "retainedRendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 8612372
+      },
+      {
+        "cycles": 16,
+        "usedSize": 9371452
+      },
+      {
+        "cycles": 26,
+        "usedSize": 9478396
+      }
+    ],
+    "baseline": {
+      "usedSize": 9559992,
+      "totalSize": 10194944,
+      "embedderHeapUsedSize": 1914744,
+      "backingStorageSize": 1374556
+    },
+    "after": {
+      "usedSize": 9895844,
+      "totalSize": 10719232,
+      "embedderHeapUsedSize": 2023088,
+      "backingStorageSize": 1374549
+    },
+    "heapGrowth": 0.03513099174141576,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "initialFailures": [
+    "Native fetch called with API receiver: browser issued no requests; fixed global receiver and regression.",
+    "Window load capture fault injection did not suppress native image callback; direct listener suppression now independently asserted and real5s deadline retained.",
+    "Strict TypeScript annotations in new corruption/event tests corrected; no rules disabled."
+  ],
+  "limits": [
+    "One original desk; no placement or GLB replacement in this task",
+    "No premium/entitlement preparation or D36 cloud/accounts/history/mobileoptimization/sharing/realphone/billing/security/privacy/release/finalClaude work",
+    "No new dependencies, historical asset/source/blob/schema/accepted fixture changes",
+    "Native9JUnit reports unchanged/cached, not fresh device execution;15existinglintwarnings",
+    "Local151 browser differs from pinnedCI156; device/browsermatrix/Hindi/TalkBack/thermal/nativeprovider evidence pending",
+    "Rights records validate provenance fields, not independent legal clearance"
+  ]
+}

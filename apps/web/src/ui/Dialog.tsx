@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import type { ReactNode } from 'react';
-export function Dialog({ title, busy, onCancel, children }: { title: string; busy: boolean; onCancel(): void; children: ReactNode }) {
+export function Dialog({ title, busy, onCancel, children, isolateKeyboard=false, className='' }: { title: string; busy: boolean; onCancel(): void; children: ReactNode; isolateKeyboard?:boolean;className?:string }) {
   const dialog = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const element = dialog.current!, previous = document.activeElement;
@@ -8,7 +8,7 @@ export function Dialog({ title, busy, onCancel, children }: { title: string; bus
     element.querySelector<HTMLElement>('input, select, button')?.focus();
     return () => { element.close(); if (previous instanceof HTMLElement && previous.isConnected) previous.focus(); };
   }, []);
-  return <dialog ref={dialog} className="project-dialog" aria-label={title} onCancel={event => { event.preventDefault(); if (!busy) onCancel(); }}>
+  return <dialog ref={dialog} className={`project-dialog ${className}`} aria-label={title} onKeyDown={event=>{if(isolateKeyboard)event.stopPropagation();}} onCancel={event => { event.preventDefault(); if (!busy) onCancel(); }}>
     <h2>{title}</h2>{children}
   </dialog>;
 }

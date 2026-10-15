@@ -1,3 +1,4 @@
+import {CatalogControls} from './catalog/CatalogControls';
 import {FurnitureControls} from './editor/FurnitureControls';
 import {CameraControls} from './editor/CameraControls';
 import {ThreeImageControls} from './export/ThreeImageControls';
@@ -98,6 +99,7 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
       </section>
       <aside className="inspector" aria-label={t('planControls')}>
         <SaveControls store={store} {...(session ? { session } : {})} />
+        <CatalogControls locale={ui.locale} units={snapshot.document.units}/>
         <FurnitureControls store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/>
         <PlanImageControls store={store} locale={ui.locale}/>
         {view==='3d'&&<><CameraControls store={store} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={store} locale={ui.locale}/></>}
