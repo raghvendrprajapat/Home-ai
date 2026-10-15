@@ -1,0 +1,96 @@
+{
+  "task": "PH4-T03 stageC2a",
+  "executionDate": "2026-10-15",
+  "baseSha": "48e0881f4d547a7caeb0c1a3b31a2c9226c8301e",
+  "scope": "Shared complete wall-solid renderer derivation and pure collision/cardinal back-alignment math; UI integration pending",
+  "check": {
+    "productTests": 401,
+    "files": 58,
+    "elapsedSeconds": 22.99,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 89,
+    "skipped": 0,
+    "reportedElapsed": "6.8m",
+    "browser": "Chromium151.0.7922.173/SwiftShader; Linux, not phones",
+    "sourceTiming": "After shared renderer extraction; before final advisory-only support provenance fixes. Final complete scene-buffer parity and all product checks follow runtime fixes; full CI exact head required."
+  },
+  "parity": {
+    "cases": 11,
+    "testsPassed": 1,
+    "elapsedSeconds": 0.893,
+    "includes": "Complete mesh typed buffers/groups/order/bounds/warnings/statistics; sample and five thicknesses/two host directions/elevation315",
+    "limit": "Refactor equivalence, not independent correctness"
+  },
+  "productionBuild": {
+    "initialGzipBytes": 168250,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": "BUILD SUCCESSFUL in27s;170tasks40executed130up-to-date",
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "9758b07be9bf86060ad1b8476cd25919d1c548e891cc2ff2c8dae14d112d5ea2",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packagedBytes": {
+    "sha256": "9758b07be9bf86060ad1b8476cd25919d1c548e891cc2ff2c8dae14d112d5ea2",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "nativeJUnitScope": "9 unchanged/cached helper reports; no device execution",
+  "protectedFiles": 39,
+  "protectedMismatches": 0,
+  "sampleSchemaErrors": 0,
+  "review": {
+    "author": "Fresh read-only Codex; no repository edits; not Claude fixtures",
+    "beforeFix": "First tangent case failed; tangent fix passed1/failed1 doorway case; postcut host support passed2/2; final fullbuffer parity11cases passed",
+    "remaining": "No remaining source blockers; C2b preview-ownership hazard recorded in plan",
+    "finalFocused": {
+      "tests": 27,
+      "files": 3,
+      "elapsedSeconds": 1.09
+    },
+    "finalIndependent": {
+      "tests": 2,
+      "elapsedSeconds": 0.568
+    }
+  },
+  "remaining": [
+    "C2b advisory/snap controls",
+    "C3 actual3D pointer gestures",
+    "materials/catalog breadth/other eligibleL0 gaps",
+    "All D36 scopes require explicit prior permission",
+    "External/device/physical accessibility/finalClaude release gates pending"
+  ]
+}
