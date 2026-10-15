@@ -1,0 +1,183 @@
+{
+  "task": "PH4-T03 stageC1",
+  "executionDate": "2026-10-15",
+  "baseSha": "55a3ca83f4f4e27d1434388e95aca7ce8923969f",
+  "scope": "2D furniture move/rotation gestures, accessible explicit steps and interruption ownership; advisories/3Dpointergestures remain pending",
+  "check": {
+    "productTests": 387,
+    "files": 56,
+    "elapsedSeconds": 21.87,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 88,
+    "skipped": 0,
+    "reportedElapsed": "6.2m",
+    "newGestureCases": 8,
+    "browser": "Chromium151.0.7922.173/SwiftShader; Linux, not phones",
+    "sourceTiming": "Full88passed6.3m before final stalecontrolledUI guards; repeated full88passed6.2m on final source. No accepted baseline test inputs/thresholds were changed."
+  },
+  "productionBuild": {
+    "initialGzipBytes": 168249,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": "BUILD SUCCESSFUL in30s;170tasks40executed130up-to-date",
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "621df76cd4e75562729ef1a8096464e78f2e40392cdc78621ea5358141693e35",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packageChecks": {
+    "sha256": "621df76cd4e75562729ef1a8096464e78f2e40392cdc78621ea5358141693e35",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "signature": "v2 verified",
+  "protectedIntegrity": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "freshCodexReview": {
+    "focusedTests": 18,
+    "elapsedSeconds": 3.19,
+    "temporaryIndependentReactProbes": 9,
+    "probeElapsedSeconds": 2.52,
+    "blockers": 0,
+    "authorship": "Fresh read-only Codex; no repository edits; not Claude-authored fixtures",
+    "temporaryTimingFailure": "One fixed-wait React probe initially missed loupe readiness (8passed1failed); sequential9/9 and explicit readiness-poll9/9 passed. Cause unconfirmed; no accepted test changed."
+  },
+  "retainedActualGpuRecoveryMs": 439.60000002384186,
+  "retainedRendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 9141668
+      },
+      {
+        "cycles": 16,
+        "usedSize": 9915456
+      },
+      {
+        "cycles": 26,
+        "usedSize": 10072808
+      }
+    ],
+    "baseline": {
+      "usedSize": 10180200,
+      "totalSize": 10719232,
+      "embedderHeapUsedSize": 2004480,
+      "backingStorageSize": 1527672
+    },
+    "after": {
+      "usedSize": 10715888,
+      "totalSize": 11243520,
+      "embedderHeapUsedSize": 2088528,
+      "backingStorageSize": 1527672
+    },
+    "heapGrowth": 0.05262057719887614,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "diagnosedIssues": [
+    "Stationary handle tap selected room/wall below it; suppress generic pick for handle-originated taps.",
+    "Second finger on free-rotation control stopped bubbling before outside touch arbitration; moved arbitration to capture and tested actual native control touch.",
+    "Post-view-remount nonprimary touch incorrectly began an edit; native CDP regression failed before guard (loupe1expected0), passed after blocked-owner guard.",
+    "Real deletion with deliberately stale controlled selection/snapshot emitted unhandled furniture-selection/furniture-gesture errors without document changes; added live ownership/ID guards and3permanent UI regressions.",
+    "New browser rotation test initially shadowed the start helper; fixed the test variable. Then2degree arc travelled2.962335px, below existing3px commit threshold; kept threshold and tested349to1 with12degree arc, while analytic test retains359to1.",
+    "Raw grid property asserted signed zero remainder as positive0; corrected the mathematical remainder assertion with absolute value, no source behavior change."
+  ],
+  "limits": [
+    "3px pointer commit threshold retained; tiny rotation arcs remain taps, precise input available. Selected two-finger rotation deferred, second pointer cancels.",
+    "Current3D numeric/step controls work; actual3D pointer modes, collision/back-wall advisories and catalog/material breadth follow.",
+    "Native9JUnit helper reports unchanged/cached, not device execution;15existinglintwarnings.",
+    "Local151 differs from pinnedCI156; physical phone/WebView/accessibility/Hindi/TalkBack/nativeprovider/thermal checks pending.",
+    "Retained V8/GPU lifecycle test uses original sample fallback pins; not a loadedcatalog/physicalmemory benchmark.",
+    "No D36 accounts/cloud/history/mobileoptimization/sharing/realphone/billing/security/privacy/release/finalClaude work.",
+    "No dependencies, schema, historical asset/blob or accepted fixture changes."
+  ],
+  "firstPrCi": {
+    "head": "ae6c7650427cf04878d3164f5f637b46246ed5d0",
+    "run": 38781044454,
+    "check": "FAILURE",
+    "android": "SKIPPED",
+    "browserPassed": 87,
+    "browserFailed": 1,
+    "merged": false,
+    "failure": "REN-009 expected stale, received failed with no initial CPU scene. Controlled1500ms initial delivery reproduces; positive applied-scene prerequisites added, all existing recovery assertions retained. New held-initial-scene regression distinguishes failed vs stale.",
+    "delayedBefore": "1failed",
+    "delayedAfter": "1passed10.9s",
+    "productionChangedAfterInitialHead": false,
+    "finalFocusedBrowser": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "elapsedSeconds": 48.6
+    },
+    "postCorrectionCheck": {
+      "productTests": 387,
+      "files": 56,
+      "elapsedSeconds": 35.87,
+      "toolingTests": 18,
+      "failed": 0,
+      "skipped": 0
+    }
+  }
+}
