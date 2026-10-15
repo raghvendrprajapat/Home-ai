@@ -18,13 +18,14 @@ import type { DrawingTool } from './drawing-tools';
 import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
-interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
+interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface Drag { pointerId: number; junction: string; generation: number; start: Point2; last: Point2; snapTarget?: string; touch: boolean; store: ProjectStore }
-export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
+export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
   const language = useRef(locale); language.current = locale;
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), stage = useRef<Konva.Stage | null>(null), drawingLayer = useRef<Konva.Layer | null>(null), library = useRef<typeof Konva | null>(null);
   const boxDrag=useRef<{id:number;start:Point2;last:Point2;generation:number;additive:boolean}|null>(null),[boxPreview,setBoxPreview]=useState<{a:Point2;b:Point2}|null>(null);
   const drag = useRef<Drag | null>(null), gestures = useRef(new PlanGestures()), cycle = useRef(new PickCycle());
+  const gestureFrame=useRef<DOMRect|null>(null);
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null), frame = useRef<number | null>(null), latestMotion = useRef<{motion:DragMotion;shift:boolean}|null>(null);
   const panKey = useRef(false);
   const lastSnap=useRef<SnapTarget|null>(null),[snapTarget,setSnapTarget]=useState<SnapTarget|null>(null);
@@ -41,10 +42,11 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
   const [picked, setPicked] = useState<Pick | null>(null), [loupe,setLoupe] = useState<{point:Point2;world:Point2}|null>(null);
   const [size, setSize] = useState({ width: 0, height: 0 }), [view, setView] = useState<Viewport>({ x: 0, y: 0, scale: 0.06 });
   const viewRef = useRef(view); viewRef.current = view;
+  useEffect(()=>{if(size.width&&size.height)onViewCentre?.(screenToWorld([size.width/2,size.height/2],view));},[view,size,onViewCentre]);
   const changeView = (next:Viewport) => { if(next.x===viewRef.current.x&&next.y===viewRef.current.y&&next.scale===viewRef.current.scale)return;viewRef.current=next;setView(next);cycle.current.clear(); };
   const [preview, setPreview] = useState<PreviewResult | null>(null), [ready, setReady] = useState(false);
-  const localPoint = (event: { clientX: number; clientY: number }): Point2 => {
-    const rect = host.current!.getBoundingClientRect(); return [event.clientX - rect.left, event.clientY - rect.top];
+  const localPoint = (event: { clientX: number; clientY: number },rect=host.current!.getBoundingClientRect()): Point2 => {
+    return [event.clientX - rect.left, event.clientY - rect.top];
   };
   const resetSnap=()=>{if(snapFrame.current!==null)cancelAnimationFrame(snapFrame.current);snapFrame.current=null;pendingSnap.current=null;lastSnap.current=null;setSnapTarget(null);};
   const clearEdit = () => {
@@ -56,7 +58,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
   };
   const cancel = () => {
     const owned=[...gestures.current.ids(),...(boxDrag.current?[boxDrag.current.id]:[])];
-    gestures.current.cancel();clearEdit();cycle.current.clear();
+    gestures.current.cancel();gestureFrame.current=null;clearEdit();cycle.current.clear();
     toolRef.current?.clear();
     for(const id of owned)if(host.current?.hasPointerCapture(id))host.current.releasePointerCapture(id);
   };
@@ -140,7 +142,12 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       if(gestures.current.has(event.pointerId)&&!host.current?.contains(event.target as Node)){gestures.current.cancel();gestures.current.end(event.pointerId,[event.clientX,event.clientY],performance.now());clearEdit();}
     };
     const outsideTouch = (event:PointerEvent) => {if(event.pointerType==='touch'&&(gestures.current.phase!=='idle'||boxDrag.current)&&!host.current?.contains(event.target as Node)){cancel();gestures.current.begin(event.pointerId,true,localPoint(event),viewRef.current,false,performance.now());}};
-    const scrolled=()=>{if(gestures.current.phase!=='idle'||boxDrag.current)cancel();};
+    const scrolled=()=>{if(gestures.current.phase==='idle'&&!boxDrag.current)return;
+      // Scroll notifications can be queued before this gesture, or belong to a
+      // different scroller. Cancel only when the pointer's canvas mapping moved.
+      const before=gestureFrame.current,after=host.current?.getBoundingClientRect();
+      if(!before||!after||(['left','top','width','height'] as const).some(key=>before[key]!==after[key]))cancel();
+    };
     document.addEventListener('visibilitychange',hidden);window.addEventListener('blur',blurred);window.addEventListener('keyup',releaseSpace);window.addEventListener('scroll',scrolled,true);window.addEventListener('keydown',escape);window.addEventListener('pointerup',outsideEnd);window.addEventListener('pointercancel',outsideEnd);window.addEventListener('pointerdown',outsideTouch);
     return()=>{document.removeEventListener('visibilitychange',hidden);window.removeEventListener('blur',blurred);window.removeEventListener('keyup',releaseSpace);window.removeEventListener('scroll',scrolled,true);window.removeEventListener('keydown',escape);window.removeEventListener('pointerup',outsideEnd);window.removeEventListener('pointercancel',outsideEnd);window.removeEventListener('pointerdown',outsideTouch);};
   }, []);
@@ -218,8 +225,9 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id} data-snap-kind={snapTarget?.kind} data-selection-count={selection?.length??0}
     onPointerDown={event=>{
       if(event.button!==0&&event.button!==1)return;
-      const point=localPoint(event),touch=event.pointerType==='touch',pick=index.picks(point,viewRef.current,touch)[0],now=performance.now();
       if(boxDrag.current)cancel();
+      const rect=host.current!.getBoundingClientRect(),point=localPoint(event,rect),touch=event.pointerType==='touch',pick=index.picks(point,viewRef.current,touch)[0],now=performance.now();
+      if(!gestures.current.ids().length)gestureFrame.current=rect;
       const drawingMode=toolRef.current?.getSnapshot().mode;
       if((!drawingMode||drawingMode==='select')&&!touch&&event.button===0&&!panKey.current&&(multiple||event.shiftKey)){
         onEditStart?.();boxDrag.current={id:event.pointerId,start:point,last:point,generation:snapshot.localGeneration,additive:event.shiftKey};setBoxPreview({a:point,b:point});event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);return;
@@ -259,8 +267,9 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     }}
     onPointerUp={event=>{
       const box=boxDrag.current;
-      if(box?.id===event.pointerId){const point=localPoint(event);clearEdit();if(box.generation===store.getSnapshot().localGeneration){if(Math.hypot(point[0]-box.start[0],point[1]-box.start[1])>3)onBoxSelect?.(index.contained(screenToWorld(box.start,viewRef.current),screenToWorld(point,viewRef.current)),box.additive);else{const chosen=cycle.current.next(index.picks(point,viewRef.current,false),point,performance.now());setPicked(chosen);onPick?.(chosen,true);}}if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);return;}
+      if(box?.id===event.pointerId){const point=localPoint(event);clearEdit();gestureFrame.current=null;if(box.generation===store.getSnapshot().localGeneration){if(Math.hypot(point[0]-box.start[0],point[1]-box.start[1])>3)onBoxSelect?.(index.contained(screenToWorld(box.start,viewRef.current),screenToWorld(point,viewRef.current)),box.additive);else{const chosen=cycle.current.next(index.picks(point,viewRef.current,false),point,performance.now());setPicked(chosen);onPick?.(chosen,true);}}if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);return;}
       const point=localPoint(event),pointer=toolPointer.current,wasPhase=gestures.current.phase,step=gestures.current.end(event.pointerId,point,performance.now()),tool=toolRef.current;
+      if(!gestures.current.ids().length)gestureFrame.current=null;
       if(pointer&&pointer.id===event.pointerId&&tool&&wasPhase==='pan'){
         const state=tool.getSnapshot();if(pointer.generation===store.getSnapshot().localGeneration&&pointer.epoch===state.epoch){const world=snapAt(screenToWorld(point,viewRef.current),state.anchor,state.mode==='wall',event.shiftKey);tool.point(world);}
         clearEdit();if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);return;
@@ -274,7 +283,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       }else applyStep(step);
       if(step.tap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);onPick?.(chosen,multiple||event.shiftKey);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}
       if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);
-    }} onDoubleClick={()=>toolRef.current?.clear()} onPointerCancel={event=>{gestures.current.cancel();gestures.current.end(event.pointerId,localPoint(event),performance.now());clearEdit();toolRef.current?.clear();onMessage(message(locale,'dragCancelled'));}}
+    }} onDoubleClick={()=>toolRef.current?.clear()} onPointerCancel={event=>{gestures.current.cancel();gestures.current.end(event.pointerId,localPoint(event),performance.now());gestureFrame.current=null;clearEdit();toolRef.current?.clear();onMessage(message(locale,'dragCancelled'));}}
     onLostPointerCapture={event=>{if(gestures.current.has(event.pointerId)||boxDrag.current?.id===event.pointerId)cancel();}}>
     <div ref={mount} className="konva-mount" />
     {!ready && <span className="canvas-loading">{message(locale, 'loadingPlan')}</span>}

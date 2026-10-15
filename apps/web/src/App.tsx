@@ -1,10 +1,15 @@
+import {FurniturePlacementControls} from './editor/FurniturePlacementControls';
+import {beginPlacement} from './editor/furniture-placement';
+import type {PlacementIntent} from './editor/furniture-placement';
+import type {FurnitureGhost} from './render3d/placement-ghost';
+import type {Point2} from './editor/view2d';
 import {CatalogControls} from './catalog/CatalogControls';
 import {FurnitureControls} from './editor/FurnitureControls';
 import {CameraControls} from './editor/CameraControls';
 import {ThreeImageControls} from './export/ThreeImageControls';
 import type {ThreeControlsApi} from './render3d/types';
 import type {QualityChoice} from './render3d/quality';
-import { lazy, Suspense, useCallback, useEffect, useState, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useState, useRef, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { parseProject, ProjectStore } from '@gharplan/core-model';
 import sample from '../../../docs/examples/sample-project.json';
@@ -44,14 +49,20 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
   const [selectedWall,setSelectedWall]=useState(()=>store.getSnapshot().document.walls[0]?.id??''),[precision,setPrecision]=useState<PrecisionPreview|null>(null),[precisionCancel,setPrecisionCancel]=useState(0);
   const [selectedFurniture,setSelectedFurniture]=useState(''),[activePick,setActivePick]=useState<Pick|undefined>(undefined);
   const [selectedOpening,setSelectedOpening]=useState(''),[openingCancel,setOpeningCancel]=useState(0);
+  const browseButton=useRef<HTMLButtonElement>(null),viewCentre=useRef<Point2>([0,0]);
+  const receiveCentre=useCallback((point:Point2)=>{viewCentre.current=point;},[]);
+  const [placement,setPlacement]=useState<{intent:PlacementIntent;name_en:string;name_hi:string}|null>(null);
+  const cancelPlacement=useCallback(()=>{setPlacement(null);setPrecision(old=>old?.owner==='furniture'?null:old);queueMicrotask(()=>{if(document.hasFocus())browseButton.current?.focus({preventScroll:true});});},[]);
+  const furniturePreview=useCallback((value:PrecisionPreview|null)=>{setPrecision(old=>value?{...value,owner:'furniture'}:old?.owner==='furniture'?null:old);},[]);
+  useEffect(()=>drawing.subscribe(()=>{if(drawing.getSnapshot().mode!=='select')setPlacement(null);}),[drawing]);
   const [selection,setSelection]=useState<EditablePick[]>([]),[multiple,setMultiple]=useState(false),[selectionCancel,setSelectionCancel]=useState(0);
-  const cancelPrecision=useCallback(()=>{setPrecision(null);setPrecisionCancel(n=>n+1);setOpeningCancel(n=>n+1);setSelectionCancel(n=>n+1);},[]);
-  const wallPreview=useCallback((value:PrecisionPreview|null)=>{if(value){drawing.clear();setOpeningCancel(n=>n+1);setSelectionCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'wall'}:current?.owner==='wall'?null:current);},[drawing]);
-  const openingPreview=useCallback((value:PrecisionPreview|null)=>{if(value){drawing.clear();setPrecisionCancel(n=>n+1);setSelectionCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'opening'}:current?.owner==='opening'?null:current);},[drawing]);
-  const selectionPreview=useCallback((value:PrecisionPreview|null)=>{if(value){drawing.clear();setPrecisionCancel(n=>n+1);setOpeningCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'selection'}:current?.owner==='selection'?null:current);},[drawing]);
-  const selectEntities=(picks:EditablePick[])=>{setSelection(picks);const active=picks.at(-1);setActivePick(active);setSelectedFurniture(active?.kind==='furniture'?active.id:'');};
+  const cancelPrecision=useCallback(()=>{setPlacement(null);setPrecision(null);setPrecisionCancel(n=>n+1);setOpeningCancel(n=>n+1);setSelectionCancel(n=>n+1);},[]);
+  const wallPreview=useCallback((value:PrecisionPreview|null)=>{if(value){setPlacement(null);drawing.clear();setOpeningCancel(n=>n+1);setSelectionCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'wall'}:current?.owner==='wall'?null:current);},[drawing]);
+  const openingPreview=useCallback((value:PrecisionPreview|null)=>{if(value){setPlacement(null);drawing.clear();setPrecisionCancel(n=>n+1);setSelectionCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'opening'}:current?.owner==='opening'?null:current);},[drawing]);
+  const selectionPreview=useCallback((value:PrecisionPreview|null)=>{if(value){setPlacement(null);drawing.clear();setPrecisionCancel(n=>n+1);setOpeningCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'selection'}:current?.owner==='selection'?null:current);},[drawing]);
+  const selectEntities=(picks:EditablePick[])=>{setPlacement(null);setPrecision(old=>old?.owner==='furniture'?null:old);setSelection(picks);const active=picks.at(-1);setActivePick(active);setSelectedFurniture(active?.kind==='furniture'?active.id:'');};
   const choosePicks=(picks:readonly Pick[],additive:boolean)=>{const eligible=picks.filter((p):p is EditablePick=>p.kind==='wall'||p.kind==='opening'||p.kind==='furniture');selectEntities(additive?[...selection,...eligible.filter(p=>!selection.some(o=>o.id===p.id))]:eligible);};
-  const choosePick=(pick:Pick|null,additive=false)=>{if(pick&&(pick.kind==='wall'||pick.kind==='opening'||pick.kind==='furniture')){const p=pick as EditablePick;selectEntities(additive?selection.some(o=>o.id===p.id)?selection.filter(o=>o.id!==p.id):[...selection,p]:[p]);}else{if(!additive)setSelection([]);setActivePick(pick??undefined);setSelectedFurniture('');}if(pick?.kind==='wall'){setSelectedWall(pick.id);setSelectedOpening('');}if(pick?.kind==='opening'){setSelectedOpening(pick.id);const opening=snapshot.document.openings.find(o=>o.id===pick.id);if(opening)setSelectedWall(opening.wallId);}};
+  const choosePick=(pick:Pick|null,additive=false)=>{setPlacement(null);setPrecision(old=>old?.owner==='furniture'?null:old);if(pick&&(pick.kind==='wall'||pick.kind==='opening'||pick.kind==='furniture')){const p=pick as EditablePick;selectEntities(additive?selection.some(o=>o.id===p.id)?selection.filter(o=>o.id!==p.id):[...selection,p]:[p]);}else{if(!additive)setSelection([]);setActivePick(pick??undefined);setSelectedFurniture('');}if(pick?.kind==='wall'){setSelectedWall(pick.id);setSelectedOpening('');}if(pick?.kind==='opening'){setSelectedOpening(pick.id);const opening=snapshot.document.openings.find(o=>o.id===pick.id);if(opening)setSelectedWall(opening.wallId);}};
   useEffect(()=>{const fields={wall:'walls',opening:'openings',furniture:'furniture'} as const;setSelection(old=>{const next=old.filter(p=>snapshot.document[fields[p.kind]].some(e=>e.id===p.id));return next.length===old.length?old:next;});},[snapshot.document]);
   useEffect(()=>{if(selectedOpening&&!snapshot.document.openings.some(o=>o.id===selectedOpening))setSelectedOpening('');},[selectedOpening,snapshot.document.openings]);
   useEffect(()=>{if(selectedFurniture&&!snapshot.document.furniture.some(f=>f.id===selectedFurniture))setSelectedFurniture('');if(activePick){const fields={wall:'walls',opening:'openings',furniture:'furniture',room:'rooms',junction:'junctions'} as const;if(!snapshot.document[fields[activePick.kind]].some(e=>e.id===activePick.id))setActivePick(undefined);}},[selectedFurniture,activePick,snapshot.document]);
@@ -78,6 +89,8 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
   const totalLabel = areaDisplay(totalArea, snapshot.document.units);
   const unclosedWalls=snapshot.document.walls.some(w=>!snapshot.derived.faces.some(face=>face.boundary.some((id,i)=>
     id===w.a&&face.boundary[(i+1)%face.boundary.length]===w.b||id===w.b&&face.boundary[(i+1)%face.boundary.length]===w.a)));
+  const ghostItem=placement&&precision?.owner==='furniture'&&precision.result.ok?precision.result.document.furniture.find(item=>item.id===placement.intent.id):undefined;
+  const ghost:FurnitureGhost|undefined=ghostItem&&placement?{tag:placement.intent.tag,item:ghostItem}:undefined;
   return <main className="workspace">
     <header className="app-header">
       <div className="brand"><span className="brand-mark" aria-hidden="true">⌂</span><h1>GharPlan</h1><span className="brand-tag">{t('brandTag')}</span></div>
@@ -93,13 +106,14 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
           <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => setView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => {drawing.setMode('select');setThreeFallback(false);setView('3d');}}>{t('view3d')}</button></div>
           <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{view === '2d' && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
         </div>
-        {view === '2d' ? <PlanCanvas drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
+        {view === '2d' ? <PlanCanvas onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
         {threeFallback&&<p role="status">{t('threeFallback')}</p>}
         <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span>{t('groundFloor')} · {t('mm')}</span></footer>
       </section>
       <aside className="inspector" aria-label={t('planControls')}>
         <SaveControls store={store} {...(session ? { session } : {})} />
-        <CatalogControls locale={ui.locale} units={snapshot.document.units}/>
+        <CatalogControls buttonRef={browseButton} locale={ui.locale} units={snapshot.document.units} onBrowse={()=>{drawing.setMode('select');cancelPrecision();}} onChoose={asset=>{drawing.setMode('select');cancelPrecision();try{const pose=view==='3d'?threeApi?.pose():undefined,centre:Point2=pose?[pose.target[0]*1000,pose.target[2]*1000]:viewCentre.current;setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
+        {placement&&<FurniturePlacementControls key={placement.intent.id} store={store} intent={placement.intent} label={ui.locale==='hi'?placement.name_hi:placement.name_en} locale={ui.locale} onPreview={furniturePreview} onCancel={cancelPlacement} onAdded={id=>{cancelPlacement();selectEntities([{kind:'furniture',id}]);setMessage(t('placementAdded'));}}/>}
         <FurnitureControls store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/>
         <PlanImageControls store={store} locale={ui.locale}/>
         {view==='3d'&&<><CameraControls store={store} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={store} locale={ui.locale}/></>}

@@ -6,7 +6,7 @@ import {wallLengthCommand} from './wall-edit';
 import type {MovedEnd} from './wall-edit';
 import {areaDisplay,editError,message} from '../i18n/messages';
 import type {Locale} from '../i18n/messages';
-export interface PrecisionPreview {projectId:string;sessionId:string;generation:number;result:PreviewResult;owner?:'wall'|'opening'|'selection'}
+export interface PrecisionPreview {projectId:string;sessionId:string;generation:number;result:PreviewResult;owner?:'wall'|'opening'|'selection'|'furniture'}
 export function WallPrecision({store,drawing,selected,onSelect,onPreview,cancelToken,locale,onMessage}:{store:ProjectStore;drawing:DrawingTool;selected:string;onSelect(id:string):void;onPreview(value:PrecisionPreview|null):void;cancelToken:number;locale:Locale;onMessage(text:string):void}) {
  const snapshot=useSyncExternalStore(store.subscribe,store.getSnapshot),wall=snapshot.document.walls.find(w=>w.id===selected);
  const [placement,setPlacement]=useState<'a'|'b'|'centre'>('a');
