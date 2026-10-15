@@ -152,5 +152,32 @@
     "Retained V8/GPU lifecycle test uses original sample fallback pins; not a loadedcatalog/physicalmemory benchmark.",
     "No D36 accounts/cloud/history/mobileoptimization/sharing/realphone/billing/security/privacy/release/finalClaude work.",
     "No dependencies, schema, historical asset/blob or accepted fixture changes."
-  ]
+  ],
+  "firstPrCi": {
+    "head": "ae6c7650427cf04878d3164f5f637b46246ed5d0",
+    "run": 38781044454,
+    "check": "FAILURE",
+    "android": "SKIPPED",
+    "browserPassed": 87,
+    "browserFailed": 1,
+    "merged": false,
+    "failure": "REN-009 expected stale, received failed with no initial CPU scene. Controlled1500ms initial delivery reproduces; positive applied-scene prerequisites added, all existing recovery assertions retained. New held-initial-scene regression distinguishes failed vs stale.",
+    "delayedBefore": "1failed",
+    "delayedAfter": "1passed10.9s",
+    "productionChangedAfterInitialHead": false,
+    "finalFocusedBrowser": {
+      "passed": 8,
+      "failed": 0,
+      "skipped": 0,
+      "elapsedSeconds": 48.6
+    },
+    "postCorrectionCheck": {
+      "productTests": 387,
+      "files": 56,
+      "elapsedSeconds": 35.87,
+      "toolingTests": 18,
+      "failed": 0,
+      "skipped": 0
+    }
+  }
 }
