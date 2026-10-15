@@ -1,32 +1,18 @@
+import { buildWallSolids, openingRect } from './solids';
+export { openingRect, subtractRectangle } from './solids';
 import { sceneInvalidation } from './dependencies';
-import { applyGeometry, candidatePairs, partitionRectangles, rectArea, wallStrips } from '@gharplan/geometry';
+import { applyGeometry, partitionRectangles } from '@gharplan/geometry';
 import type { Rect } from '@gharplan/geometry';
-import type { Opening, ProjectDoc, Wall } from '@gharplan/core-model';
+import type { ProjectDoc } from '@gharplan/core-model';
 import type { MeshData, SceneBundle, CeilingWarning } from './types';
 
 type V3 = [number, number, number];
-interface Box { lo: V3; hi: V3; ownerId: string }
 interface Quad { axis: 0 | 1 | 2; at: number; rect: Rect; sign: -1 | 1; ownerId: string; materialId: string }
 interface CacheEntry { signature: string; mesh: MeshData }
 type MeshCache = Map<string, CacheEntry>;
 const axes = (axis: number): [0 | 1 | 2, 0 | 1 | 2] => axis === 0 ? [1, 2] : axis === 1 ? [0, 2] : [0, 1];
 const unique = (values: number[]) => [...new Set(values)].sort((a, b) => a - b);
 
-/** Exact orthogonal rectangle difference; no epsilon or rasterization. */
-export function subtractRectangle(a: Rect, b: Rect): Rect[] {
-  const x0 = Math.max(a[0], b[0]), y0 = Math.max(a[1], b[1]), x1 = Math.min(a[2], b[2]), y1 = Math.min(a[3], b[3]);
-  if (x0 >= x1 || y0 >= y1) return [a];
-  return ([[a[0], a[1], x0, a[3]], [x1, a[1], a[2], a[3]], [x0, a[1], x1, y0], [x0, y1, x1, a[3]]] as Rect[]).filter(r => rectArea(r) > 0);
-}
-
-/** Opening centre/width is measured along a→b, including reversed hosts. */
-export function openingRect(document: ProjectDoc, wall: Wall, opening: Opening): Rect {
-  const a = document.junctions.find(j => j.id === wall.a)!, b = document.junctions.find(j => j.id === wall.b)!;
-  const horizontal = a.y === b.y, direction = Math.sign(horizontal ? b.x - a.x : b.y - a.y);
-  const centre = (horizontal ? a.x : a.y) + direction * opening.offset, half = wall.thickness / 2;
-  return horizontal ? [centre - opening.width / 2, a.y - half, centre + opening.width / 2, a.y + half] :
-    [a.x - half, centre - opening.width / 2, a.x + half, centre + opening.width / 2];
-}
 
 function point(q: Quad, u: number, v: number): V3 {
   const result: V3 = [0, 0, 0], [a, b] = axes(q.axis); result[q.axis] = q.at; result[a] = u; result[b] = v; return result;
@@ -106,56 +92,13 @@ function triangles(quads: Quad[], materialScales: Map<string, number>, cache: Me
 function buildGeometryScene(document: ProjectDoc, cache: MeshCache): SceneBundle {
   const derived = applyGeometry(document, { op: 'analyze' });
   if (!derived.accepted) throw derived.error;
-  const elevation = document.floors[0]!.elevation, walls = new Map(document.walls.map(w => [w.id, w]));
-  const openings = new Map<string, Opening[]>();
-  for (const opening of document.openings) openings.set(opening.wallId, [...(openings.get(opening.wallId) ?? []), opening]);
-  const heights = unique([0, ...document.walls.map(w => w.height), ...document.openings.flatMap(o => [o.sill, o.sill + o.height])]);
-  const boxes: Box[] = []; let work = 0;
-  const budget = () => { if (++work > 2_000_000) throw new Error('This drawing exceeds the 3D preview work budget. Your 2D drawing is unchanged.'); };
-  for (let h = 0; h < heights.length - 1; h++) {
-    const low = heights[h]!, high = heights[h + 1]!;
-    const pieces = wallStrips(document, low).flatMap(strip => {
-      let rects = [strip.rect];
-      for (const opening of openings.get(strip.ownerId) ?? []) {
-        if (opening.sill >= high || opening.sill + opening.height <= low) continue;
-        const hole = openingRect(document, walls.get(strip.ownerId)!, opening);
-        rects = rects.flatMap(r => { budget(); return subtractRectangle(r, hole); });
-      }
-      return rects.map(rect => ({ ownerId: strip.ownerId, rect }));
-    });
-    // Cut hosts BEFORE union ownership: other solid walls must not acquire the host's hole.
-    for (const piece of partitionRectangles(pieces)) {
-      budget(); const [x0, z0, x1, z1] = piece.rect;
-      boxes.push({ ownerId: piece.ownerId, lo: [x0, elevation + low, z0], hi: [x1, elevation + high, z1] });
-    }
-  }
-  const planes = new Map<string, Quad[]>(), junctions = new Map(document.junctions.map(j => [j.id, j]));
-  for (const box of boxes) for (const axis of [0, 1, 2] as const) for (const sign of [-1, 1] as const) {
-    const [u, v] = axes(axis), at = sign === -1 ? box.lo[axis] : box.hi[axis], wall = walls.get(box.ownerId)!;
-    const a = junctions.get(wall.a)!, b = junctions.get(wall.b)!;
-    const leftDot = axis === 0 ? sign * (b.y - a.y) : axis === 2 ? -sign * (b.x - a.x) : 0;
-    const q: Quad = { axis, at, sign, rect: [box.lo[u], box.lo[v], box.hi[u], box.hi[v]], ownerId: box.ownerId,
-      materialId: leftDot < 0 ? wall.rightMaterial : wall.leftMaterial };
-    const key = `${axis}:${at}`; planes.set(key, [...(planes.get(key) ?? []), q]);
-  }
-  const quads: Quad[] = [];
-  for (const faces of planes.values()) {
-    const opposites = new Map<number, number[]>();
-    for (const [i, j] of candidatePairs(faces.map(f => f.rect))) if (faces[i]!.sign !== faces[j]!.sign) {
-      opposites.set(i, [...(opposites.get(i) ?? []), j]); opposites.set(j, [...(opposites.get(j) ?? []), i]);
-    }
-    for (let i = 0; i < faces.length; i++) {
-      const face = faces[i]!;
-      let fragments = [face.rect];
-      for (const j of opposites.get(i) ?? []) {
-        budget(); const other = faces[j]!;
-        fragments = fragments.flatMap(r => { budget(); return subtractRectangle(r, other.rect); });
-        if (!fragments.length) break;
-      }
-      quads.push(...fragments.map(rect => ({ ...face, rect })));
-      if (quads.length > 100_000) throw new Error('This drawing exceeds the 3D preview surface budget. Your 2D drawing is unchanged.');
-    }
-  }
+  const elevation=document.floors[0]!.elevation,walls=new Map(document.walls.map(w=>[w.id,w])),junctions=new Map(document.junctions.map(j=>[j.id,j]));
+  const {boxes,faces}=buildWallSolids(document);
+  const quads:Quad[]=faces.map(face=>{
+    const wall=walls.get(face.ownerId)!,a=junctions.get(wall.a)!,b=junctions.get(wall.b)!;
+    const leftDot=face.axis===0?face.sign*(b.y-a.y):face.axis===2?-face.sign*(b.x-a.x):0;
+    return {...face,materialId:leftDot<0?wall.rightMaterial:wall.leftMaterial};
+  });
   const scales = new Map(document.materials.map(m => [m.id, m.uvScaleMm ?? 1000]));
   const compact = compactQuads(quads), result = triangles(compact, scales, cache), meshes = result.meshes; let meshesBuilt = result.built;
   // Floors/thresholds face up; ceilings face down at their independent room height.
