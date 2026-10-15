@@ -1,12 +1,12 @@
 {
-  "checkedOn": "2026-10-13",
-  "method": "Official npm exact-version metadata: 313 prior records retained unchanged; 11 new resolved versions checked before PH1-T05 installation. Bundled/native notices remain separate.",
-  "packageCount": 324,
+  "checkedOn": "2026-10-15",
+  "method": "Official exact-version npm metadata.324 prior package records retained verbatim;3 PH4-T01 static asset-tool additions checked before frozen install; zero unknown/GPL/AGPL candidates. Metadata is not a complete distributed notice or legal review.",
+  "packageCount": 327,
   "licenseCounts": {
-    "MIT": 242,
+    "MIT": 244,
     "ISC": 16,
     "MIT-0": 2,
-    "Apache-2.0": 25,
+    "Apache-2.0": 26,
     "Unlicense": 2,
     "BlueOak-1.0.0": 11,
     "BSD-2-Clause": 8,
@@ -1961,6 +1961,24 @@
       "version": "6.2.3",
       "license": "Apache-2.0",
       "source": "https://registry.npmjs.org/web-vitals/6.2.3"
+    },
+    {
+      "name": "@gltf-transform/core",
+      "version": "4.5.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40gltf-transform%2Fcore/4.5.1"
+    },
+    {
+      "name": "gltf-validator",
+      "version": "2.0.0-dev.3.10",
+      "license": "Apache-2.0",
+      "source": "https://registry.npmjs.org/gltf-validator/2.0.0-dev.3.10"
+    },
+    {
+      "name": "property-graph",
+      "version": "4.1.0",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/property-graph/4.1.0"
     }
   ]
 }
