@@ -1,3 +1,4 @@
+import {FurnitureControls} from './editor/FurnitureControls';
 import {CameraControls} from './editor/CameraControls';
 import {ThreeImageControls} from './export/ThreeImageControls';
 import type {ThreeControlsApi} from './render3d/types';
@@ -40,16 +41,19 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
   const [threeApi,setThreeApi]=useState<ThreeControlsApi|null>(null),[quality,setQuality]=useState<QualityChoice>('auto'),[lighting,setLighting]=useState<'day'|'warm'>('day');
   const [drawing] = useState(()=>new DrawingTool(store));
   const [selectedWall,setSelectedWall]=useState(()=>store.getSnapshot().document.walls[0]?.id??''),[precision,setPrecision]=useState<PrecisionPreview|null>(null),[precisionCancel,setPrecisionCancel]=useState(0);
+  const [selectedFurniture,setSelectedFurniture]=useState(''),[activePick,setActivePick]=useState<Pick|undefined>(undefined);
   const [selectedOpening,setSelectedOpening]=useState(''),[openingCancel,setOpeningCancel]=useState(0);
   const [selection,setSelection]=useState<EditablePick[]>([]),[multiple,setMultiple]=useState(false),[selectionCancel,setSelectionCancel]=useState(0);
   const cancelPrecision=useCallback(()=>{setPrecision(null);setPrecisionCancel(n=>n+1);setOpeningCancel(n=>n+1);setSelectionCancel(n=>n+1);},[]);
   const wallPreview=useCallback((value:PrecisionPreview|null)=>{if(value){drawing.clear();setOpeningCancel(n=>n+1);setSelectionCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'wall'}:current?.owner==='wall'?null:current);},[drawing]);
   const openingPreview=useCallback((value:PrecisionPreview|null)=>{if(value){drawing.clear();setPrecisionCancel(n=>n+1);setSelectionCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'opening'}:current?.owner==='opening'?null:current);},[drawing]);
   const selectionPreview=useCallback((value:PrecisionPreview|null)=>{if(value){drawing.clear();setPrecisionCancel(n=>n+1);setOpeningCancel(n=>n+1);}setPrecision(current=>value?{...value,owner:'selection'}:current?.owner==='selection'?null:current);},[drawing]);
-  const choosePicks=(picks:readonly Pick[],additive:boolean)=>{const eligible=picks.filter((p):p is EditablePick=>p.kind==='wall'||p.kind==='opening'||p.kind==='furniture');setSelection(old=>additive?[...old,...eligible.filter(p=>!old.some(o=>o.id===p.id))]:eligible);};
-  const choosePick=(pick:Pick|null,additive=false)=>{if(pick&&(pick.kind==='wall'||pick.kind==='opening'||pick.kind==='furniture')){const p=pick as EditablePick;setSelection(old=>additive?old.some(o=>o.id===p.id)?old.filter(o=>o.id!==p.id):[...old,p]:[p]);}else if(!additive)setSelection([]);if(pick?.kind==='wall'){setSelectedWall(pick.id);setSelectedOpening('');}if(pick?.kind==='opening'){setSelectedOpening(pick.id);const opening=snapshot.document.openings.find(o=>o.id===pick.id);if(opening)setSelectedWall(opening.wallId);}};
+  const selectEntities=(picks:EditablePick[])=>{setSelection(picks);const active=picks.at(-1);setActivePick(active);setSelectedFurniture(active?.kind==='furniture'?active.id:'');};
+  const choosePicks=(picks:readonly Pick[],additive:boolean)=>{const eligible=picks.filter((p):p is EditablePick=>p.kind==='wall'||p.kind==='opening'||p.kind==='furniture');selectEntities(additive?[...selection,...eligible.filter(p=>!selection.some(o=>o.id===p.id))]:eligible);};
+  const choosePick=(pick:Pick|null,additive=false)=>{if(pick&&(pick.kind==='wall'||pick.kind==='opening'||pick.kind==='furniture')){const p=pick as EditablePick;selectEntities(additive?selection.some(o=>o.id===p.id)?selection.filter(o=>o.id!==p.id):[...selection,p]:[p]);}else{if(!additive)setSelection([]);setActivePick(pick??undefined);setSelectedFurniture('');}if(pick?.kind==='wall'){setSelectedWall(pick.id);setSelectedOpening('');}if(pick?.kind==='opening'){setSelectedOpening(pick.id);const opening=snapshot.document.openings.find(o=>o.id===pick.id);if(opening)setSelectedWall(opening.wallId);}};
   useEffect(()=>{const fields={wall:'walls',opening:'openings',furniture:'furniture'} as const;setSelection(old=>{const next=old.filter(p=>snapshot.document[fields[p.kind]].some(e=>e.id===p.id));return next.length===old.length?old:next;});},[snapshot.document]);
   useEffect(()=>{if(selectedOpening&&!snapshot.document.openings.some(o=>o.id===selectedOpening))setSelectedOpening('');},[selectedOpening,snapshot.document.openings]);
+  useEffect(()=>{if(selectedFurniture&&!snapshot.document.furniture.some(f=>f.id===selectedFurniture))setSelectedFurniture('');if(activePick){const fields={wall:'walls',opening:'openings',furniture:'furniture',room:'rooms',junction:'junctions'} as const;if(!snapshot.document[fields[activePick.kind]].some(e=>e.id===activePick.id))setActivePick(undefined);}},[selectedFurniture,activePick,snapshot.document]);
   useEffect(()=>{if(!snapshot.document.walls.some(w=>w.id===selectedWall))setSelectedWall(snapshot.document.walls[0]?.id??'');},[snapshot.document.walls,selectedWall]);
   const [selected, setSelected] = useState(() => store.getSnapshot().document.junctions[1]?.id ?? ''), [notice, setMessage] = useState(() => t('chooseCorner'));
   const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0);
@@ -88,12 +92,13 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
           <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => setView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => {drawing.setMode('select');setThreeFallback(false);setView('3d');}}>{t('view3d')}</button></div>
           <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{view === '2d' && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
         </div>
-        {view === '2d' ? <PlanCanvas drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
+        {view === '2d' ? <PlanCanvas drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
         {threeFallback&&<p role="status">{t('threeFallback')}</p>}
         <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span>{t('groundFloor')} · {t('mm')}</span></footer>
       </section>
       <aside className="inspector" aria-label={t('planControls')}>
         <SaveControls store={store} {...(session ? { session } : {})} />
+        <FurnitureControls store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/>
         <PlanImageControls store={store} locale={ui.locale}/>
         {view==='3d'&&<><CameraControls store={store} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={store} locale={ui.locale}/></>}
         <label>{t('currentProjectUnits')}<select aria-label={t('currentProjectUnits')} value={snapshot.document.units} onChange={event=>{const result=store.execute({id:`units_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:snapshot.localGeneration,type:'SetUnits',units:event.target.value as 'metric'|'imperial'});setMessage(result.ok?t('unitDisplayChanged'):editError(ui.locale,result.errors[0]));}}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>
@@ -102,7 +107,7 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
         {view==='2d'&&<DrawingControls tool={drawing} store={store} locale={ui.locale} onMessage={setMessage}/>}
         {view==='2d'&&<WallPrecision store={store} drawing={drawing} selected={selectedWall} onSelect={id=>{setSelectedWall(id);setSelectedOpening('');}} onPreview={wallPreview} cancelToken={precisionCancel} locale={ui.locale} onMessage={setMessage}/>}
         {view==='2d'&&<OpeningControls store={store} wallId={selectedWall} selected={selectedOpening} onSelect={setSelectedOpening} onPreview={openingPreview} cancelToken={openingCancel} locale={ui.locale} onMessage={setMessage}/>}
-        {view==='2d'&&<SelectionControls store={store} drawing={drawing} selected={selection} onSelect={setSelection} multiple={multiple} onMultiple={setMultiple} onPreview={selectionPreview} cancelToken={selectionCancel} locale={ui.locale} onMessage={setMessage}/>}
+        {view==='2d'&&<SelectionControls store={store} drawing={drawing} selected={selection} onSelect={selectEntities} multiple={multiple} onMultiple={setMultiple} onPreview={selectionPreview} cancelToken={selectionCancel} locale={ui.locale} onMessage={setMessage}/>}
         {!snapshot.document.walls.length && <div className="blank-plan"><p>{t('blankPlan')}</p><button className="primary-button" onClick={() => {
           const result = store.execute({ type: 'AddRectangle', id: `starter_${snapshot.localGeneration}`, baseGeneration: snapshot.localGeneration, x: 0, y: 0, width: 4000, depth: 4000, thickness: 200, height: 2700 });
           if (result.ok) setFit(n => n + 1);
@@ -123,7 +128,7 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
           {snapshot.derived.faces.map((face, i) => { const label = areaDisplay(face.clearAreaMm2, snapshot.document.units); return <div className="room-row" key={face.roomId}><span className={`room-swatch swatch-${i % 2}`} aria-hidden="true" /><div><strong>{snapshot.document.rooms.find(r => r.id === face.roomId)?.name}</strong><small>{face.smallSpaceWarning ? t('smallSpace') : t('insideArea')}</small></div><span data-testid={`area-${face.roomId}`}>{label.value} <small>{label.unit}</small></span></div>; })}
         </section>
         {unclosedWalls&&<p role="status">{t('incompletePlan')}</p>}
-        <RoomControls store={store} locale={ui.locale} onMessage={setMessage}/>
+        <RoomControls selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} store={store} locale={ui.locale} onMessage={setMessage}/>
         <div className="tip"><span aria-hidden="true">✦</span><p><strong>{t('measured')}</strong><br />{t('measuredHelp')}</p></div>
       </aside>
     </div>

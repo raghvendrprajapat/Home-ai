@@ -1,3 +1,6 @@
+import {pickRay,PickGesture} from './picking';
+import {SelectionOutline} from './selection-outline';
+import type {Pick} from '../editor/hit-test';
 import {ShaderTextures} from './shader-textures';
 import {releaseOnce} from './resources';
 import {ContextRecovery} from './recovery';
@@ -19,8 +22,8 @@ import type { RenderReading } from '../perf/metrics';
 import { message } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 
-export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d }: {
-  store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;
+export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d,onPick,selectedPick }: {
+  store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;
 }) {
   const [downgraded,setDowngraded]=useState(false);
   const [ceilings,setCeilings]=useState(false),[ceilingWarnings,setCeilingWarnings]=useState<CeilingWarning[]>([]);
@@ -30,6 +33,7 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
   const [status, setStatus] = useState<'building3d' | 'updating3d' | 'threeUnavailable' | 'threeLost' | 'threeFailed' | 'threePrevious' | null>('building3d');
   const language = useRef(locale); language.current = locale;
   const orbit = useRef<OrbitControls | null>(null), frameCallback = useRef(onFrame); frameCallback.current = onFrame;
+  const pickCallback=useRef(onPick);pickCallback.current=onPick;const selectedRef=useRef(selectedPick);selectedRef.current=selectedPick;const selectionUpdate=useRef<()=>void>(()=>{});
   const fallbackCallback=useRef(onFallback2d);fallbackCallback.current=onFallback2d;
   const problemCallback = useRef(onUnavailable); problemCallback.current = onUnavailable;
   const pendingCallback = useRef(onScenePending); pendingCallback.current = onScenePending;
@@ -59,6 +63,7 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     const scene = new THREE.Scene(); scene.background = new THREE.Color('#eef2e9');
     const shaderTextures=new ShaderTextures();teardown.push(()=>shaderTextures.close());
     const adapter = new SceneAdapter(tier,uniforms=>shaderTextures.observe(uniforms));teardown.push(()=>{adapter.dispose();element.dataset.resourceStats=JSON.stringify(adapter.resourceStats);});adapterRef.current=adapter;adapter.setCeilingsVisible(ceilings);scene.add(adapter.group);
+    const outline=new SelectionOutline();scene.add(outline.group);teardown.push(()=>{outline.dispose();element.dataset.selectionResources=JSON.stringify(outline.resourceStats);selectionUpdate.current=()=>{};});
     scene.add(new THREE.HemisphereLight('#ffffff', '#87987b', 2.1));
     const sun = new THREE.DirectionalLight('#fff5e6', 2.8); sun.position.set(-6, 12, 8);sun.castShadow=profile.shadows;sun.shadow.mapSize.set(profile.shadowSize||1,profile.shadowSize||1);sun.shadow.camera.left=-20;sun.shadow.camera.right=20;sun.shadow.camera.top=20;sun.shadow.camera.bottom=-20;sun.shadow.camera.far=80;scene.add(sun,sun.target);
     teardown.push(()=>sun.shadow.dispose());
@@ -73,6 +78,8 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     controls.maxPolarAngle = 85*Math.PI/180;
     let needsRender = true, lost = false, bundle: SceneBundle | undefined, first = true, generation = -1, sceneState:'pending'|'current'|'stale'|'failed'='pending';
     const invalidate = () => { needsRender = true; };
+    const gesture=new PickGesture(),tag=()=>JSON.stringify(store.asyncTag());teardown.push(()=>gesture.clear());
+    const selectOutline=()=>{if(disposed)return;if(sceneState!=='current'||lost||generation!==store.getSnapshot().localGeneration){outline.group.visible=false;invalidate();return;}try{outline.set(selectedRef.current,adapter,store.getSnapshot().document);element.dataset.selectedEntity=selectedRef.current?.id??'';element.dataset.selectedKind=selectedRef.current?.kind??'';element.dataset.selectionResources=JSON.stringify(outline.resourceStats);invalidate();}catch{fallback();}};selectionUpdate.current=selectOutline;
     const applyPose=(p:CameraPose)=>{camera.position.fromArray(p.position);controls.target.fromArray(p.target);};
     const guard=()=>{const p=stablePose(clampOrbit({position:camera.position.toArray() as CameraPose['position'],target:controls.target.toArray() as CameraPose['target']},bundle?.bounds??null,store.getSnapshot().document.floors[0]!.elevation/1000));applyPose(p);if(bundle&&sceneState==='current')poseRef.current=p;const poseText=JSON.stringify(p);if(element.dataset.cameraPose!==poseText)element.dataset.cameraPose=poseText;};invalidateRef.current=invalidate; controls.addEventListener('change', invalidate);teardown.push(()=>controls.removeEventListener('change',invalidate));
     fit.current = () => {if(!bundle?.bounds)return;const fitted=fitPose(bundle.bounds,camera.aspect);applyPose(fitted.pose);controls.update();guard();if(fitted.capped)onMessage(message(language.current,'cameraFitCapped'));invalidate();};
@@ -80,7 +87,7 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     const observer = new ResizeObserver(()=>{try{if(!disposed)resize();}catch{fallback();}});teardown.push(()=>observer.disconnect());observer.observe(element);resize();
     const recovery=new ContextRecovery(fallback);teardown.push(()=>recovery.close());
     const contextLost = (event: Event) => {
-      if(disposed)return;event.preventDefault();lost=true;needsRender=true;
+      if(disposed)return;gesture.cancel();event.preventDefault();lost=true;needsRender=true;
       element.dataset.renderedGeneration='';element.dataset.drawCalls='';
       setStatus('threeLost');element.dataset.contextState='lost';
       recovery.lost();pendingCallback.current?.();problemCallback.current?.('Graphics context lost.');
@@ -103,20 +110,29 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
       if (event.key === '-') spherical.radius = Math.min(controls.maxDistance, spherical.radius / 0.9);
       camera.position.copy(controls.target).add(new THREE.Vector3().setFromSpherical(spherical)); controls.update(); invalidate();
     }; renderer.domElement.addEventListener('keydown', keyboard);teardown.push(()=>renderer.domElement.removeEventListener('keydown',keyboard));
+    const pointerDown=(event:PointerEvent)=>{if(disposed)return;gesture.begin(event.pointerId,[event.clientX,event.clientY],tag(),event.target===renderer.domElement&&event.button===0&&!lost&&!recovery.active&&sceneState==='current'&&element.dataset.renderedGeneration===String(store.getSnapshot().localGeneration));};
+    const pointerMove=(event:PointerEvent)=>gesture.move(event.pointerId,[event.clientX,event.clientY]);
+    const pointerEnd=(event:PointerEvent)=>{if(disposed)return;const accepted=gesture.end(event.pointerId,[event.clientX,event.clientY],tag());if(!accepted||lost||recovery.active||sceneState!=='current'||generation!==store.getSnapshot().localGeneration)return;
+      const rect=renderer.domElement.getBoundingClientRect();if(!rect.width||!rect.height||event.clientX<rect.left||event.clientX>rect.right||event.clientY<rect.top||event.clientY>rect.bottom)return;
+      const raycaster=new THREE.Raycaster();raycaster.setFromCamera(new THREE.Vector2((event.clientX-rect.left)/rect.width*2-1,1-(event.clientY-rect.top)/rect.height*2),camera);
+      const picked=pickRay(raycaster,adapter.group,store.getSnapshot().document);pickCallback.current?.(picked,false);if(picked)onMessage(message(language.current,'threeSelected',{kind:message(language.current,picked.kind==='furniture'?'pickFurniture':picked.kind==='wall'?'pickWall':picked.kind==='opening'?'pickOpening':'pickRoom')}));
+    };
+    const pointerCancel=()=>gesture.cancel();const pointerCancelled=(event:PointerEvent)=>{gesture.cancel();gesture.end(event.pointerId,[event.clientX,event.clientY],tag());};document.addEventListener('pointerdown',pointerDown,true);document.addEventListener('pointermove',pointerMove,true);document.addEventListener('pointerup',pointerEnd,true);document.addEventListener('pointercancel',pointerCancelled,true);window.addEventListener('blur',pointerCancel);window.addEventListener('scroll',pointerCancel,true);document.addEventListener('visibilitychange',pointerCancel);
+    teardown.push(()=>{document.removeEventListener('pointerdown',pointerDown,true);document.removeEventListener('pointermove',pointerMove,true);document.removeEventListener('pointerup',pointerEnd,true);document.removeEventListener('pointercancel',pointerCancelled,true);window.removeEventListener('blur',pointerCancel);window.removeEventListener('scroll',pointerCancel,true);document.removeEventListener('visibilitychange',pointerCancel);});
     const worker=new Worker(new URL('./mesh.worker.ts',import.meta.url),{type:'module'});
     let pipelineOwnsWorker=false;teardown.push(()=>{if(!pipelineOwnsWorker){worker.onmessage=null;worker.onerror=null;worker.terminate();}});
     const pipeline = new ScenePipeline(store, worker, {
-      pending: () => {if(disposed)return;sceneState='pending';element.dataset.sceneState=sceneState;setCeilingWarnings([]);adapter.group.visible = false; element.dataset.renderedGeneration = ''; setStatus('updating3d'); pendingCallback.current?.(); invalidate(); },
+      pending: () => {if(disposed)return;gesture.cancel();outline.group.visible=false;sceneState='pending';element.dataset.sceneState=sceneState;setCeilingWarnings([]);adapter.group.visible = false; element.dataset.renderedGeneration = ''; setStatus('updating3d'); pendingCallback.current?.(); invalidate(); },
       ready: result => {
         if(disposed)return;try{
         bundle = result; sceneState='current';element.dataset.sceneState=sceneState;element.dataset.invalidation=JSON.stringify(result.invalidation??null);adapter.apply(result, store.getSnapshot().document);setCeilingWarnings(result.ceilingWarnings??[]);element.dataset.ceilingCount=String(result.meshes.filter(m=>m.category==='ceiling').length); adapter.group.visible = true; generation = store.getSnapshot().localGeneration;updateLights();const placement=sunPlacement(bundle.bounds,store.getSnapshot().document.floors[0]!.elevation/1000);sun.position.fromArray(placement.position);sun.target.position.fromArray(placement.target);sun.shadow.camera.left=-placement.coverage;sun.shadow.camera.right=placement.coverage;sun.shadow.camera.top=placement.coverage;sun.shadow.camera.bottom=-placement.coverage;sun.shadow.camera.updateProjectionMatrix();element.dataset.shadowCoverage=placement.partial?'central':'full';
         element.dataset.meshChanges = JSON.stringify(adapter.lastChanges); element.dataset.vertexCount = String(result.stats.vertices);
         element.dataset.meshesBuilt = String(result.stats.meshesBuilt);
         if(first){first=false;if(initialPose){applyPose(initialPose);controls.update();guard();}else fit.current();}
-        guard();element.dataset.resourceStats=JSON.stringify(adapter.resourceStats);if (!lost&&!recovery.active){setStatus(null);onMessage(message(language.current,'threeReady'));} invalidate();
+        guard();selectOutline();element.dataset.resourceStats=JSON.stringify(adapter.resourceStats);if (!lost&&!recovery.active){setStatus(null);onMessage(message(language.current,'threeReady'));} invalidate();
         }catch{fallback();}
       },
-      failed: reason => {if(disposed)return;sceneState=bundle?'stale':'failed';element.dataset.sceneState=sceneState;element.dataset.renderedGeneration='';element.dataset.previousGeneration=bundle?String(generation):'';adapter.group.visible=!!bundle;setStatus(bundle?'threePrevious':'threeFailed');onMessage(message(language.current,bundle?'threePrevious':'threeFailed'));problemCallback.current?.(reason);invalidate();},
+      failed: reason => {if(disposed)return;gesture.cancel();outline.group.visible=false;sceneState=bundle?'stale':'failed';element.dataset.sceneState=sceneState;element.dataset.renderedGeneration='';element.dataset.previousGeneration=bundle?String(generation):'';adapter.group.visible=!!bundle;setStatus(bundle?'threePrevious':'threeFailed');onMessage(message(language.current,bundle?'threePrevious':'threeFailed'));problemCallback.current?.(reason);invalidate();},
     });
     pipelineOwnsWorker=true;teardown.push(()=>pipeline.dispose());if(disposed){pipeline.dispose();return cleanup;}
     const animate = () => {
@@ -165,15 +181,17 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
       capture:(edge,copy)=>{
         if(disposed||lost||recovery.active||sceneState!=='current'||generation!==store.getSnapshot().localGeneration||!bundle||!bundle.meshes.length&&!store.getSnapshot().document.furniture.length)throw new Error('capture-unavailable');
         const aspect=camera.aspect,width=aspect>=1?edge:Math.max(1,Math.round(edge*aspect)),height=aspect>=1?Math.max(1,Math.round(edge/aspect)):edge;
+        const selectionVisible=outline.group.visible;outline.group.visible=false;
         try{return captureFrame(renderer,scene,camera,width,height,generation,tier,gpu,copy);}
         catch(e){if(e instanceof Error&&e.message==='capture-restore')fallback();throw e;}
-        finally{invalidate();}
+        finally{if(!disposed)outline.group.visible=selectionVisible;invalidate();}
       },
     });
     animate();
     return cleanup;
     }catch{fallback();return cleanup;}
   }, [store, onMessage,quality,lighting]);
+  useEffect(()=>{selectionUpdate.current();},[selectedPick]);
   useEffect(()=>{adapterRef.current?.setCeilingsVisible(ceilings);if(host.current)host.current.dataset.ceilingsVisible=String(ceilings);invalidateRef.current();},[ceilings]);
   useEffect(() => { fit.current(); }, [fitRequest]);
   useEffect(() => { host.current?.querySelector('canvas')?.setAttribute('aria-label', message(locale, 'canvas3d')); }, [locale]);

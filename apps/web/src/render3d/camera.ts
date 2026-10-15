@@ -16,7 +16,7 @@ export function clampOrbit(pose:CameraPose,bounds:Bounds3|null,floor:number):Cam
  const radius=Math.max(MIN_DISTANCE,Math.min(MAX_DISTANCE,distance)),polar=Math.max(.01,Math.min(MAX_POLAR,Math.acos(Math.max(-1,Math.min(1,dy/distance))))),angle=Math.atan2(dx,dz);
  return {target,position:[target[0]+radius*Math.sin(polar)*Math.sin(angle),target[1]+radius*Math.cos(polar),target[2]+radius*Math.sin(polar)*Math.cos(angle)]};
 }
-/** Transient nanometre precision avoids sub-ULP orbit drift across renderer recreation. */
+/** Transient metre coordinates rounded to12decimals avoid sub-ULP orbit drift across renderer recreation. */
 export function stablePose(pose:CameraPose):CameraPose{
  const stable=(v:Vec3):Vec3=>v.map(n=>Number(n.toFixed(12))||0) as Vec3;
  return {position:stable(pose.position),target:stable(pose.target)};

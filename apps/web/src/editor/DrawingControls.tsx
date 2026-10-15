@@ -44,8 +44,9 @@ export function DrawingControls({tool,store,locale,onMessage}:{tool:DrawingTool;
  </section>;
 }
 const roomTypes:RoomType[]=['living','bedroom','kitchen','bathroom','dining','pooja','balcony','utility','hall','study','other'];
-export function RoomControls({store,locale,onMessage}:{store:ProjectStore;locale:Locale;onMessage(text:string):void}) {
+export function RoomControls({store,locale,onMessage,selectedRoomId}:{store:ProjectStore;locale:Locale;onMessage(text:string):void;selectedRoomId?:string|undefined}) {
  const snapshot=useSyncExternalStore(store.subscribe,store.getSnapshot),[selected,setSelected]=useState(''),room=snapshot.document.rooms.find(r=>r.id===selected);
+ useEffect(()=>{if(selectedRoomId&&snapshot.document.rooms.some(r=>r.id===selectedRoomId))setSelected(selectedRoomId);},[selectedRoomId]);
  const [name,setName]=useState(''),[type,setType]=useState<RoomType>('other'),[height,setHeight]=useState('3000'),[material,setMaterial]=useState('');
  useEffect(()=>{if(!room)setSelected(snapshot.document.rooms[0]?.id??'');},[room,snapshot]);
  useEffect(()=>{if(room){setName(room.name);setType(roomTypes.find(t=>t===room.type)??'other');setHeight(String(room.ceilingHeight));setMaterial(room.floorMaterial);}},[room]);
