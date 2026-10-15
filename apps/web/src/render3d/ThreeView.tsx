@@ -1,3 +1,6 @@
+import {FurnitureAssets} from './furniture-assets';
+import type {FurnitureStatus} from './furniture-assets';
+import type {FurnitureAssetSource} from './types';
 import {pickRay,PickGesture} from './picking';
 import {SelectionOutline} from './selection-outline';
 import {PlacementGhost} from './placement-ghost';
@@ -24,9 +27,11 @@ import type { RenderReading } from '../perf/metrics';
 import { message } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 
-export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d,onPick,selectedPick,placementPreview }: {
-  store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;
+export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d,onPick,selectedPick,placementPreview,assetSource }: {
+  store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;assetSource?:FurnitureAssetSource;
 }) {
+  const [modelPage,setModelPage]=useState(0);
+  const [modelStatus,setModelStatus]=useState<FurnitureStatus[]>([]);const retryModel=useRef<(id:string)=>void>(()=>{});
   const [downgraded,setDowngraded]=useState(false);
   const [ceilings,setCeilings]=useState(false),[ceilingWarnings,setCeilingWarnings]=useState<CeilingWarning[]>([]);
   const poseRef=useRef<CameraPose|null>(null),apiCallback=useRef(onControlsReady);apiCallback.current=onControlsReady;
@@ -44,7 +49,7 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
   // detaches the canvas, otherwise getRootNode() no longer returns its document.
   useLayoutEffect(() => {
     const element = host.current!, container = mount.current!;setCeilingWarnings([]);setDowngraded(false);setStatus('building3d');element.dataset.sceneState='pending';element.dataset.renderedGeneration='';element.dataset.previousGeneration='';
-    let disposed=false,frame=0;const teardown:(()=>void)[]=[];
+    setModelStatus([]);setModelPage(0);let disposed=false,frame=0;const teardown:(()=>void)[]=[];
     const cleanup=()=>{if(disposed)return;disposed=true;cancelAnimationFrame(frame);for(const release of teardown.reverse())try{release();}catch{/* Continue releasing independent owners. */}apiCallback.current?.(null);adapterRef.current=null;invalidateRef.current=()=>{};fit.current=()=>{};orbit.current=null;};
     const fallback=()=>{if(disposed)return;element.dataset.sceneState='failed';element.dataset.renderedGeneration='';setStatus('threeFailed');onMessage(message(language.current,'threeFallback'));problemCallback.current?.('3D unavailable; drawing retained.');cleanup();fallbackCallback.current?.();};
     try{
@@ -82,6 +87,11 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     controls.maxPolarAngle = 85*Math.PI/180;
     let needsRender = true, lost = false, bundle: SceneBundle | undefined, first = true, generation = -1, sceneState:'pending'|'current'|'stale'|'failed'='pending';
     const invalidate = () => { needsRender = true; };
+    let appliedTag='';
+    const syncModels=()=>{if(disposed)return;try{if(sceneState==='current'&&!lost&&appliedTag===JSON.stringify(store.asyncTag()))adapter.refreshFurniture(store.getSnapshot().document);setModelStatus(models?.getSnapshot()??[]);element.dataset.modelAttached=JSON.stringify(models?.renderingStats.ids??[]);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);element.dataset.modelResources=JSON.stringify(models?.resourceStats??null);invalidate();}catch{fallback();}};
+    const models:FurnitureAssets|undefined=assetSource?new FurnitureAssets(assetSource,tier==='low'?1:0,syncModels,uniforms=>shaderTextures.observe(uniforms)):undefined;
+    if(models){adapter.furnitureAssets=models;adapter.group.add(models.group);retryModel.current=id=>models.retry(id);teardown.push(()=>{models.close();retryModel.current=()=>{};element.dataset.modelResources=JSON.stringify(models.resourceStats);});}
+
     const syncGhost=()=>{if(disposed)return;try{ghost.set(ghostRef.current,store.asyncTag(),store.getSnapshot().document.floors[0]!.elevation,sceneState==='current'&&!lost&&generation===store.getSnapshot().localGeneration);element.dataset.placementId=ghost.group.visible?ghostRef.current?.item.id??'':'';element.dataset.placementResources=JSON.stringify(ghost.resourceStats);invalidate();}catch{fallback();}};ghostUpdate.current=syncGhost;
     const gesture=new PickGesture(),tag=()=>JSON.stringify(store.asyncTag());teardown.push(()=>gesture.clear());
     const selectOutline=()=>{if(disposed)return;if(sceneState!=='current'||lost||generation!==store.getSnapshot().localGeneration){outline.group.visible=false;invalidate();return;}try{outline.set(selectedRef.current,adapter,store.getSnapshot().document);element.dataset.selectedEntity=selectedRef.current?.id??'';element.dataset.selectedKind=selectedRef.current?.kind??'';element.dataset.selectionResources=JSON.stringify(outline.resourceStats);invalidate();}catch{fallback();}};selectionUpdate.current=selectOutline;
@@ -99,7 +109,7 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     };
     const contextRestored = () => {
       if(disposed)return;lost=false;element.dataset.contextState='restoring';
-      setStatus(sceneState==='stale'?'threePrevious':sceneState==='failed'?'threeFailed':'threeLost');syncGhost();invalidate();
+      setStatus(sceneState==='stale'?'threePrevious':sceneState==='failed'?'threeFailed':'threeLost');syncModels();syncGhost();invalidate();
     };
     renderer.domElement.addEventListener('webglcontextlost',contextLost);renderer.domElement.addEventListener('webglcontextrestored',contextRestored);
     teardown.push(()=>{renderer.domElement.removeEventListener('webglcontextlost',contextLost);renderer.domElement.removeEventListener('webglcontextrestored',contextRestored);});
@@ -124,13 +134,15 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     };
     const pointerCancel=()=>gesture.cancel();const pointerCancelled=(event:PointerEvent)=>{gesture.cancel();gesture.end(event.pointerId,[event.clientX,event.clientY],tag());};document.addEventListener('pointerdown',pointerDown,true);document.addEventListener('pointermove',pointerMove,true);document.addEventListener('pointerup',pointerEnd,true);document.addEventListener('pointercancel',pointerCancelled,true);window.addEventListener('blur',pointerCancel);window.addEventListener('scroll',pointerCancel,true);document.addEventListener('visibilitychange',pointerCancel);
     teardown.push(()=>{document.removeEventListener('pointerdown',pointerDown,true);document.removeEventListener('pointermove',pointerMove,true);document.removeEventListener('pointerup',pointerEnd,true);document.removeEventListener('pointercancel',pointerCancelled,true);window.removeEventListener('blur',pointerCancel);window.removeEventListener('scroll',pointerCancel,true);document.removeEventListener('visibilitychange',pointerCancel);});
+    const observeModels=()=>{models?.observe(store.getSnapshot().document,store.asyncTag().sessionId);setModelStatus(models?.getSnapshot()??[]);};
+    observeModels();teardown.push(store.subscribe(observeModels));
     const worker=new Worker(new URL('./mesh.worker.ts',import.meta.url),{type:'module'});
     let pipelineOwnsWorker=false;teardown.push(()=>{if(!pipelineOwnsWorker){worker.onmessage=null;worker.onerror=null;worker.terminate();}});
     const pipeline = new ScenePipeline(store, worker, {
       pending: () => {if(disposed)return;gesture.cancel();outline.group.visible=false;sceneState='pending';syncGhost();element.dataset.sceneState=sceneState;setCeilingWarnings([]);adapter.group.visible = false; element.dataset.renderedGeneration = ''; setStatus('updating3d'); pendingCallback.current?.(); invalidate(); },
       ready: result => {
         if(disposed)return;try{
-        bundle = result; sceneState='current';element.dataset.sceneState=sceneState;element.dataset.invalidation=JSON.stringify(result.invalidation??null);adapter.apply(result, store.getSnapshot().document);setCeilingWarnings(result.ceilingWarnings??[]);element.dataset.ceilingCount=String(result.meshes.filter(m=>m.category==='ceiling').length); adapter.group.visible = true; generation = store.getSnapshot().localGeneration;updateLights();const placement=sunPlacement(bundle.bounds,store.getSnapshot().document.floors[0]!.elevation/1000);sun.position.fromArray(placement.position);sun.target.position.fromArray(placement.target);sun.shadow.camera.left=-placement.coverage;sun.shadow.camera.right=placement.coverage;sun.shadow.camera.top=placement.coverage;sun.shadow.camera.bottom=-placement.coverage;sun.shadow.camera.updateProjectionMatrix();element.dataset.shadowCoverage=placement.partial?'central':'full';
+        bundle = result; sceneState='current';appliedTag=JSON.stringify(store.asyncTag());generation=store.getSnapshot().localGeneration;element.dataset.sceneState=sceneState;element.dataset.invalidation=JSON.stringify(result.invalidation??null);adapter.apply(result, store.getSnapshot().document);setModelStatus(models?.getSnapshot()??[]);element.dataset.modelResources=JSON.stringify(models?.resourceStats??null);element.dataset.modelAttached=JSON.stringify(models?.renderingStats.ids??[]);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);setCeilingWarnings(result.ceilingWarnings??[]);element.dataset.ceilingCount=String(result.meshes.filter(m=>m.category==='ceiling').length); adapter.group.visible = true; generation = store.getSnapshot().localGeneration;updateLights();const placement=sunPlacement(bundle.bounds,store.getSnapshot().document.floors[0]!.elevation/1000);sun.position.fromArray(placement.position);sun.target.position.fromArray(placement.target);sun.shadow.camera.left=-placement.coverage;sun.shadow.camera.right=placement.coverage;sun.shadow.camera.top=placement.coverage;sun.shadow.camera.bottom=-placement.coverage;sun.shadow.camera.updateProjectionMatrix();element.dataset.shadowCoverage=placement.partial?'central':'full';
         element.dataset.meshChanges = JSON.stringify(adapter.lastChanges); element.dataset.vertexCount = String(result.stats.vertices);
         element.dataset.meshesBuilt = String(result.stats.meshesBuilt);
         if(first){first=false;if(initialPose){applyPose(initialPose);controls.update();guard();}else fit.current();}
@@ -195,19 +207,21 @@ export default function ThreeView({ store, fitRequest, onMessage, onFrame, onUna
     animate();
     return cleanup;
     }catch{fallback();return cleanup;}
-  }, [store, onMessage,quality,lighting]);
+  }, [store, onMessage,quality,lighting,assetSource]);
   useEffect(()=>{selectionUpdate.current();},[selectedPick]);
   useEffect(()=>{ghostUpdate.current();},[placementPreview]);
   useEffect(()=>{adapterRef.current?.setCeilingsVisible(ceilings);if(host.current)host.current.dataset.ceilingsVisible=String(ceilings);invalidateRef.current();},[ceilings]);
   useEffect(() => { fit.current(); }, [fitRequest]);
   useEffect(() => { host.current?.querySelector('canvas')?.setAttribute('aria-label', message(locale, 'canvas3d')); }, [locale]);
   useEffect(() => { if (orbit.current) orbit.current.autoRotate = autoOrbit; }, [autoOrbit]);
+  const modelPages=Math.max(1,Math.ceil(modelStatus.length/20)),currentModelPage=Math.min(modelPage,modelPages-1);
   return <div className="plan-canvas three-canvas" ref={host} data-testid="three-view">
     <div className="three-mount" ref={mount} />
     {downgraded&&<p className="three-status" role="status">{message(locale,'qualityLowered')}</p>}
     {status && <div className="three-status" role="status">{message(locale, status)}</div>}
     <label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>
     {ceilingWarnings.length>0&&<div className="ceiling-warnings" role="status" tabIndex={0} aria-label={message(locale,'ceilingWarningDetails')}>{ceilingWarnings.map(w=><p key={w.roomIds.join(':')}>{message(locale,'ceilingHeightsDiffer',{a:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[0])?.name??w.roomIds[0],b:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[1])?.name??w.roomIds[1],ha:w.heightsMm[0],hb:w.heightsMm[1]})}</p>)}</div>}
+    {modelStatus.length>0&&<details className="furniture-models"><summary>{message(locale,'furnitureModels')}</summary><ul>{modelStatus.slice(currentModelPage*20,(currentModelPage+1)*20).map((m,i)=><li key={m.id} data-model-id={m.id} data-model-phase={m.phase}>{message(locale,'furnitureModelNumber',{n:currentModelPage*20+i+1})}: {message(locale,m.sizeMismatch?'furnitureModelSize':m.unsupportedFinish?'furnitureModelFinish':m.phase==='ready'?'furnitureModelReady':m.phase==='error'?'furnitureModelFailed':'furnitureModelLoading')}{m.phase==='loading'&&m.total?` ${Math.min(100,Math.floor(m.received/m.total*100))}%`:''}{m.retryable&&<button onClick={()=>retryModel.current(m.id)}>{message(locale,'furnitureModelRetry')}</button>}</li>)}</ul>{modelPages>1&&<nav aria-label={message(locale,'furnitureModelPages')}><button disabled={currentModelPage===0} onClick={()=>setModelPage(currentModelPage-1)}>{message(locale,'catalogPrevious')}</button><span>{message(locale,'catalogPage',{page:currentModelPage+1,pages:modelPages})}</span><button disabled={currentModelPage===modelPages-1} onClick={()=>setModelPage(currentModelPage+1)}>{message(locale,'catalogNext')}</button></nav>}</details>}
     <div className="canvas-hint">{message(locale, 'threeHint')}<br />{message(locale, 'dimensionsFurniture')}</div>
   </div>;
 }

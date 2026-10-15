@@ -1,3 +1,4 @@
+import type {FurnitureAssets} from './furniture-assets';
 import { ResourcePool,releaseOnce } from './resources';
 import type { Lease,Disposable } from './resources';
 import { materialBatches } from './batches';
@@ -41,6 +42,7 @@ export function unitBoxGeometry():THREE.BufferGeometry{
 /** GPU adapter: reuses identical meshes/materials, disposes replaced/removed resources. */
 export class SceneAdapter {
   group = new THREE.Group();
+  furnitureAssets:FurnitureAssets|undefined;
   #meshes = new Map<string, { data: MeshData; mesh: THREE.Mesh }>();
   #materials = new Map<string, THREE.MeshStandardMaterial>();
   #furniture = new Map<string, THREE.Mesh>();
@@ -100,9 +102,13 @@ export class SceneAdapter {
       finally{releaseOnce(batches.filter(b=>!claimed.has(b.geometry)).map(b=>()=>b.geometry.dispose()))();}
     }
     for(const [id]of this.#materials)if(!wantedMaterials.has(id)){this.#materialRoots.get(id)?.release();this.#materialRoots.delete(id);this.#materials.delete(id);}
-    const instanced=this.#tier==='low'&&document.furniture.length>=3;
-    if(this.#instances&&(!instanced||this.#instanceCount!==document.furniture.length)){this.group.remove(this.#instances);this.#release(this.#instances);this.#instances=null;}
-    if(instanced&&!this.#instances){this.#instances=new THREE.InstancedMesh(this.#unitBox,this.#placeholder,document.furniture.length);this.#instanceCount=document.furniture.length;const instance=this.#instances;this.#own(instance,[this.#shared('unit-box',this.#unitBox),this.#shared('placeholder',this.#placeholder),this.#pool.acquire(`instances:${++this.#serial}`,()=>instance)]);this.group.add(instance);}
+    this.refreshFurniture(document);
+  }
+  refreshFurniture(document:ReturnType<ProjectStore['getSnapshot']>['document']):void{
+    const loaded=this.furnitureAssets?.present(document)??new Set<string>(),fallback=document.furniture.filter(f=>!loaded.has(f.id));
+    const instanced=this.#tier==='low'&&fallback.length>=3;
+    if(this.#instances&&(!instanced||this.#instanceCount!==fallback.length)){this.group.remove(this.#instances);this.#release(this.#instances);this.#instances=null;}
+    if(instanced&&!this.#instances){this.#instances=new THREE.InstancedMesh(this.#unitBox,this.#placeholder,fallback.length);this.#instanceCount=fallback.length;const instance=this.#instances;this.#own(instance,[this.#shared('unit-box',this.#unitBox),this.#shared('placeholder',this.#placeholder),this.#pool.acquire(`instances:${++this.#serial}`,()=>instance)]);this.group.add(instance);}
     const furniture = new Set(document.furniture.map(f => f.id));
     for (const [id, mesh] of this.#furniture) if (!furniture.has(id)) { this.group.remove(mesh);this.#release(mesh); this.#furniture.delete(id); }
     for (const item of document.furniture) {
@@ -110,10 +116,10 @@ export class SceneAdapter {
       if (!this.#furniture.has(item.id)) { this.#furniture.set(item.id, mesh);this.#own(mesh,[this.#shared('unit-box',this.#unitBox),this.#shared('placeholder',this.#placeholder)]); this.group.add(mesh); }
       mesh.scale.set(item.size.w / 1000, item.size.h / 1000, item.size.d / 1000);
       mesh.position.set(item.position.x / 1000, (document.floors[0]!.elevation + item.elevation + item.size.h / 2) / 1000, item.position.y / 1000);
-      mesh.visible=!instanced;mesh.castShadow=true;mesh.receiveShadow=true;
+      mesh.visible=!instanced&&!loaded.has(item.id);mesh.castShadow=true;mesh.receiveShadow=true;
       mesh.rotation.y = -item.rotationDeg * Math.PI / 180; mesh.userData = { entityId: item.id, category: 'furniture-placeholder' };
     }
-    if(this.#instances){document.furniture.forEach((item,i)=>{const mesh=this.#furniture.get(item.id)!;mesh.updateMatrix();this.#instances!.setMatrixAt(i,mesh.matrix);});this.#instances.instanceMatrix.needsUpdate=true;this.#instances.computeBoundingBox();this.#instances.computeBoundingSphere();this.#instances.userData={category:'furniture-instances',entityIds:document.furniture.map(f=>f.id)};}
+    if(this.#instances){fallback.forEach((item,i)=>{const mesh=this.#furniture.get(item.id)!;mesh.updateMatrix();this.#instances!.setMatrixAt(i,mesh.matrix);});this.#instances.instanceMatrix.needsUpdate=true;this.#instances.computeBoundingBox();this.#instances.computeBoundingSphere();this.#instances.userData={category:'furniture-instances',entityIds:fallback.map(f=>f.id)};}
   }
   setCeilingsVisible(visible:boolean):void{this.#showCeilings=visible;for(const {data,mesh}of this.#meshes.values())if(data.category==='ceiling')mesh.visible=this.#tier!=='low'&&visible;for(const mesh of this.#batches)if(mesh.userData.ceiling)mesh.visible=visible;}
   mesh(id: string): THREE.Mesh | undefined { return this.#meshes.get(id)?.mesh; }

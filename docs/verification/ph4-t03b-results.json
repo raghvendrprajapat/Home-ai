@@ -1,0 +1,166 @@
+{
+  "task": "PH4-T03 stageB",
+  "executionDate": "2026-10-15",
+  "baseSha": "da740234df4e9c5dff1f1b33ad305cc2b542e085",
+  "check": {
+    "productTests": 378,
+    "files": 54,
+    "elapsedSeconds": 34.56,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 80,
+    "skipped": 0,
+    "reportedElapsed": "6.5m",
+    "newModelCases": 7,
+    "browser": "Chromium151.0.7922.173/SwiftShader; Linux, not phones",
+    "sourceTiming": "Full80-case browser build preceded final legacy-size guard. Final guard has focused23test/currentproductionbuild/fresh6probes, followed by separately recorded seven-case browser rerun. CI remains exact-final-head full-suite gate.",
+    "finalGuardBrowserRerun": {
+      "passed": 7,
+      "failed": 0,
+      "reportedElapsed": "28.1s"
+    }
+  },
+  "productionBuild": {
+    "initialGzipBytes": 166112,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": "BUILD SUCCESSFUL in40s;170tasks40executed130up-to-date",
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "c78de69a09cfd7e3c446c775e46bad2e9e8f0cb055f869c15f5467aa85d54554",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packageChecks": {
+    "sha256": "c78de69a09cfd7e3c446c775e46bad2e9e8f0cb055f869c15f5467aa85d54554",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "signature": "v2 verified",
+  "protectedIntegrity": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "freshCodexReview": {
+    "focusedTests": 23,
+    "elapsedSeconds": 1.17,
+    "temporaryIndependentFaultProbes": 6,
+    "probeElapsedMs": 322,
+    "blockers": 0,
+    "probeScope": [
+      "close throwing instance disposer",
+      "original GLTF disposer releases baked clones",
+      "multiple undisplayed bundle collection despite throw",
+      "late cancelled decode disposer contained, slot released",
+      "multi-pin 3-to-2 display reconciliation despite throwing disposer",
+      "magnified size guard preserves other same-pin item and recovers from cache"
+    ],
+    "authorship": "read-only fresh Codex; no repository edits; not Claude-authored fixtures"
+  },
+  "retainedActualGpuRecoveryMs": 501.89999997615814,
+  "retainedRendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 9126548
+      },
+      {
+        "cycles": 16,
+        "usedSize": 9911552
+      },
+      {
+        "cycles": 26,
+        "usedSize": 10076036
+      }
+    ],
+    "baseline": {
+      "usedSize": 10171228,
+      "totalSize": 10981376,
+      "embedderHeapUsedSize": 2260664,
+      "backingStorageSize": 1519550
+    },
+    "after": {
+      "usedSize": 10694504,
+      "totalSize": 11505664,
+      "embedderHeapUsedSize": 2072504,
+      "backingStorageSize": 1519543
+    },
+    "heapGrowth": 0.0514466886397591,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "initialFailures": [
+    "New Retry browser case exposed wrong catalog retry label; corrected to model retry.",
+    "New instance browser case attempted the existing2D-only copy controls in3D; corrected to real2D copy flow then3D Undo transition.",
+    "Injected instance update failure initially intercepted Three constructor initialization instead of post-allocation updates; corrected injection phase.",
+    "Fresh review independently reproduced throwing-disposer leaks in close, decoder success cleanup and collection; fixed and permanent fault regressions added."
+  ],
+  "limits": [
+    "Flat original untextured static profile only; one original desk. Legacy sample pins remain measured fallback; no substitutes.",
+    "32MiB counts accepted decoded geometry backing buffers, excluding instances, parser peaks, JS, textures, driver/GPU and physical-device memory.",
+    "Pool live counts composite owners and instance buffers, not individual GPU geometries. Throwing underlying disposers only prove independent cleanup attempted, with failure counters.",
+    "Native9JUnit reports unchanged/cached, not fresh device execution;15existinglintwarnings.",
+    "Local151 browser differs from pinnedCI156; physicalphones/Hindi/TalkBack/thermal/nativeprovider checks pending.",
+    "No D36 accounts/cloud/history/mobileoptimization/sharing/realphone/billing/security/privacy/release/finalClaude work.",
+    "No schema, historical asset/blob/accepted fixture changes or new dependencies.",
+    "Gestures/advisories, material variants and catalog breadth remain later tasks."
+  ]
+}
