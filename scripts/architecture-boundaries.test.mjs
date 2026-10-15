@@ -14,6 +14,8 @@ async function messages(file, code) {
 }
 test('actual ESLint rejects every module syntax and upward/private layer dependency', async () => {
   const bad = [
+    ['apps/web/src/catalog/api.ts', "import { readFile } from 'node:fs/promises';"],
+    ['apps/web/src/ui/other.test.ts', "import { readFile } from 'node:fs/promises';"],
     ['packages/geometry/src/boundary-probe.ts', "import React from 'react';"],
     ['packages/geometry/src/boundary-probe.ts', "export * from '@gharplan/core-model';"],
     ['packages/geometry/src/boundary-probe.ts', "export { IndexedProjectStorage } from '@gharplan/persistence';"],
@@ -50,6 +52,8 @@ test('actual ESLint rejects every module syntax and upward/private layer depende
 });
 test('actual ESLint admits downward public APIs, local helpers and bounded test fixtures', async () => {
   const good = [
+    ['apps/web/src/catalog/api.test.ts', "import { readFile } from 'node:fs/promises';"],
+    ['apps/web/src/catalog/catalog.test.ts', "import { readFile } from 'node:fs/promises';"],
     ['packages/geometry/src/boundary-probe.ts', "export { rectArea } from './primitives';"],
     ['packages/core-model/src/boundary-probe.ts', "import type { Plan } from '@gharplan/geometry';"],
     ['packages/core-model/src/boundary-probe.ts', "type T = import('@gharplan/geometry').Plan;"],
