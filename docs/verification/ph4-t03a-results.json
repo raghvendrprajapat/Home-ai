@@ -6,29 +6,29 @@
   "check": {
     "productTests": 361,
     "files": 53,
-    "elapsedSeconds": 31.44,
+    "elapsedSeconds": 30.18,
     "toolingTests": 18,
     "failed": 0,
     "skipped": 0
   },
   "e2e": {
-    "passed": 72,
+    "passed": 73,
     "skipped": 0,
-    "reportedElapsed": "5.4m",
+    "reportedElapsed": "5.6m",
     "newPlacementCases": 5,
     "browser": "Chromium151.0.7922.173/SwiftShader; Linux, not phones"
   },
   "productionBuild": {
-    "initialGzipBytes": 165449,
+    "initialGzipBytes": 165534,
     "initialModules": 1,
     "crashHooks": "absent",
     "limitBytes": 600000
   },
-  "gradle": "BUILD SUCCESSFUL in28s;170tasks40executed130up-to-date",
+  "gradle": "BUILD SUCCESSFUL in32s;170tasks40executed130up-to-date",
   "android": {
     "applicationId": "com.gharplan.app.debug",
     "bytes": 8114378,
-    "sha256": "9f28eb58f012099f1a7dcaa23bf32ead459aeda87be6ee7b019bd4d7d39c0e1a",
+    "sha256": "bce68675656aaf1afd2013df1783f6d9c3d0fed312b46ccc9f3c60ccb3ff375a",
     "permissions": [
       "android.permission.INTERNET",
       "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -47,7 +47,7 @@
     ]
   },
   "packageChecks": {
-    "sha256": "9f28eb58f012099f1a7dcaa23bf32ead459aeda87be6ee7b019bd4d7d39c0e1a",
+    "sha256": "bce68675656aaf1afd2013df1783f6d9c3d0fed312b46ccc9f3c60ccb3ff375a",
     "bytes": 8114378,
     "webFilesByteEqual": 16,
     "lint": {
@@ -79,7 +79,7 @@
     "blockers": 0,
     "independentProbeScope": "duplicate submit oneAdd/exactUndo, invalidscale/no mutation, switchedsession cancels, listeners/preview cleared on unmount; not Claude-authored fixtures"
   },
-  "retainedActualGpuRecoveryMs": 451.3000000715256,
+  "retainedActualGpuRecoveryMs": 521.6000000238419,
   "retainedRendererLifecycle": {
     "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
     "cycles": 50,
@@ -87,30 +87,30 @@
     "warmupReadings": [
       {
         "cycles": 6,
-        "usedSize": 8872584
+        "usedSize": 8866744
       },
       {
         "cycles": 16,
-        "usedSize": 9648312
+        "usedSize": 9591288
       },
       {
         "cycles": 26,
-        "usedSize": 9789160
+        "usedSize": 9744172
       }
     ],
     "baseline": {
-      "usedSize": 9877188,
+      "usedSize": 9834000,
       "totalSize": 10719232,
-      "embedderHeapUsedSize": 1910608,
-      "backingStorageSize": 1430265
+      "embedderHeapUsedSize": 1969176,
+      "backingStorageSize": 1430590
     },
     "after": {
-      "usedSize": 10411780,
+      "usedSize": 10368748,
       "totalSize": 11243520,
-      "embedderHeapUsedSize": 1969712,
-      "backingStorageSize": 1430258
+      "embedderHeapUsedSize": 2018176,
+      "backingStorageSize": 1430583
     },
-    "heapGrowth": 0.05412390652076282,
+    "heapGrowth": 0.05437746593451287,
     "liveGpu": {
       "geometries": 6,
       "textures": 1
@@ -135,7 +135,8 @@
     "documentKeyboardAfter": 0
   },
   "initialFailures": [
-    "New reload test omitted the existing explicit Restore saved changes dialog step; corrected to the actual recovery flow, then five targeted cases passed23.5s. Capture case strengthened with actual extra-draw evidence before retained run."
+    "New reload test omitted the existing explicit Restore saved changes dialog step; corrected to the actual recovery flow, then five targeted cases passed23.5s. Capture case strengthened with actual extra-draw evidence before retained run.",
+    "First CI70passed2failed; not merged. Thumbnail assertion now waitsactualsuppressedload+decoding. Separate native false-scroll cancellation independently reproduced and fixed; originalCIholdcause unproven."
   ],
   "limits": [
     "One original desk and staged placement; actual GLB lifecycle/gestures/advisories remain later PH4-T03 stages",
@@ -144,5 +145,62 @@
     "Native9JUnit reports unchanged/cached, not fresh device execution;15existinglintwarnings",
     "Local151 browser differs from pinnedCI156; device/browsermatrix/Hindi/TalkBack/thermal/nativeprovider evidence pending",
     "Rights records validate provenance fields, not independent legal clearance"
-  ]
+  ],
+  "initialCI": {
+    "pr": 88,
+    "head": "509b5fc3154f3315774b2cc69a7fd89b80adc38e",
+    "run": 38727884019,
+    "check": "FAILURE",
+    "android": "SKIPPED",
+    "browserPassed": 70,
+    "browserFailed": 2,
+    "failedCases": [
+      "catalog retry observed old error before confirmed next decoding",
+      "retained UX004 second hold loupe missing"
+    ],
+    "holdCause": "unconfirmed: annotation truncated at4094; full log denied by environment host policy"
+  },
+  "scrollRegression": {
+    "beforeProductFix": "new native regression fails no loupe within5s with identical canvas rectangle",
+    "independentBeforeProbe": [
+      {
+        "mode": "unchanged-notification",
+        "before": {
+          "x": 35,
+          "y": 249.5,
+          "width": 888,
+          "height": 470
+        },
+        "after": {
+          "x": 35,
+          "y": 249.5,
+          "width": 888,
+          "height": 470
+        },
+        "loupe": 0,
+        "modelUnchanged": true
+      },
+      {
+        "mode": "actual-scroll",
+        "before": {
+          "x": 35,
+          "y": 249.5,
+          "width": 888,
+          "height": 470
+        },
+        "after": {
+          "x": 35,
+          "y": 209.5,
+          "width": 888,
+          "height": 470
+        },
+        "loupe": 0,
+        "modelUnchanged": true
+      }
+    ],
+    "afterFocused": "new regression and retained hold2/2passed10.2s; unchangednotice permits100mm onecommit/exactUndo; actual60px movement cancels unchanged",
+    "originalTestsAndDeadlines": "unchanged",
+    "separateBaselineBeforeFix": "12originalholds+12catalogretries=24passed2.4m",
+    "followupFreshReviewBlockers": 0
+  }
 }

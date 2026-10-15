@@ -5,17 +5,17 @@ Executed2026-10-15, base PR87 merge69484fc9d2a80b26fa0c865f49f11bd27efc2340. [D4
 ## Executed checks
 
 ```text
-pnpm check:361product tests/53files passed,31.44s;18tooling passed,0failure/skip.
-GHARPLAN_CHROMIUM_PATH=/usr/bin/chromium pnpm e2e:72passed(5.4m),0skipped.
+pnpm check:361product tests/53files passed,30.18s;18tooling passed,0failure/skip.
+GHARPLAN_CHROMIUM_PATH=/usr/bin/chromium pnpm e2e:73passed(5.6m),0skipped.
 Focused transform/placement/ghost:11passed734ms, including two100-case analytic properties.
 assets:check:1original asset,0official validator errors/warnings,1rights record.
 assets:versions:PR87 baseline69484fc9d2a80b26fa0c865f49f11bd27efc2340;1historical version unchanged.
 Protected owner/spec/accepted fixture integrity:39files,0mismatches.
 sample-project.json Draft202012:valid,0errors.
-Production:165449initialgzip bytes/1module,600000limit,crashhooksabsent.
-Gradle debug assemble/lint/unit:BUILD SUCCESSFUL in28s;170tasks40executed130up-to-date.
+Production:165534initialgzip bytes/1module,600000limit,crashhooksabsent.
+Gradle debug assemble/lint/unit:BUILD SUCCESSFUL in32s;170tasks40executed130up-to-date.
 DebugAPK:8114378bytes,16production files byte-equal,v2signature verified.
-SHA256:9f28eb58f012099f1a7dcaa23bf32ead459aeda87be6ee7b019bd4d7d39c0e1a.
+SHA256:bce68675656aaf1afd2013df1783f6d9c3d0fed312b46ccc9f3c60ccb3ff375a.
 Fresh decodedmanifest/dex confirms existing plugin registration.
 Native9unchanged cached reports:0failure/error/skip;lint0errors/15existingwarnings.
 ```
@@ -37,7 +37,17 @@ The [results JSON](ph4-t03a-results.json) records the full retained browser resu
 
 Fresh read-only Codex review ran11focused tests997ms and2independent temporary React probes1.29s. Duplicate submits commit exactlyonce, Undo restores fullJSON, invalidscale neverwrites, switchedsession cancels, and unmount clears preview/removes Escape/blur listeners. No concrete source blocker remained. Its requested PNG evidence was added and reviewed. Claude was not invoked.
 
-The first targeted browser run passed3/4. The reload assertion expected the editor immediately, but the actual UI correctly showed the existing Restore your drawing dialog; the new test now explicitly chooses Restore saved changes, matching the established recovery flow, and still compares complete JSON. The subsequent five targeted cases passed23.5s. The capture case was then strengthened with actual extra-draw evidence for the retained run; no existing assertion/fixture or retry policy was weakened.
+The first targeted placement browser run passed3/4. The reload assertion expected the editor immediately, but the actual UI correctly showed the existing Restore your drawing dialog; the new test now explicitly chooses Restore saved changes, matching the established recovery flow, and still compares complete JSON. The subsequent five targeted cases passed23.5s. The capture case was then strengthened with actual extra-draw evidence for the retained run; no existing assertion/fixture or retry policy was weakened.
+
+## First CI failure and dependency regression
+
+PR88 exacthead509b5fc3154f3315774b2cc69a7fd89b80adc38e / run38727884019: CheckFAILED,70browser cases passed and2failed (catalog fault retry and retainedUX004 hold); AndroidSKIPPED. It was not merged. Readable annotations retained the failures, but the80-event tail was truncated at4094characters before the decisive later events. Full job log retrieval through the supported GitHub route redirected to an Azure host blocked by current environment policy; it was not bypassed.
+
+The catalog assertion could return against the previous error before retry's effect published loading. It now waits for the independently observed suppressed native load and the new decoding phase before asserting the same timeout/failure. Original touch inputs/assertions/deadline were unchanged:12local original-hold repeats and12catalog repeats all passed (24total,2.4m), which does not identify the CI trigger.
+
+A new deterministic native-touch regression failed against the old product: unchanged canvas rectangle + scroll notification cleared the151ms hold and no loupe appeared within5s. Independent reviewer native probe reproduced that timer cancellation with identicalrect[35,249.5,888,470]/scrollY22; actual40px movement also cancelled as intended. The product now compares the first pointer's captured canvas frame and ignores notifications with no mapping change. The new case proves a100mm edit/oneUndo with an unchanged notification, then actual60px movement cancels without changing the drawing. New regression plus retained hold passed2/2(10.2s). Fresh four-file review found no blocker.
+
+Compact last10events now precede the preserved full80-event attachment, keeping useful failure evidence within GitHub annotation limits. No accepted fixture/assertion/retry/deadline was weakened. This resolves a real bug class; the original CI hold cause remains unconfirmed and must not be reported as proven.
 
 ## Remaining scope and prospective phone steps
 
