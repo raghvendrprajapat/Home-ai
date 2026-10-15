@@ -1,3 +1,5 @@
+import {beginFurnitureGesture,currentFurnitureGesture,furnitureGestureCommand,furnitureStepCommand} from './furniture-gesture';
+import type {FurnitureGestureIntent} from './furniture-gesture';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProjectStore, PreviewResult } from '@gharplan/core-model';
 import { areaDisplay, editError, message } from '../i18n/messages';
@@ -19,13 +21,16 @@ import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
 interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
-interface Drag { pointerId: number; junction: string; generation: number; start: Point2; last: Point2; snapTarget?: string; touch: boolean; store: ProjectStore }
+interface DragBase {pointerId:number;generation:number;start:Point2;last:Point2;touch:boolean;store:ProjectStore}
+type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent});
 export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
   const language = useRef(locale); language.current = locale;
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), stage = useRef<Konva.Stage | null>(null), drawingLayer = useRef<Konva.Layer | null>(null), library = useRef<typeof Konva | null>(null);
   const boxDrag=useRef<{id:number;start:Point2;last:Point2;generation:number;additive:boolean}|null>(null),[boxPreview,setBoxPreview]=useState<{a:Point2;b:Point2}|null>(null);
   const drag = useRef<Drag | null>(null), gestures = useRef(new PlanGestures()), cycle = useRef(new PickCycle());
-  const gestureFrame=useRef<DOMRect|null>(null);
+  const gestureFrame=useRef<DOMRect|null>(null),interruptedTouch=useRef(false);
+  const [freeRotation,setFreeRotation]=useState(false),freeRotationRef=useRef(false);freeRotationRef.current=freeRotation;
+  const singleFurnitureId=selection?.length===1&&selection[0]?.kind==='furniture'?selection[0].id:undefined,selectedFurnitureRef=useRef(singleFurnitureId);selectedFurnitureRef.current=singleFurnitureId;
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null), frame = useRef<number | null>(null), latestMotion = useRef<{motion:DragMotion;shift:boolean}|null>(null);
   const panKey = useRef(false);
   const lastSnap=useRef<SnapTarget|null>(null),[snapTarget,setSnapTarget]=useState<SnapTarget|null>(null);
@@ -69,17 +74,17 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
   const targetFor = (motion:DragMotion,shift:boolean):Point2|null => {
     const d=drag.current;if(!d||d.pointerId!==motion.pointerId)return null;
     const current=d.store.getSnapshot();
-    if(d.store!==activeStore.current||current.localGeneration!==d.generation){cancel();onMessage(message(language.current,'dragRetry'));return null;}
+    if(d.store!==activeStore.current||current.localGeneration!==d.generation||d.kind==='furniture'&&!currentFurnitureGesture(d.store,d.intent)){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const raw:Point2=[d.start[0]+motion.delta[0]/viewRef.current.scale,d.start[1]+motion.delta[1]/viewRef.current.scale];
-    const target=raw[0]===d.start[0]&&raw[1]===d.start[1]?d.start:snapAt(raw,null,false,shift,d.junction);d.last=target;
+    const target=raw[0]===d.start[0]&&raw[1]===d.start[1]?d.start:d.kind==='junction'?snapAt(raw,null,false,shift,d.junction):raw;d.last=target;
     if(d.touch)setLoupe({point:motion.point,world:target});return target;
   };
+  const dragCommand=(d:Drag,to:Point2,shift:boolean)=>d.kind==='junction'?{id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:junctionMoves(d.store.getSnapshot().document,d.junction,to)}:furnitureGestureCommand(d.intent,to,shift||toolRef.current?.getSnapshot().snappingEnabled===false||d.intent.mode==='rotate'&&freeRotationRef.current,snapGridStep(viewRef.current.scale));
   const previewMotion = (motion:DragMotion,shift:boolean) => {
     const to=targetFor(motion,shift),d=drag.current;if(!to||!d)return;
     if(to[0]===d.start[0]&&to[1]===d.start[1]){setPreview(null);return;}
-    const current=d.store.getSnapshot(),started=performance.now();
-    const result=d.store.preview({id:'drag_preview',baseGeneration:d.generation,type:'MoveJunctions',moves:junctionMoves(current.document,d.junction,to)});setPreview(result);
-    onTiming?.('preview',performance.now()-started);if(!result.ok)onMessage(editError(language.current,result.errors[0]));
+    const started=performance.now();
+    try{const result=d.store.preview(dragCommand(d,to,shift));setPreview(result);onTiming?.('preview',performance.now()-started);if(!result.ok)onMessage(editError(language.current,result.errors[0]));}catch{setPreview(null);onMessage(message(language.current,'furnitureValuesInvalid'));}
   };
   const schedule = (motion:DragMotion,shift:boolean) => {
     latestMotion.current={motion,shift};if(frame.current!==null)return;
@@ -130,26 +135,29 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       if(document.activeElement!==host.current)return;
       if(event.code==='Space'){event.preventDefault();panKey.current=true;return;}
       if(gestures.current.phase!=='idle'||boxDrag.current)return;
+      const furniture=selectedFurnitureRef.current,steps:Record<string,{dx?:number;dy?:number;rotation?:number}>={ArrowLeft:{dx:event.shiftKey?-100:-10},ArrowRight:{dx:event.shiftKey?100:10},ArrowUp:{dy:event.shiftKey?-100:-10},ArrowDown:{dy:event.shiftKey?100:10},q:{rotation:-15},e:{rotation:15}};
+      const action=steps[event.key.length===1?event.key.toLowerCase():event.key];
+      if(furniture&&action&&!panKey.current&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();if(event.repeat)return;const current=activeStore.current.getSnapshot();if(!current.document.furniture.some(item=>item.id===furniture)){onMessage(message(language.current,'dragRetry'));return;}const result=activeStore.current.execute(furnitureStepCommand(current,furniture,action));onMessage(result.ok?message(language.current,'furnitureApplied'):editError(language.current,result.errors[0]));return;}
       const v=viewRef.current;
       const arrows:Record<string,Point2>={ArrowLeft:[50,0],ArrowRight:[-50,0],ArrowUp:[0,50],ArrowDown:[0,-50]};
       if(arrows[event.key]){event.preventDefault();const d=arrows[event.key]!;changeView({...v,x:v.x+d[0],y:v.y+d[1]});}
       else if(['+','=','-'].includes(event.key)){event.preventDefault();changeView(zoomAt(v,[host.current!.clientWidth/2,host.current!.clientHeight/2],event.key==='-'?0.8:1.25));}
     };
     const releaseSpace=(event:KeyboardEvent)=>{if(event.code==='Space')panKey.current=false;};
-    const blurred=()=>{panKey.current=false;cancel();gestures.current.clear();};
+    const blurred=()=>{panKey.current=false;const touchHeld=gestures.current.hasTouch();cancel();interruptedTouch.current=touchHeld;if(!touchHeld)gestures.current.clear();};
     const hidden=()=>{if(document.hidden)blurred();};
     const outsideEnd = (event:PointerEvent) => {
       if(gestures.current.has(event.pointerId)&&!host.current?.contains(event.target as Node)){gestures.current.cancel();gestures.current.end(event.pointerId,[event.clientX,event.clientY],performance.now());clearEdit();}
     };
-    const outsideTouch = (event:PointerEvent) => {if(event.pointerType==='touch'&&(gestures.current.phase!=='idle'||boxDrag.current)&&!host.current?.contains(event.target as Node)){cancel();gestures.current.begin(event.pointerId,true,localPoint(event),viewRef.current,false,performance.now());}};
+    const outsideTouch = (event:PointerEvent) => {if(event.pointerType==='touch'&&(gestures.current.phase!=='idle'||boxDrag.current)&&(!host.current?.contains(event.target as Node)||event.target instanceof Element&&event.target.closest('.furniture-free-rotation'))){cancel();gestures.current.begin(event.pointerId,true,localPoint(event),viewRef.current,false,performance.now());}};
     const scrolled=()=>{if(gestures.current.phase==='idle'&&!boxDrag.current)return;
       // Scroll notifications can be queued before this gesture, or belong to a
       // different scroller. Cancel only when the pointer's canvas mapping moved.
       const before=gestureFrame.current,after=host.current?.getBoundingClientRect();
       if(!before||!after||(['left','top','width','height'] as const).some(key=>before[key]!==after[key]))cancel();
     };
-    document.addEventListener('visibilitychange',hidden);window.addEventListener('blur',blurred);window.addEventListener('keyup',releaseSpace);window.addEventListener('scroll',scrolled,true);window.addEventListener('keydown',escape);window.addEventListener('pointerup',outsideEnd);window.addEventListener('pointercancel',outsideEnd);window.addEventListener('pointerdown',outsideTouch);
-    return()=>{document.removeEventListener('visibilitychange',hidden);window.removeEventListener('blur',blurred);window.removeEventListener('keyup',releaseSpace);window.removeEventListener('scroll',scrolled,true);window.removeEventListener('keydown',escape);window.removeEventListener('pointerup',outsideEnd);window.removeEventListener('pointercancel',outsideEnd);window.removeEventListener('pointerdown',outsideTouch);};
+    document.addEventListener('visibilitychange',hidden);window.addEventListener('blur',blurred);window.addEventListener('keyup',releaseSpace);window.addEventListener('scroll',scrolled,true);window.addEventListener('keydown',escape);window.addEventListener('pointerup',outsideEnd);window.addEventListener('pointercancel',outsideEnd);window.addEventListener('pointerdown',outsideTouch,true);
+    return()=>{document.removeEventListener('visibilitychange',hidden);window.removeEventListener('blur',blurred);window.removeEventListener('keyup',releaseSpace);window.removeEventListener('scroll',scrolled,true);window.removeEventListener('keydown',escape);window.removeEventListener('pointerup',outsideEnd);window.removeEventListener('pointercancel',outsideEnd);window.removeEventListener('pointerdown',outsideTouch,true);};
   }, []);
   useEffect(() => {
     const element = host.current!;
@@ -221,14 +229,25 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     if(boxPreview)layer.add(new K.Rect({x:Math.min(boxPreview.a[0],boxPreview.b[0]),y:Math.min(boxPreview.a[1],boxPreview.b[1]),width:Math.abs(boxPreview.a[0]-boxPreview.b[0]),height:Math.abs(boxPreview.a[1]-boxPreview.b[1]),fill:'rgba(59,138,148,0.1)',stroke:'#3b8a94',strokeWidth:1,dash:[5,3]}));
     canvas.batchDraw();
   }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale, toolState, precisionPreview, snapTarget, selection, boxPreview]);
+  const handleDocument=preview?.ok&&drag.current?.generation===snapshot.localGeneration?preview.document:snapshot.document,handleItem=singleFurnitureId?handleDocument.furniture.find(f=>f.id===singleFurnitureId):undefined;
+  const handleAngle=(handleItem?.rotationDeg??0)*Math.PI/180,handleDistance=(handleItem?.size.d??0)/2+36/view.scale,handlePoint=handleItem?worldToScreen([handleItem.position.x+Math.sin(handleAngle)*handleDistance,handleItem.position.y-Math.cos(handleAngle)*handleDistance],view):undefined;
   return <div ref={host} className="plan-canvas" role="application" aria-label={message(locale, 'canvas2d')} tabIndex={0} data-testid="plan-canvas"
     data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id} data-snap-kind={snapTarget?.kind} data-selection-count={selection?.length??0}
     onPointerDown={event=>{
       if(event.button!==0&&event.button!==1)return;
+      const live=store.getSnapshot();if(live.document.id!==snapshot.document.id||live.sessionId!==snapshot.sessionId||live.localGeneration!==snapshot.localGeneration){cancel();onMessage(message(locale,'dragRetry'));return;}
       if(boxDrag.current)cancel();
       const rect=host.current!.getBoundingClientRect(),point=localPoint(event,rect),touch=event.pointerType==='touch',pick=index.picks(point,viewRef.current,touch)[0],now=performance.now();
+      if(touch&&interruptedTouch.current&&event.isPrimary){gestures.current.clear();interruptedTouch.current=false;}
       if(!gestures.current.ids().length)gestureFrame.current=rect;
-      const drawingMode=toolRef.current?.getSnapshot().mode;
+      // A view remount has no prior pointer records. A nonprimary touch still
+      // belongs to a physical gesture begun elsewhere, so it cannot start an edit.
+      if(touch&&!event.isPrimary&&!gestures.current.ids().length){gestures.current.begin(event.pointerId,true,point,viewRef.current,false,now);gestures.current.cancel();event.currentTarget.setPointerCapture(event.pointerId);onMessage(message(locale,'twoFingerCancel'));return;}
+      const drawingMode=toolRef.current?.getSnapshot().mode,rotateHandle=event.target instanceof Element&&event.target.closest('[data-furniture-rotate]')!==null&&singleFurnitureId!==undefined;
+      if(rotateHandle&&(!drawingMode||drawingMode==='select')&&event.button===0&&!panKey.current){
+        onEditStart?.();const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,true,now);event.preventDefault();event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);applyStep(step);if(step.cancelEdit)return;
+        try{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,singleFurnitureId!,'rotate',world);drag.current={kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};if(step.phase==='pending')holdTimer.current=setTimeout(()=>applyStep(gestures.current.hold(performance.now())),151);onMessage(message(locale,'furnitureDragHint'));}catch{cancel();}return;
+      }
       if((!drawingMode||drawingMode==='select')&&!touch&&event.button===0&&!panKey.current&&(multiple||event.shiftKey)){
         onEditStart?.();boxDrag.current={id:event.pointerId,start:point,last:point,generation:snapshot.localGeneration,additive:event.shiftKey};setBoxPreview({a:point,b:point});event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);return;
       }
@@ -240,16 +259,17 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
         const state=toolRef.current!.getSnapshot(),world=snapAt(screenToWorld(point,viewRef.current),state.anchor,drawingMode==='wall',event.shiftKey);
         toolPointer.current={id:event.pointerId,point,world,generation:snapshot.localGeneration,epoch:state.epoch};if(touch)setLoupe({point,world});return;
       }
-      const canDrag=event.button===0&&!panKey.current&&!multiple&&!event.shiftKey&&pick?.kind==='junction';
+      const canDrag=event.button===0&&!panKey.current&&!multiple&&!event.shiftKey&&(pick?.kind==='junction'||pick?.kind==='furniture');
       if(canDrag)onEditStart?.();
       const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,canDrag,now);
       event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);applyStep(step);
       if(step.cancelEdit){onMessage(message(locale,'twoFingerCancel'));return;}
-      if(pick?.kind==='junction'&&canDrag){
-        const j=snapshot.document.junctions.find(j=>j.id===pick.id)!;
-        onPick?.(pick,false);onSelect(j.id);setPicked(pick);drag.current={pointerId:event.pointerId,junction:j.id,generation:snapshot.localGeneration,start:[j.x,j.y],last:[j.x,j.y],touch,store};
+      if(pick&&canDrag){
+        onPick?.(pick,false);setPicked(pick);
+        if(pick.kind==='junction'){const j=snapshot.document.junctions.find(j=>j.id===pick.id)!;onSelect(j.id);drag.current={kind:'junction',pointerId:event.pointerId,junction:j.id,generation:snapshot.localGeneration,start:[j.x,j.y],last:[j.x,j.y],touch,store};}
+        else{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,pick.id,'move',world);drag.current={kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
         if(step.phase==='pending')holdTimer.current=setTimeout(()=>applyStep(gestures.current.hold(performance.now())),151);
-        onMessage(message(locale,touch?'touchHold':'previewHelp'));
+        onMessage(message(locale,pick.kind==='furniture'?'furnitureDragHint':touch?'touchHold':'previewHelp'));
       }
     }}
     onPointerMove={event=>{
@@ -268,7 +288,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     onPointerUp={event=>{
       const box=boxDrag.current;
       if(box?.id===event.pointerId){const point=localPoint(event);clearEdit();gestureFrame.current=null;if(box.generation===store.getSnapshot().localGeneration){if(Math.hypot(point[0]-box.start[0],point[1]-box.start[1])>3)onBoxSelect?.(index.contained(screenToWorld(box.start,viewRef.current),screenToWorld(point,viewRef.current)),box.additive);else{const chosen=cycle.current.next(index.picks(point,viewRef.current,false),point,performance.now());setPicked(chosen);onPick?.(chosen,true);}}if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);return;}
-      const point=localPoint(event),pointer=toolPointer.current,wasPhase=gestures.current.phase,step=gestures.current.end(event.pointerId,point,performance.now()),tool=toolRef.current;
+      const point=localPoint(event),pointer=toolPointer.current,rotateTap=drag.current?.kind==='furniture'&&drag.current.intent.mode==='rotate',wasPhase=gestures.current.phase,step=gestures.current.end(event.pointerId,point,performance.now()),tool=toolRef.current;
       if(!gestures.current.ids().length)gestureFrame.current=null;
       if(pointer&&pointer.id===event.pointerId&&tool&&wasPhase==='pan'){
         const state=tool.getSnapshot();if(pointer.generation===store.getSnapshot().localGeneration&&pointer.epoch===state.epoch){const world=snapAt(screenToWorld(point,viewRef.current),state.anchor,state.mode==='wall',event.shiftKey);tool.point(world);}
@@ -277,14 +297,15 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
       if(step.commit){
         const to=targetFor(step.commit,event.shiftKey),d=drag.current;clearEdit();
         if(to&&d&&(to[0]!==d.start[0]||to[1]!==d.start[1])){
-          const current=store.getSnapshot(),started=performance.now(),result=store.execute({id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions',moves:junctionMoves(current.document,d.junction,to)});
-          onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,'cornerUpdated'):editError(locale,result.errors[0]));
+          const started=performance.now();try{const result=store.execute(dragCommand(d,to,event.shiftKey));onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,d.kind==='furniture'?'furnitureApplied':'cornerUpdated'):editError(locale,result.errors[0]));}catch{onMessage(message(locale,'furnitureValuesInvalid'));}
         }
       }else applyStep(step);
-      if(step.tap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);onPick?.(chosen,multiple||event.shiftKey);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}
+      if(step.tap&&!rotateTap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);onPick?.(chosen,multiple||event.shiftKey);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}
       if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);
     }} onDoubleClick={()=>toolRef.current?.clear()} onPointerCancel={event=>{gestures.current.cancel();gestures.current.end(event.pointerId,localPoint(event),performance.now());gestureFrame.current=null;clearEdit();toolRef.current?.clear();onMessage(message(locale,'dragCancelled'));}}
     onLostPointerCapture={event=>{if(gestures.current.has(event.pointerId)||boxDrag.current?.id===event.pointerId)cancel();}}>
+    {handlePoint&&(!toolState||toolState.mode==='select')&&<button type="button" className="furniture-rotate-handle" data-furniture-rotate data-testid="furniture-rotate-handle" aria-label={message(locale,'furnitureRotateHandle')} style={{left:handlePoint[0]-24,top:handlePoint[1]-24}} onClick={event=>{if(event.detail!==0||!singleFurnitureId)return;if(!store.getSnapshot().document.furniture.some(item=>item.id===singleFurnitureId)){onMessage(message(locale,'dragRetry'));return;}const result=store.execute(furnitureStepCommand(store.getSnapshot(),singleFurnitureId,{rotation:15}));onMessage(result.ok?message(locale,'furnitureApplied'):editError(locale,result.errors[0]));}}>↻</button>}
+    {handleItem&&<label className="furniture-free-rotation" onPointerDown={event=>event.stopPropagation()}><input type="checkbox" checked={freeRotation} onChange={event=>{cancel();setFreeRotation(event.target.checked);}}/>{message(locale,'furnitureFreeRotation')}</label>}
     <div ref={mount} className="konva-mount" />
     {!ready && <span className="canvas-loading">{message(locale, 'loadingPlan')}</span>}
     <span className="canvas-hint">{message(locale, 'planHint')}</span>

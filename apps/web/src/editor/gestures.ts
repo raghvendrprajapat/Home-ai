@@ -17,6 +17,7 @@ export class PlanGestures {
   private pointers=new Map<number,{point:Point2;touch:boolean}>();
   private primary=0;private start:Point2=[0,0];private at=0;private initial:Viewport={x:0,y:0,scale:1};
   private pair:readonly [number,number]|null=null;private originalPair:readonly [Point2,Point2]=[[0,0],[0,0]];
+  hasTouch(){return [...this.pointers.values()].some(p=>p.touch);}
   has(id:number){return this.pointers.has(id);}
   ids(){return [...this.pointers.keys()];}
   private motion():DragMotion {const p=this.pointers.get(this.primary)!.point;return {pointerId:this.primary,point:p,delta:[p[0]-this.start[0],p[1]-this.start[1]]};}
