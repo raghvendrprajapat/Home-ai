@@ -3,6 +3,7 @@ import {beginPlacement} from './editor/furniture-placement';
 import type {PlacementIntent} from './editor/furniture-placement';
 import type {FurnitureGhost} from './render3d/placement-ghost';
 import type {Point2} from './editor/view2d';
+import {CatalogApi,CatalogSource} from './catalog/api';
 import {CatalogControls} from './catalog/CatalogControls';
 import {FurnitureControls} from './editor/FurnitureControls';
 import {CameraControls} from './editor/CameraControls';
@@ -44,6 +45,7 @@ function createDemo(): ProjectStore {
 export function App({ session, navigation }: { session?: WorkspaceSession; navigation?: ReactNode } = {}) {
   const ui = useUi(), t = <K extends MessageKey>(key: K, ...args: MessageArgs<K>) => message(ui.locale, key, ...args);
   const [store] = useState(() => session?.store ?? createDemo()), snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
+  const [assetSource]=useState(()=>new CatalogSource(new CatalogApi(new URL('catalog/',new URL(import.meta.env.BASE_URL,window.location.href)))));
   const [threeApi,setThreeApi]=useState<ThreeControlsApi|null>(null),[quality,setQuality]=useState<QualityChoice>('auto'),[lighting,setLighting]=useState<'day'|'warm'>('day');
   const [drawing] = useState(()=>new DrawingTool(store));
   const [selectedWall,setSelectedWall]=useState(()=>store.getSnapshot().document.walls[0]?.id??''),[precision,setPrecision]=useState<PrecisionPreview|null>(null),[precisionCancel,setPrecisionCancel]=useState(0);
@@ -106,7 +108,7 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
           <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => setView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => {drawing.setMode('select');setThreeFallback(false);setView('3d');}}>{t('view3d')}</button></div>
           <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{view === '2d' && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
         </div>
-        {view === '2d' ? <PlanCanvas onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
+        {view === '2d' ? <PlanCanvas onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView assetSource={assetSource} placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
         {threeFallback&&<p role="status">{t('threeFallback')}</p>}
         <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span>{t('groundFloor')} · {t('mm')}</span></footer>
       </section>

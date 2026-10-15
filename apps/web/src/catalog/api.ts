@@ -1,5 +1,6 @@
-import {parseCatalog} from './catalog';
+import {parseCatalog,exactAsset} from './catalog';
 import type {Catalog,CatalogAsset} from './catalog';
+import type {FurnitureAssetData,FurnitureAssetSource} from '../render3d/types';
 export interface Progress {received:number;total:number|undefined}
 export class CatalogFailure extends Error {constructor(readonly code:'failed'|'cancelled'|'timeout'){super(`catalog-${code}`);}}
 /** Settles ownership even if an injected/defective operation ignores abort. */
@@ -42,5 +43,24 @@ export class CatalogApi {
  async thumbnail(asset:CatalogAsset,signal:AbortSignal,onProgress:(p:Progress)=>void=()=>{}):Promise<Blob>{
   if(!/^[a-f0-9]{64}$/.test(asset.thumb.sha256)||asset.thumb.path!==`blobs/${asset.thumb.sha256}.svg`)throw new CatalogFailure('failed');
   const bytes=await this.bytes(asset.thumb.path,128*1024,signal,onProgress,asset.thumb);if(signal.aborted)throw new CatalogFailure('cancelled');return new Blob([bytes.buffer],{type:'image/svg+xml'});
+ }
+ async model(asset:CatalogAsset,lod:0|1,signal:AbortSignal,onProgress:(p:Progress)=>void=()=>{}):Promise<FurnitureAssetData>{
+  const entry=asset.lods.find(l=>l.level===lod);
+  if(!entry||!Number.isInteger(asset.version)||!/^a_[a-z0-9_]{1,36}$/.test(asset.id)||!Number.isInteger(entry.bytes)||entry.bytes<28||entry.bytes>2*1024*1024||!Number.isInteger(entry.triangles)||entry.triangles<1||entry.triangles>(lod===0?20000:3000)||!/^[a-f0-9]{64}$/.test(entry.sha256)||entry.path!==`blobs/${entry.sha256}.glb`)throw new CatalogFailure('failed');
+  const bytes=await this.bytes(entry.path,2*1024*1024,signal,onProgress,entry);
+  return {id:asset.id,version:asset.version,lod,sha256:entry.sha256,bytes:bytes.buffer,dims:asset.dims,triangles:entry.triangles};
+ }
+}
+/** Only completed immutable metadata is cached. Each caller owns its transport. */
+export class CatalogSource implements FurnitureAssetSource {
+ #catalog:Catalog|undefined;
+ constructor(private api:CatalogApi){}
+ async load(id:string,version:number,lod:0|1,signal:AbortSignal,onProgress:(received:number,total:number|undefined)=>void):Promise<FurnitureAssetData>{
+  if(signal.aborted)throw new CatalogFailure('cancelled');
+  if(!/^a_[a-z0-9_]{1,36}$/.test(id)||!Number.isInteger(version)||version<1||version>1000000||(lod!==0&&lod!==1))throw new CatalogFailure('failed');
+  const catalog=this.#catalog??await this.api.catalog(signal);
+  if(signal.aborted)throw new CatalogFailure('cancelled');this.#catalog=catalog;
+  const asset=exactAsset(catalog,id,version);if(!asset)throw new CatalogFailure('failed');
+  return this.api.model(asset,lod,signal,p=>onProgress(p.received,p.total));
  }
 }

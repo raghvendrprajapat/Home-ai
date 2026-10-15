@@ -1,5 +1,14 @@
 import type { AsyncTag, ProjectDoc } from '@gharplan/core-model';
 
+/** App supplies immutable catalog pins; renderer never imports catalog/storage. */
+export interface FurnitureAssetData {
+  id:string;version:number;lod:0|1;sha256:string;bytes:ArrayBuffer;
+  dims:Readonly<{w:number;d:number;h:number}>;triangles:number;
+}
+export interface FurnitureAssetSource {
+  load(id:string,version:number,lod:0|1,signal:AbortSignal,onProgress:(received:number,total:number|undefined)=>void):Promise<FurnitureAssetData>;
+}
+
 /** Renderer-owned derived buffers. Coordinates are metres in Three's X/Y/Z frame. */
 export interface MeshData {
   id: string; entityId: string; category: 'wall' | 'floor' | 'threshold' | 'ceiling';

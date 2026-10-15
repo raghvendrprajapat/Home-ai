@@ -4,7 +4,7 @@ import type {Pick} from '../editor/hit-test';
 import type {EntityTriangleRange} from './batches';
 import {openingBounds} from './camera';
 type Document=ReturnType<ProjectStore['getSnapshot']>['document'];
-const kind=(category:unknown):Pick['kind']|null=>category==='wall'?'wall':category==='floor'||category==='ceiling'?'room':category==='threshold'?'opening':category==='furniture-placeholder'||category==='furniture-instances'?'furniture':null;
+const kind=(category:unknown):Pick['kind']|null=>category==='wall'?'wall':category==='floor'||category==='ceiling'?'room':category==='threshold'?'opening':category==='furniture-placeholder'||category==='furniture-instances'||category==='furniture-model'||category==='furniture-model-instances'?'furniture':null;
 export function visibleMeshes(root:THREE.Object3D):THREE.Mesh[]{
  const meshes:THREE.Mesh[]=[];
  const visit=(node:THREE.Object3D)=>{if(!node.visible)return;if(node instanceof THREE.Mesh)meshes.push(node);for(const child of node.children)visit(child);};visit(root);return meshes;
@@ -17,7 +17,7 @@ export function intersectionPick(hit:THREE.Intersection):Pick|null{
   return range&&pickedKind?{kind:pickedKind,id:range.entityId}:null;
  }
  const pickedKind=kind(data.category);if(!pickedKind)return null;
- const id=data.category==='furniture-instances'&&Number.isInteger(hit.instanceId)&&hit.instanceId!>=0&&Array.isArray(data.entityIds)?data.entityIds[hit.instanceId!]:data.entityId;
+ const id=(data.category==='furniture-instances'||data.category==='furniture-model-instances')&&Number.isInteger(hit.instanceId)&&hit.instanceId!>=0&&Array.isArray(data.entityIds)?data.entityIds[hit.instanceId!]:data.entityId;
  return typeof id==='string'?{kind:pickedKind,id}:null;
 }
 export function pickRay(raycaster:THREE.Raycaster,root:THREE.Object3D,document:Document):Pick|null{
