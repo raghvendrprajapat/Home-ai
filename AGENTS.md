@@ -67,6 +67,8 @@ If code, this file and the spec disagree, investigate and record a reasoned reso
 - `pnpm install --frozen-lockfile`: install the recorded dependency graph
 - `pnpm check`: lint + typecheck + tests (required before commit)
 - `pnpm dev`: run the web app locally
-- `pnpm build`: build the web application
+- `pnpm assets:build`: explicitly regenerate the original static catalog; `pnpm assets:check` compares artifacts read-only.
+- `pnpm assets:versions`: compare immutable catalog versions against the Git baseline; local checks require `origin/main`, CI supplies the reviewed base SHA.
+- `pnpm build`: check catalog artifacts and build the web application
 - See `apps/web/README.md` for the current shell and validation limits.
 - Android build steps: see `docs/benchmarks/phase0.md` (created in PH0-T07)

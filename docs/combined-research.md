@@ -2485,7 +2485,7 @@ Also exercise the nonpositive-area validation branch with an invalid clear-regio
 |---|---|---|---|
 | AST-001 | FR-016, NFR-014 | Every catalog entry has source/url/type/commercialUse/redistributionInApp/checkedOn | Auto (CI) |
 | AST-002 | FR-016 | glTF-Validator 0 errors; tris ≤ LOD budgets; textures ≤ max size | Auto |
-| AST-003 | FR-016, FR-018 | Origin/orientation: bbox min z = 0, centred, front −Z, metres | Auto |
+| AST-003 | FR-016, FR-018 | Origin/orientation: glTF bbox min Y = 0 (ground), X/Z centred, front −Z, metres; canonical plan Z-up is a separate coordinate system (D39) | Auto |
 
 ## M.8 Reliability (REL)
 

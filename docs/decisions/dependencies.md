@@ -147,3 +147,13 @@ No new runtime dependency. Official `@capacitor/share@8.0.3` was considered: MIT
 Node 24.19.0 meets the documented engines. Inspect the resolved lock graph before installing; preserve prior inventory entries. Reporting defaults off, requires explicit opt-in and configured public DSN; no credentials are provided or needed for local development. Actual Sentry ingestion and physical Android recovery remain external release checks.
 
 Resolved addition web-vitals6.2.3 (MIT, https://registry.npmjs.org/web-vitals/6.2.3) was checked in the complete registry inventory before the frozen install. All324 versions are inventoried;313 previous package records are preserved verbatim. Sentry11 uses `dataCollection` controls (not the older removed sendDefaultPii flag); shipped types/source and actual transport tests are the integration evidence.
+
+## PH4-T01 static asset tools (2026-10-15, before installation)
+
+| Dependency | Exact version | License / official source | Selection |
+|---|---|---|---|
+| @gltf-transform/core | 4.5.1 | MIT; https://registry.npmjs.org/@gltf-transform%2fcore/4.5.1 | Development-only Document/NodeIO writes and reads standard GLB; avoids a custom binary writer. No browser runtime addition. |
+| property-graph | 4.1.0 | MIT; https://registry.npmjs.org/property-graph/4.1.0 | Resolved core graph dependency; exact lock admission required. |
+| gltf-validator | 2.0.0-dev.3.10 | Apache-2.0; https://registry.npmjs.org/gltf-validator/2.0.0-dev.3.10 | Official Khronos validator; pinned despite its dev release suffix, with real generated/corrupt GLB tests and explicit warning reporting. |
+
+Official npm metadata and both direct tarball SHA512 integrities were verified before installation. Core4.5.1 replaces no engine dependency; Three remains0.186.1. Compared with gltf-transform/functions4.5.1 (MIT), core avoids image-processing dependencies for this static untextured foundation; no texture conversion or simplification claim. Compared with a custom GLB encoder, NodeIO reduces format risk. Generic textured imports and KTX2 are deferred from this untextured foundation; measured device compression selection and R2/account delivery remain permission-gated under D36. No GPL/AGPL or third-party furniture art is introduced; record and inspect the full lock resolution before frozen install.

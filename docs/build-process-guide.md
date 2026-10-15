@@ -381,6 +381,8 @@ Hindi copy: ChatGPT translates the strings, then a Hindi-speaking customer reads
 | PH4-T04 Materials (per-side paint, floors) | Codex | — | "SYNC-005, REN-003." | Bedroom side changes, living side doesn't |
 | PH4-T05 Source ~30 items | You + Perplexity/ChatGPT | — | CC0 / checked Sweet Home 3D catalog items; source + license per item; Codex runs the pipeline | Every item has a license row |
 
+D39/PH4-T01 currently implements the original static/untextured local pipeline foundation: hashed GLB/SVG, rights/provenance records, official validation, dimensions/triangle budgets and immutable Git-baseline version checks. AST-003 glTF grounding is minY0 (canonical planZup is separate). Generic textures/KTX2, device-selected compression and R2 delivery remain pending; task references do not override D36 permission. Catalog UI/placement follows; premium/entitlement preparation is also gated. See decisions/static-asset-pipeline.md.
+
 ### 7.7 Phase 5: accounts and cloud (E 10–15 d · B 1–2 months)
 
 | Task | Build | ⭐ Claude | Specific instruction | You check |
