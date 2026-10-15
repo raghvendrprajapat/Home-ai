@@ -1,0 +1,19 @@
+import {it,expect,vi} from 'vitest';
+import * as THREE from 'three';
+import fc from 'fast-check';
+import {PlacementGhost} from './placement-ghost';
+import type {FurnitureGhost} from './placement-ghost';
+const tag={projectId:'project',sessionId:'session',localGeneration:0,dependencyHash:'hash'};
+const preview: FurnitureGhost={tag,item:{id:'fu_desk',position:{x:1200,y:1500},elevation:300,rotationDeg:37,size:{w:1800,d:900,h:1125}}};
+it('SYNC-003 actual Three ghost geometry has mapped floor/position/37degree/native1.5 bounds, clears leases on cancel and closes once',()=>{
+ const ghost=new PlacementGhost();ghost.set(preview,tag,200,true);const mesh=ghost.group.children[0] as THREE.Mesh,geometry=mesh.geometry,material=mesh.material as THREE.Material,disposeG=vi.spyOn(geometry,'dispose'),disposeM=vi.spyOn(material,'dispose');
+ expect(mesh.position.toArray()).toEqual([1.2,1.0625,1.5]);expect(mesh.rotation.y).toBeCloseTo(-37*Math.PI/180,12);expect(mesh.scale.toArray()).toEqual([1.8,1.125,.9]);const bounds=new THREE.Box3().setFromObject(ghost.group);expect(bounds.min.y).toBeCloseTo(.5,12);expect(bounds.max.y).toBeCloseTo(1.625,12);expect(bounds.max.x-bounds.min.x).toBeCloseTo(1.8*Math.cos(37*Math.PI/180)+.9*Math.sin(37*Math.PI/180),12);
+ expect(ghost.resourceStats.live).toBe(2);ghost.set({...preview,item:{...preview.item,position:{x:2000,y:3000}}},tag,0,true);expect(ghost.group.children[0]).toBe(mesh);expect(ghost.resourceStats.created).toBe(2);ghost.clear();expect(ghost.resourceStats.live).toBe(0);expect(disposeG).toHaveBeenCalledTimes(1);expect(disposeM).toHaveBeenCalledTimes(1);ghost.dispose();ghost.dispose();expect(disposeG).toHaveBeenCalledTimes(1);expect(disposeM).toHaveBeenCalledTimes(1);
+});
+it('stale four-domain ownership/pending scene never shows a ghost; retry after clear owns fresh resources; partial allocation rolls back',()=>{
+ const ghost=new PlacementGhost();for(const changed of [{...tag,projectId:'other'},{...tag,sessionId:'other'},{...tag,localGeneration:1},{...tag,dependencyHash:'other'}]){ghost.set(preview,changed,0,true);expect(ghost.group.visible).toBe(false);expect(ghost.resourceStats.live).toBe(0);}ghost.set(preview,tag,0,false);expect(ghost.resourceStats.created).toBe(0);ghost.set(preview,tag,0,true);ghost.set(undefined,tag,0,true);expect(ghost.resourceStats.live).toBe(0);ghost.set(preview,tag,0,true);expect(ghost.resourceStats.created).toBe(4);ghost.dispose();expect(ghost.resourceStats.created).toBe(ghost.resourceStats.disposed);
+ const geometry=vi.spyOn(THREE.BufferGeometry.prototype,'setAttribute').mockImplementation(()=>{throw Error('ghost-allocate');}),dispose=vi.spyOn(THREE.BufferGeometry.prototype,'dispose'),broken=new PlacementGhost();try{expect(()=>broken.set(preview,tag,0,true)).toThrow('ghost-allocate');expect(dispose).toHaveBeenCalledTimes(1);expect(broken.resourceStats.live).toBe(0);expect(broken.group.children).toHaveLength(0);}finally{geometry.mockRestore();dispose.mockRestore();}
+});
+it('generated rotated ghost bounds match analytic rectangle projections and contain no source-model writes',()=>{
+ fc.assert(fc.property(fc.integer({min:1,max:20000}),fc.integer({min:1,max:20000}),fc.integer({min:1,max:20000}),fc.integer({min:0,max:359}),(w,d,h,angle)=>{const ghost=new PlacementGhost(),item={...preview.item,position:{x:0,y:0},elevation:0,rotationDeg:angle,size:{w,d,h}},before=JSON.stringify(item);ghost.set({tag,item},tag,0,true);const b=new THREE.Box3().setFromObject(ghost.group),a=angle*Math.PI/180;expect(b.max.x-b.min.x).toBeCloseTo((Math.abs(Math.cos(a))*w+Math.abs(Math.sin(a))*d)/1000,10);expect(b.max.z-b.min.z).toBeCloseTo((Math.abs(Math.sin(a))*w+Math.abs(Math.cos(a))*d)/1000,10);expect(b.min.y).toBeCloseTo(0,10);expect(b.max.y).toBeCloseTo(h/1000,10);expect(JSON.stringify(item)).toBe(before);ghost.dispose();expect(ghost.resourceStats.live).toBe(0);}),{seed:40302,numRuns:100});
+});

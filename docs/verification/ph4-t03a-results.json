@@ -1,0 +1,148 @@
+{
+  "task": "PH4-T03 stageA",
+  "executionDate": "2026-10-15",
+  "baseSha": "69484fc9d2a80b26fa0c865f49f11bd27efc2340",
+  "scope": "Exact-version staged placement/Add/Cancel; actual GLBs, gestures/advisories and D36 scopes remain pending",
+  "check": {
+    "productTests": 361,
+    "files": 53,
+    "elapsedSeconds": 31.44,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 72,
+    "skipped": 0,
+    "reportedElapsed": "5.4m",
+    "newPlacementCases": 5,
+    "browser": "Chromium151.0.7922.173/SwiftShader; Linux, not phones"
+  },
+  "productionBuild": {
+    "initialGzipBytes": 165449,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": "BUILD SUCCESSFUL in28s;170tasks40executed130up-to-date",
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "9f28eb58f012099f1a7dcaa23bf32ead459aeda87be6ee7b019bd4d7d39c0e1a",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packageChecks": {
+    "sha256": "9f28eb58f012099f1a7dcaa23bf32ead459aeda87be6ee7b019bd4d7d39c0e1a",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "signature": "v2 verified",
+  "protectedIntegrity": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "freshCodexReview": {
+    "focusedTests": 11,
+    "elapsedMs": 997,
+    "temporaryReactProbes": 2,
+    "probeElapsedSeconds": 1.29,
+    "blockers": 0,
+    "independentProbeScope": "duplicate submit oneAdd/exactUndo, invalidscale/no mutation, switchedsession cancels, listeners/preview cleared on unmount; not Claude-authored fixtures"
+  },
+  "retainedActualGpuRecoveryMs": 451.3000000715256,
+  "retainedRendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 8872584
+      },
+      {
+        "cycles": 16,
+        "usedSize": 9648312
+      },
+      {
+        "cycles": 26,
+        "usedSize": 9789160
+      }
+    ],
+    "baseline": {
+      "usedSize": 9877188,
+      "totalSize": 10719232,
+      "embedderHeapUsedSize": 1910608,
+      "backingStorageSize": 1430265
+    },
+    "after": {
+      "usedSize": 10411780,
+      "totalSize": 11243520,
+      "embedderHeapUsedSize": 1969712,
+      "backingStorageSize": 1430258
+    },
+    "heapGrowth": 0.05412390652076282,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "initialFailures": [
+    "New reload test omitted the existing explicit Restore saved changes dialog step; corrected to the actual recovery flow, then five targeted cases passed23.5s. Capture case strengthened with actual extra-draw evidence before retained run."
+  ],
+  "limits": [
+    "One original desk and staged placement; actual GLB lifecycle/gestures/advisories remain later PH4-T03 stages",
+    "No premium/entitlement preparation or D36 cloud/accounts/history/mobileoptimization/sharing/realphone/billing/security/privacy/release/finalClaude work",
+    "No new dependencies, historical asset/source/blob/schema/accepted fixture changes",
+    "Native9JUnit reports unchanged/cached, not fresh device execution;15existinglintwarnings",
+    "Local151 browser differs from pinnedCI156; device/browsermatrix/Hindi/TalkBack/thermal/nativeprovider evidence pending",
+    "Rights records validate provenance fields, not independent legal clearance"
+  ]
+}
