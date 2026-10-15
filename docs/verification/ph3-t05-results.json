@@ -1,0 +1,168 @@
+{
+  "task": "PH3-T05",
+  "executionDate": "2026-10-15",
+  "baseSha": "438d1756b4c8f8c5b06411adc2045c45d3187983",
+  "requiredCheck": {
+    "exitCode": 0,
+    "productTests": 345,
+    "files": 49,
+    "elapsedSeconds": 19.92,
+    "toolingTests": 8,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 62,
+    "skipped": 0,
+    "reportedElapsed": "4.4m",
+    "browser": "Chromium151.0.7922.173",
+    "rendering": "Linux SwiftShader; not Android",
+    "newScenarios": 5
+  },
+  "actualGpuRecoveryMs": 478.39999997615814,
+  "rendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 8605368
+      },
+      {
+        "cycles": 16,
+        "usedSize": 9373908
+      },
+      {
+        "cycles": 26,
+        "usedSize": 9480872
+      }
+    ],
+    "baseline": {
+      "usedSize": 9563444,
+      "totalSize": 10194944,
+      "embedderHeapUsedSize": 1970112,
+      "backingStorageSize": 1362537
+    },
+    "after": {
+      "usedSize": 9881732,
+      "totalSize": 10719232,
+      "embedderHeapUsedSize": 1940776,
+      "backingStorageSize": 1362530
+    },
+    "heapGrowth": 0.033281734069860125,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "productionRegressions": {
+    "files": {
+      "passed": 8,
+      "pageErrors": []
+    },
+    "projects": {
+      "passed": 10,
+      "pageErrors": []
+    },
+    "recovery": {
+      "passed": 8,
+      "pageErrors": []
+    }
+  },
+  "gradle": "BUILD SUCCESSFUL in 22s;170 actionable tasks: 40 executed, 130 up-to-date",
+  "nativeHelpers": "8app-owned+1template unchanged cached reports; not new device/helper execution",
+  "signature": "v2 verified",
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114014,
+    "sha256": "52fa326003953bdfc9666e32f5710a61b339c0c9750ad952e93cdc80258f48f6",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packageChecks": {
+    "sha256": "52fa326003953bdfc9666e32f5710a61b339c0c9750ad952e93cdc80258f48f6",
+    "bytes": 8114014,
+    "webFilesByteEqual": 13,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "protectedIntegrity": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "freshCodexReview": {
+    "focusedTestsPassed": 14,
+    "independentRegressionProbesPassed": 2,
+    "resolvedFindings": [
+      "selection list/clear/duplicate synchronizes active furniture controls",
+      "interruption retains held IDs until release/cancel"
+    ],
+    "outstandingBlockers": 0,
+    "claude": "deferred; D36 permission required"
+  },
+  "initialTestFailures": {
+    "browser": "Initial1/3 passed;2 projections clicked sofa hidden behind front wall. Public keyboard overhead exposes the item; same exact furniture selection assertions then3/3 passed. Screenshot inspected, first-run log retained; no accepted fixture/test weakened.",
+    "newUnitExpectations": "Corrected only new tests that assumed scale100 always invalid and BufferGeometry.scale leaves its bounding box stale; actual core schema and Three behavior remain authoritative."
+  },
+  "limitations": [
+    "Current furniture remains dimensioned placeholders; full catalog/placement/collision/snapping not delivered",
+    "Room/wall helper is bounds, not exact room polygon",
+    "Two outline resources remain cached after clear until renderer closes",
+    "If OS permanently loses held release/cancel events, reopening3D resets conservative selection block",
+    "Renderer-toggle/main-frame V8 evidence is not whole-project/device/GPU-byte memory proof",
+    "No realLow/Mid/nativeprovider/thermal/accessibility/browsermatrix results",
+    "Local browser151 differs from pinnedCI156; downloader remains policy-denied",
+    "D36 cloud/mobile/sharing/billing/security/privacy/release/finalClaude scopes unstarted"
+  ],
+  "productionBuild": {
+    "initialGzipBytes": 159888,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  }
+}
