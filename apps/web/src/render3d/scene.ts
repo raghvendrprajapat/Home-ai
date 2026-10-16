@@ -1,19 +1,22 @@
 import type {FurnitureAssets} from './furniture-assets';
 import { ResourcePool,releaseOnce } from './resources';
 import type { Lease,Disposable } from './resources';
-import { materialBatches } from './batches';
+import { materialBatches,batchMaterialGroups } from './batches';
 import type {QualityTier} from './quality';
 import * as THREE from 'three';
 import type { ProjectStore } from '@gharplan/core-model';
 import type { MeshData, SceneBundle } from './types';
 
-export function sameMesh(a: MeshData, b: MeshData): boolean {
+export function sameGeometry(a: MeshData, b: MeshData): boolean {
   const same = (x: ArrayLike<number>, y: ArrayLike<number>) => {
     if (x.length !== y.length) return false;
     for (let i = 0; i < x.length; i++) if (x[i] !== y[i]) return false;
     return true;
   };
-  return a.id === b.id && a.entityId === b.entityId && a.category === b.category && same(a.positions, b.positions) && same(a.normals, b.normals) && same(a.uv, b.uv) &&
+  return a.id === b.id && a.entityId === b.entityId && a.category === b.category && same(a.positions, b.positions) && same(a.normals, b.normals) && same(a.uv, b.uv);
+}
+export function sameMesh(a: MeshData, b: MeshData): boolean {
+  return sameGeometry(a,b) &&
     a.groups.length === b.groups.length && a.groups.every((g, i) => g.start === b.groups[i]!.start && g.count === b.groups[i]!.count && g.materialId === b.groups[i]!.materialId);
 }
 export function bufferGeometry(data: MeshData): THREE.BufferGeometry {
@@ -70,6 +73,14 @@ export class SceneAdapter {
   #material(id:string,ceiling:boolean):Lease<THREE.MeshStandardMaterial>{const value=ceiling?this.#ceiling:this.#materials.get(id);if(!value)throw new Error('scene-material');return this.#shared(ceiling?'ceiling':`material:${id}`,value);}
   #release(mesh:THREE.Object3D):void{for(const lease of this.#owners.get(mesh)??[])lease.release();this.#owners.delete(mesh);}
   #own(mesh:THREE.Object3D,leases:Lease<Disposable>[]):void{this.#release(mesh);this.#owners.set(mesh,leases);}
+  /** Acquire replacement material leases before releasing old ones; keep geometry's lease. */
+  #rebind(mesh:THREE.Mesh,groups:MeshData['groups'],ceiling:boolean):void{
+    const owned=this.#owners.get(mesh);if(!owned?.[0])throw Error('scene-owner');
+    let end=0;for(const g of groups){if(!Number.isSafeInteger(g.start)||!Number.isSafeInteger(g.count)||g.start!==end||g.count<=0||g.count%3)throw Error('scene-binding-range');end+=g.count;}if(end!==mesh.geometry.getAttribute('position').count)throw Error('scene-binding-coverage');
+    const next=groups.map(g=>this.#material(g.materialId,ceiling));
+    mesh.geometry.clearGroups();groups.forEach((g,i)=>mesh.geometry.addGroup(g.start,g.count,i));mesh.material=next.map(l=>l.value);
+    this.#owners.set(mesh,[owned[0],...next]);releaseOnce(owned.slice(1).map(l=>()=>l.release()))();
+  }
   lastChanges = { replaced: [] as string[], kept: [] as string[], removed: [] as string[] };
   apply(bundle: SceneBundle, document: ReturnType<ProjectStore['getSnapshot']>['document']): void {
     if(this.#closed)throw new Error('scene-closed');
@@ -84,22 +95,27 @@ export class SceneAdapter {
       material.color.set(m.baseColor); material.roughness = m.roughness; material.metalness = m.metalness;
       this.#materials.set(m.id, material);
     }
-    const wanted = new Set(bundle.meshes.map(m => m.id));
-    for (const [id, entry] of this.#meshes) if (!wanted.has(id)) { this.group.remove(entry.mesh); this.#release(entry.mesh); this.#meshes.delete(id); this.lastChanges.removed.push(id); }
+    const wanted = new Set(bundle.meshes.map(m => m.id));let structuralChange=false;
+    for (const [id, entry] of this.#meshes) if (!wanted.has(id)) {structuralChange=true; this.group.remove(entry.mesh); this.#release(entry.mesh); this.#meshes.delete(id); this.lastChanges.removed.push(id); }
     for (const data of bundle.meshes) {
       const previous = this.#meshes.get(data.id);
       if (previous && sameMesh(previous.data, data)) { this.lastChanges.kept.push(data.id); continue; }
+      // "replaced" tracks a changed mesh descriptor, as before; buffer identity is separate.
+      if(previous&&sameGeometry(previous.data,data)){this.#rebind(previous.mesh,data.groups,data.category==='ceiling');this.#meshes.set(data.id,{data,mesh:previous.mesh});this.lastChanges.replaced.push(data.id);continue;}
+      structuralChange=true;
       const geometryLease=this.#geometry(bufferGeometry(data)),materialLeases=data.groups.map(g=>this.#material(g.materialId,data.category==='ceiling')),geometry=geometryLease.value,materials=materialLeases.map(l=>l.value);
       const mesh=previous?.mesh??new THREE.Mesh(geometry,materials);
       this.#own(mesh,[geometryLease,...materialLeases]);if(!previous)this.group.add(mesh);
       mesh.geometry = geometry; mesh.material = materials;mesh.visible=this.#tier!=='low'&&(data.category!=='ceiling'||this.#showCeilings);mesh.castShadow=true;mesh.receiveShadow=true; mesh.userData = { entityId: data.entityId, category: data.category };
       this.#meshes.set(data.id, { data, mesh }); this.lastChanges.replaced.push(data.id);
     }
-    if(this.#tier==='low'&&(this.lastChanges.replaced.length||this.lastChanges.removed.length||!this.#batches.length)){
+    if(this.#tier==='low'&&(structuralChange||!this.#batches.length)){
       for(const batch of this.#batches){this.group.remove(batch);this.#release(batch);}this.#batches=[];
       const batches=materialBatches(bundle.meshes),claimed=new Set<THREE.BufferGeometry>();
       try{for(const b of batches){const g=this.#geometry(b.geometry);claimed.add(b.geometry);const m=this.#material(b.materialId,b.ceiling),mesh=new THREE.Mesh(g.value,m.value);this.#own(mesh,[g,m]);mesh.visible=!b.ceiling||this.#showCeilings;mesh.userData={category:'structural-batch',ceiling:b.ceiling,entityRanges:b.ranges};this.group.add(mesh);this.#batches.push(mesh);}}
       finally{releaseOnce(batches.filter(b=>!claimed.has(b.geometry)).map(b=>()=>b.geometry.dispose()))();}
+    }else if(this.#tier==='low'&&this.lastChanges.replaced.length){
+      for(const batch of this.#batches)this.#rebind(batch,batchMaterialGroups(batch.userData.entityRanges,bundle.meshes),batch.userData.ceiling===true);
     }
     for(const [id]of this.#materials)if(!wantedMaterials.has(id)){this.#materialRoots.get(id)?.release();this.#materialRoots.delete(id);this.#materials.delete(id);}
     this.refreshFurniture(document);

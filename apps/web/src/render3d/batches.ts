@@ -13,3 +13,20 @@ export function materialBatches(meshes:MeshData[]):BatchData[]{
  const owned:THREE.BufferGeometry[]=[];try{return [...batches].map(([key,b])=>{const geometry=new THREE.BufferGeometry();owned.push(geometry);geometry.setAttribute('position',new THREE.Float32BufferAttribute(b.p,3));geometry.setAttribute('normal',new THREE.Float32BufferAttribute(b.n,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(b.uv,2));geometry.computeBoundingBox();geometry.computeBoundingSphere();return {key,materialId:b.materialId,ceiling:b.ceiling,geometry,ranges:b.ranges};});}catch(error){try{releaseOnce(owned.map(geometry=>()=>geometry.dispose()))();}catch{/* Preserve allocation failure after attempting every independent disposal. */}throw error;}
 }
 export function triangleEntity(ranges:EntityTriangleRange[],face:number):string|null {if(!Number.isInteger(face)||face<0)return null;return ranges.find(r=>face>=r.start&&face<r.start+r.count)?.entityId??null;}
+
+/** Rebind an existing batch's triangle order, including splits of formerly merged
+ * source groups. No position/normal/UV buffer or picking range is reconstructed. */
+export function batchMaterialGroups(ranges:readonly EntityTriangleRange[],meshes:readonly MeshData[]):MeshData['groups']{
+ const sources=new Map(meshes.map(m=>[JSON.stringify([m.category,m.entityId]),m])),checked=new Set<MeshData>(),result:MeshData['groups']=[];let covered=0;
+ for(const r of ranges){
+  const source=sources.get(JSON.stringify([r.category,r.entityId]));
+  if(!source||!Number.isSafeInteger(r.start)||!Number.isSafeInteger(r.count)||!Number.isSafeInteger(r.sourceStart)||r.start*3!==covered||r.count<=0||r.sourceStart<0||r.sourceStart%3||r.sourceStart+r.count*3>source.positions.length/3)throw Error('batch-range');
+  if(!checked.has(source)){let end=0;for(const g of source.groups){if(!Number.isSafeInteger(g.start)||!Number.isSafeInteger(g.count)||g.start!==end||g.count<=0||g.count%3||!g.materialId)throw Error('batch-source-group');end+=g.count;}if(end!==source.positions.length/3)throw Error('batch-source-coverage');checked.add(source);}
+  let cursor=r.sourceStart;const end=cursor+r.count*3;
+  // Find the first intersecting source group without rescanning every prior group.
+  let lo=0,hi=source.groups.length;while(lo<hi){const mid=(lo+hi)>>>1,g=source.groups[mid]!;if(g.start+g.count<=cursor)lo=mid+1;else hi=mid;}
+  while(cursor<end){const g=source.groups[lo++];if(!g||g.start>cursor)throw Error('batch-source-gap');const count=Math.min(g.start+g.count,end)-cursor,start=r.start*3+cursor-r.sourceStart,last=result.at(-1);if(count<=0)throw Error('batch-source-group');if(last&&last.materialId===g.materialId&&last.start+last.count===start)last.count+=count;else result.push({start,count,materialId:g.materialId});cursor+=count;}
+  covered+=r.count*3;
+ }
+ return result;
+}
