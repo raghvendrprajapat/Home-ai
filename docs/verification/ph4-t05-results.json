@@ -1490,5 +1490,13 @@
   "preservationCheck": {
     "restrictedWrapper": "453product passed; tooling child-process SDK test failed without detailed diagnostic; no commit on failure",
     "ordinaryEscalatedExecution": "pnpm check passed all453product and18tooling; no tests or permissions policy changed"
+  },
+  "parentSettledUiIntegration": {
+    "head": "9aa6802dcb202706d2d36b3eeea7f748b04b8478",
+    "runtimeChanged": false,
+    "scope": "Retains exact held-button assertions, waits actual local-save completion before rectangle equality. Historical CI cause unknown.",
+    "check": "453product+18tooling passed",
+    "fullBrowser": "RUNNING; previous121integrated run remains separately recorded",
+    "ci": "PENDING"
   }
 }
