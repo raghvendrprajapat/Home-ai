@@ -306,7 +306,7 @@
   },
   "testHarnessCorrection": {
     "scope": "Test/docs only; all10runtime source hashes equal the base head. Original runtime118case/debug/GPU/memory evidence remains tied to base head.",
-    "inputChange": "Trigger unrelated unit change using DOM change event without a driver scroll-to-select action; preserve native held pointer/release/click and all original assertions.",
+    "inputChange": "DOM unit-change event retained; original driver-scrolling hypothesis was not confirmed and did not resolve CI.",
     "retained": [
       "exact unchanged button rectangle",
       "positively delivered native click",
@@ -328,6 +328,57 @@
     },
     "testSha256": "8ea4888a0cf18a579ef8e544d53fe217cded810235983b384b0b384d54edeed8",
     "correctedWhole118Local": "Not rerun for this test-only correction; original118runtime plus corrected10focused evidence, exact-head CI must rerun all118.",
-    "finalCi": "PENDING"
+    "finalCi": "FAILURE: see secondFailedCi; never merged"
+  },
+  "secondFailedCi": {
+    "head": "ea033d77595c41d83018258068c07fe4a28a5005",
+    "run": 38910590646,
+    "checkRun": 117005130816,
+    "check": "FAILURE",
+    "androidRun": 117009270290,
+    "androidDebug": "SKIPPED",
+    "browserPassed": 117,
+    "browserFailed": 1,
+    "failure": "Same exact rectangle Y315.3125 to343 precondition before pointerup",
+    "merged": false,
+    "inference": "First driver-scrolling hypothesis insufficient; selectOption source does not establish such scrolling."
+  },
+  "settledUiCorrection": {
+    "scope": "Test/docs only. Preserve native held input, exact rectangle, positive delivered click, all entity/history assertions.",
+    "change": "Wait for actual saved phase after confirmed imperial units and before exact rectangle equality/pointerup; add CI phase/text/scroll/focus/layout annotations.",
+    "diagnostic": "Chromium151 with save debounce held1800ms and2animationframes: saved/saving/saved all x970,y315.3125,w122,h90; Retry appears in same row. Did not reproduce CI movement.",
+    "historicalCause": "UNKNOWN. Save-controls have transient UI; waiting saved is an explicit settled-phase precondition, not proof of CI movement mechanism.",
+    "localCheck": {
+      "product": 452,
+      "tooling": 18,
+      "elapsedSeconds": 35.61,
+      "failed": 0,
+      "skipped": 0
+    },
+    "focusedBrowser": {
+      "passed": 10,
+      "elapsed": "49.6s",
+      "browser": "LocalChromium151/SwiftShader"
+    },
+    "finalCi": "PENDING",
+    "layoutEvidence": {
+      "before": {
+        "x": 970,
+        "y": 315.3125,
+        "width": 122,
+        "height": 90
+      },
+      "after": {
+        "x": 970,
+        "y": 315.3125,
+        "width": 122,
+        "height": 90
+      },
+      "phase": "saved",
+      "saveText": "Saved in this browser on this device.",
+      "scrollY": 670,
+      "active": "BUTTON"
+    },
+    "testSha256": "9612d7a0d4a4cf896d11c221dbd0770feb641752b9b4718743e66f453f587a3a"
   }
 }
