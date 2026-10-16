@@ -191,6 +191,12 @@ export const messages = {
  furnitureClear: ['No dimension-box overlap detected.', 'आकार के बॉक्स का ओवरलैप नहीं मिला।'],
  furnitureAdvisoryUnavailable: ['Wall assistance is unavailable for this drawing. Precise editing and deliberate placement still work.', 'इस ड्रॉइंग में दीवार सहायता उपलब्ध नहीं है। सटीक बदलाव और अपनी पसंद की जगह रखना जारी है।'],
  furnitureBackSnapped: ['Back edge aligned to wall', 'पिछला किनारा दीवार से लगा'],
+ furniture3dTools: ['3D furniture tools', '3D फ़र्नीचर औज़ार'],
+ furniture3dOrbit: ['Orbit camera', 'कैमरा घुमाएँ'],
+ furniture3dMove: ['Move selected furniture', 'चुना फ़र्नीचर खिसकाएँ'],
+ furniture3dRotate: ['Rotate selected furniture', 'चुना फ़र्नीचर घुमाएँ'],
+ furniture3dFree: ['Free move / rotation (otherwise 50 mm / 15°)', 'स्वतंत्र खिसकाव / घुमाव (अन्यथा 50 मिमी / 15°)'],
+ furniture3dHelp: ['Furniture preview: hold briefly on touch, then drag. Camera stays fixed; release applies once. Escape cancels.', 'फ़र्नीचर पूर्वावलोकन: टच पर थोड़ा रोककर खींचें। कैमरा स्थिर है; छोड़ने पर एक बदलाव लागू होगा। Escape से रद्द करें।'],
 } as const satisfies Record<string, readonly [string, string]>;
 export type MessageKey = keyof typeof messages;
 type Slots<S extends string> = S extends `${string}{${infer Key}}${infer Rest}` ? Key | Slots<Rest> : never;
