@@ -14,7 +14,7 @@ export function outlineGeometry():THREE.BufferGeometry{
 export class SelectionOutline {
  group=new THREE.Group();#pool=new ResourcePool();#line:THREE.LineSegments|null=null;#closed=false;
  get resourceStats(){return this.#pool.stats;}
- set(pick:Pick|undefined,adapter:SceneAdapter,document:ReturnType<ProjectStore['getSnapshot']>['document']):void{
+ set(pick:Pick|undefined,adapter:SceneAdapter,document:ReturnType<ProjectStore['getSnapshot']>['document'],warning=false):void{
   if(this.#closed)return;this.group.visible=false;if(!pick)return;
   let matrix:THREE.Matrix4|undefined;
   if(pick.kind==='furniture'){
@@ -27,6 +27,7 @@ export class SelectionOutline {
   }
   if(!matrix)return;
   if(!this.#line){try{const geometry=this.#pool.acquire('outline',outlineGeometry).value,material=this.#pool.acquire('line-material',()=>new THREE.LineBasicMaterial({color:'#c47b42',depthTest:false,toneMapped:false})).value;this.#line=new THREE.LineSegments(geometry,material);this.#line.matrixAutoUpdate=false;this.#line.renderOrder=1000;this.#line.userData.category='selection-helper';this.group.add(this.#line);}catch(error){this.dispose();throw error;}}
+  (this.#line.material as THREE.LineBasicMaterial).color.set(warning?'#a52e31':'#c47b42');
   this.#line.matrix.copy(matrix);this.#line.matrixWorldNeedsUpdate=true;this.group.visible=true;
  }
  dispose():void{if(this.#closed)return;this.#closed=true;this.group.visible=false;try{this.#pool.close();}finally{this.group.clear();this.#line=null;}}

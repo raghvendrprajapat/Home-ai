@@ -92,7 +92,8 @@ export function buildWallSolids(document:SolidDocument):WallSolids {
 }
 /** Geometry-only advisory cache. Material bindings are never cached here. */
 export class WallSolidsCache {
- #key:string|undefined;#value:WallSolids|undefined;#builds=0;
+ #key:string|undefined;#value:WallSolids|undefined;#failure:Error|undefined;#builds=0;
+ constructor(private derive:(document:SolidDocument)=>WallSolids=buildWallSolids){}
  get builds():number{return this.#builds;}
  get(document:SolidDocument):WallSolids {
   const key=JSON.stringify([
@@ -101,11 +102,14 @@ export class WallSolidsCache {
    document.walls.map(({id,floorId,a,b,thickness,height})=>[id,floorId,a,b,thickness,height]),
    document.openings.map(({id,wallId,offset,width,height,sill})=>[id,wallId,offset,width,height,sill]),
   ]);
-  if(this.#value&&key===this.#key)return this.#value;
-  const value=buildWallSolids(document);
+  if(key===this.#key){if(this.#failure)throw this.#failure;if(this.#value)return this.#value;}
+  this.#builds++;
+  let value:WallSolids;
+  try{value=this.derive(document);}catch(error){this.#key=key;this.#value=undefined;this.#failure=error instanceof Error?error:new Error('wall-assistance');throw this.#failure;}
+
   for(const box of value.boxes){Object.freeze(box.lo);Object.freeze(box.hi);Object.freeze(box);}
   for(const face of [...value.faces,...value.longitudinalSides]){Object.freeze(face.rect);Object.freeze(face);}
   Object.freeze(value.boxes);Object.freeze(value.faces);Object.freeze(value.longitudinalSides);Object.freeze(value);
-  this.#key=key;this.#value=value;this.#builds++;return value;
+  this.#key=key;this.#value=value;this.#failure=undefined;return value;
  }
 }
