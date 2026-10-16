@@ -1495,8 +1495,119 @@
     "head": "9aa6802dcb202706d2d36b3eeea7f748b04b8478",
     "runtimeChanged": false,
     "scope": "Retains exact held-button assertions, waits actual local-save completion before rectangle equality. Historical CI cause unknown.",
-    "check": "453product+18tooling passed",
-    "fullBrowser": "RUNNING; previous121integrated run remains separately recorded",
-    "ci": "PENDING"
+    "check": {
+      "product": 453,
+      "tooling": 18,
+      "durationSeconds": 32.64,
+      "failed": 0,
+      "skipped": 0
+    },
+    "fullBrowser": {
+      "passedTogether": 121,
+      "elapsed": "8.5m",
+      "browser": "LinuxChromium151.0.7922.173/SwiftShader"
+    },
+    "ci": {
+      "run": 38917764269,
+      "head": "9aa6802dcb202706d2d36b3eeea7f748b04b8478",
+      "checkRun": 117029545343,
+      "androidRun": 117033346907,
+      "requiredJobs": "COMPLETED SUCCESS; CLEAN before SHA-guarded merge",
+      "mainMerge": "e36336d860c08f098d19c6325c7969214389802f",
+      "mergedAt": "2026-10-16T14:53:27Z",
+      "evidence": "GitHub PR/checks API; direct job-log fetch blocked by network policy, no CI test-count claim."
+    },
+    "evidenceHead": "c6aff25",
+    "annotations": {
+      "actual-gpu-recovery-ms": 477.8000000715256,
+      "renderer-lifecycle-evidence": {
+        "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+        "cycles": 50,
+        "warmup": 36,
+        "warmupReadings": [
+          {
+            "cycles": 6,
+            "usedSize": 9445476
+          },
+          {
+            "cycles": 16,
+            "usedSize": 10284364
+          },
+          {
+            "cycles": 26,
+            "usedSize": 10434264
+          }
+        ],
+        "baseline": {
+          "usedSize": 10542960,
+          "totalSize": 11505664,
+          "embedderHeapUsedSize": 2169360,
+          "backingStorageSize": 1568191
+        },
+        "after": {
+          "usedSize": 11109188,
+          "totalSize": 12029952,
+          "embedderHeapUsedSize": 2125360,
+          "backingStorageSize": 1568184
+        },
+        "heapGrowth": 0.05370673890444433,
+        "liveGpu": {
+          "geometries": 6,
+          "textures": 1
+        },
+        "closedResources": {
+          "resources": {
+            "live": 0,
+            "references": 0,
+            "created": 29,
+            "disposed": 29,
+            "disposalFailures": 0,
+            "closed": true
+          },
+          "gpu": {
+            "geometries": 0,
+            "textures": 0
+          }
+        },
+        "liveWorkers": 0,
+        "liveRafs": 0,
+        "documentKeyboardBaseline": 1,
+        "documentKeyboardAfter": 1
+      },
+      "starter-catalog-thumbnails": {
+        "items": 30,
+        "pages": [
+          24,
+          6
+        ],
+        "created": 30,
+        "revoked": 30
+      },
+      "held-paint-settled-layout": {
+        "before": {
+          "x": 970,
+          "y": 315.3125,
+          "width": 122,
+          "height": 90
+        },
+        "after": {
+          "x": 970,
+          "y": 315.3125,
+          "width": 122,
+          "height": 90
+        },
+        "phase": "saved",
+        "saveText": "Saved in this browser on this device.",
+        "scrollY": 670,
+        "active": "BUTTON"
+      }
+    }
+  },
+  "finalPrePrCheck": {
+    "product": 453,
+    "tooling": 18,
+    "failed": 0,
+    "skipped": 0,
+    "log": "/tmp/gharplan-ph4-t05-pr-final-check.log"
   }
 }
