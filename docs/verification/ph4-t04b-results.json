@@ -1,0 +1,228 @@
+{
+  "task": "PH4-T04 stage B GPU surface bindings",
+  "date": "2026-10-16",
+  "scope": "Existing renderer material-binding correctness; no quality-profile/mobile optimization or D36 work. Palette and full FR-022/SYNC-005/device200ms gates remain pending.",
+  "parent": {
+    "pr": 94,
+    "exactHead": "159f89a5a622d5f85ca61fc8ca53e0260db34936",
+    "run": 38902081812,
+    "checkRun": 116976524801,
+    "androidRun": 116979474144,
+    "both": "COMPLETED SUCCESS; CLEAN before SHA-guarded merge",
+    "mainMerge": "eef1c0b54e37fa60bdb45656b495a392b538b111"
+  },
+  "check": {
+    "productTests": 445,
+    "files": 64,
+    "elapsedSeconds": 34.45,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "regressionBeforeImplementation": {
+    "failed": 4,
+    "passed": 2,
+    "meaning": "Expected new assertions fail because same-scale paint reallocated structural GPU geometry."
+  },
+  "localBrowser": {
+    "wholeAppPassedTogether": 108,
+    "reportedElapsed": "8.2m",
+    "focusedMaterialPassed": 3,
+    "focusedElapsed": "19.6s",
+    "browser": "Linux Chromium151.0.7922.173 with SwiftShader; CI156/rev1248 and physical phones are distinct.",
+    "nativeBufferDataAndPixels": {
+      "low": {
+        "tier": "low",
+        "white": [
+          234,
+          233,
+          231,
+          255
+        ],
+        "blue": [
+          217,
+          225,
+          228,
+          255
+        ],
+        "restored": [
+          234,
+          233,
+          231,
+          255
+        ],
+        "bufferDataBaseline": 31,
+        "bufferDataAfter": 31,
+        "createdResources": 38
+      },
+      "mid": {
+        "tier": "mid",
+        "white": [
+          210,
+          210,
+          209,
+          255
+        ],
+        "blue": [
+          180,
+          195,
+          205,
+          255
+        ],
+        "restored": [
+          210,
+          210,
+          209,
+          255
+        ],
+        "bufferDataBaseline": 45,
+        "bufferDataAfter": 45,
+        "createdResources": 24
+      }
+    },
+    "bufferSubData": "Unrelated instance-matrix subupdates are outside this allocation claim.",
+    "exactChangedDescriptorAssertionRetained": true
+  },
+  "productionBuild": {
+    "initialGzipBytes": 173309,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": {
+    "result": "BUILD SUCCESSFUL in41s",
+    "tasks": 170,
+    "executed": 40,
+    "upToDate": 130
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "5d664b5bfd950bd2e45be9a8408d647b91e9b33d9331698f2587a20e88a52231",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packagedBytes": {
+    "sha256": "5d664b5bfd950bd2e45be9a8408d647b91e9b33d9331698f2587a20e88a52231",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "apkV2SignatureVerified": true,
+  "actualGpuRecoveryMs": 741.0999999046326,
+  "rendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 9273236
+      },
+      {
+        "cycles": 16,
+        "usedSize": 10112560
+      },
+      {
+        "cycles": 26,
+        "usedSize": 10249044
+      }
+    ],
+    "baseline": {
+      "usedSize": 10350932,
+      "totalSize": 11243520,
+      "embedderHeapUsedSize": 2106880,
+      "backingStorageSize": 1556222
+    },
+    "after": {
+      "usedSize": 10888716,
+      "totalSize": 12029952,
+      "embedderHeapUsedSize": 2208272,
+      "backingStorageSize": 1556222
+    },
+    "heapGrowth": 0.051955128291829134,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "protectedInputs": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "runtimeSourceSha256": {
+    "batches.ts": "8e5a431149a3f5b19a382c2662f8ccbca667d5a9bdfe7d74b54a5ba86a88b0c4",
+    "scene.ts": "e8c18222909b06b0a6831343745ced3accc711ec0650d34a73eddc681cb0ef9e",
+    "dependencies.ts": "1ecb98bab4b4c3d9696e5c5a0fe39b8bd4e3777db67c1062f08618549916280e",
+    "material-bindings.ts": "048133d7107dc88c062608986aa2aa1bd9f059665656a16df6edba675ec2416b",
+    "mesh.ts": "d1fa10964a72fd38bc7d5b3b63635b98182064e9081802c663756cd5b402c323",
+    "types.ts": "c6387a1fac6dff2e87945fce39be14ec974255579c12ad65584815ab0f56f416"
+  },
+  "newPermanentTests": {
+    "gpuCases": 8,
+    "analyticCyclesPerPath": 20,
+    "batchCases": 2,
+    "sourceIntervalPropertyRuns": 100,
+    "propertySeed": 40402
+  },
+  "diagnoses": [
+    "New preimplementation GPU tests failed4/passed2 as expected; no assertion was weakened.",
+    "Initial full check failed browser instrumentation DOM overload typing; a variadic unknown-argument Reflect.apply wrapper accepts every overload and forwards untouched calls; final check passed.",
+    "Existing lastChanges.replaced means changed MeshData descriptor and remains exact; separate reference/disposal/actual bufferData tests prove retained buffers.",
+    "No full-repack guarantee during repeated paint: initial triangle order stays fixed and draw groups may increase.",
+    "Android is debug compile/package validation only;9cached native helper reports,15existing lint warnings and deprecated Gradle features are not phone evidence.",
+    "Renderer lifecycle is warmed main-frame V8/owned resources only, excluding worker/native/driver/whole-process memory."
+  ],
+  "pending": [
+    "Visible per-side/floor palette and complete2Dmaterial fills",
+    "Texture corpus/furniture variants",
+    "Physical-device200ms and other external/native-provider/accessibility gates",
+    "All D36 scopes and final Claude review"
+  ]
+}
