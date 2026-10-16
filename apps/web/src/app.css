@@ -646,3 +646,8 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .furniture-models{position:absolute;left:12px;top:12px;z-index:2;max-width:min(320px,70%);max-height:150px;overflow:auto;background:#fff;padding:8px 12px;border-radius:8px;touch-action:pan-y}.furniture-models summary{cursor:pointer}.furniture-models ul{padding-left:20px;margin:8px 0}.furniture-models button{margin:4px}
 
 .furniture-rotate-handle{position:absolute;width:48px;height:48px;padding:0;border-radius:50%;z-index:3;background:#fff3d9;border:2px solid #b6723f;touch-action:none}.furniture-free-rotation{position:absolute;left:12px;top:12px;background:#fff;padding:8px 12px;border-radius:8px;z-index:3;display:flex;gap:8px;align-items:center}
+
+.furniture-warning { color: #a52e31; border-left: 3px solid #a52e31; padding-left: .65rem; }
+.furniture-snap-note { position: absolute; left: .75rem; bottom: .75rem; background: #fff9ed; color: #803c19; padding: .4rem .6rem; pointer-events: none; }
+.canvas-furniture-advisory { position:absolute; top:3.8rem; left:.75rem; max-width:min(26rem,75%); background:rgba(255,255,255,.94); font-size:.8rem; pointer-events:none; }
+.canvas-furniture-advisory p { margin:.35rem; }

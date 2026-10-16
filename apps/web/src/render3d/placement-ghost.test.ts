@@ -17,3 +17,8 @@ it('stale four-domain ownership/pending scene never shows a ghost; retry after c
 it('generated rotated ghost bounds match analytic rectangle projections and contain no source-model writes',()=>{
  fc.assert(fc.property(fc.integer({min:1,max:20000}),fc.integer({min:1,max:20000}),fc.integer({min:1,max:20000}),fc.integer({min:0,max:359}),(w,d,h,angle)=>{const ghost=new PlacementGhost(),item={...preview.item,position:{x:0,y:0},elevation:0,rotationDeg:angle,size:{w,d,h}},before=JSON.stringify(item);ghost.set({tag,item},tag,0,true);const b=new THREE.Box3().setFromObject(ghost.group),a=angle*Math.PI/180;expect(b.max.x-b.min.x).toBeCloseTo((Math.abs(Math.cos(a))*w+Math.abs(Math.sin(a))*d)/1000,10);expect(b.max.z-b.min.z).toBeCloseTo((Math.abs(Math.sin(a))*w+Math.abs(Math.cos(a))*d)/1000,10);expect(b.min.y).toBeCloseTo(0,10);expect(b.max.y).toBeCloseTo(h/1000,10);expect(JSON.stringify(item)).toBe(before);ghost.dispose();expect(ghost.resourceStats.live).toBe(0);}),{seed:40302,numRuns:100});
 });
+it('advisory ghost colors change on the same pooled material without allocating geometry or mutating the item',()=>{
+ const ghost=new PlacementGhost(),before=JSON.stringify(preview);ghost.set(preview,tag,0,true);const mesh=ghost.group.children[0] as THREE.Mesh,material=mesh.material as THREE.MeshBasicMaterial,stats=ghost.resourceStats;
+ for(const warning of [true,false,true,false]){ghost.set({...preview,warning},tag,0,true);expect(ghost.group.children[0]).toBe(mesh);expect(material.color.getHexString()).toBe(warning?'a52e31':'c47b42');expect(ghost.resourceStats).toEqual(stats);}
+ expect(JSON.stringify(preview)).toBe(before);ghost.dispose();expect(ghost.resourceStats.live).toBe(0);
+});

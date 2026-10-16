@@ -1,0 +1,153 @@
+{
+  "task": "PH4-T03 stageC2b",
+  "executionDate": "2026-10-16",
+  "baseSha": "2709f8d015f41c42e33723d61bf7a2cb29c0afa3",
+  "scope": "Visible nonblocking collision warnings,2D semantic back-edge snaps, explicit draft alignment and exclusive property/placement/tool/selection ownership; actual3Dpointermodes pending",
+  "check": {
+    "productTests": 410,
+    "files": 60,
+    "elapsedSeconds": 22.41,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "e2e": {
+    "passed": 94,
+    "skipped": 0,
+    "newNativeCases": 5,
+    "reportedElapsed": "6.3m",
+    "browser": "Chromium151.0.7922.173/SwiftShader; Linux, not phones",
+    "sourceTiming": "Entire final source after selection/return-origin fixes; rerun after interrupted environment and removal of owned orphaned preview server."
+  },
+  "productionBuild": {
+    "initialGzipBytes": 173024,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": "Preserved final-runtime build executed2026-10-15:BUILD SUCCESSFUL in52s;170tasks40executed130up-to-date",
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "1af574a0f0fc4b272bcdbca4034efdf60dc038b704397aa095ca579d3820c4eb",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packagedBytes": {
+    "sha256": "1af574a0f0fc4b272bcdbca4034efdf60dc038b704397aa095ca579d3820c4eb",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "nativeJUnitScope": "9 unchanged/cached helper reports, not fresh device execution",
+  "signature": "Fresh same-build v2verification after reconnect",
+  "protectedFiles": 39,
+  "protectedHashMismatches": 0,
+  "sampleSchemaErrors": 0,
+  "freshReview": {
+    "author": "Fresh read-only Codex; no repository edits; not Claude fixtures",
+    "independentAppProbes": 7,
+    "probeSeconds": 6.3,
+    "focusedTests": 15,
+    "focusedFiles": 4,
+    "focusedSeconds": 5.16,
+    "remainingSourceBlockers": 0
+  },
+  "retainedActualGpuRecoveryMs": 464.90000009536743,
+  "retainedRendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 9242764
+      },
+      {
+        "cycles": 16,
+        "usedSize": 10032672
+      },
+      {
+        "cycles": 26,
+        "usedSize": 10179004
+      }
+    ],
+    "baseline": {
+      "usedSize": 10278388,
+      "totalSize": 11243520,
+      "embedderHeapUsedSize": 1937360,
+      "backingStorageSize": 1542737
+    },
+    "after": {
+      "usedSize": 10805824,
+      "totalSize": 11767808,
+      "embedderHeapUsedSize": 1947304,
+      "backingStorageSize": 1542730
+    },
+    "heapGrowth": 0.051315050570186704,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "diagnoses": [
+    "Mode transition cancellation instead of every drawing epoch; reverse ownership safely selects first.",
+    "Explicit input intent owns even incomplete values; untouched/reset forms cannot steal placement.",
+    "Unique owner tokens keep old cleanup from clearing another preview.",
+    "Effective visible draft drives both2D/3D advisory status.",
+    "Controlled clear/multiple selection never resurrects local picked advisory; held intent synchronously fences selection.",
+    "Returning to initial pointer resets transient note/sticky key.",
+    "Structural failures memoized across furniture/paint previews until geometry changes.",
+    "New-test Undo API/type/locator assumptions corrected; initial2.5095238095238px final displacement was a correct tap, so new native test includes100mm tangent travel without changing retained3px threshold.",
+    "First full run and last check interrupted by environment; no terminal result claimed. Zero-test retry found owned orphaned4185preview; verified PID/cwd/args, stopped only that server and reran final suite."
+  ],
+  "limits": [
+    "Dimension envelopes, not triangle collision or compliance/clearance validation.",
+    "Actual3D pointer transforms and selected twofingerrotation pending; shared numeric/button/alignment controls work3D.",
+    "Retained V8/resource test is sample fallbackpins/Linux only; excludes worker/native/GPUdriver/wholeprocess/device memory.",
+    "No physical phone/WebView/Hindi/TalkBack/native-provider/thermal/external/finalClaude validation claimed.",
+    "All D36 scopes remain permission gated.",
+    "No new dependency/schema/historicalasset/acceptedfixture/owner research changes."
+  ]
+}

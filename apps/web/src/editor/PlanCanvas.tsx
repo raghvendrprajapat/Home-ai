@@ -1,4 +1,7 @@
-import {beginFurnitureGesture,currentFurnitureGesture,furnitureGestureCommand,furnitureStepCommand} from './furniture-gesture';
+import {FurnitureAdvisories} from './furniture-advisories';
+import {FurnitureWarning} from './FurnitureWarning';
+import type {BackAlignment} from './furniture-spatial';
+import {beginFurnitureGesture,currentFurnitureGesture,furnitureStepCommand} from './furniture-gesture';
 import type {FurnitureGestureIntent} from './furniture-gesture';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { ProjectStore, PreviewResult } from '@gharplan/core-model';
@@ -20,10 +23,12 @@ import type { DrawingTool } from './drawing-tools';
 import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
-interface Props { store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
+interface Props { advisories?:FurnitureAdvisories;previewFurnitureId?:string|undefined;store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface DragBase {pointerId:number;generation:number;start:Point2;last:Point2;touch:boolean;store:ProjectStore}
 type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent});
-export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
+export function PlanCanvas({ advisories:providedAdvisories,previewFurnitureId,store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
+  const [ownAdvisories]=useState(()=>new FurnitureAdvisories()),advisories=providedAdvisories??ownAdvisories;
+  const furnitureSnapKey=useRef<string|null>(null),[backSnap,setBackSnap]=useState<BackAlignment|null>(null);
   const language = useRef(locale); language.current = locale;
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), stage = useRef<Konva.Stage | null>(null), drawingLayer = useRef<Konva.Layer | null>(null), library = useRef<typeof Konva | null>(null);
   const boxDrag=useRef<{id:number;start:Point2;last:Point2;generation:number;additive:boolean}|null>(null),[boxPreview,setBoxPreview]=useState<{a:Point2;b:Point2}|null>(null);
@@ -31,6 +36,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
   const gestureFrame=useRef<DOMRect|null>(null),interruptedTouch=useRef(false);
   const [freeRotation,setFreeRotation]=useState(false),freeRotationRef=useRef(false);freeRotationRef.current=freeRotation;
   const singleFurnitureId=selection?.length===1&&selection[0]?.kind==='furniture'?selection[0].id:undefined,selectedFurnitureRef=useRef(singleFurnitureId);selectedFurnitureRef.current=singleFurnitureId;
+  const controlledSelectionRef=useRef(selection!==undefined);controlledSelectionRef.current=selection!==undefined;
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null), frame = useRef<number | null>(null), latestMotion = useRef<{motion:DragMotion;shift:boolean}|null>(null);
   const panKey = useRef(false);
   const lastSnap=useRef<SnapTarget|null>(null),[snapTarget,setSnapTarget]=useState<SnapTarget|null>(null);
@@ -53,7 +59,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
   const localPoint = (event: { clientX: number; clientY: number },rect=host.current!.getBoundingClientRect()): Point2 => {
     return [event.clientX - rect.left, event.clientY - rect.top];
   };
-  const resetSnap=()=>{if(snapFrame.current!==null)cancelAnimationFrame(snapFrame.current);snapFrame.current=null;pendingSnap.current=null;lastSnap.current=null;setSnapTarget(null);};
+  const resetSnap=()=>{if(snapFrame.current!==null)cancelAnimationFrame(snapFrame.current);snapFrame.current=null;pendingSnap.current=null;lastSnap.current=null;setSnapTarget(null);furnitureSnapKey.current=null;setBackSnap(null);};
   const clearEdit = () => {
     if(holdTimer.current!==null)clearTimeout(holdTimer.current);holdTimer.current=null;
     if(frame.current!==null)cancelAnimationFrame(frame.current);frame.current=null;latestMotion.current=null;
@@ -70,19 +76,25 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
   useEffect(()=>{if(gestures.current.phase!=='idle'||boxDrag.current)cancel();else resetSnap();},[toolState?.mode]);
   useEffect(()=>{if(gestures.current.phase!=='idle'||boxDrag.current)cancel();else resetSnap();},[toolState?.snappingEnabled]);
   useEffect(()=>{cancel();},[multiple]);
+  useEffect(()=>{const owned=drag.current;if(owned?.kind==='furniture'&&controlledSelectionRef.current&&singleFurnitureId!==owned.intent.id)cancel();},[singleFurnitureId,selection!==undefined]);
   useEffect(()=>{if(precisionPreview)cancel();},[precisionPreview]);
   const targetFor = (motion:DragMotion,shift:boolean):Point2|null => {
     const d=drag.current;if(!d||d.pointerId!==motion.pointerId)return null;
     const current=d.store.getSnapshot();
-    if(d.store!==activeStore.current||current.localGeneration!==d.generation||d.kind==='furniture'&&!currentFurnitureGesture(d.store,d.intent)){cancel();onMessage(message(language.current,'dragRetry'));return null;}
+    if(d.store!==activeStore.current||current.localGeneration!==d.generation||d.kind==='furniture'&&(!currentFurnitureGesture(d.store,d.intent)||controlledSelectionRef.current&&selectedFurnitureRef.current!==d.intent.id)){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const raw:Point2=[d.start[0]+motion.delta[0]/viewRef.current.scale,d.start[1]+motion.delta[1]/viewRef.current.scale];
     const target=raw[0]===d.start[0]&&raw[1]===d.start[1]?d.start:d.kind==='junction'?snapAt(raw,null,false,shift,d.junction):raw;d.last=target;
     if(d.touch)setLoupe({point:motion.point,world:target});return target;
   };
-  const dragCommand=(d:Drag,to:Point2,shift:boolean)=>d.kind==='junction'?{id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:junctionMoves(d.store.getSnapshot().document,d.junction,to)}:furnitureGestureCommand(d.intent,to,shift||toolRef.current?.getSnapshot().snappingEnabled===false||d.intent.mode==='rotate'&&freeRotationRef.current,snapGridStep(viewRef.current.scale));
+  const dragCommand=(d:Drag,to:Point2,shift:boolean)=>{
+    if(d.kind==='junction')return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:junctionMoves(d.store.getSnapshot().document,d.junction,to)};
+    const result=advisories.gesture(d.store.getSnapshot().document,d.intent,to,shift||toolRef.current?.getSnapshot().snappingEnabled===false||d.intent.mode==='rotate'&&freeRotationRef.current,snapGridStep(viewRef.current.scale),viewRef.current.scale,furnitureSnapKey.current);
+    furnitureSnapKey.current=result.snap?.key??null;setBackSnap(result.snap);return result.command;
+  };
+
   const previewMotion = (motion:DragMotion,shift:boolean) => {
     const to=targetFor(motion,shift),d=drag.current;if(!to||!d)return;
-    if(to[0]===d.start[0]&&to[1]===d.start[1]){setPreview(null);return;}
+    if(to[0]===d.start[0]&&to[1]===d.start[1]){resetSnap();setPreview(null);return;}
     const started=performance.now();
     try{const result=d.store.preview(dragCommand(d,to,shift));setPreview(result);onTiming?.('preview',performance.now()-started);if(!result.ok)onMessage(editError(language.current,result.errors[0]));}catch{setPreview(null);onMessage(message(language.current,'furnitureValuesInvalid'));}
   };
@@ -167,6 +179,11 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     };
     element.addEventListener('wheel', wheel, { passive: false }); return () => element.removeEventListener('wheel', wheel);
   }, []);
+  const precision=precisionPreview?.projectId===snapshot.document.id&&precisionPreview.sessionId===snapshot.sessionId&&precisionPreview.generation===snapshot.localGeneration&&precisionPreview.result.ok?precisionPreview.result:null;
+  const visiblePreview=toolState?.preview?.ok?toolState.preview:preview?.ok&&drag.current?.generation===snapshot.localGeneration?preview:precision;
+  const visibleDocument=visiblePreview?visiblePreview.document:snapshot.document;
+  const advisoryId=previewFurnitureId??(selection!==undefined?singleFurnitureId:picked?.kind==='furniture'?picked.id:undefined),advisoryItem=visibleDocument.furniture.find(f=>f.id===advisoryId);
+  const advisory=useMemo(()=>advisoryItem?advisories.check(visibleDocument,advisoryItem):null,[advisories,visibleDocument,advisoryItem]);
   useEffect(() => {
     const K = library.current, canvas = stage.current, layer=drawingLayer.current; if (!K || !canvas || !layer) return;
     // Keep the DOM canvas stable: removing a native touch target cancels its touch stream.
@@ -181,9 +198,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
         const sy = worldToScreen([0, y], view)[1]; layer.add(new K.Line({ points: [0, sy, size.width, sy], stroke: '#e4e9e5', strokeWidth: 1 }));
       }
     }
-    const precision=precisionPreview?.projectId===snapshot.document.id&&precisionPreview.sessionId===snapshot.sessionId&&precisionPreview.generation===snapshot.localGeneration&&precisionPreview.result.ok?precisionPreview.result:null;
-    const currentPreview = toolState?.preview?.ok ? toolState.preview : preview?.ok && drag.current?.generation === snapshot.localGeneration ? preview : precision;
-    const document = currentPreview ? currentPreview.document : snapshot.document, derived = currentPreview ? currentPreview.derived : snapshot.derived;
+    const document=visibleDocument,derived=visiblePreview?visiblePreview.derived:snapshot.derived;
     const labels: { x: number; y: number; width: number; text: string }[] = [];
     for (const [i, face] of derived.faces.entries()) {
       const room = document.rooms.find(r => r.id === face.roomId)!;
@@ -199,7 +214,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     }
     for (const object of document.furniture) {
       const p = worldToScreen([object.position.x, object.position.y], view);
-      layer.add(new K.Rect({ x: p[0], y: p[1], width: object.size.w * view.scale, height: object.size.d * view.scale, offsetX: object.size.w * view.scale / 2, offsetY: object.size.d * view.scale / 2, rotation: object.rotationDeg, fill: '#c8af90', stroke: (selection?selection.some(p=>p.kind==='furniture'&&p.id===object.id):picked?.kind==='furniture'&&picked.id===object.id)?'#b6723f':'#a38a6d', strokeWidth: 1, cornerRadius: 3 }));
+      layer.add(new K.Rect({ x: p[0], y: p[1], width: object.size.w * view.scale, height: object.size.d * view.scale, offsetX: object.size.w * view.scale / 2, offsetY: object.size.d * view.scale / 2, rotation: object.rotationDeg, fill: '#c8af90', stroke: object.id===advisoryId&&advisory?.overlap?'#a52e31':(selection?selection.some(p=>p.kind==='furniture'&&p.id===object.id):picked?.kind==='furniture'&&picked.id===object.id)?'#b6723f':'#a38a6d', strokeWidth: object.id===advisoryId&&advisory?.overlap?3:1, cornerRadius: 3 }));
     }
     for (const opening of document.openings) {
       const wall = document.walls.find(w => w.id === opening.wallId)!, a = document.junctions.find(j => j.id === wall.a)!, b = document.junctions.find(j => j.id === wall.b)!;
@@ -214,7 +229,7 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     }
     if(picked?.kind==='furniture'&&(!selection||selection.some(p=>p.kind==='furniture'&&p.id===picked.id))){
       const object=document.furniture.find(f=>f.id===picked.id);
-      if(object){const p=worldToScreen([object.position.x,object.position.y],view);layer.add(new K.Rect({x:p[0],y:p[1],width:object.size.w*view.scale,height:object.size.d*view.scale,offsetX:object.size.w*view.scale/2,offsetY:object.size.d*view.scale/2,rotation:object.rotationDeg,stroke:'#b6723f',strokeWidth:3,dash:[5,3]}));}
+      if(object){const p=worldToScreen([object.position.x,object.position.y],view);layer.add(new K.Rect({x:p[0],y:p[1],width:object.size.w*view.scale,height:object.size.d*view.scale,offsetX:object.size.w*view.scale/2,offsetY:object.size.d*view.scale/2,rotation:object.rotationDeg,stroke:object.id===advisoryId&&advisory?.overlap?'#a52e31':'#b6723f',strokeWidth:3,dash:[5,3]}));}
     }
     for (const label of labels) {
       layer.add(new K.Rect({ x: label.x, y: label.y - 4, width: label.width, height: 49, fill: 'rgba(255,255,255,0.92)', cornerRadius: 6 }));
@@ -228,11 +243,11 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     if(toolState?.anchor&&toolState.end){const a=worldToScreen(toolState.anchor,view),b=worldToScreen(toolState.end,view);layer.add(new K.Line({points:toolState.mode==='rectangle'?[a[0],a[1],b[0],a[1],b[0],b[1],a[0],b[1],a[0],a[1]]:[...a,...b],stroke:toolState.error?'#b33d3d':'#b6723f',strokeWidth:3,dash:[7,4]}));}
     if(boxPreview)layer.add(new K.Rect({x:Math.min(boxPreview.a[0],boxPreview.b[0]),y:Math.min(boxPreview.a[1],boxPreview.b[1]),width:Math.abs(boxPreview.a[0]-boxPreview.b[0]),height:Math.abs(boxPreview.a[1]-boxPreview.b[1]),fill:'rgba(59,138,148,0.1)',stroke:'#3b8a94',strokeWidth:1,dash:[5,3]}));
     canvas.batchDraw();
-  }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale, toolState, precisionPreview, snapTarget, selection, boxPreview]);
+  }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale, toolState, precisionPreview, snapTarget, selection, boxPreview, visibleDocument, visiblePreview, advisory, advisoryId]);
   const handleDocument=preview?.ok&&drag.current?.generation===snapshot.localGeneration?preview.document:snapshot.document,handleItem=singleFurnitureId?handleDocument.furniture.find(f=>f.id===singleFurnitureId):undefined;
   const handleAngle=(handleItem?.rotationDeg??0)*Math.PI/180,handleDistance=(handleItem?.size.d??0)/2+36/view.scale,handlePoint=handleItem?worldToScreen([handleItem.position.x+Math.sin(handleAngle)*handleDistance,handleItem.position.y-Math.cos(handleAngle)*handleDistance],view):undefined;
   return <div ref={host} className="plan-canvas" role="application" aria-label={message(locale, 'canvas2d')} tabIndex={0} data-testid="plan-canvas"
-    data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id} data-snap-kind={snapTarget?.kind} data-selection-count={selection?.length??0}
+    data-advisory-id={advisoryId??''} data-furniture-overlap={advisory?.overlap??false} data-wall-alignment={backSnap?.key??''} data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id} data-snap-kind={snapTarget?.kind} data-selection-count={selection?.length??0}
     onPointerDown={event=>{
       if(event.button!==0&&event.button!==1)return;
       const live=store.getSnapshot();if(live.document.id!==snapshot.document.id||live.sessionId!==snapshot.sessionId||live.localGeneration!==snapshot.localGeneration){cancel();onMessage(message(locale,'dragRetry'));return;}
@@ -295,10 +310,12 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
         clearEdit();if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);return;
       }
       if(step.commit){
-        const to=targetFor(step.commit,event.shiftKey),d=drag.current;clearEdit();
-        if(to&&d&&(to[0]!==d.start[0]||to[1]!==d.start[1])){
-          const started=performance.now();try{const result=store.execute(dragCommand(d,to,event.shiftKey));onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,d.kind==='furniture'?'furnitureApplied':'cornerUpdated'):editError(locale,result.errors[0]));}catch{onMessage(message(locale,'furnitureValuesInvalid'));}
-        }
+        const to=targetFor(step.commit,event.shiftKey),d=drag.current;
+        let command:ReturnType<typeof dragCommand>|null=null;
+        try{if(to&&d&&(to[0]!==d.start[0]||to[1]!==d.start[1]))command=dragCommand(d,to,event.shiftKey);}catch{onMessage(message(locale,'furnitureValuesInvalid'));}
+        clearEdit();
+        if(command){const started=performance.now();try{const result=store.execute(command);onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,d?.kind==='furniture'?'furnitureApplied':'cornerUpdated'):editError(locale,result.errors[0]));}catch{onMessage(message(locale,'furnitureValuesInvalid'));}}
+
       }else applyStep(step);
       if(step.tap&&!rotateTap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);onPick?.(chosen,multiple||event.shiftKey);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}
       if(event.currentTarget.hasPointerCapture(event.pointerId))event.currentTarget.releasePointerCapture(event.pointerId);
@@ -307,6 +324,8 @@ export function PlanCanvas({ store, snapshot, selected, onSelect, onMessage, zoo
     {handlePoint&&(!toolState||toolState.mode==='select')&&<button type="button" className="furniture-rotate-handle" data-furniture-rotate data-testid="furniture-rotate-handle" aria-label={message(locale,'furnitureRotateHandle')} style={{left:handlePoint[0]-24,top:handlePoint[1]-24}} onClick={event=>{if(event.detail!==0||!singleFurnitureId)return;if(!store.getSnapshot().document.furniture.some(item=>item.id===singleFurnitureId)){onMessage(message(locale,'dragRetry'));return;}const result=store.execute(furnitureStepCommand(store.getSnapshot(),singleFurnitureId,{rotation:15}));onMessage(result.ok?message(locale,'furnitureApplied'):editError(locale,result.errors[0]));}}>↻</button>}
     {handleItem&&<label className="furniture-free-rotation" onPointerDown={event=>event.stopPropagation()}><input type="checkbox" checked={freeRotation} onChange={event=>{cancel();setFreeRotation(event.target.checked);}}/>{message(locale,'furnitureFreeRotation')}</label>}
     <div ref={mount} className="konva-mount" />
+    {backSnap&&<span className="furniture-snap-note" role="status">{message(locale,'furnitureBackSnapped')}</span>}
+    {advisory&&<div className="canvas-furniture-advisory"><FurnitureWarning advisory={advisory} locale={locale}/></div>}
     {!ready && <span className="canvas-loading">{message(locale, 'loadingPlan')}</span>}
     <span className="canvas-hint">{message(locale, 'planHint')}</span>
     {loupe&&<TouchLoupe point={loupe.point} world={loupe.world} view={view} size={size} snapshot={snapshot} preview={toolState?.preview??preview} locale={locale} />}

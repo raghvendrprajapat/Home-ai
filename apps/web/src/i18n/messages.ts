@@ -183,6 +183,14 @@ export const messages = {
   orthogonalError: ['Walls must stay horizontal or vertical.', 'दीवारें क्षैतिज या ऊर्ध्वाधर रखें।'],
   crossingError: ['Crossing or overlapping walls are not allowed here.', 'यहाँ दीवारों को आर-पार या एक-दूसरे पर नहीं रख सकते।'],
   areaError: ['A closed space must have positive inside area. Make more room between walls.', 'बंद जगह के अंदर क्षेत्रफल शून्य से बड़ा होना चाहिए। दीवारों के बीच और जगह रखें।'],
+ furnitureAlign: ['Align back to nearby wall', 'पीछे का किनारा पास की दीवार से लगाएँ'],
+ furnitureAlignHelp: ['Aligns a parallel back edge to an exposed wall side within 200 mm. It does not rotate the object.', '200 मिमी के भीतर समानांतर पिछला किनारा दीवार के खुले हिस्से से लगता है। वस्तु घूमती नहीं है।'],
+ furnitureAlignNone: ['No supported wall side within 200 mm. Turn the back parallel to a nearby wall and try again.', '200 मिमी में सहारा देने वाली दीवार नहीं मिली। पिछला किनारा पास की दीवार के समानांतर करके फिर कोशिश करें।'],
+ furnitureAligned: ['Back edge aligned in the draft. Apply to keep it.', 'ड्राफ़्ट में पिछला किनारा लग गया। रखने के लिए लागू करें।'],
+ furnitureOverlap: ['Overlap warning: {walls} wall(s), {objects} other object(s). Placement is still allowed.', 'ओवरलैप चेतावनी: {walls} दीवारें, {objects} अन्य वस्तुएँ। फिर भी रखना संभव है।'],
+ furnitureClear: ['No dimension-box overlap detected.', 'आकार के बॉक्स का ओवरलैप नहीं मिला।'],
+ furnitureAdvisoryUnavailable: ['Wall assistance is unavailable for this drawing. Precise editing and deliberate placement still work.', 'इस ड्रॉइंग में दीवार सहायता उपलब्ध नहीं है। सटीक बदलाव और अपनी पसंद की जगह रखना जारी है।'],
+ furnitureBackSnapped: ['Back edge aligned to wall', 'पिछला किनारा दीवार से लगा'],
 } as const satisfies Record<string, readonly [string, string]>;
 export type MessageKey = keyof typeof messages;
 type Slots<S extends string> = S extends `${string}{${infer Key}}${infer Rest}` ? Key | Slots<Rest> : never;
