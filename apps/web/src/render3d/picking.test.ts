@@ -6,7 +6,7 @@ import type {ProjectDoc} from '@gharplan/core-model';
 import {SceneAdapter} from './scene';
 import {buildScene} from './mesh';
 import {openingBounds} from './camera';
-import {pickRay,visibleMeshes,PickGesture} from './picking';
+import {pickRay,furnitureRayHit,visibleMeshes,PickGesture} from './picking';
 const demo=()=>structuredClone(sample) as ProjectDoc;
 const down=(x:number,z:number,y=8)=>new THREE.Raycaster(new THREE.Vector3(x,y,z),new THREE.Vector3(0,-1,0));
 it.each(['low','mid']as const)('actual %s structural rays resolve room IDs and never intersect hidden ceiling/original meshes',tier=>{
@@ -32,4 +32,10 @@ it('gesture ownership rejects orbit, pinch, outside fingers, cancellation and st
 
 it('interruption cancels the candidate while physically held IDs block a later finger until every release',()=>{
  const g=new PickGesture();g.begin(1,[0,0],'tag');g.cancel();g.begin(2,[0,0],'tag');expect(g.end(2,[0,0],'tag')).toBe(false);expect(g.end(1,[0,0],'tag')).toBe(false);g.begin(3,[0,0],'tag');expect(g.end(3,[0,0],'tag')).toBe(true);
+});
+
+it('transform grabs return actual visible/instance world hit height and preserve nearest structural occlusion',()=>{
+ const doc=demo(),f=doc.furniture[0]!;doc.furniture=Array.from({length:3},(_,i)=>({...f,id:`grab_${i}`,position:{x:2000+i*5000,y:2000},elevation:300,size:{w:1000,d:600,h:800}}));const adapter=new SceneAdapter('low');adapter.apply(buildScene(doc),doc);
+ for(let i=0;i<3;i++){const hit=furnitureRayHit(down(2+i*5,2),adapter.group,doc);expect(hit?.id).toBe(`grab_${i}`);expect(hit!.point[1]).toBeCloseTo(1.1,7);expect(hit!.point[0]).toBeCloseTo(2+i*5,10);}
+ expect(furnitureRayHit(new THREE.Raycaster(new THREE.Vector3(2,1,-2),new THREE.Vector3(0,0,1)),adapter.group,doc)).toBe(null);adapter.group.visible=false;expect(furnitureRayHit(down(2,2),adapter.group,doc)).toBe(null);adapter.dispose();
 });
