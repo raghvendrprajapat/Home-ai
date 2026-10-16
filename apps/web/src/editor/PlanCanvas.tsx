@@ -1,3 +1,4 @@
+import {materialColor,wallSurfaceStrips} from './surface-materials';
 import {FurnitureAdvisories} from './furniture-advisories';
 import {FurnitureWarning} from './FurnitureWarning';
 import type {BackAlignment} from './furniture-spatial';
@@ -200,17 +201,19 @@ export function PlanCanvas({ advisories:providedAdvisories,previewFurnitureId,st
     }
     const document=visibleDocument,derived=visiblePreview?visiblePreview.derived:snapshot.derived;
     const labels: { x: number; y: number; width: number; text: string }[] = [];
-    for (const [i, face] of derived.faces.entries()) {
+    for (const face of derived.faces) {
       const room = document.rooms.find(r => r.id === face.roomId)!;
-      for (const polygon of face.clearPolygons) layer.add(new K.Line({ points: polygon.flatMap(p => [...worldToScreen(p, view)]), closed: true, fill: picked?.kind==='room'&&picked.id===room.id?'#f5e5ce':i % 2 ? '#e9ede2' : '#e5efe9', stroke: '#c9dacf', strokeWidth: 1 }));
+      for (const polygon of face.clearPolygons) layer.add(new K.Line({ points: polygon.flatMap(p => [...worldToScreen(p, view)]), closed: true, fill:materialColor(document,room.floorMaterial), stroke:picked?.kind==='room'&&picked.id===room.id?'#b6723f':'#c9dacf', strokeWidth:picked?.kind==='room'&&picked.id===room.id?2:1 }));
       const biggest = [...face.clearRects].sort((a, b) => (b[2] - b[0]) * (b[3] - b[1]) - (a[2] - a[0]) * (a[3] - a[1]))[0]!;
       const p = worldToScreen([(biggest[0] + biggest[2]) / 2, (biggest[1] + biggest[3]) / 2], view);
       const width = Math.min(140, (biggest[2] - biggest[0]) * view.scale - 12);
       const area = areaDisplay(face.clearAreaMm2, document.units);
       if (width >= 60) labels.push({ x: p[0] - width / 2, y: p[1] - 21, width, text: `${room.name}\n${area.value} ${area.unit}` });
     }
-    for (const { rect: [x1, y1, x2, y2], ownerId } of derived.footprints) {
-      const p = worldToScreen([x1, y1], view); layer.add(new K.Rect({ x: p[0], y: p[1], width: (x2 - x1) * view.scale, height: (y2 - y1) * view.scale, fill: (selection?selection.some(p=>p.kind==='wall'&&p.id===ownerId):picked?.kind==='wall'&&picked.id===ownerId)?'#b6723f':'#42534b' }));
+    for (const piece of derived.footprints) {
+      for(const strip of wallSurfaceStrips(document,piece)){const [x0,y0,x1,y1]=strip.rect,p=worldToScreen([x0,y0],view);layer.add(new K.Rect({x:p[0],y:p[1],width:(x1-x0)*view.scale,height:(y1-y0)*view.scale,fill:strip.color}));}
+      const [x0,y0,x1,y1]=piece.rect,p=worldToScreen([x0,y0],view),chosen=selection?selection.some(p=>p.kind==='wall'&&p.id===piece.ownerId):picked?.kind==='wall'&&picked.id===piece.ownerId;
+      layer.add(new K.Rect({x:p[0],y:p[1],width:(x1-x0)*view.scale,height:(y1-y0)*view.scale,stroke:chosen?'#b6723f':'#42534b',strokeWidth:chosen?2:.75}));
     }
     for (const object of document.furniture) {
       const p = worldToScreen([object.position.x, object.position.y], view);

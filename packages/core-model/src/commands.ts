@@ -1,9 +1,11 @@
 import { assignRooms, bounds, candidatePairs, derivePlan, endpoints, freshId, GeometryError, normalizePlan, wallLength } from '@gharplan/geometry';
 import type { Draft } from 'immer';
-import type { FurnitureItem, Opening, ProjectDoc, Room, RoomType, Wall } from './types';
+import type { FurnitureItem, MaterialDef, Opening, ProjectDoc, Room, RoomType, Wall } from './types';
+import {canonicalStringify} from './serialization';
 import type { RoomIdentityChoice } from '@gharplan/geometry';
 
 interface CommandBase { id: string; baseGeneration: number; roomChoices?: readonly RoomIdentityChoice[] }
+export type SurfaceMaterialTarget={kind:'wall';id:string;side:'left'|'right'}|{kind:'floor';id:string};
 export type Command = CommandBase & (
   | { type: 'AddWall'; from: readonly [number, number]; to: readonly [number, number]; thickness: number; height: number }
   | { type: 'AddRectangle'; x: number; y: number; width: number; depth: number; thickness: number; height: number }
@@ -12,6 +14,7 @@ export type Command = CommandBase & (
   | { type: 'DeleteWall'; wallId: string; deleteDependents: boolean }
   | { type: 'ReverseWall'; wallId: string }
   | { type: 'UpdateWall'; wallId: string; properties: Partial<Pick<Wall, 'thickness' | 'height' | 'leftMaterial' | 'rightMaterial'>> }
+  | { type:'ApplySurfaceMaterial';target:SurfaceMaterialTarget;material:MaterialDef }
   | { type: 'AddOpening'; opening: Omit<Opening, 'rev'> }
   | { type: 'UpdateOpening'; openingId: string; properties: Partial<Pick<Opening, 'offset' | 'width' | 'height' | 'sill' | 'flipX' | 'flipY'>> }
   | { type: 'DeleteOpening'; openingId: string }
@@ -131,6 +134,18 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       geometryChanged = true; break;
     }
     case 'UpdateWall': assignProperties(wall(command.wallId), command.properties, ['thickness', 'height', 'leftMaterial', 'rightMaterial']); geometryChanged = true; break;
+    case 'ApplySurfaceMaterial': {
+      const {target,material}=command;
+      if(!target||typeof target!=='object'||!['wall','floor'].includes(target.kind)||typeof target.id!=='string'||target.kind==='wall'&&!['left','right'].includes(target.side)||!material||typeof material!=='object'||Array.isArray(material))throw new GeometryError('command-properties','Choose a valid wall side or room floor and material.');
+      const existing=draft.materials.find(m=>m.id===material.id);
+      if(existing&&canonicalStringify(existing)!==canonicalStringify(material))throw new GeometryError('material-conflict','This material ID already has a different definition.',[material.id]);
+      // One atomic paint transaction also installs a new local-library definition.
+      // Existing definitions are never overwritten or silently recoloured elsewhere.
+      if(!existing)draft.materials.push({...material});
+      if(target.kind==='wall'){const w=wall(target.id);if(target.side==='left')w.leftMaterial=material.id;else w.rightMaterial=material.id;}
+      else requireEntity(draft.rooms,target.id).floorMaterial=material.id;
+      break;
+    }
     case 'AddOpening': draft.openings.push({ ...command.opening, rev: 0 }); break;
     case 'UpdateOpening': assignProperties(requireEntity(draft.openings, command.openingId), command.properties, ['offset', 'width', 'height', 'sill', 'flipX', 'flipY']); break;
     case 'DeleteOpening': requireEntity(draft.openings, command.openingId); draft.openings.splice(draft.openings.findIndex(o => o.id === command.openingId), 1); break;
@@ -249,9 +264,11 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
     const old = new Map<string, { id: string }>(previous[group].map(e => [e.id, e]));
     for (const e of draft[group]) {
       const oldEntity = old.get(e.id), ownChange = JSON.stringify(e) !== JSON.stringify(oldEntity);
-      const geometryDependency = group === 'walls' && (dirtyWalls.has(e.id) || changed.has((e as Wall).a) || changed.has((e as Wall).b)) ||
+      // Surface paint changes one binding, not hosted geometry or room boundaries.
+      // Scene material dependencies are derived separately from canonical IDs.
+      const geometryDependency = command.type!=='ApplySurfaceMaterial'&&(group === 'walls' && (dirtyWalls.has(e.id) || changed.has((e as Wall).a) || changed.has((e as Wall).b)) ||
         group === 'rooms' && ((e as Room).boundary.some(id => changed.has(id)) || draft.walls.some(w => changed.has(w.id) && (e as Room).boundary.includes(w.a) && (e as Room).boundary.includes(w.b))) ||
-        group === 'openings' && changed.has((e as Opening).wallId);
+        group === 'openings' && changed.has((e as Opening).wallId));
       if (ownChange || geometryDependency) {
         changed.add(e.id);
         if ('rev' in e) e.rev = oldEntity && 'rev' in oldEntity ? (oldEntity.rev as number) + 1 : 0;

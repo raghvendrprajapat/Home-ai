@@ -1,0 +1,384 @@
+{
+  "task": "PH4-T04 stage C visible surface colours",
+  "date": "2026-10-16",
+  "scope": "Visible canonical wall-side/floor colours and atomic local-library paint. Textures/furniture variants/physical200ms/external gates remain pending. No D36 work.",
+  "parent": {
+    "pr": 95,
+    "exactHead": "c05dc43101bcce0066607006fc02bd73ea83548c",
+    "run": 38903921169,
+    "checkRun": 116982649515,
+    "androidRun": 116986381435,
+    "both": "COMPLETED SUCCESS; CLEAN before SHA-guarded merge",
+    "mainMerge": "05ef6615de9d2d9f4756f637ab28b1a72902e42a"
+  },
+  "check": {
+    "productTests": 452,
+    "files": 65,
+    "elapsedSeconds": 23.43,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "newPermanentUnitCases": {
+    "count": 7,
+    "stripPropertyRuns": 100,
+    "stripSeed": 40403,
+    "expectedValues": "Codex analytic, not Claude fixtures; existing accepted fixtures unchanged."
+  },
+  "localBrowser": {
+    "wholeAppPassedTogether": 118,
+    "reportedElapsed": "8.2m",
+    "finalFocusedSurfaceCases": 10,
+    "focusedElapsed": "38.9s",
+    "browser": "Linux Chromium151.0.7922.173 with SwiftShader; CI156/rev1248 and physical phones distinct.",
+    "visibleWallFacePixels": {
+      "white": [
+        184,
+        187,
+        181,
+        255
+      ],
+      "blue": [
+        146,
+        168,
+        174,
+        255
+      ]
+    },
+    "exact2dAndPlanPngBlueRgba": [
+      188,
+      215,
+      234,
+      255
+    ],
+    "exact2dWhiteRgba": [
+      244,
+      244,
+      242,
+      255
+    ],
+    "planPngProjection": "Independent known sample envelope[-115,-115,8115,5115],2000px export; actual exact floor RGBA assertion.",
+    "retainedGpuBufferProbes": {
+      "low": {
+        "tier": "low",
+        "white": [
+          234,
+          233,
+          231,
+          255
+        ],
+        "blue": [
+          217,
+          225,
+          228,
+          255
+        ],
+        "restored": [
+          234,
+          233,
+          231,
+          255
+        ],
+        "bufferDataBaseline": 31,
+        "bufferDataAfter": 31,
+        "createdResources": 38
+      },
+      "mid": {
+        "tier": "mid",
+        "white": [
+          210,
+          210,
+          209,
+          255
+        ],
+        "blue": [
+          180,
+          195,
+          205,
+          255
+        ],
+        "restored": [
+          210,
+          210,
+          209,
+          255
+        ],
+        "bufferDataBaseline": 45,
+        "bufferDataAfter": 45,
+        "createdResources": 24
+      }
+    },
+    "inputAssertions": [
+      "Native delivered click after generation change, unchanged button rectangle, no paint/history",
+      "Native held Space cannot retarget opposite side; fresh Enter paints once",
+      "Same-model2D\u21923D\u21922D roundtrip with same final rectangle and native delivered click cannot revive intent",
+      "Native second touch cancels until all fingers lift; fresh single tap works",
+      "Injected lost pointer-up plus blur; positively verified trusted primary native touch recovers",
+      "Actual20px release with pointermove delivery blocked and native click delivered rejects unchanged model/history"
+    ]
+  },
+  "regressions": {
+    "initialUnit": {
+      "passed": 6,
+      "failed": 1,
+      "failure": "Unchanged room inherited conservative geometry revision increment",
+      "fix": "Pure paint increments direct entity revisions only; exact room assertion retained."
+    },
+    "initialBrowser": {
+      "passed": 5,
+      "failed": 1,
+      "failure": "New Hindi navigation locator wrongly requested English Done",
+      "fix": "Observed Hindi \u0935\u093e\u092a\u0938 button; original assertions retained."
+    },
+    "blurLostRelease": {
+      "beforeFixFailed": 1,
+      "afterFocusedPassed": 9,
+      "testScope": "Injected lost pointer stream, actual trusted primary new touch positively verified."
+    },
+    "finalRelease": {
+      "beforeFixFailed": 1,
+      "afterFocusedPassed": 10,
+      "testScope": "Actual move delivery blocked; native same-button20px release/click delivered; final6px acceptance enforced."
+    }
+  },
+  "productionBuild": {
+    "initialGzipBytes": 176946,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": {
+    "result": "BUILD SUCCESSFUL in31s",
+    "tasks": 170,
+    "executed": 40,
+    "upToDate": 130
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "4f4e43b8434f91d20876336064c36b8783891a10e1a24e0922ed62ed34ce32c3",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packagedBytes": {
+    "sha256": "4f4e43b8434f91d20876336064c36b8783891a10e1a24e0922ed62ed34ce32c3",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "apkV2SignatureVerified": true,
+  "packagedFeatureBytes": {
+    "packagedSurfaceColoursLiteral": true,
+    "packagedAtomicPaintCommand": true
+  },
+  "actualGpuRecoveryMs": 825.6999999284744,
+  "rendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 9428636
+      },
+      {
+        "cycles": 16,
+        "usedSize": 10263048
+      },
+      {
+        "cycles": 26,
+        "usedSize": 10430348
+      }
+    ],
+    "baseline": {
+      "usedSize": 10530648,
+      "totalSize": 11505664,
+      "embedderHeapUsedSize": 2038280,
+      "backingStorageSize": 1568187
+    },
+    "after": {
+      "usedSize": 11084956,
+      "totalSize": 11767808,
+      "embedderHeapUsedSize": 2235264,
+      "backingStorageSize": 1568194
+    },
+    "heapGrowth": 0.05263759647079658,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 1,
+    "documentKeyboardAfter": 1
+  },
+  "protectedInputs": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "runtimeSourceSha256": {
+    "apps/web/src/App.tsx": "a5731ff3d034a2c8e577eed9f39929cf51d75a0baa85677780d9c22f5efc6e9f",
+    "apps/web/src/app.css": "77ff601aa752c215a8e1a6443cfa93beb2e8f3492fe2d5438e9d147ec58ab1b7",
+    "apps/web/src/editor/DrawingControls.tsx": "a1a6e8a05ae2e7c5495271cffe748783f1aeb4b7d515652f8d0570e364ac801a",
+    "apps/web/src/editor/PlanCanvas.tsx": "dc5872a5ec1fa354bef4b1e4d2a7b97176db36eae44f07932eb104d920c97173",
+    "apps/web/src/editor/plan-image.ts": "5373d55603804c20ebc884e146cc9ce8283e93f78ecb4196f4d253c63c2e6fbf",
+    "apps/web/src/i18n/messages.ts": "126feec3400742100d087b85a5f060a35b6135dfcb3e7a8ce2f01283714860ec",
+    "packages/core-model/src/commands.ts": "dafe9507e1f429311ee49c60e5507bcdb140281a29271487ac0b404943d6229d",
+    "apps/web/src/editor/SurfaceControls.tsx": "aeb06c4c0da83acfaadacfb0f4a6d7c7774ed9aa4371e1e78c597cfc4736f90c",
+    "apps/web/src/editor/material-library.ts": "eac661517458cf0c15e771e2e101b74173bb9be9b9040037efeaf4fc1936e331",
+    "apps/web/src/editor/surface-materials.ts": "717bcee87e6d60a027e11dca0ae48ddf9b3cd4acd51d3645dbdb92a848c9d43f"
+  },
+  "diagnoses": [
+    "Initial mutable ProjectDoc helper types rejected immutable snapshots; helpers accept the actual immutable snapshot document type, with no casts/mutations.",
+    "Pure paint direct-revision semantics avoid unrelated room/opening changes; renderer dirty relationships derive material IDs independently.",
+    "No assertion/timeout/fixture/performance threshold loosened.",
+    "Original and additional regressions pass together in the final118case run.",
+    "Flat2D/PNG base RGB legitimately differs from lit3DPBR; IDs and directed-side assignment remain shared.",
+    "Android debug compilation/packaging only;9cached native helper reports/15existing lint warnings, no phone execution.",
+    "Warmed renderer main-frame diagnostics exclude worker/native/driver/whole-process memory."
+  ],
+  "pending": [
+    "Material textures/patterns and broader externally reviewed visual baseline",
+    "Furniture variants (Should)",
+    "Physical200ms/Low-Mid/native-provider/accessibility/external gates",
+    "Catalog breadth/split view/other authorized editor controls",
+    "All D36 accounts/cloud/mobileoptimization/sharing/billing/security/privacy/release/final-Claude scopes"
+  ],
+  "evidenceBaseHead": "6dd2c55e4efb035466aea1e7ae0f63b5987daf97",
+  "failedCi": {
+    "head": "6dd2c55e4efb035466aea1e7ae0f63b5987daf97",
+    "run": 38908175057,
+    "checkRun": 116996968042,
+    "check": "FAILURE",
+    "androidDebug": "SKIPPED",
+    "browserPassed": 117,
+    "browserFailed": 1,
+    "failure": "Positive unchanged button-rectangle precondition failed before pointer release",
+    "expectedY": 315.3125,
+    "receivedY": 343,
+    "width": 122,
+    "height": 90,
+    "x": 970,
+    "merged": false,
+    "causality": "Observed rectangle movement; no product paint commit or exact historical scroll/focus mechanism proven."
+  },
+  "testHarnessCorrection": {
+    "scope": "Test/docs only; all10runtime source hashes equal the base head. Original runtime118case/debug/GPU/memory evidence remains tied to base head.",
+    "inputChange": "DOM unit-change event retained; original driver-scrolling hypothesis was not confirmed and did not resolve CI.",
+    "retained": [
+      "exact unchanged button rectangle",
+      "positively delivered native click",
+      "canonical units actually imperial",
+      "unchanged walls/rooms/materials/junctions/openings/furniture",
+      "one Undo restores exact original; Undo then disabled"
+    ],
+    "check": {
+      "productTests": 452,
+      "files": 65,
+      "elapsedSeconds": 23.63,
+      "toolingTests": 18,
+      "failed": 0,
+      "skipped": 0
+    },
+    "correctedFocused": {
+      "passed": 10,
+      "elapsed": "39.2s"
+    },
+    "testSha256": "8ea4888a0cf18a579ef8e544d53fe217cded810235983b384b0b384d54edeed8",
+    "correctedWhole118Local": "Not rerun for this test-only correction; original118runtime plus corrected10focused evidence, exact-head CI must rerun all118.",
+    "finalCi": "FAILURE: see secondFailedCi; never merged"
+  },
+  "secondFailedCi": {
+    "head": "ea033d77595c41d83018258068c07fe4a28a5005",
+    "run": 38910590646,
+    "checkRun": 117005130816,
+    "check": "FAILURE",
+    "androidRun": 117009270290,
+    "androidDebug": "SKIPPED",
+    "browserPassed": 117,
+    "browserFailed": 1,
+    "failure": "Same exact rectangle Y315.3125 to343 precondition before pointerup",
+    "merged": false,
+    "inference": "First driver-scrolling hypothesis insufficient; selectOption source does not establish such scrolling."
+  },
+  "settledUiCorrection": {
+    "scope": "Test/docs only. Preserve native held input, exact rectangle, positive delivered click, all entity/history assertions.",
+    "change": "Wait for actual saved phase after confirmed imperial units and before exact rectangle equality/pointerup; add CI phase/text/scroll/focus/layout annotations.",
+    "diagnostic": "Chromium151 with save debounce held1800ms and2animationframes: saved/saving/saved all x970,y315.3125,w122,h90; Retry appears in same row. Did not reproduce CI movement.",
+    "historicalCause": "UNKNOWN. Save-controls have transient UI; waiting saved is an explicit settled-phase precondition, not proof of CI movement mechanism.",
+    "localCheck": {
+      "product": 452,
+      "tooling": 18,
+      "elapsedSeconds": 35.61,
+      "failed": 0,
+      "skipped": 0
+    },
+    "focusedBrowser": {
+      "passed": 10,
+      "elapsed": "49.6s",
+      "browser": "LocalChromium151/SwiftShader"
+    },
+    "finalCi": "PENDING",
+    "layoutEvidence": {
+      "before": {
+        "x": 970,
+        "y": 315.3125,
+        "width": 122,
+        "height": 90
+      },
+      "after": {
+        "x": 970,
+        "y": 315.3125,
+        "width": 122,
+        "height": 90
+      },
+      "phase": "saved",
+      "saveText": "Saved in this browser on this device.",
+      "scrollY": 670,
+      "active": "BUTTON"
+    },
+    "testSha256": "9612d7a0d4a4cf896d11c221dbd0770feb641752b9b4718743e66f453f587a3a"
+  }
+}

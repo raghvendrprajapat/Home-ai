@@ -657,3 +657,8 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .furniture-three-tools label { background:#fff; padding:.2rem .45rem; font-size:.75rem; }
 
 .furniture-three-tools > p { flex-basis:100%; margin:.2rem; font-size:.75rem; }
+
+.surface-palette{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:12px;}
+.surface-palette button{display:flex;align-items:center;gap:8px;min-height:48px;text-align:start;white-space:normal;overflow-wrap:anywhere;padding:8px;}
+.surface-palette button[aria-pressed=true]{outline:2px solid #3b7255;outline-offset:1px;}
+.surface-chip{width:24px;height:24px;flex:none;border:1px solid #637466;border-radius:5px;}

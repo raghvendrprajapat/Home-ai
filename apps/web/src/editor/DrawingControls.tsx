@@ -49,7 +49,8 @@ export function RoomControls({store,locale,onMessage,selectedRoomId}:{store:Proj
  useEffect(()=>{if(selectedRoomId&&snapshot.document.rooms.some(r=>r.id===selectedRoomId))setSelected(selectedRoomId);},[selectedRoomId]);
  const [name,setName]=useState(''),[type,setType]=useState<RoomType>('other'),[height,setHeight]=useState('3000'),[material,setMaterial]=useState('');
  useEffect(()=>{if(!room)setSelected(snapshot.document.rooms[0]?.id??'');},[room,snapshot]);
- useEffect(()=>{if(room){setName(room.name);setType(roomTypes.find(t=>t===room.type)??'other');setHeight(String(room.ceilingHeight));setMaterial(room.floorMaterial);}},[room]);
+ useEffect(()=>{if(room){setName(room.name);setType(roomTypes.find(t=>t===room.type)??'other');setHeight(String(room.ceilingHeight));}},[room?.id,room?.name,room?.type,room?.ceilingHeight]);
+ useEffect(()=>{if(room)setMaterial(room.floorMaterial);},[room?.id,room?.floorMaterial]);
  if(!room)return null;
  return <section className="drawing-controls" aria-label={message(locale,'roomProperties')}><h3>{message(locale,'roomProperties')}</h3><label>{message(locale,'selectedRoom')}<select aria-label={message(locale,'selectedRoom')} value={selected} onChange={e=>setSelected(e.target.value)}>{snapshot.document.rooms.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label>
   <form onSubmit={e=>{e.preventDefault();if(!name.trim()||!height.trim()||!Number.isSafeInteger(Number(height))){onMessage(message(locale,'invalidEdit'));return;}const result=store.execute({id:`room_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:snapshot.localGeneration,type:'UpdateRoom',roomId:room.id,properties:{name:name.trim(),type,ceilingHeight:Number(height),floorMaterial:material}});onMessage(result.ok?message(locale,'roomUpdated'):editError(locale,result.errors[0]));}}>
