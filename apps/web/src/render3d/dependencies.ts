@@ -2,12 +2,12 @@ import { canonicalStringify } from '@gharplan/core-model';
 import type { ProjectDoc } from '@gharplan/core-model';
 
 /** Fields read by CPU structural derivation; visual material definitions stay GPU-owned. */
-export function geometryDependencies(d:ProjectDoc){return {
+export function geometryDependencies(d:ProjectDoc){const scales=new Map(d.materials.map(m=>[m.id,m.uvScaleMm??1000]));return {
  floors:d.floors.map(f=>({id:f.id,elevation:f.elevation})),
  junctions:d.junctions.map(({id,floorId,x,y})=>({id,floorId,x,y})),
- walls:d.walls.map(({id,floorId,a,b,thickness,height,leftMaterial,rightMaterial})=>({id,floorId,a,b,thickness,height,leftMaterial,rightMaterial})),
+ walls:d.walls.map(({id,floorId,a,b,thickness,height,leftMaterial,rightMaterial})=>({id,floorId,a,b,thickness,height,leftUvScale:scales.get(leftMaterial)??1000,rightUvScale:scales.get(rightMaterial)??1000})),
  openings:d.openings.map(({id,wallId,kind,offset,width,height,sill})=>({id,wallId,kind,offset,width,height,sill})),
- rooms:d.rooms.map(({id,floorId,boundary,ceilingHeight,floorMaterial})=>({id,floorId,boundary,ceilingHeight,floorMaterial})),
+ rooms:d.rooms.map(({id,floorId,boundary,ceilingHeight,floorMaterial})=>({id,floorId,boundary,ceilingHeight,floorUvScale:scales.get(floorMaterial)??1000})),
  uv:d.materials.map(m=>({id:m.id,scale:m.uvScaleMm??1000})),
 };}
 export interface SceneInvalidation {geometryChanged:boolean;dirtyEntityIds:string[];furnitureIds:string[];materialIds:string[];removedIds:string[]}
@@ -18,6 +18,8 @@ export function sceneInvalidation(previous:ProjectDoc|null,next:ProjectDoc):Scen
  const empty={...next,floors:[],junctions:[],walls:[],openings:[],rooms:[],furniture:[],materials:[]} as ProjectDoc;
  const old=previous??empty,a=geometryDependencies(old),b=geometryDependencies(next);
  const dirty=new Set<string>(),junctions=changed(a.junctions,b.junctions),walls=changed(a.walls,b.walls),rooms=changed(a.rooms,b.rooms),openings=changed(a.openings,b.openings),uv=changed(a.uv,b.uv);
+ for(const id of changed(old.walls.map(w=>({id:w.id,left:w.leftMaterial,right:w.rightMaterial})),next.walls.map(w=>({id:w.id,left:w.leftMaterial,right:w.rightMaterial}))))walls.add(id);
+ for(const id of changed(old.rooms.map(r=>({id:r.id,material:r.floorMaterial})),next.rooms.map(r=>({id:r.id,material:r.floorMaterial}))))rooms.add(id);
  const elevation=canonicalStringify(a.floors)!==canonicalStringify(b.floors);
  for(const d of [old,next]){
   for(const o of d.openings)if(openings.has(o.id)){walls.add(o.wallId);dirty.add(o.id);}

@@ -1,3 +1,4 @@
+import {bindMeshMaterials,bindSceneMaterials,materialBindings,materialBindingKey} from './material-bindings';
 import { buildWallSolids, openingRect } from './solids';
 export { openingRect, subtractRectangle } from './solids';
 import { sceneInvalidation } from './dependencies';
@@ -7,7 +8,7 @@ import type { ProjectDoc } from '@gharplan/core-model';
 import type { MeshData, SceneBundle, CeilingWarning } from './types';
 
 type V3 = [number, number, number];
-interface Quad { axis: 0 | 1 | 2; at: number; rect: Rect; sign: -1 | 1; ownerId: string; materialId: string }
+interface Quad { axis: 0 | 1 | 2; at: number; rect: Rect; sign: -1 | 1; ownerId: string; materialId: string; slot: 'left' | 'right' }
 interface CacheEntry { signature: string; mesh: MeshData }
 type MeshCache = Map<string, CacheEntry>;
 const axes = (axis: number): [0 | 1 | 2, 0 | 1 | 2] => axis === 0 ? [1, 2] : axis === 1 ? [0, 2] : [0, 1];
@@ -29,13 +30,13 @@ function edgeLine(a: V3, b: V3): { key: string; axis: 0 | 1 | 2 } {
 function compactQuads(input: Quad[]): Quad[] {
   const groups = new Map<string, { face: Quad; rects: Rect[] }>();
   for (const q of input) {
-    const key = `${q.ownerId}:${q.axis}:${q.at}:${q.sign}:${q.materialId}`, group = groups.get(key) ?? { face: q, rects: [] };
+    const key = `${q.ownerId}:${q.axis}:${q.at}:${q.sign}:${q.slot}`, group = groups.get(key) ?? { face: q, rects: [] };
     group.rects.push(q.rect); groups.set(key, group);
   }
   return [...groups].sort(([a], [b]) => a.localeCompare(b)).flatMap(([, { face, rects }]) =>
     partitionRectangles(rects.map(rect => ({ rect, ownerId: face.ownerId }))).map(p => ({ ...face, rect: p.rect })));
 }
-function triangles(quads: Quad[], materialScales: Map<string, number>, cache: MeshCache): { meshes: MeshData[]; built: number } {
+function triangles(quads: Quad[], materialScales: Map<string, number>, cache: MeshCache, bindings:ReturnType<typeof materialBindings>): { meshes: MeshData[]; built: number } {
   // Split all shared collinear edges at the same coordinates, including T boundaries.
   const lines = new Map<string, Set<number>>();
   for (const q of quads) {
@@ -59,10 +60,10 @@ function triangles(quads: Quad[], materialScales: Map<string, number>, cache: Me
   }
   const meshes: MeshData[] = []; let vertices = 0, built = 0;
   for (const [entityId, faces] of prepared) {
-    const id = `wall:${entityId}`, signature = JSON.stringify(faces), old = cache.get(id);
+    const id = `wall:${entityId}`, signature = JSON.stringify(faces.map(({q,perimeter,scale})=>({axis:q.axis,at:q.at,rect:q.rect,sign:q.sign,ownerId:q.ownerId,slot:q.slot,perimeter,scale}))), old = cache.get(id);
     // Compare the complete exposed geometry AND shared-edge dependency, not just rev/hash.
-    if (old?.signature === signature) { meshes.push(old.mesh); continue; }
-    const data = { p: [] as number[], n: [] as number[], uv: [] as number[], groups: [] as MeshData['groups'] };
+    if (old?.signature === signature) { meshes.push(bindMeshMaterials(old.mesh,bindings)); continue; }
+    const data = { p: [] as number[], n: [] as number[], uv: [] as number[], groups: [] as MeshData['groups'],ranges:[] as NonNullable<MeshData['materialRanges']> };
     for (const { q, perimeter, scale } of faces) {
       const centre = point(q, (q.rect[0] + q.rect[2]) / 2, (q.rect[1] + q.rect[3]) / 2), [u, v] = axes(q.axis);
       const start = data.p.length / 3;
@@ -78,11 +79,11 @@ function triangles(quads: Quad[], materialScales: Map<string, number>, cache: Me
         vertices += 3;
         if (vertices > 500_000) throw new Error('This drawing exceeds the 3D preview vertex budget. Your 2D drawing is unchanged.');
       }
-      const count = data.p.length / 3 - start, last = data.groups.at(-1);
+      const count = data.p.length / 3 - start, last = data.groups.at(-1);data.ranges.push({start,count,slot:q.slot});
       if (last?.materialId === q.materialId) last.count += count;
       else data.groups.push({ start, count, materialId: q.materialId });
     }
-    const mesh: MeshData = { id, entityId, category: 'wall', positions: new Float64Array(data.p), normals: new Float32Array(data.n), uv: new Float32Array(data.uv), groups: data.groups };
+    const mesh: MeshData = { id, entityId, category: 'wall', positions: new Float64Array(data.p), normals: new Float32Array(data.n), uv: new Float32Array(data.uv), groups: data.groups,materialRanges:data.ranges };
     cache.set(id, { signature, mesh }); meshes.push(mesh); built++;
   }
   return { meshes, built };
@@ -93,24 +94,24 @@ function buildGeometryScene(document: ProjectDoc, cache: MeshCache): SceneBundle
   const derived = applyGeometry(document, { op: 'analyze' });
   if (!derived.accepted) throw derived.error;
   const elevation=document.floors[0]!.elevation,walls=new Map(document.walls.map(w=>[w.id,w])),junctions=new Map(document.junctions.map(j=>[j.id,j]));
-  const {boxes,faces}=buildWallSolids(document);
+  const {boxes,faces}=buildWallSolids(document),bindings=materialBindings(document);
   const quads:Quad[]=faces.map(face=>{
     const wall=walls.get(face.ownerId)!,a=junctions.get(wall.a)!,b=junctions.get(wall.b)!;
     const leftDot=face.axis===0?face.sign*(b.y-a.y):face.axis===2?-face.sign*(b.x-a.x):0;
-    return {...face,materialId:leftDot<0?wall.rightMaterial:wall.leftMaterial};
+    return {...face,materialId:leftDot<0?wall.rightMaterial:wall.leftMaterial,slot:leftDot<0?'right':'left'};
   });
   const scales = new Map(document.materials.map(m => [m.id, m.uvScaleMm ?? 1000]));
-  const compact = compactQuads(quads), result = triangles(compact, scales, cache), meshes = result.meshes; let meshesBuilt = result.built;
+  const compact = compactQuads(quads), result = triangles(compact, scales, cache,bindings), meshes = result.meshes; let meshesBuilt = result.built;
   // Floors/thresholds face up; ceilings face down at their independent room height.
   const plane = (id: string, entityId: string, category: 'floor' | 'threshold' | 'ceiling', rects: readonly Rect[], materialId: string, height = elevation, down = false) => {
     const scale = category==='ceiling'?1000:scales.get(materialId)??1000;
-    const signature = JSON.stringify([category, entityId, rects, materialId, scale, height, down]), old = cache.get(id);
-    if (old?.signature === signature) { meshes.push(old.mesh); return; }
+    const signature = JSON.stringify([category, entityId, rects, scale, height, down]), old = cache.get(id);
+    if (old?.signature === signature) { meshes.push(bindMeshMaterials(old.mesh,bindings)); return; }
     const p: number[] = [], n: number[] = [], uv: number[] = [];
     for (const [x0, z0, x1, z1] of rects) for (const [x, z] of (down ? [[x0,z0],[x1,z1],[x0,z1],[x0,z0],[x1,z0],[x1,z1]] : [[x0,z0],[x0,z1],[x1,z1],[x0,z0],[x1,z1],[x1,z0]]) as [number,number][]) {
       p.push(x / 1000, height / 1000, z / 1000); n.push(0, down ? -1 : 1, 0); uv.push(x / scale, z / scale);
     }
-    const mesh: MeshData = { id, entityId, category, positions: new Float64Array(p), normals: new Float32Array(n), uv: new Float32Array(uv), groups: [{ start: 0, count: p.length / 3, materialId }] };
+    const mesh: MeshData = { id, entityId, category, positions: new Float64Array(p), normals: new Float32Array(n), uv: new Float32Array(uv), groups: [{ start: 0, count: p.length / 3, materialId }],materialRanges:[{start:0,count:p.length/3,slot:category}] };
     cache.set(id, { signature, mesh }); meshes.push(mesh); meshesBuilt++;
   };
   for (const face of derived.derived.faces) {
@@ -149,10 +150,11 @@ export function buildScene(document:ProjectDoc,cache:MeshCache=new Map()):SceneB
 /** Persistent worker builder. Geometry-only dependencies skip unrelated full CPU builds. */
 export class CachedSceneBuilder {
   #bundle: SceneBundle | undefined; #cache: MeshCache = new Map();
-  #previous:ProjectDoc|null=null;
+  #previous:ProjectDoc|null=null;#bindingKey='';
   build(document: ProjectDoc): SceneBundle {
     const invalidation=sceneInvalidation(this.#previous,document);
-    if (!invalidation.geometryChanged && this.#bundle) {this.#previous=structuredClone(document);return { ...this.#bundle, invalidation, bounds:furnitureBounds(document,this.#bundle.bounds), stats: { ...this.#bundle.stats, meshesBuilt: 0 } };}
-    const bundle = buildGeometryScene(document, this.#cache); this.#bundle = bundle;this.#previous=structuredClone(document); return {...bundle,invalidation,bounds:furnitureBounds(document,bundle.bounds)};
+    const bindingKey=materialBindingKey(document);
+    if (!invalidation.geometryChanged && this.#bundle) {if(bindingKey!==this.#bindingKey)this.#bundle={...this.#bundle,meshes:bindSceneMaterials(this.#bundle.meshes,document)};this.#bindingKey=bindingKey;this.#previous=structuredClone(document);return { ...this.#bundle, invalidation, bounds:furnitureBounds(document,this.#bundle.bounds), stats: { ...this.#bundle.stats, meshesBuilt: 0 } };}
+    const bundle = buildGeometryScene(document, this.#cache); this.#bundle = bundle;this.#bindingKey=bindingKey;this.#previous=structuredClone(document); return {...bundle,invalidation,bounds:furnitureBounds(document,bundle.bounds)};
   }
 }
