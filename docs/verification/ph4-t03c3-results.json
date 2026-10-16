@@ -4,25 +4,22 @@
   "baseSha": "55871d7d4c3cb6b9c3c277d961dacab46456a741",
   "scope": "Explicit owned3D furniture Move/Rotate; visible hit-height projection; frozen camera; preview-only effective GLB/instance/fallback/outline/advisory transforms; canonical restoration BEFORE final command; lifecycle/fault fences",
   "check": {
-    "productTests": 427,
+    "productTests": 428,
     "files": 62,
-    "elapsedSeconds": 22.36,
+    "elapsedSeconds": 27.08,
     "toolingTests": 18,
     "failed": 0,
     "skipped": 0
   },
   "localBrowser": {
     "wholeApp": {
-      "passed": 103,
-      "reportedElapsed": "7.4m",
-      "timing": "Final runtime; before test-only worker-probe tightening and additional oblique case."
+      "passed": 105,
+      "reportedElapsed": "7.3m",
+      "timing": "Entire corrected final runtime and all final11gesture cases, including actual worker-send instrumentation, oblique overlap and blocked resize delivery."
     },
     "finalTargeted": {
-      "gestureCases": 9,
-      "gestureElapsed": "46.4s",
-      "obliqueCases": 1,
-      "obliqueElapsed": "7.9s",
-      "timing": "Final10cases executed as9+1 after strengthening actual worker postMessage instrumentation; no runtime source changes."
+      "gestureCases": 11,
+      "reportedElapsed": "1.0m"
     },
     "skipped": 0,
     "browser": "Linux Chromium151.0.7922.173/SwiftShader; different from pinnedCI156; not physical phones",
@@ -36,23 +33,23 @@
   },
   "freshReview": {
     "author": "Fresh read-only Codex; no repository edits; not Claude fixtures",
-    "reviewSuiteCases": 12,
+    "reviewSuiteCases": 16,
     "baselineCases": 7,
-    "addedIndependentAdversarialCases": 5,
-    "reviewSeconds": 1.07,
-    "permanentFocusedCases": 24,
-    "focusedSeconds": 1.1,
+    "addedIndependentAdversarialCases": 9,
+    "reviewSeconds": 2.41,
+    "permanentFocusedCases": 25,
+    "focusedSeconds": 1.55,
     "remainingReproducedSourceBlockers": 0,
     "drawAckRace": "Source-reviewed initial framebuffer fence; not claimed browser-reproduced."
   },
   "productionBuild": {
-    "initialGzipBytes": 173310,
+    "initialGzipBytes": 173311,
     "initialModules": 1,
     "crashHooks": "absent",
     "limitBytes": 600000
   },
   "gradle": {
-    "result": "BUILD SUCCESSFUL in23s",
+    "result": "BUILD SUCCESSFUL in32s",
     "tasks": 170,
     "executed": 40,
     "upToDate": 130
@@ -60,7 +57,7 @@
   "android": {
     "applicationId": "com.gharplan.app.debug",
     "bytes": 8114378,
-    "sha256": "91bd55bf08690f3822fb5aececd11154f7ec00911360650ca2b68743f2de587b",
+    "sha256": "0bd470da1acf732d2935bb339b554e7f7aa69320a20a30d6a3a1879e59bf2f77",
     "permissions": [
       "android.permission.INTERNET",
       "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
@@ -79,7 +76,7 @@
     ]
   },
   "packagedBytes": {
-    "sha256": "91bd55bf08690f3822fb5aececd11154f7ec00911360650ca2b68743f2de587b",
+    "sha256": "0bd470da1acf732d2935bb339b554e7f7aa69320a20a30d6a3a1879e59bf2f77",
     "bytes": 8114378,
     "webFilesByteEqual": 16,
     "lint": {
@@ -101,13 +98,13 @@
     "i18n/messages.ts": "1ef2472a981208822182bb29007ab726b14bb8add2294a2cf6536259a46f5caf",
     "render3d/ThreeView.tsx": "2958cc818fa7567579aec02291f1c7b81a4a6788d30a75bf0656158c3c8468aa",
     "render3d/picking.ts": "b227e8e561893ef3f49392cac59143c7d68e6b20adb8569d12f9aedd8a42648e",
-    "render3d/furniture-pointer.ts": "b514a5353554b283f5b03ea9c31d6fb0e0b4c768b1f43bbb1e40af197b4dd02b",
+    "render3d/furniture-pointer.ts": "5e691abeae56116b50c5c290828aae4cddd6180fd17a690c583cefdec73aeaee",
     "render3d/furniture-projection.ts": "9c9503d229f46a8c9dff6092dac32f851b731fcfe06a0240260100a340c7b1ae"
   },
   "protectedFiles": 39,
   "protectedHashMismatches": 0,
   "sampleSchemaErrors": 0,
-  "actualGpuRecoveryMs": 485.90000009536743,
+  "actualGpuRecoveryMs": 512.8999999761581,
   "rendererLifecycle": {
     "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
     "cycles": 50,
@@ -115,30 +112,30 @@
     "warmupReadings": [
       {
         "cycles": 6,
-        "usedSize": 9275488
+        "usedSize": 9263672
       },
       {
         "cycles": 16,
-        "usedSize": 10098788
+        "usedSize": 10117868
       },
       {
         "cycles": 26,
-        "usedSize": 10257028
+        "usedSize": 10255708
       }
     ],
     "baseline": {
-      "usedSize": 10346384,
+      "usedSize": 10366660,
       "totalSize": 11243520,
-      "embedderHeapUsedSize": 2054464,
-      "backingStorageSize": 1553996
+      "embedderHeapUsedSize": 1954736,
+      "backingStorageSize": 1554235
     },
     "after": {
-      "usedSize": 10897848,
-      "totalSize": 11767808,
-      "embedderHeapUsedSize": 2013512,
-      "backingStorageSize": 1553989
+      "usedSize": 10901556,
+      "totalSize": 12029952,
+      "embedderHeapUsedSize": 2023800,
+      "backingStorageSize": 1554228
     },
-    "heapGrowth": 0.053300167478802285,
+    "heapGrowth": 0.05159771806927216,
     "liveGpu": {
       "geometries": 6,
       "textures": 1
@@ -173,7 +170,11 @@
     "New Float32 hit-height expectation corrected from5e-11m to5e-8m tolerance; no accepted fixtures or earlier tests changed.",
     "New Mock assignment type error corrected via mockImplementation; actual OrbitControls still executed.",
     "Debug-command preparation attempted a root-relative test path fromAndroid cwd and changed no file; root preparation rerun separately.",
-    "Whole browser report was collected before test-only annotation/request tightening; missing newer annotation was detected, prior lifecycle evidence preserved, then strengthened9case suite and extra oblique case executed separately."
+    "Whole browser report was collected before test-only annotation/request tightening; missing newer annotation was detected, prior lifecycle evidence preserved, then strengthened9case suite and extra oblique case executed separately.",
+    "First exact head CI Check failed103pass/1failure; AndroidSKIPPED. Never merged red.",
+    "Unchanged canvas mapping did not detect owner-window metrics changed before resize delivery; reproduced before fix and synchronously fenced both dimensions on acquisition/tick/preview/release.",
+    "Added fixed-canvas real browser regression with resize delivery blocked and retained original cancellation/JSON/Undo assertions; loop cases now have test.step diagnostics.",
+    "Exact historical CI loop iteration remains unknown because annotation lacked it and artifact download returned network403; no universal causal claim."
   ],
   "limits": [
     "Perspective automatic back snap deferred; explicit measured Align works in3D.",
@@ -183,5 +184,194 @@
     "No physical phone/WebView/TalkBack/Hindi/native-provider/external/finalClaude checks claimed.",
     "All D36 scopes remain permission gated and unstarted.",
     "No new dependency/schema/immutable published asset/accepted geometry fixture/owner research change."
-  ]
+  ],
+  "priorHeadEvidence": {
+    "head": "ca251f70ac902df8304cdfbfcd5ffea3fc63d808",
+    "check": {
+      "productTests": 427,
+      "files": 62,
+      "elapsedSeconds": 22.36,
+      "toolingTests": 18,
+      "failed": 0,
+      "skipped": 0
+    },
+    "localBrowser": {
+      "wholeApp": {
+        "passed": 103,
+        "reportedElapsed": "7.4m",
+        "timing": "Final runtime; before test-only worker-probe tightening and additional oblique case."
+      },
+      "finalTargeted": {
+        "gestureCases": 9,
+        "gestureElapsed": "46.4s",
+        "obliqueCases": 1,
+        "obliqueElapsed": "7.9s",
+        "timing": "Final10cases executed as9+1 after strengthening actual worker postMessage instrumentation; no runtime source changes."
+      },
+      "skipped": 0,
+      "browser": "Linux Chromium151.0.7922.173/SwiftShader; different from pinnedCI156; not physical phones",
+      "actualGpuProbe": {
+        "instrumentation": "Actual drawElements modelViewMatrix uniforms; worker postMessage count (not response count); last six GLB draws.",
+        "previousUniformTolerance": 1e-05,
+        "oldGeneration": 0,
+        "previewHasCanonicalAck": false,
+        "previewWorkerSendsUnchanged": true
+      }
+    },
+    "freshReview": {
+      "author": "Fresh read-only Codex; no repository edits; not Claude fixtures",
+      "reviewSuiteCases": 12,
+      "baselineCases": 7,
+      "addedIndependentAdversarialCases": 5,
+      "reviewSeconds": 1.07,
+      "permanentFocusedCases": 24,
+      "focusedSeconds": 1.1,
+      "remainingReproducedSourceBlockers": 0,
+      "drawAckRace": "Source-reviewed initial framebuffer fence; not claimed browser-reproduced."
+    },
+    "productionBuild": {
+      "initialGzipBytes": 173310,
+      "initialModules": 1,
+      "crashHooks": "absent",
+      "limitBytes": 600000
+    },
+    "gradle": {
+      "result": "BUILD SUCCESSFUL in23s",
+      "tasks": 170,
+      "executed": 40,
+      "upToDate": 130
+    },
+    "android": {
+      "applicationId": "com.gharplan.app.debug",
+      "bytes": 8114378,
+      "sha256": "91bd55bf08690f3822fb5aececd11154f7ec00911360650ca2b68743f2de587b",
+      "permissions": [
+        "android.permission.INTERNET",
+        "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+      ],
+      "verified": [
+        "decoded debug manifest flags and backup policy references",
+        "private local HTTPS configuration",
+        "packaged editor/import-worker/3D/performance assets",
+        "registered and packaged native Filesystem plugin",
+        "packaged app-owned native file export classes",
+        "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+      ],
+      "limitations": [
+        "Compilation and packaging only; no emulator or phone run",
+        "Debug APK size is not Play AAB download size"
+      ]
+    },
+    "packagedBytes": {
+      "sha256": "91bd55bf08690f3822fb5aececd11154f7ec00911360650ca2b68743f2de587b",
+      "bytes": 8114378,
+      "webFilesByteEqual": 16,
+      "lint": {
+        "Error": 0,
+        "Warning": 15
+      },
+      "nativeJUnit": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "runtimeSourceSha256": {
+      "App.tsx": "4460690dcad2aba802512ae2c312765e5bfbd03f8c2c9474b811489d708e72c0",
+      "app.css": "046ab076375f16b8078c73027c238eb6f101b4556eff76329e0345c4d4f71f10",
+      "i18n/messages.ts": "1ef2472a981208822182bb29007ab726b14bb8add2294a2cf6536259a46f5caf",
+      "render3d/ThreeView.tsx": "2958cc818fa7567579aec02291f1c7b81a4a6788d30a75bf0656158c3c8468aa",
+      "render3d/picking.ts": "b227e8e561893ef3f49392cac59143c7d68e6b20adb8569d12f9aedd8a42648e",
+      "render3d/furniture-pointer.ts": "b514a5353554b283f5b03ea9c31d6fb0e0b4c768b1f43bbb1e40af197b4dd02b",
+      "render3d/furniture-projection.ts": "9c9503d229f46a8c9dff6092dac32f851b731fcfe06a0240260100a340c7b1ae"
+    },
+    "actualGpuRecoveryMs": 485.90000009536743,
+    "rendererLifecycle": {
+      "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+      "cycles": 50,
+      "warmup": 36,
+      "warmupReadings": [
+        {
+          "cycles": 6,
+          "usedSize": 9275488
+        },
+        {
+          "cycles": 16,
+          "usedSize": 10098788
+        },
+        {
+          "cycles": 26,
+          "usedSize": 10257028
+        }
+      ],
+      "baseline": {
+        "usedSize": 10346384,
+        "totalSize": 11243520,
+        "embedderHeapUsedSize": 2054464,
+        "backingStorageSize": 1553996
+      },
+      "after": {
+        "usedSize": 10897848,
+        "totalSize": 11767808,
+        "embedderHeapUsedSize": 2013512,
+        "backingStorageSize": 1553989
+      },
+      "heapGrowth": 0.053300167478802285,
+      "liveGpu": {
+        "geometries": 6,
+        "textures": 1
+      },
+      "closedResources": {
+        "resources": {
+          "live": 0,
+          "references": 0,
+          "created": 29,
+          "disposed": 29,
+          "disposalFailures": 0,
+          "closed": true
+        },
+        "gpu": {
+          "geometries": 0,
+          "textures": 0
+        }
+      },
+      "liveWorkers": 0,
+      "liveRafs": 0,
+      "documentKeyboardBaseline": 0,
+      "documentKeyboardAfter": 0
+    }
+  },
+  "failedCi": {
+    "head": "ca251f70ac902df8304cdfbfcd5ffea3fc63d808",
+    "runId": 38869136793,
+    "checkRunId": 116868821077,
+    "check": "FAILURE",
+    "androidDebug": "SKIPPED",
+    "browserPassed": 103,
+    "browserFailed": 1,
+    "failedTest": "SYNC-006 viewport/scroll/mode/camera API interrupts",
+    "actual": "renderedGeneration1",
+    "expected": "renderedGeneration0",
+    "merged": false,
+    "historicalIteration": "UNKNOWN: annotation did not identify loop iteration; artifact download network403."
+  },
+  "resizeRegression": {
+    "beforeFix": {
+      "pointerPassed": 10,
+      "newFailed": 1,
+      "case": "Owner window width changed before resize callback with unchanged canvas rectangle; release committed."
+    },
+    "afterFix": {
+      "focusedPassed": 25,
+      "readOnlyReviewPassed": 16,
+      "reviewBaselineCases": 7,
+      "independentlyAddedCases": 9,
+      "reviewSeconds": 2.41,
+      "nativeGestureCasesPassed": 11,
+      "nativeReportedElapsed": "1.0m",
+      "blockedResizeDelivery": "Actual window resize delivery deliberately blocked; actual canvas rectangle positively unchanged; canonical JSON/history unchanged on release."
+    },
+    "ciCausality": "Reproduced/fixed defect class, NOT proven exact original CI trigger."
+  }
 }
