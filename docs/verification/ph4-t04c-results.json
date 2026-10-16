@@ -285,5 +285,49 @@
     "Physical200ms/Low-Mid/native-provider/accessibility/external gates",
     "Catalog breadth/split view/other authorized editor controls",
     "All D36 accounts/cloud/mobileoptimization/sharing/billing/security/privacy/release/final-Claude scopes"
-  ]
+  ],
+  "evidenceBaseHead": "6dd2c55e4efb035466aea1e7ae0f63b5987daf97",
+  "failedCi": {
+    "head": "6dd2c55e4efb035466aea1e7ae0f63b5987daf97",
+    "run": 38908175057,
+    "checkRun": 116996968042,
+    "check": "FAILURE",
+    "androidDebug": "SKIPPED",
+    "browserPassed": 117,
+    "browserFailed": 1,
+    "failure": "Positive unchanged button-rectangle precondition failed before pointer release",
+    "expectedY": 315.3125,
+    "receivedY": 343,
+    "width": 122,
+    "height": 90,
+    "x": 970,
+    "merged": false,
+    "causality": "Observed rectangle movement; no product paint commit or exact historical scroll/focus mechanism proven."
+  },
+  "testHarnessCorrection": {
+    "scope": "Test/docs only; all10runtime source hashes equal the base head. Original runtime118case/debug/GPU/memory evidence remains tied to base head.",
+    "inputChange": "Trigger unrelated unit change using DOM change event without a driver scroll-to-select action; preserve native held pointer/release/click and all original assertions.",
+    "retained": [
+      "exact unchanged button rectangle",
+      "positively delivered native click",
+      "canonical units actually imperial",
+      "unchanged walls/rooms/materials/junctions/openings/furniture",
+      "one Undo restores exact original; Undo then disabled"
+    ],
+    "check": {
+      "productTests": 452,
+      "files": 65,
+      "elapsedSeconds": 23.63,
+      "toolingTests": 18,
+      "failed": 0,
+      "skipped": 0
+    },
+    "correctedFocused": {
+      "passed": 10,
+      "elapsed": "39.2s"
+    },
+    "testSha256": "8ea4888a0cf18a579ef8e544d53fe217cded810235983b384b0b384d54edeed8",
+    "correctedWhole118Local": "Not rerun for this test-only correction; original118runtime plus corrected10focused evidence, exact-head CI must rerun all118.",
+    "finalCi": "PENDING"
+  }
 }
