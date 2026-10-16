@@ -7,7 +7,7 @@ import {FurnitureProjection} from './furniture-projection';
 export type FurniturePointerMode='orbit'|'move'|'rotate';
 interface Controls {enabled:boolean;enableDamping:boolean;autoRotate:boolean;target:THREE.Vector3;update():unknown}
 interface PointerInput {id:number;touch:boolean;client:Point2;shift:boolean}
-interface Active {input:PointerInput;intent:FurnitureGestureIntent;projection:FurnitureProjection;start:Point2;pending:boolean;position:THREE.Vector3;quaternion:THREE.Quaternion;target:THREE.Vector3;flags:{enabled:boolean;enableDamping:boolean;autoRotate:boolean}}
+interface Active {input:PointerInput;intent:FurnitureGestureIntent;projection:FurnitureProjection;viewport:readonly[number,number];start:Point2;pending:boolean;position:THREE.Vector3;quaternion:THREE.Quaternion;target:THREE.Vector3;flags:{enabled:boolean;enableDamping:boolean;autoRotate:boolean}}
 export interface FurniturePointerHooks {
  eligible():boolean;selected():string|undefined;start():void;
  hit(client:Point2):{id:string;point:readonly[number,number,number]}|null;
@@ -38,7 +38,7 @@ export class FurniturePointer {
  }
  setMode(mode:FurniturePointerMode,free:boolean):void{if(mode!==this.#mode||free!==this.#free)this.cancel();this.#mode=mode;this.#free=free;}
  tick():void {const a=this.#active;if(a&&(!this.#owned(a)||!a.projection.matches(this.camera,this.element.getBoundingClientRect())))this.cancel();}
- #owned(a:Active):boolean{return !this.#closed&&currentFurnitureGesture(this.store,a.intent)&&this.hooks.selected()===a.intent.id&&this.hooks.eligible();}
+ #owned(a:Active):boolean{const win=this.element.ownerDocument.defaultView;return !this.#closed&&!!win&&win.innerWidth===a.viewport[0]&&win.innerHeight===a.viewport[1]&&currentFurnitureGesture(this.store,a.intent)&&this.hooks.selected()===a.intent.id&&this.hooks.eligible();}
  #consume(e:PointerEvent):void{e.preventDefault();e.stopImmediatePropagation();}
  #down(e:PointerEvent):void{
   if(this.#closed)return;
@@ -58,10 +58,10 @@ export class FurniturePointer {
   if(e.button!==0||!this.hooks.eligible())return;
   const selected=this.hooks.selected(),hit=this.hooks.hit([e.clientX,e.clientY]);if(!selected||hit?.id!==selected)return;
   this.#consumed.add(e.pointerId);this.#consume(e);
-  const position=this.camera.position.clone(),quaternion=this.camera.quaternion.clone(),target=this.controls.target.clone(),flags={enabled:this.controls.enabled,enableDamping:this.controls.enableDamping,autoRotate:this.controls.autoRotate};
+  const win=this.element.ownerDocument.defaultView!,viewport=[win.innerWidth,win.innerHeight] as const,position=this.camera.position.clone(),quaternion=this.camera.quaternion.clone(),target=this.controls.target.clone(),flags={enabled:this.controls.enabled,enableDamping:this.controls.enableDamping,autoRotate:this.controls.autoRotate};
   try{
    const projection=new FurnitureProjection(this.camera,this.element.getBoundingClientRect(),hit.point[1]),point=projection.point([e.clientX,e.clientY]);if(!point)throw Error('furniture-projection');
-   const mode=this.#mode,intent=beginFurnitureGesture(this.store,selected,mode,point),owned=()=>!this.#closed&&this.#mode===mode&&currentFurnitureGesture(this.store,intent)&&this.hooks.selected()===selected&&this.hooks.eligible();
+   const mode=this.#mode,intent=beginFurnitureGesture(this.store,selected,mode,point),owned=()=>!this.#closed&&this.#mode===mode&&win.innerWidth===viewport[0]&&win.innerHeight===viewport[1]&&currentFurnitureGesture(this.store,intent)&&this.hooks.selected()===selected&&this.hooks.eligible();
    this.hooks.start();if(!owned())return;
    this.controls.enabled=false;this.controls.autoRotate=false;this.controls.enableDamping=false;
    // Public update drains residual orbit deltas. Restore the exact captured pose
@@ -72,7 +72,7 @@ export class FurniturePointer {
    if(this.#mode==='rotate'&&(!centre||Math.hypot(e.clientX-centre[0],e.clientY-centre[1])<12))throw Error('furniture-rotation-radius');
    if(!owned())throw Error('furniture-ownership');
    const input:PointerInput={id:e.pointerId,touch,client:[e.clientX,e.clientY],shift:e.shiftKey};
-   this.#active={input,intent,projection,start:input.client,pending:touch,position,quaternion,target,flags};this.element.setPointerCapture(e.pointerId);this.hooks.status(touch?'pending':'preview');
+   this.#active={input,intent,projection,viewport,start:input.client,pending:touch,position,quaternion,target,flags};this.element.setPointerCapture(e.pointerId);this.hooks.status(touch?'pending':'preview');
    if(touch&&this.#active)this.#hold=setTimeout(()=>{this.#hold=null;const a=this.#active;if(a){a.pending=false;this.#schedule();}},150);
   }catch{
    if(this.#active)this.cancel();
