@@ -27,3 +27,5 @@ python docs/verification/scripts/ph4-t01-asset.py
 ```
 
 It uses disposable Chromium151/SwiftShader, a temporary HTML it removes, and actual Three GLTFLoader/readback. It does not open a project or implement a catalog screen. See [D39](../../docs/decisions/static-asset-pipeline.md). Generic textures/KTX2 are deferred from this small untextured foundation. D36 requires permission for R2/account/cloud delivery, device compression/testing, subscriptions/security/privacy/release/finalClaude; those scopes remain unstarted. Catalog UI/asset placement and non-device-specific material work follow separately under D17.
+
+PH4-T05 current corpus:30original untextured assets, including the unchanged a_demo_table@1 and29append-only starter entries. See the [complete source/dimension index](../../docs/catalog/starter-catalog.md), [decision](../../docs/decisions/starter-catalog.md) and [verification](../../docs/verification/ph4-t05.md). Every current LOD pair uses the same already-lightweight GLB; no compression/simplification or physical-device performance claim. Existing compiler/profile/rights/hash/version rules remain unchanged.

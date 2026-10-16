@@ -1,0 +1,1494 @@
+{
+  "task": "PH4-T05 original30item catalog",
+  "date": "2026-10-16",
+  "evidenceHead": "8836f37",
+  "scope": "Original local static planning assets only; all D36 scopes unstarted. Parent PR96 red and never merged; final parent CI gate pending.",
+  "check": {
+    "productTests": 453,
+    "files": 65,
+    "durationSeconds": 24.92,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "localBrowser": {
+    "browser": "Linux Chromium151.0.7922.173 SwiftShader, distinct from CI156 and physical devices",
+    "wholeTogether": 121,
+    "elapsed": "8.6m",
+    "focused": 8,
+    "focusedElapsed": "41.9s",
+    "thumbnails": {
+      "items": 30,
+      "pages": [
+        24,
+        6
+      ],
+      "created": 30,
+      "revoked": 30
+    }
+  },
+  "corpus": {
+    "entries": 30,
+    "newEntries": 29,
+    "categories": {
+      "tables": 7,
+      "seating": 6,
+      "storage": 6,
+      "beds": 5,
+      "kitchen": 3,
+      "decor": 1,
+      "rugs": 1,
+      "bathroom": 1
+    },
+    "pilotFilesUnchanged": 3,
+    "pilotEntryDeepEqual": true,
+    "validatorErrors": 0,
+    "validatorWarnings": 0,
+    "maxTriangles": 192,
+    "maxGlbBytes": 3828,
+    "uniqueBlobs": 60,
+    "blobBytes": 161609,
+    "rows": [
+      {
+        "id": "a_demo_table",
+        "dims": {
+          "w": 1200,
+          "d": 600,
+          "h": 750
+        },
+        "sourceBoundsMm": [
+          -600.0,
+          0.0,
+          -300.0,
+          600.0,
+          750.0,
+          300.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.6,
+            0,
+            -0.3
+          ],
+          "max": [
+            0.6,
+            0.75,
+            0.3
+          ]
+        },
+        "triangles": 72,
+        "bytes": 2740,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_armchair",
+        "dims": {
+          "w": 800,
+          "d": 800,
+          "h": 900
+        },
+        "sourceBoundsMm": [
+          -400.0,
+          0.0,
+          -400.0,
+          400.0,
+          900.0,
+          400.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.4,
+            0,
+            -0.4
+          ],
+          "max": [
+            0.4,
+            0.8999999999999999,
+            0.4
+          ]
+        },
+        "triangles": 108,
+        "bytes": 2668,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_bench",
+        "dims": {
+          "w": 1200,
+          "d": 400,
+          "h": 450
+        },
+        "sourceBoundsMm": [
+          -600.0,
+          0.0,
+          -200.0,
+          600.0,
+          450.0,
+          200.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.6,
+            0,
+            -0.2
+          ],
+          "max": [
+            0.6,
+            0.45,
+            0.2
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2336,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_bookcase",
+        "dims": {
+          "w": 800,
+          "d": 300,
+          "h": 1800
+        },
+        "sourceBoundsMm": [
+          -400.0,
+          0.0,
+          -150.0,
+          400.0,
+          1800.0,
+          150.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.4,
+            0,
+            -0.15
+          ],
+          "max": [
+            0.4,
+            1.8,
+            0.15000000000000002
+          ]
+        },
+        "triangles": 108,
+        "bytes": 2364,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_bunk_bed",
+        "dims": {
+          "w": 1000,
+          "d": 2000,
+          "h": 1800
+        },
+        "sourceBoundsMm": [
+          -500.0,
+          0.0,
+          -1000.0,
+          500.0,
+          1800.0,
+          1000.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.5,
+            0,
+            -1
+          ],
+          "max": [
+            0.5,
+            1.8,
+            1
+          ]
+        },
+        "triangles": 192,
+        "bytes": 3828,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_coffee_table",
+        "dims": {
+          "w": 1000,
+          "d": 500,
+          "h": 450
+        },
+        "sourceBoundsMm": [
+          -500.0,
+          0.0,
+          -250.0,
+          500.0,
+          450.0,
+          250.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.5,
+            0,
+            -0.25
+          ],
+          "max": [
+            0.5,
+            0.45,
+            0.25
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2332,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_console_table",
+        "dims": {
+          "w": 1200,
+          "d": 350,
+          "h": 800
+        },
+        "sourceBoundsMm": [
+          -600.0,
+          0.0,
+          -175.0,
+          600.0,
+          800.0,
+          175.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.6,
+            0,
+            -0.175
+          ],
+          "max": [
+            0.6,
+            0.8,
+            0.175
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2356,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_dining_4",
+        "dims": {
+          "w": 1200,
+          "d": 800,
+          "h": 750
+        },
+        "sourceBoundsMm": [
+          -600.0,
+          0.0,
+          -400.0,
+          600.0,
+          750.0,
+          400.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.6,
+            0,
+            -0.4
+          ],
+          "max": [
+            0.6,
+            0.75,
+            0.4
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2340,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_dining_6",
+        "dims": {
+          "w": 1800,
+          "d": 900,
+          "h": 750
+        },
+        "sourceBoundsMm": [
+          -900.0,
+          0.0,
+          -450.0,
+          900.0,
+          750.0,
+          450.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.9,
+            0,
+            -0.45
+          ],
+          "max": [
+            0.9,
+            0.75,
+            0.45
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2336,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_dining_chair",
+        "dims": {
+          "w": 450,
+          "d": 500,
+          "h": 900
+        },
+        "sourceBoundsMm": [
+          -225.0,
+          0.0,
+          -250.0,
+          225.0,
+          900.0,
+          250.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.225,
+            0,
+            -0.25
+          ],
+          "max": [
+            0.225,
+            0.9,
+            0.25
+          ]
+        },
+        "triangles": 72,
+        "bytes": 2428,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_double_bed",
+        "dims": {
+          "w": 1500,
+          "d": 2000,
+          "h": 1000
+        },
+        "sourceBoundsMm": [
+          -750.0,
+          0.0,
+          -1000.0,
+          750.0,
+          1000.0,
+          1000.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.75,
+            0,
+            -1
+          ],
+          "max": [
+            0.75,
+            1,
+            1
+          ]
+        },
+        "triangles": 108,
+        "bytes": 3232,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_drawers",
+        "dims": {
+          "w": 800,
+          "d": 450,
+          "h": 1000
+        },
+        "sourceBoundsMm": [
+          -400.0,
+          0.0,
+          -225.0,
+          400.0,
+          1000.0,
+          225.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.4,
+            0,
+            -0.225
+          ],
+          "max": [
+            0.4,
+            1,
+            0.22499999999999998
+          ]
+        },
+        "triangles": 84,
+        "bytes": 2772,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_island",
+        "dims": {
+          "w": 1200,
+          "d": 800,
+          "h": 900
+        },
+        "sourceBoundsMm": [
+          -600.0,
+          0.0,
+          -400.0,
+          600.0,
+          900.0,
+          400.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.6,
+            0,
+            -0.4
+          ],
+          "max": [
+            0.6,
+            0.9,
+            0.4
+          ]
+        },
+        "triangles": 72,
+        "bytes": 2712,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_king_bed",
+        "dims": {
+          "w": 1800,
+          "d": 2100,
+          "h": 1000
+        },
+        "sourceBoundsMm": [
+          -900.0,
+          0.0,
+          -1050.0,
+          900.0,
+          1000.0,
+          1050.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.9,
+            0,
+            -1.05
+          ],
+          "max": [
+            0.9,
+            1,
+            1.05
+          ]
+        },
+        "triangles": 108,
+        "bytes": 3224,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_kitchen_base",
+        "dims": {
+          "w": 600,
+          "d": 600,
+          "h": 900
+        },
+        "sourceBoundsMm": [
+          -300.0,
+          0.0,
+          -300.0,
+          300.0,
+          900.0,
+          300.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.3,
+            0,
+            -0.3
+          ],
+          "max": [
+            0.3,
+            0.9,
+            0.30000000000000004
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2624,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_low_cabinet",
+        "dims": {
+          "w": 1500,
+          "d": 400,
+          "h": 500
+        },
+        "sourceBoundsMm": [
+          -750.0,
+          0.0,
+          -200.0,
+          750.0,
+          500.0,
+          200.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.75,
+            0,
+            -0.2
+          ],
+          "max": [
+            0.75,
+            0.5,
+            0.19999999999999998
+          ]
+        },
+        "triangles": 84,
+        "bytes": 2792,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_planter",
+        "dims": {
+          "w": 400,
+          "d": 400,
+          "h": 700
+        },
+        "sourceBoundsMm": [
+          -200.0,
+          0.0,
+          -200.0,
+          200.0,
+          700.0,
+          200.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.2,
+            0,
+            -0.2
+          ],
+          "max": [
+            0.2,
+            0.7000000000000001,
+            0.2
+          ]
+        },
+        "triangles": 36,
+        "bytes": 2428,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_queen_bed",
+        "dims": {
+          "w": 1600,
+          "d": 2100,
+          "h": 1000
+        },
+        "sourceBoundsMm": [
+          -800.0,
+          0.0,
+          -1050.0,
+          800.0,
+          1000.0,
+          1050.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.8,
+            0,
+            -1.05
+          ],
+          "max": [
+            0.8,
+            1,
+            1.05
+          ]
+        },
+        "triangles": 108,
+        "bytes": 3220,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_rug",
+        "dims": {
+          "w": 1600,
+          "d": 1000,
+          "h": 10
+        },
+        "sourceBoundsMm": [
+          -800.0,
+          0.0,
+          -500.0,
+          800.0,
+          10.0,
+          500.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.8,
+            0,
+            -0.5
+          ],
+          "max": [
+            0.8,
+            0.01,
+            0.5
+          ]
+        },
+        "triangles": 12,
+        "bytes": 1716,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_shoe_rack",
+        "dims": {
+          "w": 800,
+          "d": 350,
+          "h": 800
+        },
+        "sourceBoundsMm": [
+          -400.0,
+          0.0,
+          -175.0,
+          400.0,
+          800.0,
+          175.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.4,
+            0,
+            -0.17500000000000002
+          ],
+          "max": [
+            0.4,
+            0.8,
+            0.175
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2624,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_side_table",
+        "dims": {
+          "w": 450,
+          "d": 450,
+          "h": 500
+        },
+        "sourceBoundsMm": [
+          -225.0,
+          0.0,
+          -225.0,
+          225.0,
+          500.0,
+          225.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.225,
+            0,
+            -0.225
+          ],
+          "max": [
+            0.225,
+            0.5,
+            0.225
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2360,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_single_bed",
+        "dims": {
+          "w": 1000,
+          "d": 2000,
+          "h": 900
+        },
+        "sourceBoundsMm": [
+          -500.0,
+          0.0,
+          -1000.0,
+          500.0,
+          900.0,
+          1000.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.5,
+            0,
+            -1
+          ],
+          "max": [
+            0.5,
+            0.9,
+            1
+          ]
+        },
+        "triangles": 108,
+        "bytes": 3228,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_sofa_2",
+        "dims": {
+          "w": 1600,
+          "d": 800,
+          "h": 850
+        },
+        "sourceBoundsMm": [
+          -800.0,
+          0.0,
+          -400.0,
+          800.0,
+          850.0,
+          400.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.8,
+            0,
+            -0.4
+          ],
+          "max": [
+            0.8,
+            0.8500000000000001,
+            0.4
+          ]
+        },
+        "triangles": 108,
+        "bytes": 2664,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_sofa_3",
+        "dims": {
+          "w": 2100,
+          "d": 850,
+          "h": 850
+        },
+        "sourceBoundsMm": [
+          -1050.0,
+          0.0,
+          -425.0,
+          1050.0,
+          850.0,
+          425.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -1.05,
+            0,
+            -0.425
+          ],
+          "max": [
+            1.05,
+            0.8500000000000001,
+            0.425
+          ]
+        },
+        "triangles": 108,
+        "bytes": 2652,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_stool",
+        "dims": {
+          "w": 400,
+          "d": 400,
+          "h": 450
+        },
+        "sourceBoundsMm": [
+          -200.0,
+          0.0,
+          -200.0,
+          200.0,
+          450.0,
+          200.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.2,
+            0,
+            -0.2
+          ],
+          "max": [
+            0.2,
+            0.45,
+            0.2
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2336,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_study_desk",
+        "dims": {
+          "w": 1400,
+          "d": 700,
+          "h": 750
+        },
+        "sourceBoundsMm": [
+          -700.0,
+          0.0,
+          -350.0,
+          700.0,
+          750.0,
+          350.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.7,
+            0,
+            -0.35
+          ],
+          "max": [
+            0.7,
+            0.75,
+            0.35
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2336,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_vanity",
+        "dims": {
+          "w": 600,
+          "d": 450,
+          "h": 850
+        },
+        "sourceBoundsMm": [
+          -300.0,
+          0.0,
+          -225.0,
+          300.0,
+          850.0,
+          225.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.3,
+            0,
+            -0.225
+          ],
+          "max": [
+            0.3,
+            0.85,
+            0.225
+          ]
+        },
+        "triangles": 72,
+        "bytes": 2976,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_wall_cabinet",
+        "dims": {
+          "w": 800,
+          "d": 350,
+          "h": 700
+        },
+        "sourceBoundsMm": [
+          -400.0,
+          0.0,
+          -175.0,
+          400.0,
+          700.0,
+          175.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.4,
+            0,
+            -0.17500000000000002
+          ],
+          "max": [
+            0.4,
+            0.7,
+            0.175
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2628,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_wardrobe_2",
+        "dims": {
+          "w": 1000,
+          "d": 600,
+          "h": 2000
+        },
+        "sourceBoundsMm": [
+          -500.0,
+          0.0,
+          -300.0,
+          500.0,
+          2000.0,
+          300.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.5,
+            0,
+            -0.3
+          ],
+          "max": [
+            0.5,
+            2,
+            0.30000000000000004
+          ]
+        },
+        "triangles": 60,
+        "bytes": 2604,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      },
+      {
+        "id": "a_l0_wardrobe_3",
+        "dims": {
+          "w": 1500,
+          "d": 600,
+          "h": 2100
+        },
+        "sourceBoundsMm": [
+          -750.0,
+          0.0,
+          -300.0,
+          750.0,
+          2100.0,
+          300.0
+        ],
+        "decodedBoundsMetres": {
+          "min": [
+            -0.75,
+            0,
+            -0.3
+          ],
+          "max": [
+            0.75,
+            2.1,
+            0.30000000000000004
+          ]
+        },
+        "triangles": 84,
+        "bytes": 2788,
+        "validatorErrors": 0,
+        "validatorWarnings": 0,
+        "license": "project-original-app-use"
+      }
+    ],
+    "files": {
+      "apps/web/public/catalog/blobs/518577c5eb8f5efd671293c121fdd72e5769a10c0fe4cb49aa8b536e8fd0a9ee.glb": {
+        "sha256": "518577c5eb8f5efd671293c121fdd72e5769a10c0fe4cb49aa8b536e8fd0a9ee",
+        "bytes": 2740,
+        "mtimeNs": 1792048091680549830
+      },
+      "apps/web/public/catalog/blobs/a96b3e90ddffda1b53a66210b993638b8dda4c6b7b22d6f9c10643ff47bd9b89.svg": {
+        "sha256": "a96b3e90ddffda1b53a66210b993638b8dda4c6b7b22d6f9c10643ff47bd9b89",
+        "bytes": 2497,
+        "mtimeNs": 1792048091680644141
+      },
+      "apps/web/public/catalog/blobs/d4e143b558f6c4b80e771e17118a29bfc14b55491a839b3be4ec31c65010a0c0.glb": {
+        "sha256": "d4e143b558f6c4b80e771e17118a29bfc14b55491a839b3be4ec31c65010a0c0",
+        "bytes": 2668,
+        "mtimeNs": 1792157399639556314
+      },
+      "apps/web/public/catalog/blobs/b997bbe2effa89636e2d66abd059ebfc4bb8b3523f8dc42f360666f1ad38e9be.svg": {
+        "sha256": "b997bbe2effa89636e2d66abd059ebfc4bb8b3523f8dc42f360666f1ad38e9be",
+        "bytes": 3721,
+        "mtimeNs": 1792157399639556314
+      },
+      "apps/web/public/catalog/blobs/031b98785e1a1fc068b6800193787ec4197eeef54114e7ee68418d57b6e18808.glb": {
+        "sha256": "031b98785e1a1fc068b6800193787ec4197eeef54114e7ee68418d57b6e18808",
+        "bytes": 2336,
+        "mtimeNs": 1792157399639556314
+      },
+      "apps/web/public/catalog/blobs/929fe7b9acfb03dd860b12db09bed683fa500acab91be5871728de4799aa654b.svg": {
+        "sha256": "929fe7b9acfb03dd860b12db09bed683fa500acab91be5871728de4799aa654b",
+        "bytes": 2103,
+        "mtimeNs": 1792157399639556314
+      },
+      "apps/web/public/catalog/blobs/dad52c263a6895410a7e66405ee657b27bbc3ac8e040b8cde18b7505f822a80f.glb": {
+        "sha256": "dad52c263a6895410a7e66405ee657b27bbc3ac8e040b8cde18b7505f822a80f",
+        "bytes": 2364,
+        "mtimeNs": 1792157399639556314
+      },
+      "apps/web/public/catalog/blobs/3d55467f58086b7430fac3bfe0b6252b65afb662d3691e71f8733a0312b23749.svg": {
+        "sha256": "3d55467f58086b7430fac3bfe0b6252b65afb662d3691e71f8733a0312b23749",
+        "bytes": 3687,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/a23589eda20af249dd477e3363337fe56ff61115d757327672c463617832e699.glb": {
+        "sha256": "a23589eda20af249dd477e3363337fe56ff61115d757327672c463617832e699",
+        "bytes": 3828,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/012b25891fd5fffc76a27dd8629547241a92d18a8f58593b07da12b5aaa4d92c.svg": {
+        "sha256": "012b25891fd5fffc76a27dd8629547241a92d18a8f58593b07da12b5aaa4d92c",
+        "bytes": 6444,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/274757ca460850297b08e34d2b6e221bae252caf29f6efb350fdf5e4547af3ff.glb": {
+        "sha256": "274757ca460850297b08e34d2b6e221bae252caf29f6efb350fdf5e4547af3ff",
+        "bytes": 2332,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/8658b079788ef93a94308913026a4919c4ccae00500eaeff4ab5089dcfc54523.svg": {
+        "sha256": "8658b079788ef93a94308913026a4919c4ccae00500eaeff4ab5089dcfc54523",
+        "bytes": 2103,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/ffd035450054338d0509cc52eb7c5551f009df884200578b725620a3421e1f6e.glb": {
+        "sha256": "ffd035450054338d0509cc52eb7c5551f009df884200578b725620a3421e1f6e",
+        "bytes": 2356,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/11d673c8e79753684a06e9359e9cead4a9b1b2d7a04586999baa0037a78e581a.svg": {
+        "sha256": "11d673c8e79753684a06e9359e9cead4a9b1b2d7a04586999baa0037a78e581a",
+        "bytes": 2103,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/47ea8e31bd9822e4ca3bc2df99158b5aa29afdf6059a27b4c3ee21f2321d1f2c.glb": {
+        "sha256": "47ea8e31bd9822e4ca3bc2df99158b5aa29afdf6059a27b4c3ee21f2321d1f2c",
+        "bytes": 2340,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/7ba9af63ec5a9f88bfc9e119585eb31ee89e101d381fae7870e7bd6f7e9a9554.svg": {
+        "sha256": "7ba9af63ec5a9f88bfc9e119585eb31ee89e101d381fae7870e7bd6f7e9a9554",
+        "bytes": 2114,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/db103a505ab3c87e457f0b7631a22887f6f06661b38a1bed6dd7d2fa423ffc88.glb": {
+        "sha256": "db103a505ab3c87e457f0b7631a22887f6f06661b38a1bed6dd7d2fa423ffc88",
+        "bytes": 2336,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/fd6eb86a6f924180f4037c743a320e967231784bee6cc6f34c0e4f893859ab8e.svg": {
+        "sha256": "fd6eb86a6f924180f4037c743a320e967231784bee6cc6f34c0e4f893859ab8e",
+        "bytes": 2103,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/bcd6889f671667d22e355096c9fb21dd1fef48493dac85fa82530605cbcad504.glb": {
+        "sha256": "bcd6889f671667d22e355096c9fb21dd1fef48493dac85fa82530605cbcad504",
+        "bytes": 2428,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/b79411366975990ce6345c9bc113af0598c09aab1339e439ac92199f7f151370.svg": {
+        "sha256": "b79411366975990ce6345c9bc113af0598c09aab1339e439ac92199f7f151370",
+        "bytes": 2528,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/4acca6d226b02a216959d3320ad3596fb2b6efb1f4e060811a66356e0c15a30f.glb": {
+        "sha256": "4acca6d226b02a216959d3320ad3596fb2b6efb1f4e060811a66356e0c15a30f",
+        "bytes": 3232,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/72b5dad993ca263de1b55ce8227499197ba4b3960ceb0f138e486bce287f16b1.svg": {
+        "sha256": "72b5dad993ca263de1b55ce8227499197ba4b3960ceb0f138e486bce287f16b1",
+        "bytes": 3717,
+        "mtimeNs": 1792157399647556430
+      },
+      "apps/web/public/catalog/blobs/4a24b52755738f78b7da34d3d59ffbe51c817be60ae3b2744d430179afff28f4.glb": {
+        "sha256": "4a24b52755738f78b7da34d3d59ffbe51c817be60ae3b2744d430179afff28f4",
+        "bytes": 2772,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/7360244fa9b7a60c036cabd66138f2cb13e16702ec6656357769d202a8cfb0b9.svg": {
+        "sha256": "7360244fa9b7a60c036cabd66138f2cb13e16702ec6656357769d202a8cfb0b9",
+        "bytes": 2913,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/e119543ffac8dfe3fbb13036e32a476fba21d8f9b1e432618a37cedcf33a74d9.glb": {
+        "sha256": "e119543ffac8dfe3fbb13036e32a476fba21d8f9b1e432618a37cedcf33a74d9",
+        "bytes": 2712,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/745fad67d8e2feab8f31a697a3383b401a536c4c9a40cce7c45c644fccc4b368.svg": {
+        "sha256": "745fad67d8e2feab8f31a697a3383b401a536c4c9a40cce7c45c644fccc4b368",
+        "bytes": 2504,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/08e70ddccd3cda165496111f23f72a777f861301c51390716bfb1571ebe3e1cb.glb": {
+        "sha256": "08e70ddccd3cda165496111f23f72a777f861301c51390716bfb1571ebe3e1cb",
+        "bytes": 3224,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/c3d58f1ad89e69c3bf7834a03f35cec8c1c4251c727f0a0ca9977b084d778ca6.svg": {
+        "sha256": "c3d58f1ad89e69c3bf7834a03f35cec8c1c4251c727f0a0ca9977b084d778ca6",
+        "bytes": 3714,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/210d063280fb0f0dffe0f757c5a920db695d285df73b3cff8160cadaedc4f18e.glb": {
+        "sha256": "210d063280fb0f0dffe0f757c5a920db695d285df73b3cff8160cadaedc4f18e",
+        "bytes": 2624,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/e1f4ea9765803ac61b2586bb95969f0d7c4acc97f94691d7dd2a0ac95aca53a7.svg": {
+        "sha256": "e1f4ea9765803ac61b2586bb95969f0d7c4acc97f94691d7dd2a0ac95aca53a7",
+        "bytes": 2104,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/6634de94322b68165b45cacc5662616910ece5e4d0fa2b86d46a53d04849e4f5.glb": {
+        "sha256": "6634de94322b68165b45cacc5662616910ece5e4d0fa2b86d46a53d04849e4f5",
+        "bytes": 2792,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/82d3218d9f96ea32fa1a35711f3c4a05dd88f95ae3be21b2a00691aea8a0b5d1.svg": {
+        "sha256": "82d3218d9f96ea32fa1a35711f3c4a05dd88f95ae3be21b2a00691aea8a0b5d1",
+        "bytes": 2917,
+        "mtimeNs": 1792157399651556488
+      },
+      "apps/web/public/catalog/blobs/3aaa7519c58ae98195e552ff35afb2671d13924c7bce5b51bb8ee8fa1ba4b56f.glb": {
+        "sha256": "3aaa7519c58ae98195e552ff35afb2671d13924c7bce5b51bb8ee8fa1ba4b56f",
+        "bytes": 2428,
+        "mtimeNs": 1792157399655556546
+      },
+      "apps/web/public/catalog/blobs/617c2fc0f9faed19217f392a57ea062fb6b7952c438a16b1e0525a9177b9c471.svg": {
+        "sha256": "617c2fc0f9faed19217f392a57ea062fb6b7952c438a16b1e0525a9177b9c471",
+        "bytes": 1328,
+        "mtimeNs": 1792157399655556546
+      },
+      "apps/web/public/catalog/blobs/cd2f1bf1ba2d7f908747551464b64899ac04ed78b6645293b5e2aad19376b13c.glb": {
+        "sha256": "cd2f1bf1ba2d7f908747551464b64899ac04ed78b6645293b5e2aad19376b13c",
+        "bytes": 3220,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/f2e8b828cac524631e27f53c20947aae6ff3caf16dbe1dc026afee129b207041.svg": {
+        "sha256": "f2e8b828cac524631e27f53c20947aae6ff3caf16dbe1dc026afee129b207041",
+        "bytes": 3714,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/ea936b42da4a6eae996f3266fde129d5591b44a7b3bf1dbdb0f4eb0df30785c8.glb": {
+        "sha256": "ea936b42da4a6eae996f3266fde129d5591b44a7b3bf1dbdb0f4eb0df30785c8",
+        "bytes": 1716,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/3cbd7853c907bb1b54d87f2950f7d405439b951a4261e968ddf7be6c8afd87aa.svg": {
+        "sha256": "3cbd7853c907bb1b54d87f2950f7d405439b951a4261e968ddf7be6c8afd87aa",
+        "bytes": 539,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/8e04fb9e3389292d5844fadd1ca7ecbb65e55cd58518e36eb0f0a1b8b4555923.glb": {
+        "sha256": "8e04fb9e3389292d5844fadd1ca7ecbb65e55cd58518e36eb0f0a1b8b4555923",
+        "bytes": 2624,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/20eab967aacf0fa0db8083aeb76c346b35d4ada79d59e858c8d98a2d3ccc9725.svg": {
+        "sha256": "20eab967aacf0fa0db8083aeb76c346b35d4ada79d59e858c8d98a2d3ccc9725",
+        "bytes": 2107,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/f543e41ee1b19be07cbd8bf24670a699a15b5e7bae1f8c6007bbdab66f582e62.glb": {
+        "sha256": "f543e41ee1b19be07cbd8bf24670a699a15b5e7bae1f8c6007bbdab66f582e62",
+        "bytes": 2360,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/7dab5a10a39b39b7249c97f185b242f7b5ac0ef9e8ec5daf08ac5cf9f8081282.svg": {
+        "sha256": "7dab5a10a39b39b7249c97f185b242f7b5ac0ef9e8ec5daf08ac5cf9f8081282",
+        "bytes": 2105,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/dc8d5e185f4cb11ea4558ee1bbc675951492acff854c798319a64f1e8a44ba29.glb": {
+        "sha256": "dc8d5e185f4cb11ea4558ee1bbc675951492acff854c798319a64f1e8a44ba29",
+        "bytes": 3228,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/4632a6a5db4dbcdeb015871f7c952959b7997aaf7c4cbc8aca40adb0b6ef9d25.svg": {
+        "sha256": "4632a6a5db4dbcdeb015871f7c952959b7997aaf7c4cbc8aca40adb0b6ef9d25",
+        "bytes": 3690,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/0c86c914c4309a5e8f9eab8362cb07fc356cf585fa70db01eff959af43976e73.glb": {
+        "sha256": "0c86c914c4309a5e8f9eab8362cb07fc356cf585fa70db01eff959af43976e73",
+        "bytes": 2664,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/34037849b32aaa60109aa09e8cad996ee1934f433db8264d0fd52a5b2e538ef1.svg": {
+        "sha256": "34037849b32aaa60109aa09e8cad996ee1934f433db8264d0fd52a5b2e538ef1",
+        "bytes": 3699,
+        "mtimeNs": 1792157399659556603
+      },
+      "apps/web/public/catalog/blobs/b592f4c8bbeb264870acab2f710eaa838492c8db2fa4fc5568dc9fd98af4c01e.glb": {
+        "sha256": "b592f4c8bbeb264870acab2f710eaa838492c8db2fa4fc5568dc9fd98af4c01e",
+        "bytes": 2652,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/5c3dafd0bad04c11ad2a1411193ec764b3496009b1899ae2916567f919362a8b.svg": {
+        "sha256": "5c3dafd0bad04c11ad2a1411193ec764b3496009b1899ae2916567f919362a8b",
+        "bytes": 3695,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/bd4535487c53148910abfd2ef366899055f44b19ae5fae2ababcd6cb8277751d.glb": {
+        "sha256": "bd4535487c53148910abfd2ef366899055f44b19ae5fae2ababcd6cb8277751d",
+        "bytes": 2336,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/268a81d8ad9ed1f075f5746a81fe12d48e2d1c78686c01aa8b2a331e75e8f0db.svg": {
+        "sha256": "268a81d8ad9ed1f075f5746a81fe12d48e2d1c78686c01aa8b2a331e75e8f0db",
+        "bytes": 2105,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/405fc258539bff4cfab7f127c48ca2ba1051d40a72cdc482bc692667204e6704.glb": {
+        "sha256": "405fc258539bff4cfab7f127c48ca2ba1051d40a72cdc482bc692667204e6704",
+        "bytes": 2336,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/28907e5d48cdb44b423e2ff2cbc94018f0c90670ac2de825f58b945978584062.svg": {
+        "sha256": "28907e5d48cdb44b423e2ff2cbc94018f0c90670ac2de825f58b945978584062",
+        "bytes": 2103,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/2ca6ae941a193b22af1a2e37477b54206401e5ad770dbb7cc7444de08c418a92.glb": {
+        "sha256": "2ca6ae941a193b22af1a2e37477b54206401e5ad770dbb7cc7444de08c418a92",
+        "bytes": 2976,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/322c066f193cd23e682d750404a3eb631387b90e26c3e9579be34df7b32ebd82.svg": {
+        "sha256": "322c066f193cd23e682d750404a3eb631387b90e26c3e9579be34df7b32ebd82",
+        "bytes": 2496,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/5b59168dd29d4d8d5703876328cd5a2bc2f98d3275dcfea1b4aadf6e6d34ab65.glb": {
+        "sha256": "5b59168dd29d4d8d5703876328cd5a2bc2f98d3275dcfea1b4aadf6e6d34ab65",
+        "bytes": 2628,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/29ac7a0c4140f8bb7ec244e7daecad0c8dcbe324dca19e146e2a5dd38f8d3a0b.svg": {
+        "sha256": "29ac7a0c4140f8bb7ec244e7daecad0c8dcbe324dca19e146e2a5dd38f8d3a0b",
+        "bytes": 2104,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/748b402d0a77daca15d06c675bd064d9346cb8c10840f5d701f9ad73dd57ac61.glb": {
+        "sha256": "748b402d0a77daca15d06c675bd064d9346cb8c10840f5d701f9ad73dd57ac61",
+        "bytes": 2604,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/6d6bea8ffe312d3a0989e53b0442a465251cd5539a3956377fb47f1bf4ac2950.svg": {
+        "sha256": "6d6bea8ffe312d3a0989e53b0442a465251cd5539a3956377fb47f1bf4ac2950",
+        "bytes": 2117,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/6e62b665f18f97ab7f4b3836bb7ba8191a09d70f5b17033b87ffd59af5fe92fe.glb": {
+        "sha256": "6e62b665f18f97ab7f4b3836bb7ba8191a09d70f5b17033b87ffd59af5fe92fe",
+        "bytes": 2788,
+        "mtimeNs": 1792157399663556662
+      },
+      "apps/web/public/catalog/blobs/ff45271cc2fa20d43f104995aa0daf3714eb1138fa8352ed65c3dabf082960a7.svg": {
+        "sha256": "ff45271cc2fa20d43f104995aa0daf3714eb1138fa8352ed65c3dabf082960a7",
+        "bytes": 2891,
+        "mtimeNs": 1792157399663556662
+      }
+    }
+  },
+  "repeatBuild": {
+    "immutableBlobsChecked": 60,
+    "mtimeOrByteChangesAfterRepeatBuild": 0
+  },
+  "gradle": {
+    "result": "BUILD SUCCESSFUL in32s",
+    "tasks": 170,
+    "executed": 40,
+    "upToDate": 130
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8122614,
+    "sha256": "97a6a659888145a036c75e327544b9eed88605ad789d505ef3128e21cbf1006e",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packagedBytes": {
+    "sha256": "97a6a659888145a036c75e327544b9eed88605ad789d505ef3128e21cbf1006e",
+    "bytes": 8122614,
+    "webFilesByteEqual": 74,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "apkV2SignatureVerified": true,
+  "actualPackagedCatalog": {
+    "items": 30,
+    "blobBytesEqual": 60,
+    "manifestBytesEqual": true
+  },
+  "actualGpuRecoveryMs": 460.2999999523163,
+  "rendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 9450404
+      },
+      {
+        "cycles": 16,
+        "usedSize": 10283896
+      },
+      {
+        "cycles": 26,
+        "usedSize": 10416844
+      }
+    ],
+    "baseline": {
+      "usedSize": 10533324,
+      "totalSize": 11243520,
+      "embedderHeapUsedSize": 2168536,
+      "backingStorageSize": 1568193
+    },
+    "after": {
+      "usedSize": 11108440,
+      "totalSize": 12029952,
+      "embedderHeapUsedSize": 2120224,
+      "backingStorageSize": 1568186
+    },
+    "heapGrowth": 0.05459966863261778,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 1,
+    "documentKeyboardAfter": 1
+  },
+  "failureHistory": {
+    "initialThumbnailRun": {
+      "passed": 7,
+      "failed": 1,
+      "cause": "Offscreen lazy thumbnail correctly idle; positively scroll real card before checking ready, preserving exact assertions."
+    },
+    "initialWholeRun": {
+      "passed": 51,
+      "interrupted": 1,
+      "notRun": 69,
+      "countedAsPassing": false
+    },
+    "parentCi": {
+      "base": "6dd2c55",
+      "run": 38908175057,
+      "status": "FAILURE117pass1fail; AndroidSKIPPED",
+      "firstCorrection": "ea033d7",
+      "firstCorrectionRun": 38910590646,
+      "firstCorrectionStatus": "FAILURE117pass1fail; AndroidSKIPPED",
+      "failure": "Exact unchanged-rectangle precondition, Y315.3125 to343, before pointer release; historical cause not established.",
+      "redHeadsMerged": false
+    }
+  },
+  "pending": [
+    "Exact-head green parent and catalog CI before merge",
+    "Physical Low/Mid, native providers, external aesthetic/accessibility/rights and final Claude review after D36 permission",
+    "Photorealism, textures, manufacturer dimensions and compressed imports not supplied"
+  ],
+  "protectedInputs": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "preservationCheck": {
+    "restrictedWrapper": "453product passed; tooling child-process SDK test failed without detailed diagnostic; no commit on failure",
+    "ordinaryEscalatedExecution": "pnpm check passed all453product and18tooling; no tests or permissions policy changed"
+  }
+}
