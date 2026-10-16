@@ -14,6 +14,12 @@ Native-input cases positively require delivered clicks with unchanged button rec
 
 Linux Chromium/SwiftShader execution is distinct from pinnedCI and physical Android phones. Actual context recovery and warmed renderer lifetime diagnostics are scoped to this sample/main-frame/owned resources; they do not measure whole-process, worker/native/driver/phone memory. Android checks are existing debug compilation/packaging only. Native-provider, real Low/Mid, accessibility/external/final-Claude and other D36 gates remain pending.
 
+## CI correction after the initial implementation head
+
+Implementation head6dd2c55 passed the local118case suite and debug/runtime checks recorded above, but CI run38908175057 reported117pass/1fail; Android was SKIPPED and the red head was never merged. The failure occurred at the positive unchanged-button-rectangle precondition: Y315.3125→343 with the same X970/width122/height90, before pointer release. This does not prove a product paint-commit bug or the exact historical scroll/focus cause.
+
+The test now dispatches the unrelated canonical unit-change UI event without a driver scroll-to-select action. The native held pointer/release/click, exact unchanged rectangle, positive click count, actual units value, full unchanged entity fields and exact one-Undo assertions all remain. All10product runtime source hashes remain identical to6dd2c55; no application or accepted fixture change. Corrected pnpm check452+18 and all10focused browser cases(39.2s) passed. The original118case/debug/GPU/memory evidence stays tied to6dd2c55; all118were not rerun locally for the test-only correction. Corrected exact-head CI must pass before merge. See the adjacent JSON for both heads/evidence scopes.
+
 ## Failures and corrections
 
 The first new unit run passed6/failed1 because a wall paint inherited conservative geometry-dependency revision increments on an otherwise unchanged room. The exact room equality assertion was retained; ApplySurfaceMaterial now skips inherited geometry-only revision propagation while preserving its directly edited entity revision and all other commands' behavior. Worker material invalidation continues to derive actual IDs. The initial typecheck also rejected mutable ProjectDoc parameters used with immutable snapshots; read-only helpers now accept the actual immutable snapshot document type without casts or mutations.
