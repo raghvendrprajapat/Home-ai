@@ -1,0 +1,197 @@
+{
+  "task": "PH4-T04 stageA CPU surface bindings",
+  "date": "2026-10-16",
+  "scope": "CPU foundation only; GPU buffer rebinding, visible palette, full FR-022/SYNC-005 and physical-device targets remain pending. D36 scopes unstarted.",
+  "integratedParent": {
+    "pr": 93,
+    "head": "8c31f5f40e0c8cccd64dcf8aa507b993c1dbfa08",
+    "greenRun": 38871463895,
+    "mainMerge": "14c35f75840d6c7b148aeb2458b5873e6a163aff"
+  },
+  "check": {
+    "productTests": 435,
+    "files": 63,
+    "elapsedSeconds": 24.62,
+    "toolingTests": 18,
+    "failed": 0,
+    "skipped": 0
+  },
+  "localBrowser": {
+    "existingSuitePassedTogether": 105,
+    "existingReportedElapsed": "7.4m",
+    "additionalFocusedPassed": 1,
+    "additionalReportedElapsed": "8.2s",
+    "runtimeSame": true,
+    "all106RunTogether": false,
+    "failedFinal": 0,
+    "browser": "Linux Chromium151.0.7922.173 with SwiftShader; CI pinned156/rev1248 and physical devices are distinct",
+    "floorPixel": {
+      "white": [
+        234,
+        233,
+        231,
+        255
+      ],
+      "blue": [
+        217,
+        225,
+        228,
+        255
+      ]
+    },
+    "probeWorldMetres": [
+      3,
+      0,
+      3
+    ],
+    "assertions": [
+      "actual module worker and PNG pixels",
+      "settled overhead camera",
+      "export bitmap aspect",
+      "zero CPU meshes built",
+      "exact replaced floor:r_living,threshold:o_bed_door,threshold:o_main_door",
+      "all walls kept, neighbor room/walls/material definitions unchanged",
+      "exact canonical Undo JSON"
+    ]
+  },
+  "priorRendererComparison": {
+    "referenceCommit": "ca251f70ac902df8304cdfbfcd5ffea3fc63d808",
+    "casesPassed": 9,
+    "elapsedMs": 555,
+    "scope": "All positions/normals/UV/groups/bounds/volume/stats/ceiling warnings on9corpora; temporary harness, accepted fixtures unchanged."
+  },
+  "productionBuild": {
+    "initialGzipBytes": 173311,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "gradle": {
+    "result": "BUILD SUCCESSFUL in29s",
+    "tasks": 170,
+    "executed": 40,
+    "upToDate": 130
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8114378,
+    "sha256": "9ee95748d39547d6e3130a30f0ff04c9f3f210db415fe297008c94c9a05465fe",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packagedBytes": {
+    "sha256": "9ee95748d39547d6e3130a30f0ff04c9f3f210db415fe297008c94c9a05465fe",
+    "bytes": 8114378,
+    "webFilesByteEqual": 16,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "actualGpuRecoveryMs": 435.09999990463257,
+  "rendererLifecycle": {
+    "scope": "Linux renderer view-toggle cycles; main-frame V8 only, excluding workers/GPU driver and physical phones",
+    "cycles": 50,
+    "warmup": 36,
+    "warmupReadings": [
+      {
+        "cycles": 6,
+        "usedSize": 9285724
+      },
+      {
+        "cycles": 16,
+        "usedSize": 10114340
+      },
+      {
+        "cycles": 26,
+        "usedSize": 10263008
+      }
+    ],
+    "baseline": {
+      "usedSize": 10372660,
+      "totalSize": 11243520,
+      "embedderHeapUsedSize": 2022056,
+      "backingStorageSize": 1554232
+    },
+    "after": {
+      "usedSize": 10925576,
+      "totalSize": 12029952,
+      "embedderHeapUsedSize": 2182368,
+      "backingStorageSize": 1554225
+    },
+    "heapGrowth": 0.053305130988579696,
+    "liveGpu": {
+      "geometries": 6,
+      "textures": 1
+    },
+    "closedResources": {
+      "resources": {
+        "live": 0,
+        "references": 0,
+        "created": 29,
+        "disposed": 29,
+        "disposalFailures": 0,
+        "closed": true
+      },
+      "gpu": {
+        "geometries": 0,
+        "textures": 0
+      }
+    },
+    "liveWorkers": 0,
+    "liveRafs": 0,
+    "documentKeyboardBaseline": 0,
+    "documentKeyboardAfter": 0
+  },
+  "protectedInputs": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "runtimeSourceSha256": {
+    "dependencies.ts": "1ecb98bab4b4c3d9696e5c5a0fe39b8bd4e3777db67c1062f08618549916280e",
+    "material-bindings.ts": "048133d7107dc88c062608986aa2aa1bd9f059665656a16df6edba675ec2416b",
+    "mesh.ts": "d1fa10964a72fd38bc7d5b3b63635b98182064e9081802c663756cd5b402c323",
+    "types.ts": "c6387a1fac6dff2e87945fce39be14ec974255579c12ad65584815ab0f56f416"
+  },
+  "diagnoses": [
+    "First isolated reference harness resolved0tests because workspace-package import resolution failed; explicit source imports restored9passing comparisons.",
+    "Initial typecheck rejected deliberately malformed test data with materialRanges:undefined under exactOptionalPropertyTypes; test-only cast retained real contract.",
+    "Two initial new pixel probes sampled a point inside sofa footprint and failed unchanged colour assertions; clear floor point, positive settled camera and actual export aspect now pass. Footer overlays unchanged bitmap height.",
+    "Automatic review rejected replacing exact changed-ID equality with weaker containment. That edit was not executed; original equality remains, plus wall-kept assertion.",
+    "Full runtime is unchanged between105whole-suite and new focused-case runs; no claim that106ran together locally.",
+    "Android is debug compilation/packaging only;9cached helper reports and15existing lint warnings are not phone evidence.",
+    "CPU buffer identity is not GPU/whole-process/device performance; GPU rebinding and visible paint UI remain next."
+  ],
+  "pending": [
+    "GPU buffer rebinding",
+    "Visible per-side/floor palette and complete2Dmaterial display",
+    "Catalog breadth and other eligible editor gaps",
+    "Physical phones/native providers/accessibility/external validation",
+    "All D36 scopes including final Claude review"
+  ]
+}

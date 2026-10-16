@@ -9,11 +9,14 @@ export interface FurnitureAssetSource {
   load(id:string,version:number,lod:0|1,signal:AbortSignal,onProgress:(received:number,total:number|undefined)=>void):Promise<FurnitureAssetData>;
 }
 
+export interface MaterialRange {start:number;count:number;slot:'left'|'right'|'floor'|'threshold'|'ceiling'}
+
 /** Renderer-owned derived buffers. Coordinates are metres in Three's X/Y/Z frame. */
 export interface MeshData {
   id: string; entityId: string; category: 'wall' | 'floor' | 'threshold' | 'ceiling';
   positions: Float64Array; normals: Float32Array; uv: Float32Array;
   groups: { start: number; count: number; materialId: string }[];
+  materialRanges?: MaterialRange[];
 }
 export interface CeilingWarning {roomIds:[string,string];wallIds:string[];heightsMm:[number,number]}
 export interface SceneBundle {
