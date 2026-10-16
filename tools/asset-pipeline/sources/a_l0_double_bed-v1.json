@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_double_bed",
+  "version": 1,
+  "name_en": "Double bed",
+  "name_hi": "दो लोगों का पलंग",
+  "category": "beds",
+  "tags": [
+    "bed",
+    "bedroom",
+    "दो लोगों का पलंग"
+  ],
+  "dims": {
+    "w": 1500,
+    "d": 2000,
+    "h": 1000
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_double_bed-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_double_bed-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "leg-0-0",
+      "center": [
+        -700,
+        75,
+        -950
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-0-1",
+      "center": [
+        -700,
+        75,
+        950
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-0",
+      "center": [
+        700,
+        75,
+        -950
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-1",
+      "center": [
+        700,
+        75,
+        950
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "frame",
+      "center": [
+        0,
+        250,
+        0
+      ],
+      "size": [
+        1500,
+        200,
+        2000
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "mattress",
+      "center": [
+        0,
+        450,
+        -50
+      ],
+      "size": [
+        1460,
+        200,
+        1900
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "headboard",
+      "center": [
+        0,
+        575,
+        960
+      ],
+      "size": [
+        1500,
+        850,
+        80
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "pillow-0",
+      "center": [
+        -375,
+        590,
+        700
+      ],
+      "size": [
+        690,
+        80,
+        350
+      ],
+      "color": "#f4f4f2"
+    },
+    {
+      "name": "pillow-1",
+      "center": [
+        375,
+        590,
+        700
+      ],
+      "size": [
+        690,
+        80,
+        350
+      ],
+      "color": "#f4f4f2"
+    }
+  ]
+}

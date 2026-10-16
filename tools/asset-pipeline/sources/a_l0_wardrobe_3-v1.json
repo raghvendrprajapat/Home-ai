@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_wardrobe_3",
+  "version": 1,
+  "name_en": "Three-door wardrobe",
+  "name_hi": "तीन दरवाज़े की अलमारी",
+  "category": "storage",
+  "tags": [
+    "wardrobe",
+    "तीन दरवाज़े की अलमारी"
+  ],
+  "dims": {
+    "w": 1500,
+    "d": 600,
+    "h": 2100
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_wardrobe_3-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wardrobe_3-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "center": [
+        0,
+        1050,
+        20
+      ],
+      "size": [
+        1500,
+        2100,
+        560
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "door-0",
+      "center": [
+        -480,
+        1050,
+        -270
+      ],
+      "size": [
+        470,
+        2000,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-0",
+      "center": [
+        -275,
+        1050,
+        -290
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "door-1",
+      "center": [
+        0,
+        1050,
+        -270
+      ],
+      "size": [
+        470,
+        2000,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-1",
+      "center": [
+        205,
+        1050,
+        -290
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "door-2",
+      "center": [
+        480,
+        1050,
+        -270
+      ],
+      "size": [
+        470,
+        2000,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-2",
+      "center": [
+        685,
+        1050,
+        -290
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    }
+  ]
+}

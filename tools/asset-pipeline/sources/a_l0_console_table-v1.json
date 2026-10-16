@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_console_table",
+  "version": 1,
+  "name_en": "Console table",
+  "name_hi": "संकरी मेज़",
+  "category": "tables",
+  "tags": [
+    "table",
+    "furniture",
+    "संकरी मेज़"
+  ],
+  "dims": {
+    "w": 1200,
+    "d": 350,
+    "h": 800
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_console_table-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_console_table-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "top",
+      "center": [
+        0,
+        775,
+        0
+      ],
+      "size": [
+        1200,
+        50,
+        350
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "leg-0-0",
+      "center": [
+        -550,
+        375,
+        -125
+      ],
+      "size": [
+        50,
+        750,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-0-1",
+      "center": [
+        -550,
+        375,
+        125
+      ],
+      "size": [
+        50,
+        750,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-0",
+      "center": [
+        550,
+        375,
+        -125
+      ],
+      "size": [
+        50,
+        750,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-1",
+      "center": [
+        550,
+        375,
+        125
+      ],
+      "size": [
+        50,
+        750,
+        50
+      ],
+      "color": "#4e6658"
+    }
+  ]
+}

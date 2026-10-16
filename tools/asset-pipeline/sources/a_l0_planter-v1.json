@@ -1,0 +1,72 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_planter",
+  "version": 1,
+  "name_en": "Box planter",
+  "name_hi": "चौकोर पौधे का गमला",
+  "category": "decor",
+  "tags": [
+    "plant",
+    "planter",
+    "चौकोर पौधे का गमला"
+  ],
+  "dims": {
+    "w": 400,
+    "d": 400,
+    "h": 700
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_planter-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_planter-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "pot",
+      "center": [
+        0,
+        200,
+        0
+      ],
+      "size": [
+        400,
+        400,
+        400
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "soil",
+      "center": [
+        0,
+        405,
+        0
+      ],
+      "size": [
+        360,
+        10,
+        360
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "foliage",
+      "center": [
+        0,
+        555,
+        0
+      ],
+      "size": [
+        300,
+        290,
+        300
+      ],
+      "color": "#56845f"
+    }
+  ]
+}

@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_shoe_rack",
+  "version": 1,
+  "name_en": "Shoe cabinet",
+  "name_hi": "जूते रखने की अलमारी",
+  "category": "storage",
+  "tags": [
+    "shoe",
+    "cabinet",
+    "जूते रखने की अलमारी"
+  ],
+  "dims": {
+    "w": 800,
+    "d": 350,
+    "h": 800
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_shoe_rack-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_shoe_rack-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "center": [
+        0,
+        400,
+        20
+      ],
+      "size": [
+        800,
+        800,
+        310
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "door-0",
+      "center": [
+        -185,
+        400,
+        -145
+      ],
+      "size": [
+        360,
+        700,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-0",
+      "center": [
+        -35,
+        400,
+        -165
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "door-1",
+      "center": [
+        185,
+        400,
+        -145
+      ],
+      "size": [
+        360,
+        700,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-1",
+      "center": [
+        335,
+        400,
+        -165
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    }
+  ]
+}

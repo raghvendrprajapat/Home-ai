@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_side_table",
+  "version": 1,
+  "name_en": "Side table",
+  "name_hi": "बगल की मेज़",
+  "category": "tables",
+  "tags": [
+    "table",
+    "furniture",
+    "बगल की मेज़"
+  ],
+  "dims": {
+    "w": 450,
+    "d": 450,
+    "h": 500
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_side_table-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_side_table-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "top",
+      "center": [
+        0,
+        475,
+        0
+      ],
+      "size": [
+        450,
+        50,
+        450
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "leg-0-0",
+      "center": [
+        -175,
+        225,
+        -175
+      ],
+      "size": [
+        50,
+        450,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-0-1",
+      "center": [
+        -175,
+        225,
+        175
+      ],
+      "size": [
+        50,
+        450,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-0",
+      "center": [
+        175,
+        225,
+        -175
+      ],
+      "size": [
+        50,
+        450,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-1",
+      "center": [
+        175,
+        225,
+        175
+      ],
+      "size": [
+        50,
+        450,
+        50
+      ],
+      "color": "#4e6658"
+    }
+  ]
+}

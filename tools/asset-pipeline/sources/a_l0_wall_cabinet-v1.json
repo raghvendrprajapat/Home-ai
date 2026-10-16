@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_wall_cabinet",
+  "version": 1,
+  "name_en": "Wall cabinet",
+  "name_hi": "दीवार वाली अलमारी",
+  "category": "kitchen",
+  "tags": [
+    "kitchen",
+    "cabinet",
+    "दीवार वाली अलमारी"
+  ],
+  "dims": {
+    "w": 800,
+    "d": 350,
+    "h": 700
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_wall_cabinet-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_cabinet-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "center": [
+        0,
+        350,
+        20
+      ],
+      "size": [
+        800,
+        700,
+        310
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "door-0",
+      "center": [
+        -185,
+        350,
+        -145
+      ],
+      "size": [
+        360,
+        600,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-0",
+      "center": [
+        -35,
+        350,
+        -165
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "door-1",
+      "center": [
+        185,
+        350,
+        -145
+      ],
+      "size": [
+        360,
+        600,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-1",
+      "center": [
+        335,
+        350,
+        -165
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    }
+  ]
+}

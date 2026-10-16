@@ -73,6 +73,2115 @@
           "messages": []
         }
       }
+    },
+    {
+      "id": "a_l0_armchair",
+      "version": 1,
+      "name_en": "Lounge armchair",
+      "name_hi": "आराम कुर्सी",
+      "category": "seating",
+      "tags": [
+        "chair",
+        "आराम कुर्सी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 800,
+        "h": 900
+      },
+      "sourceSha256": "564c6a663feaab197857a0283fba357679cee557b5bb9072787aef339b80af3c",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_armchair-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_armchair-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/d4e143b558f6c4b80e771e17118a29bfc14b55491a839b3be4ec31c65010a0c0.glb",
+          "sha256": "d4e143b558f6c4b80e771e17118a29bfc14b55491a839b3be4ec31c65010a0c0",
+          "bytes": 2668,
+          "triangles": 108
+        },
+        {
+          "level": 1,
+          "path": "blobs/d4e143b558f6c4b80e771e17118a29bfc14b55491a839b3be4ec31c65010a0c0.glb",
+          "sha256": "d4e143b558f6c4b80e771e17118a29bfc14b55491a839b3be4ec31c65010a0c0",
+          "bytes": 2668,
+          "triangles": 108
+        }
+      ],
+      "thumb": {
+        "path": "blobs/b997bbe2effa89636e2d66abd059ebfc4bb8b3523f8dc42f360666f1ad38e9be.svg",
+        "sha256": "b997bbe2effa89636e2d66abd059ebfc4bb8b3523f8dc42f360666f1ad38e9be",
+        "bytes": 3721,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 108,
+        "bounds": {
+          "min": [
+            -0.4,
+            0,
+            -0.4
+          ],
+          "max": [
+            0.4,
+            0.8999999999999999,
+            0.4
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_bench",
+      "version": 1,
+      "name_en": "Entry bench",
+      "name_hi": "बैठने की बेंच",
+      "category": "seating",
+      "tags": [
+        "bench",
+        "बैठने की बेंच"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 400,
+        "h": 450
+      },
+      "sourceSha256": "4d840e8844df680e1dc7bb3cfe08cad61790599a7340acf4f6907d5632f42047",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_bench-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bench-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/031b98785e1a1fc068b6800193787ec4197eeef54114e7ee68418d57b6e18808.glb",
+          "sha256": "031b98785e1a1fc068b6800193787ec4197eeef54114e7ee68418d57b6e18808",
+          "bytes": 2336,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/031b98785e1a1fc068b6800193787ec4197eeef54114e7ee68418d57b6e18808.glb",
+          "sha256": "031b98785e1a1fc068b6800193787ec4197eeef54114e7ee68418d57b6e18808",
+          "bytes": 2336,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/929fe7b9acfb03dd860b12db09bed683fa500acab91be5871728de4799aa654b.svg",
+        "sha256": "929fe7b9acfb03dd860b12db09bed683fa500acab91be5871728de4799aa654b",
+        "bytes": 2103,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.6,
+            0,
+            -0.2
+          ],
+          "max": [
+            0.6,
+            0.45,
+            0.2
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_bookcase",
+      "version": 1,
+      "name_en": "Open bookcase",
+      "name_hi": "किताबों की खुली अलमारी",
+      "category": "storage",
+      "tags": [
+        "books",
+        "shelf",
+        "किताबों की खुली अलमारी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 300,
+        "h": 1800
+      },
+      "sourceSha256": "515d4f688c3cf4dcb369a863cc4d85c9485cdfdcb271b11a61cfb0cc1d6446ba",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_bookcase-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bookcase-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/dad52c263a6895410a7e66405ee657b27bbc3ac8e040b8cde18b7505f822a80f.glb",
+          "sha256": "dad52c263a6895410a7e66405ee657b27bbc3ac8e040b8cde18b7505f822a80f",
+          "bytes": 2364,
+          "triangles": 108
+        },
+        {
+          "level": 1,
+          "path": "blobs/dad52c263a6895410a7e66405ee657b27bbc3ac8e040b8cde18b7505f822a80f.glb",
+          "sha256": "dad52c263a6895410a7e66405ee657b27bbc3ac8e040b8cde18b7505f822a80f",
+          "bytes": 2364,
+          "triangles": 108
+        }
+      ],
+      "thumb": {
+        "path": "blobs/3d55467f58086b7430fac3bfe0b6252b65afb662d3691e71f8733a0312b23749.svg",
+        "sha256": "3d55467f58086b7430fac3bfe0b6252b65afb662d3691e71f8733a0312b23749",
+        "bytes": 3687,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 108,
+        "bounds": {
+          "min": [
+            -0.4,
+            0,
+            -0.15
+          ],
+          "max": [
+            0.4,
+            1.8,
+            0.15000000000000002
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_bunk_bed",
+      "version": 1,
+      "name_en": "Bunk bed",
+      "name_hi": "दो मंज़िला पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "bunk",
+        "दो मंज़िला पलंग"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 2000,
+        "h": 1800
+      },
+      "sourceSha256": "9198c675a194e7d7b6b6a1d3c08f21ab5028828adacd86b5a1f5bcb424c1a683",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_bunk_bed-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bunk_bed-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/a23589eda20af249dd477e3363337fe56ff61115d757327672c463617832e699.glb",
+          "sha256": "a23589eda20af249dd477e3363337fe56ff61115d757327672c463617832e699",
+          "bytes": 3828,
+          "triangles": 192
+        },
+        {
+          "level": 1,
+          "path": "blobs/a23589eda20af249dd477e3363337fe56ff61115d757327672c463617832e699.glb",
+          "sha256": "a23589eda20af249dd477e3363337fe56ff61115d757327672c463617832e699",
+          "bytes": 3828,
+          "triangles": 192
+        }
+      ],
+      "thumb": {
+        "path": "blobs/012b25891fd5fffc76a27dd8629547241a92d18a8f58593b07da12b5aaa4d92c.svg",
+        "sha256": "012b25891fd5fffc76a27dd8629547241a92d18a8f58593b07da12b5aaa4d92c",
+        "bytes": 6444,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 192,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -1
+          ],
+          "max": [
+            0.5,
+            1.8,
+            1
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_coffee_table",
+      "version": 1,
+      "name_en": "Coffee table",
+      "name_hi": "छोटी बैठक मेज़",
+      "category": "tables",
+      "tags": [
+        "table",
+        "furniture",
+        "छोटी बैठक मेज़"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 500,
+        "h": 450
+      },
+      "sourceSha256": "6c27eb876e36d034baf86bbb87b96bdfeb960c495e509e03e23080b38b29f2c4",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_coffee_table-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_coffee_table-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/274757ca460850297b08e34d2b6e221bae252caf29f6efb350fdf5e4547af3ff.glb",
+          "sha256": "274757ca460850297b08e34d2b6e221bae252caf29f6efb350fdf5e4547af3ff",
+          "bytes": 2332,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/274757ca460850297b08e34d2b6e221bae252caf29f6efb350fdf5e4547af3ff.glb",
+          "sha256": "274757ca460850297b08e34d2b6e221bae252caf29f6efb350fdf5e4547af3ff",
+          "bytes": 2332,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/8658b079788ef93a94308913026a4919c4ccae00500eaeff4ab5089dcfc54523.svg",
+        "sha256": "8658b079788ef93a94308913026a4919c4ccae00500eaeff4ab5089dcfc54523",
+        "bytes": 2103,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -0.25
+          ],
+          "max": [
+            0.5,
+            0.45,
+            0.25
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_console_table",
+      "version": 1,
+      "name_en": "Console table",
+      "name_hi": "संकरी मेज़",
+      "category": "tables",
+      "tags": [
+        "table",
+        "furniture",
+        "संकरी मेज़"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 350,
+        "h": 800
+      },
+      "sourceSha256": "1ff425ed5ef160227cc22e616dc0dec128746cb7d38d32b7a2522dea54df6c5f",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_console_table-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_console_table-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/ffd035450054338d0509cc52eb7c5551f009df884200578b725620a3421e1f6e.glb",
+          "sha256": "ffd035450054338d0509cc52eb7c5551f009df884200578b725620a3421e1f6e",
+          "bytes": 2356,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/ffd035450054338d0509cc52eb7c5551f009df884200578b725620a3421e1f6e.glb",
+          "sha256": "ffd035450054338d0509cc52eb7c5551f009df884200578b725620a3421e1f6e",
+          "bytes": 2356,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/11d673c8e79753684a06e9359e9cead4a9b1b2d7a04586999baa0037a78e581a.svg",
+        "sha256": "11d673c8e79753684a06e9359e9cead4a9b1b2d7a04586999baa0037a78e581a",
+        "bytes": 2103,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.6,
+            0,
+            -0.175
+          ],
+          "max": [
+            0.6,
+            0.8,
+            0.175
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_dining_4",
+      "version": 1,
+      "name_en": "Four-seat dining table",
+      "name_hi": "चार लोगों की भोजन मेज़",
+      "category": "tables",
+      "tags": [
+        "table",
+        "furniture",
+        "चार लोगों की भोजन मेज़"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 800,
+        "h": 750
+      },
+      "sourceSha256": "e7b02eeedc19ee9f8641a786b7503a42d203211c4516cfb8d9e2b7155f953715",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dining_4-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_4-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/47ea8e31bd9822e4ca3bc2df99158b5aa29afdf6059a27b4c3ee21f2321d1f2c.glb",
+          "sha256": "47ea8e31bd9822e4ca3bc2df99158b5aa29afdf6059a27b4c3ee21f2321d1f2c",
+          "bytes": 2340,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/47ea8e31bd9822e4ca3bc2df99158b5aa29afdf6059a27b4c3ee21f2321d1f2c.glb",
+          "sha256": "47ea8e31bd9822e4ca3bc2df99158b5aa29afdf6059a27b4c3ee21f2321d1f2c",
+          "bytes": 2340,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/7ba9af63ec5a9f88bfc9e119585eb31ee89e101d381fae7870e7bd6f7e9a9554.svg",
+        "sha256": "7ba9af63ec5a9f88bfc9e119585eb31ee89e101d381fae7870e7bd6f7e9a9554",
+        "bytes": 2114,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.6,
+            0,
+            -0.4
+          ],
+          "max": [
+            0.6,
+            0.75,
+            0.4
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_dining_6",
+      "version": 1,
+      "name_en": "Six-seat dining table",
+      "name_hi": "छह लोगों की भोजन मेज़",
+      "category": "tables",
+      "tags": [
+        "table",
+        "furniture",
+        "छह लोगों की भोजन मेज़"
+      ],
+      "dims": {
+        "w": 1800,
+        "d": 900,
+        "h": 750
+      },
+      "sourceSha256": "37c0066c17a43bad61b62a414ac905b527f1f0a9dffef56ea74714b0d0a8f672",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dining_6-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_6-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/db103a505ab3c87e457f0b7631a22887f6f06661b38a1bed6dd7d2fa423ffc88.glb",
+          "sha256": "db103a505ab3c87e457f0b7631a22887f6f06661b38a1bed6dd7d2fa423ffc88",
+          "bytes": 2336,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/db103a505ab3c87e457f0b7631a22887f6f06661b38a1bed6dd7d2fa423ffc88.glb",
+          "sha256": "db103a505ab3c87e457f0b7631a22887f6f06661b38a1bed6dd7d2fa423ffc88",
+          "bytes": 2336,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/fd6eb86a6f924180f4037c743a320e967231784bee6cc6f34c0e4f893859ab8e.svg",
+        "sha256": "fd6eb86a6f924180f4037c743a320e967231784bee6cc6f34c0e4f893859ab8e",
+        "bytes": 2103,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.9,
+            0,
+            -0.45
+          ],
+          "max": [
+            0.9,
+            0.75,
+            0.45
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_dining_chair",
+      "version": 1,
+      "name_en": "Dining chair",
+      "name_hi": "खाने की कुर्सी",
+      "category": "seating",
+      "tags": [
+        "chair",
+        "खाने की कुर्सी"
+      ],
+      "dims": {
+        "w": 450,
+        "d": 500,
+        "h": 900
+      },
+      "sourceSha256": "eb794df18f18061a69b591e6dc221840fadd4cca93b8de92d87724f9c7d10e3b",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dining_chair-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_chair-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/bcd6889f671667d22e355096c9fb21dd1fef48493dac85fa82530605cbcad504.glb",
+          "sha256": "bcd6889f671667d22e355096c9fb21dd1fef48493dac85fa82530605cbcad504",
+          "bytes": 2428,
+          "triangles": 72
+        },
+        {
+          "level": 1,
+          "path": "blobs/bcd6889f671667d22e355096c9fb21dd1fef48493dac85fa82530605cbcad504.glb",
+          "sha256": "bcd6889f671667d22e355096c9fb21dd1fef48493dac85fa82530605cbcad504",
+          "bytes": 2428,
+          "triangles": 72
+        }
+      ],
+      "thumb": {
+        "path": "blobs/b79411366975990ce6345c9bc113af0598c09aab1339e439ac92199f7f151370.svg",
+        "sha256": "b79411366975990ce6345c9bc113af0598c09aab1339e439ac92199f7f151370",
+        "bytes": 2528,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 72,
+        "bounds": {
+          "min": [
+            -0.225,
+            0,
+            -0.25
+          ],
+          "max": [
+            0.225,
+            0.9,
+            0.25
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_double_bed",
+      "version": 1,
+      "name_en": "Double bed",
+      "name_hi": "दो लोगों का पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "bedroom",
+        "दो लोगों का पलंग"
+      ],
+      "dims": {
+        "w": 1500,
+        "d": 2000,
+        "h": 1000
+      },
+      "sourceSha256": "6280b0b83900897ad7db22c274a9d21ef11b241bdcf6d027118ef2b2521d39a6",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_double_bed-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_double_bed-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/4acca6d226b02a216959d3320ad3596fb2b6efb1f4e060811a66356e0c15a30f.glb",
+          "sha256": "4acca6d226b02a216959d3320ad3596fb2b6efb1f4e060811a66356e0c15a30f",
+          "bytes": 3232,
+          "triangles": 108
+        },
+        {
+          "level": 1,
+          "path": "blobs/4acca6d226b02a216959d3320ad3596fb2b6efb1f4e060811a66356e0c15a30f.glb",
+          "sha256": "4acca6d226b02a216959d3320ad3596fb2b6efb1f4e060811a66356e0c15a30f",
+          "bytes": 3232,
+          "triangles": 108
+        }
+      ],
+      "thumb": {
+        "path": "blobs/72b5dad993ca263de1b55ce8227499197ba4b3960ceb0f138e486bce287f16b1.svg",
+        "sha256": "72b5dad993ca263de1b55ce8227499197ba4b3960ceb0f138e486bce287f16b1",
+        "bytes": 3717,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 108,
+        "bounds": {
+          "min": [
+            -0.75,
+            0,
+            -1
+          ],
+          "max": [
+            0.75,
+            1,
+            1
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_drawers",
+      "version": 1,
+      "name_en": "Chest of drawers",
+      "name_hi": "दराज़ वाली अलमारी",
+      "category": "storage",
+      "tags": [
+        "drawers",
+        "दराज़ वाली अलमारी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 450,
+        "h": 1000
+      },
+      "sourceSha256": "61c921c1a57176cb1700080ea40d4b7c809f7e6a54d941238f2bbb844080d3ef",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_drawers-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_drawers-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/4a24b52755738f78b7da34d3d59ffbe51c817be60ae3b2744d430179afff28f4.glb",
+          "sha256": "4a24b52755738f78b7da34d3d59ffbe51c817be60ae3b2744d430179afff28f4",
+          "bytes": 2772,
+          "triangles": 84
+        },
+        {
+          "level": 1,
+          "path": "blobs/4a24b52755738f78b7da34d3d59ffbe51c817be60ae3b2744d430179afff28f4.glb",
+          "sha256": "4a24b52755738f78b7da34d3d59ffbe51c817be60ae3b2744d430179afff28f4",
+          "bytes": 2772,
+          "triangles": 84
+        }
+      ],
+      "thumb": {
+        "path": "blobs/7360244fa9b7a60c036cabd66138f2cb13e16702ec6656357769d202a8cfb0b9.svg",
+        "sha256": "7360244fa9b7a60c036cabd66138f2cb13e16702ec6656357769d202a8cfb0b9",
+        "bytes": 2913,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 84,
+        "bounds": {
+          "min": [
+            -0.4,
+            0,
+            -0.225
+          ],
+          "max": [
+            0.4,
+            1,
+            0.22499999999999998
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_island",
+      "version": 1,
+      "name_en": "Kitchen island",
+      "name_hi": "रसोई का बीच वाला काउंटर",
+      "category": "kitchen",
+      "tags": [
+        "kitchen",
+        "counter",
+        "रसोई का बीच वाला काउंटर"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 800,
+        "h": 900
+      },
+      "sourceSha256": "cc554f26c8a6a17031497e27bcaafaa421918febd07c02d19bd37d3d24ab92f2",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_island-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_island-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/e119543ffac8dfe3fbb13036e32a476fba21d8f9b1e432618a37cedcf33a74d9.glb",
+          "sha256": "e119543ffac8dfe3fbb13036e32a476fba21d8f9b1e432618a37cedcf33a74d9",
+          "bytes": 2712,
+          "triangles": 72
+        },
+        {
+          "level": 1,
+          "path": "blobs/e119543ffac8dfe3fbb13036e32a476fba21d8f9b1e432618a37cedcf33a74d9.glb",
+          "sha256": "e119543ffac8dfe3fbb13036e32a476fba21d8f9b1e432618a37cedcf33a74d9",
+          "bytes": 2712,
+          "triangles": 72
+        }
+      ],
+      "thumb": {
+        "path": "blobs/745fad67d8e2feab8f31a697a3383b401a536c4c9a40cce7c45c644fccc4b368.svg",
+        "sha256": "745fad67d8e2feab8f31a697a3383b401a536c4c9a40cce7c45c644fccc4b368",
+        "bytes": 2504,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 72,
+        "bounds": {
+          "min": [
+            -0.6,
+            0,
+            -0.4
+          ],
+          "max": [
+            0.6,
+            0.9,
+            0.4
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_king_bed",
+      "version": 1,
+      "name_en": "King bed",
+      "name_hi": "किंग पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "bedroom",
+        "किंग पलंग"
+      ],
+      "dims": {
+        "w": 1800,
+        "d": 2100,
+        "h": 1000
+      },
+      "sourceSha256": "056943ab34cf4bb38d3a630083e816c03cf53d7b47cb8250df27bc1879e3ff84",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_king_bed-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_king_bed-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/08e70ddccd3cda165496111f23f72a777f861301c51390716bfb1571ebe3e1cb.glb",
+          "sha256": "08e70ddccd3cda165496111f23f72a777f861301c51390716bfb1571ebe3e1cb",
+          "bytes": 3224,
+          "triangles": 108
+        },
+        {
+          "level": 1,
+          "path": "blobs/08e70ddccd3cda165496111f23f72a777f861301c51390716bfb1571ebe3e1cb.glb",
+          "sha256": "08e70ddccd3cda165496111f23f72a777f861301c51390716bfb1571ebe3e1cb",
+          "bytes": 3224,
+          "triangles": 108
+        }
+      ],
+      "thumb": {
+        "path": "blobs/c3d58f1ad89e69c3bf7834a03f35cec8c1c4251c727f0a0ca9977b084d778ca6.svg",
+        "sha256": "c3d58f1ad89e69c3bf7834a03f35cec8c1c4251c727f0a0ca9977b084d778ca6",
+        "bytes": 3714,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 108,
+        "bounds": {
+          "min": [
+            -0.9,
+            0,
+            -1.05
+          ],
+          "max": [
+            0.9,
+            1,
+            1.05
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_kitchen_base",
+      "version": 1,
+      "name_en": "Kitchen base cabinet",
+      "name_hi": "रसोई की नीचे वाली अलमारी",
+      "category": "kitchen",
+      "tags": [
+        "kitchen",
+        "cabinet",
+        "रसोई की नीचे वाली अलमारी"
+      ],
+      "dims": {
+        "w": 600,
+        "d": 600,
+        "h": 900
+      },
+      "sourceSha256": "fffcd8c6c7eb104e18bc0903ddc89da82b20ec49e36207d185950fbec6a34a44",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_kitchen_base-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_kitchen_base-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/210d063280fb0f0dffe0f757c5a920db695d285df73b3cff8160cadaedc4f18e.glb",
+          "sha256": "210d063280fb0f0dffe0f757c5a920db695d285df73b3cff8160cadaedc4f18e",
+          "bytes": 2624,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/210d063280fb0f0dffe0f757c5a920db695d285df73b3cff8160cadaedc4f18e.glb",
+          "sha256": "210d063280fb0f0dffe0f757c5a920db695d285df73b3cff8160cadaedc4f18e",
+          "bytes": 2624,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/e1f4ea9765803ac61b2586bb95969f0d7c4acc97f94691d7dd2a0ac95aca53a7.svg",
+        "sha256": "e1f4ea9765803ac61b2586bb95969f0d7c4acc97f94691d7dd2a0ac95aca53a7",
+        "bytes": 2104,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.3,
+            0,
+            -0.3
+          ],
+          "max": [
+            0.3,
+            0.9,
+            0.30000000000000004
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_low_cabinet",
+      "version": 1,
+      "name_en": "Low cabinet",
+      "name_hi": "नीची अलमारी",
+      "category": "storage",
+      "tags": [
+        "cabinet",
+        "नीची अलमारी"
+      ],
+      "dims": {
+        "w": 1500,
+        "d": 400,
+        "h": 500
+      },
+      "sourceSha256": "e4380da1f9077a1bb95bfd17156c2e0098cf130e55ac101b3dee2cbe334a617a",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_low_cabinet-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_low_cabinet-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/6634de94322b68165b45cacc5662616910ece5e4d0fa2b86d46a53d04849e4f5.glb",
+          "sha256": "6634de94322b68165b45cacc5662616910ece5e4d0fa2b86d46a53d04849e4f5",
+          "bytes": 2792,
+          "triangles": 84
+        },
+        {
+          "level": 1,
+          "path": "blobs/6634de94322b68165b45cacc5662616910ece5e4d0fa2b86d46a53d04849e4f5.glb",
+          "sha256": "6634de94322b68165b45cacc5662616910ece5e4d0fa2b86d46a53d04849e4f5",
+          "bytes": 2792,
+          "triangles": 84
+        }
+      ],
+      "thumb": {
+        "path": "blobs/82d3218d9f96ea32fa1a35711f3c4a05dd88f95ae3be21b2a00691aea8a0b5d1.svg",
+        "sha256": "82d3218d9f96ea32fa1a35711f3c4a05dd88f95ae3be21b2a00691aea8a0b5d1",
+        "bytes": 2917,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 84,
+        "bounds": {
+          "min": [
+            -0.75,
+            0,
+            -0.2
+          ],
+          "max": [
+            0.75,
+            0.5,
+            0.19999999999999998
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_planter",
+      "version": 1,
+      "name_en": "Box planter",
+      "name_hi": "चौकोर पौधे का गमला",
+      "category": "decor",
+      "tags": [
+        "plant",
+        "planter",
+        "चौकोर पौधे का गमला"
+      ],
+      "dims": {
+        "w": 400,
+        "d": 400,
+        "h": 700
+      },
+      "sourceSha256": "1115e394d2d4f05f3290928e1896360ef00f0d47534cc97959f54ccf5fd51640",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_planter-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_planter-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/3aaa7519c58ae98195e552ff35afb2671d13924c7bce5b51bb8ee8fa1ba4b56f.glb",
+          "sha256": "3aaa7519c58ae98195e552ff35afb2671d13924c7bce5b51bb8ee8fa1ba4b56f",
+          "bytes": 2428,
+          "triangles": 36
+        },
+        {
+          "level": 1,
+          "path": "blobs/3aaa7519c58ae98195e552ff35afb2671d13924c7bce5b51bb8ee8fa1ba4b56f.glb",
+          "sha256": "3aaa7519c58ae98195e552ff35afb2671d13924c7bce5b51bb8ee8fa1ba4b56f",
+          "bytes": 2428,
+          "triangles": 36
+        }
+      ],
+      "thumb": {
+        "path": "blobs/617c2fc0f9faed19217f392a57ea062fb6b7952c438a16b1e0525a9177b9c471.svg",
+        "sha256": "617c2fc0f9faed19217f392a57ea062fb6b7952c438a16b1e0525a9177b9c471",
+        "bytes": 1328,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 36,
+        "bounds": {
+          "min": [
+            -0.2,
+            0,
+            -0.2
+          ],
+          "max": [
+            0.2,
+            0.7000000000000001,
+            0.2
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_queen_bed",
+      "version": 1,
+      "name_en": "Queen bed",
+      "name_hi": "क्वीन पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "bedroom",
+        "क्वीन पलंग"
+      ],
+      "dims": {
+        "w": 1600,
+        "d": 2100,
+        "h": 1000
+      },
+      "sourceSha256": "7f7c60058ec0f9ef975e7bedb6d082875ec7fb2ba65d2cea5988732c7d6f22a6",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_queen_bed-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_queen_bed-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/cd2f1bf1ba2d7f908747551464b64899ac04ed78b6645293b5e2aad19376b13c.glb",
+          "sha256": "cd2f1bf1ba2d7f908747551464b64899ac04ed78b6645293b5e2aad19376b13c",
+          "bytes": 3220,
+          "triangles": 108
+        },
+        {
+          "level": 1,
+          "path": "blobs/cd2f1bf1ba2d7f908747551464b64899ac04ed78b6645293b5e2aad19376b13c.glb",
+          "sha256": "cd2f1bf1ba2d7f908747551464b64899ac04ed78b6645293b5e2aad19376b13c",
+          "bytes": 3220,
+          "triangles": 108
+        }
+      ],
+      "thumb": {
+        "path": "blobs/f2e8b828cac524631e27f53c20947aae6ff3caf16dbe1dc026afee129b207041.svg",
+        "sha256": "f2e8b828cac524631e27f53c20947aae6ff3caf16dbe1dc026afee129b207041",
+        "bytes": 3714,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 108,
+        "bounds": {
+          "min": [
+            -0.8,
+            0,
+            -1.05
+          ],
+          "max": [
+            0.8,
+            1,
+            1.05
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_rug",
+      "version": 1,
+      "name_en": "Solid rug",
+      "name_hi": "सादा गलीचा",
+      "category": "rugs",
+      "tags": [
+        "rug",
+        "carpet",
+        "सादा गलीचा"
+      ],
+      "dims": {
+        "w": 1600,
+        "d": 1000,
+        "h": 10
+      },
+      "sourceSha256": "fa45d73b63fb3d2e2d6cd3edde0c76d480251a5f387659373a1461a162edcf00",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_rug-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_rug-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/ea936b42da4a6eae996f3266fde129d5591b44a7b3bf1dbdb0f4eb0df30785c8.glb",
+          "sha256": "ea936b42da4a6eae996f3266fde129d5591b44a7b3bf1dbdb0f4eb0df30785c8",
+          "bytes": 1716,
+          "triangles": 12
+        },
+        {
+          "level": 1,
+          "path": "blobs/ea936b42da4a6eae996f3266fde129d5591b44a7b3bf1dbdb0f4eb0df30785c8.glb",
+          "sha256": "ea936b42da4a6eae996f3266fde129d5591b44a7b3bf1dbdb0f4eb0df30785c8",
+          "bytes": 1716,
+          "triangles": 12
+        }
+      ],
+      "thumb": {
+        "path": "blobs/3cbd7853c907bb1b54d87f2950f7d405439b951a4261e968ddf7be6c8afd87aa.svg",
+        "sha256": "3cbd7853c907bb1b54d87f2950f7d405439b951a4261e968ddf7be6c8afd87aa",
+        "bytes": 539,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 12,
+        "bounds": {
+          "min": [
+            -0.8,
+            0,
+            -0.5
+          ],
+          "max": [
+            0.8,
+            0.01,
+            0.5
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_shoe_rack",
+      "version": 1,
+      "name_en": "Shoe cabinet",
+      "name_hi": "जूते रखने की अलमारी",
+      "category": "storage",
+      "tags": [
+        "shoe",
+        "cabinet",
+        "जूते रखने की अलमारी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 350,
+        "h": 800
+      },
+      "sourceSha256": "dbd6fae07da2427a6f5fd085c4a6df0a155058f60c69b85499cd021fb21c12f1",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_shoe_rack-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_shoe_rack-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/8e04fb9e3389292d5844fadd1ca7ecbb65e55cd58518e36eb0f0a1b8b4555923.glb",
+          "sha256": "8e04fb9e3389292d5844fadd1ca7ecbb65e55cd58518e36eb0f0a1b8b4555923",
+          "bytes": 2624,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/8e04fb9e3389292d5844fadd1ca7ecbb65e55cd58518e36eb0f0a1b8b4555923.glb",
+          "sha256": "8e04fb9e3389292d5844fadd1ca7ecbb65e55cd58518e36eb0f0a1b8b4555923",
+          "bytes": 2624,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/20eab967aacf0fa0db8083aeb76c346b35d4ada79d59e858c8d98a2d3ccc9725.svg",
+        "sha256": "20eab967aacf0fa0db8083aeb76c346b35d4ada79d59e858c8d98a2d3ccc9725",
+        "bytes": 2107,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.4,
+            0,
+            -0.17500000000000002
+          ],
+          "max": [
+            0.4,
+            0.8,
+            0.175
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_side_table",
+      "version": 1,
+      "name_en": "Side table",
+      "name_hi": "बगल की मेज़",
+      "category": "tables",
+      "tags": [
+        "table",
+        "furniture",
+        "बगल की मेज़"
+      ],
+      "dims": {
+        "w": 450,
+        "d": 450,
+        "h": 500
+      },
+      "sourceSha256": "4490ee714ee265b93d65ec0983bda6531f0d73d337a3166a0ed0a36f9d3881e1",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_side_table-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_side_table-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/f543e41ee1b19be07cbd8bf24670a699a15b5e7bae1f8c6007bbdab66f582e62.glb",
+          "sha256": "f543e41ee1b19be07cbd8bf24670a699a15b5e7bae1f8c6007bbdab66f582e62",
+          "bytes": 2360,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/f543e41ee1b19be07cbd8bf24670a699a15b5e7bae1f8c6007bbdab66f582e62.glb",
+          "sha256": "f543e41ee1b19be07cbd8bf24670a699a15b5e7bae1f8c6007bbdab66f582e62",
+          "bytes": 2360,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/7dab5a10a39b39b7249c97f185b242f7b5ac0ef9e8ec5daf08ac5cf9f8081282.svg",
+        "sha256": "7dab5a10a39b39b7249c97f185b242f7b5ac0ef9e8ec5daf08ac5cf9f8081282",
+        "bytes": 2105,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.225,
+            0,
+            -0.225
+          ],
+          "max": [
+            0.225,
+            0.5,
+            0.225
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_single_bed",
+      "version": 1,
+      "name_en": "Single bed",
+      "name_hi": "एकल पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "bedroom",
+        "एकल पलंग"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 2000,
+        "h": 900
+      },
+      "sourceSha256": "fdc3f368bd981bad46e35ddaef499a7a2a3e5885b371bea8fc027d0b6ad68e28",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_single_bed-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_single_bed-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/dc8d5e185f4cb11ea4558ee1bbc675951492acff854c798319a64f1e8a44ba29.glb",
+          "sha256": "dc8d5e185f4cb11ea4558ee1bbc675951492acff854c798319a64f1e8a44ba29",
+          "bytes": 3228,
+          "triangles": 108
+        },
+        {
+          "level": 1,
+          "path": "blobs/dc8d5e185f4cb11ea4558ee1bbc675951492acff854c798319a64f1e8a44ba29.glb",
+          "sha256": "dc8d5e185f4cb11ea4558ee1bbc675951492acff854c798319a64f1e8a44ba29",
+          "bytes": 3228,
+          "triangles": 108
+        }
+      ],
+      "thumb": {
+        "path": "blobs/4632a6a5db4dbcdeb015871f7c952959b7997aaf7c4cbc8aca40adb0b6ef9d25.svg",
+        "sha256": "4632a6a5db4dbcdeb015871f7c952959b7997aaf7c4cbc8aca40adb0b6ef9d25",
+        "bytes": 3690,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 108,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -1
+          ],
+          "max": [
+            0.5,
+            0.9,
+            1
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_sofa_2",
+      "version": 1,
+      "name_en": "Two-seat sofa",
+      "name_hi": "दो सीट का सोफ़ा",
+      "category": "seating",
+      "tags": [
+        "sofa",
+        "couch",
+        "दो सीट का सोफ़ा"
+      ],
+      "dims": {
+        "w": 1600,
+        "d": 800,
+        "h": 850
+      },
+      "sourceSha256": "99f55cc1bcd88cccf838d89d4c4b806dc29f27b539cae789de7dd956c9aae330",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_sofa_2-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_sofa_2-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/0c86c914c4309a5e8f9eab8362cb07fc356cf585fa70db01eff959af43976e73.glb",
+          "sha256": "0c86c914c4309a5e8f9eab8362cb07fc356cf585fa70db01eff959af43976e73",
+          "bytes": 2664,
+          "triangles": 108
+        },
+        {
+          "level": 1,
+          "path": "blobs/0c86c914c4309a5e8f9eab8362cb07fc356cf585fa70db01eff959af43976e73.glb",
+          "sha256": "0c86c914c4309a5e8f9eab8362cb07fc356cf585fa70db01eff959af43976e73",
+          "bytes": 2664,
+          "triangles": 108
+        }
+      ],
+      "thumb": {
+        "path": "blobs/34037849b32aaa60109aa09e8cad996ee1934f433db8264d0fd52a5b2e538ef1.svg",
+        "sha256": "34037849b32aaa60109aa09e8cad996ee1934f433db8264d0fd52a5b2e538ef1",
+        "bytes": 3699,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 108,
+        "bounds": {
+          "min": [
+            -0.8,
+            0,
+            -0.4
+          ],
+          "max": [
+            0.8,
+            0.8500000000000001,
+            0.4
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_sofa_3",
+      "version": 1,
+      "name_en": "Three-seat sofa",
+      "name_hi": "तीन सीट का सोफ़ा",
+      "category": "seating",
+      "tags": [
+        "sofa",
+        "couch",
+        "तीन सीट का सोफ़ा"
+      ],
+      "dims": {
+        "w": 2100,
+        "d": 850,
+        "h": 850
+      },
+      "sourceSha256": "0f869e70fe72637950313bcfb3ad90c94ea5d76c8c2b4adbd545b3476a8d8dbb",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_sofa_3-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_sofa_3-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/b592f4c8bbeb264870acab2f710eaa838492c8db2fa4fc5568dc9fd98af4c01e.glb",
+          "sha256": "b592f4c8bbeb264870acab2f710eaa838492c8db2fa4fc5568dc9fd98af4c01e",
+          "bytes": 2652,
+          "triangles": 108
+        },
+        {
+          "level": 1,
+          "path": "blobs/b592f4c8bbeb264870acab2f710eaa838492c8db2fa4fc5568dc9fd98af4c01e.glb",
+          "sha256": "b592f4c8bbeb264870acab2f710eaa838492c8db2fa4fc5568dc9fd98af4c01e",
+          "bytes": 2652,
+          "triangles": 108
+        }
+      ],
+      "thumb": {
+        "path": "blobs/5c3dafd0bad04c11ad2a1411193ec764b3496009b1899ae2916567f919362a8b.svg",
+        "sha256": "5c3dafd0bad04c11ad2a1411193ec764b3496009b1899ae2916567f919362a8b",
+        "bytes": 3695,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 108,
+        "bounds": {
+          "min": [
+            -1.05,
+            0,
+            -0.425
+          ],
+          "max": [
+            1.05,
+            0.8500000000000001,
+            0.425
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_stool",
+      "version": 1,
+      "name_en": "Square stool",
+      "name_hi": "चौकोर स्टूल",
+      "category": "seating",
+      "tags": [
+        "stool",
+        "चौकोर स्टूल"
+      ],
+      "dims": {
+        "w": 400,
+        "d": 400,
+        "h": 450
+      },
+      "sourceSha256": "5a28f0acf773790e71ab2c6978e678c4ecbdd8a969e821b5316f069584317cde",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_stool-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_stool-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/bd4535487c53148910abfd2ef366899055f44b19ae5fae2ababcd6cb8277751d.glb",
+          "sha256": "bd4535487c53148910abfd2ef366899055f44b19ae5fae2ababcd6cb8277751d",
+          "bytes": 2336,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/bd4535487c53148910abfd2ef366899055f44b19ae5fae2ababcd6cb8277751d.glb",
+          "sha256": "bd4535487c53148910abfd2ef366899055f44b19ae5fae2ababcd6cb8277751d",
+          "bytes": 2336,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/268a81d8ad9ed1f075f5746a81fe12d48e2d1c78686c01aa8b2a331e75e8f0db.svg",
+        "sha256": "268a81d8ad9ed1f075f5746a81fe12d48e2d1c78686c01aa8b2a331e75e8f0db",
+        "bytes": 2105,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.2,
+            0,
+            -0.2
+          ],
+          "max": [
+            0.2,
+            0.45,
+            0.2
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_study_desk",
+      "version": 1,
+      "name_en": "Study desk",
+      "name_hi": "पढ़ने की मेज़",
+      "category": "tables",
+      "tags": [
+        "table",
+        "desk",
+        "पढ़ने की मेज़"
+      ],
+      "dims": {
+        "w": 1400,
+        "d": 700,
+        "h": 750
+      },
+      "sourceSha256": "697234790b441ea639c3738183b7dd97d8d7e66c2d5a6d6fbe7c76889830f930",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_study_desk-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_study_desk-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/405fc258539bff4cfab7f127c48ca2ba1051d40a72cdc482bc692667204e6704.glb",
+          "sha256": "405fc258539bff4cfab7f127c48ca2ba1051d40a72cdc482bc692667204e6704",
+          "bytes": 2336,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/405fc258539bff4cfab7f127c48ca2ba1051d40a72cdc482bc692667204e6704.glb",
+          "sha256": "405fc258539bff4cfab7f127c48ca2ba1051d40a72cdc482bc692667204e6704",
+          "bytes": 2336,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/28907e5d48cdb44b423e2ff2cbc94018f0c90670ac2de825f58b945978584062.svg",
+        "sha256": "28907e5d48cdb44b423e2ff2cbc94018f0c90670ac2de825f58b945978584062",
+        "bytes": 2103,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.7,
+            0,
+            -0.35
+          ],
+          "max": [
+            0.7,
+            0.75,
+            0.35
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_vanity",
+      "version": 1,
+      "name_en": "Vanity cabinet",
+      "name_hi": "स्नानघर की अलमारी",
+      "category": "bathroom",
+      "tags": [
+        "vanity",
+        "cabinet",
+        "स्नानघर की अलमारी"
+      ],
+      "dims": {
+        "w": 600,
+        "d": 450,
+        "h": 850
+      },
+      "sourceSha256": "5d569315f39f063cd5d19bafbd17ef547f2f35ec0d67eaf25b1ce1a29af83df3",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_vanity-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_vanity-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/2ca6ae941a193b22af1a2e37477b54206401e5ad770dbb7cc7444de08c418a92.glb",
+          "sha256": "2ca6ae941a193b22af1a2e37477b54206401e5ad770dbb7cc7444de08c418a92",
+          "bytes": 2976,
+          "triangles": 72
+        },
+        {
+          "level": 1,
+          "path": "blobs/2ca6ae941a193b22af1a2e37477b54206401e5ad770dbb7cc7444de08c418a92.glb",
+          "sha256": "2ca6ae941a193b22af1a2e37477b54206401e5ad770dbb7cc7444de08c418a92",
+          "bytes": 2976,
+          "triangles": 72
+        }
+      ],
+      "thumb": {
+        "path": "blobs/322c066f193cd23e682d750404a3eb631387b90e26c3e9579be34df7b32ebd82.svg",
+        "sha256": "322c066f193cd23e682d750404a3eb631387b90e26c3e9579be34df7b32ebd82",
+        "bytes": 2496,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 72,
+        "bounds": {
+          "min": [
+            -0.3,
+            0,
+            -0.225
+          ],
+          "max": [
+            0.3,
+            0.85,
+            0.225
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wall_cabinet",
+      "version": 1,
+      "name_en": "Wall cabinet",
+      "name_hi": "दीवार वाली अलमारी",
+      "category": "kitchen",
+      "tags": [
+        "kitchen",
+        "cabinet",
+        "दीवार वाली अलमारी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 350,
+        "h": 700
+      },
+      "sourceSha256": "4d594e52db9a25c3a7e013d381c95936cdc859c307936d6d98e2296bfd406f60",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wall_cabinet-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_cabinet-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/5b59168dd29d4d8d5703876328cd5a2bc2f98d3275dcfea1b4aadf6e6d34ab65.glb",
+          "sha256": "5b59168dd29d4d8d5703876328cd5a2bc2f98d3275dcfea1b4aadf6e6d34ab65",
+          "bytes": 2628,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/5b59168dd29d4d8d5703876328cd5a2bc2f98d3275dcfea1b4aadf6e6d34ab65.glb",
+          "sha256": "5b59168dd29d4d8d5703876328cd5a2bc2f98d3275dcfea1b4aadf6e6d34ab65",
+          "bytes": 2628,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/29ac7a0c4140f8bb7ec244e7daecad0c8dcbe324dca19e146e2a5dd38f8d3a0b.svg",
+        "sha256": "29ac7a0c4140f8bb7ec244e7daecad0c8dcbe324dca19e146e2a5dd38f8d3a0b",
+        "bytes": 2104,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.4,
+            0,
+            -0.17500000000000002
+          ],
+          "max": [
+            0.4,
+            0.7,
+            0.175
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wardrobe_2",
+      "version": 1,
+      "name_en": "Two-door wardrobe",
+      "name_hi": "दो दरवाज़े की अलमारी",
+      "category": "storage",
+      "tags": [
+        "wardrobe",
+        "दो दरवाज़े की अलमारी"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 600,
+        "h": 2000
+      },
+      "sourceSha256": "719a4f35e76e35c853c1e3bae4510663a33820be965de8b59dc8dc036e302a8d",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wardrobe_2-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wardrobe_2-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/748b402d0a77daca15d06c675bd064d9346cb8c10840f5d701f9ad73dd57ac61.glb",
+          "sha256": "748b402d0a77daca15d06c675bd064d9346cb8c10840f5d701f9ad73dd57ac61",
+          "bytes": 2604,
+          "triangles": 60
+        },
+        {
+          "level": 1,
+          "path": "blobs/748b402d0a77daca15d06c675bd064d9346cb8c10840f5d701f9ad73dd57ac61.glb",
+          "sha256": "748b402d0a77daca15d06c675bd064d9346cb8c10840f5d701f9ad73dd57ac61",
+          "bytes": 2604,
+          "triangles": 60
+        }
+      ],
+      "thumb": {
+        "path": "blobs/6d6bea8ffe312d3a0989e53b0442a465251cd5539a3956377fb47f1bf4ac2950.svg",
+        "sha256": "6d6bea8ffe312d3a0989e53b0442a465251cd5539a3956377fb47f1bf4ac2950",
+        "bytes": 2117,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 60,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -0.3
+          ],
+          "max": [
+            0.5,
+            2,
+            0.30000000000000004
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wardrobe_3",
+      "version": 1,
+      "name_en": "Three-door wardrobe",
+      "name_hi": "तीन दरवाज़े की अलमारी",
+      "category": "storage",
+      "tags": [
+        "wardrobe",
+        "तीन दरवाज़े की अलमारी"
+      ],
+      "dims": {
+        "w": 1500,
+        "d": 600,
+        "h": 2100
+      },
+      "sourceSha256": "ec837688baf900a6dd1b550b8c31ec022bc6d9e9b19f7ad56a31afa1584a94c5",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wardrobe_3-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wardrobe_3-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-16"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/6e62b665f18f97ab7f4b3836bb7ba8191a09d70f5b17033b87ffd59af5fe92fe.glb",
+          "sha256": "6e62b665f18f97ab7f4b3836bb7ba8191a09d70f5b17033b87ffd59af5fe92fe",
+          "bytes": 2788,
+          "triangles": 84
+        },
+        {
+          "level": 1,
+          "path": "blobs/6e62b665f18f97ab7f4b3836bb7ba8191a09d70f5b17033b87ffd59af5fe92fe.glb",
+          "sha256": "6e62b665f18f97ab7f4b3836bb7ba8191a09d70f5b17033b87ffd59af5fe92fe",
+          "bytes": 2788,
+          "triangles": 84
+        }
+      ],
+      "thumb": {
+        "path": "blobs/ff45271cc2fa20d43f104995aa0daf3714eb1138fa8352ed65c3dabf082960a7.svg",
+        "sha256": "ff45271cc2fa20d43f104995aa0daf3714eb1138fa8352ed65c3dabf082960a7",
+        "bytes": 2891,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 84,
+        "bounds": {
+          "min": [
+            -0.75,
+            0,
+            -0.3
+          ],
+          "max": [
+            0.75,
+            2.1,
+            0.30000000000000004
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
     }
   ]
 }

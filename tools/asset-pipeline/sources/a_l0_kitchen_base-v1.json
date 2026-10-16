@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_kitchen_base",
+  "version": 1,
+  "name_en": "Kitchen base cabinet",
+  "name_hi": "रसोई की नीचे वाली अलमारी",
+  "category": "kitchen",
+  "tags": [
+    "kitchen",
+    "cabinet",
+    "रसोई की नीचे वाली अलमारी"
+  ],
+  "dims": {
+    "w": 600,
+    "d": 600,
+    "h": 900
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_kitchen_base-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_kitchen_base-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "center": [
+        0,
+        450,
+        20
+      ],
+      "size": [
+        600,
+        900,
+        560
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "door-0",
+      "center": [
+        -135,
+        450,
+        -270
+      ],
+      "size": [
+        260,
+        800,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-0",
+      "center": [
+        -35,
+        450,
+        -290
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "door-1",
+      "center": [
+        135,
+        450,
+        -270
+      ],
+      "size": [
+        260,
+        800,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-1",
+      "center": [
+        235,
+        450,
+        -290
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    }
+  ]
+}
