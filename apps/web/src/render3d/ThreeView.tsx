@@ -23,7 +23,7 @@ import {captureFrame} from './capture';
 import {advance,buildWalkWorld,walkPose,walkStart} from './walk';
 import type {WalkInput,WalkState,WalkWorld} from './walk';
 import type {ThreeControlsApi} from './types';
-import { useEffect, useLayoutEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import type { ProjectStore } from '@gharplan/core-model';
@@ -38,6 +38,8 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
   onEditStart?:()=>void;advisories?:FurnitureAdvisories;store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;assetSource?:FurnitureAssetSource;
 }) {
   const [furnitureMode,setFurnitureMode]=useState<FurniturePointerMode>('orbit'),[freeTransform,setFreeTransform]=useState(false);
+  // FR-019: a grouped item only moves as its whole group (2D), so 3D single-item Move/Rotate stays off for it.
+  const groupedPick=useSyncExternalStore(store.subscribe,()=>{if(selectedPick?.kind!=='furniture')return false;const furniture=store.getSnapshot().document.furniture,group=furniture.find(f=>f.id===selectedPick.id)?.groupId;return group!==undefined&&furniture.filter(f=>f.groupId===group).length>=2;}),editablePick=selectedPick?.kind==='furniture'&&!groupedPick;
   const transformRef=useRef<FurniturePointer|null>(null),modeRef=useRef(furnitureMode),freeRef=useRef(freeTransform),editStartRef=useRef(onEditStart);modeRef.current=furnitureMode;freeRef.current=freeTransform;editStartRef.current=onEditStart;
   const [ownAdvisories]=useState(()=>new FurnitureAdvisories()),advisories=providedAdvisories??ownAdvisories;
   const [selectionAdvisory,setSelectionAdvisory]=useState<FurnitureAdvisory|null>(null);
@@ -278,7 +280,7 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
     return cleanup;
     }catch{fallback();return cleanup;}
   }, [store, onMessage,quality,lighting,assetSource]);
-  useEffect(()=>{transformRef.current?.tick();selectionUpdate.current();if(selectedPick?.kind!=='furniture'){transformRef.current?.setMode('orbit',freeRef.current);setFurnitureMode('orbit');}},[selectedPick]);
+  useEffect(()=>{transformRef.current?.tick();selectionUpdate.current();if(!editablePick){transformRef.current?.setMode('orbit',freeRef.current);setFurnitureMode('orbit');}},[selectedPick,editablePick]);
   useEffect(()=>{transformRef.current?.setMode(furnitureMode,freeTransform);},[furnitureMode,freeTransform]);
   useEffect(()=>{ghostUpdate.current();},[placementPreview]);
   useEffect(()=>{adapterRef.current?.setCeilingsVisible(ceilings);if(host.current)host.current.dataset.ceilingsVisible=String(ceilings);invalidateRef.current();},[ceilings]);
@@ -294,7 +296,7 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
   const modelPages=Math.max(1,Math.ceil(modelStatus.length/20)),currentModelPage=Math.min(modelPage,modelPages-1);
   return <div className="plan-canvas three-canvas" ref={host} data-testid="three-view">
     <div className="three-mount" ref={mount} />
-    {!walking&&<div className="furniture-three-tools" role="group" aria-label={message(locale,'furniture3dTools')}><button type="button" data-testid="walk-enter" onClick={()=>{const result=walkControl.current?.enter()??'unavailable';onMessage(message(locale,result==='ok'?'walkStarted':result==='empty'?'walkNeedsRoom':'walkUnavailable'));}}>{message(locale,'walkEnter')}</button>{(['orbit','move','rotate'] as const).map(mode=><button type="button" key={mode} disabled={mode!=='orbit'&&selectedPick?.kind!=='furniture'} aria-pressed={furnitureMode===mode} onClick={()=>{transformRef.current?.setMode(mode,freeTransform);setFurnitureMode(mode);}}>{message(locale,mode==='orbit'?'furniture3dOrbit':mode==='move'?'furniture3dMove':'furniture3dRotate')}</button>)}<label><input type="checkbox" checked={freeTransform} onChange={e=>{transformRef.current?.setMode(furnitureMode,e.target.checked);setFreeTransform(e.target.checked);}}/>{message(locale,'furniture3dFree')}</label>{selectionAdvisory&&<FurnitureWarning advisory={selectionAdvisory} locale={locale}/>}</div>}
+    {!walking&&<div className="furniture-three-tools" role="group" aria-label={message(locale,'furniture3dTools')}><button type="button" data-testid="walk-enter" onClick={()=>{const result=walkControl.current?.enter()??'unavailable';onMessage(message(locale,result==='ok'?'walkStarted':result==='empty'?'walkNeedsRoom':'walkUnavailable'));}}>{message(locale,'walkEnter')}</button>{(['orbit','move','rotate'] as const).map(mode=><button type="button" key={mode} disabled={mode!=='orbit'&&!editablePick} aria-pressed={furnitureMode===mode} onClick={()=>{transformRef.current?.setMode(mode,freeTransform);setFurnitureMode(mode);}}>{message(locale,mode==='orbit'?'furniture3dOrbit':mode==='move'?'furniture3dMove':'furniture3dRotate')}</button>)}<label><input type="checkbox" checked={freeTransform} onChange={e=>{transformRef.current?.setMode(furnitureMode,e.target.checked);setFreeTransform(e.target.checked);}}/>{message(locale,'furniture3dFree')}</label>{groupedPick&&<p role="status" data-testid="group-3d-locked">{message(locale,'group3dLocked')}</p>}{selectionAdvisory&&<FurnitureWarning advisory={selectionAdvisory} locale={locale}/>}</div>}
     {downgraded&&<p className="three-status" role="status">{message(locale,'qualityLowered')}</p>}
     {status && <div className="three-status" role="status">{message(locale, status)}</div>}
     {walking&&<div className="walk-tools" role="group" aria-label={message(locale,'walkTools')}>
