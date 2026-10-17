@@ -1,3 +1,4 @@
+import {FURNITURE_FINISH_SLOT} from '@gharplan/core-model';
 import type {MaterialDef,ProjectStore} from '@gharplan/core-model';
 import type {Locale} from '../i18n/messages';
 type Document=ReturnType<ProjectStore['getSnapshot']>['document'];
@@ -11,3 +12,21 @@ export const surfaceLibrary:readonly {material:MaterialDef;hi:string}[]=[
 ];
 export function surfacePalette(document:Document):readonly MaterialDef[]{return [...document.materials,...surfaceLibrary.filter(e=>!document.materials.some(m=>m.id===e.material.id)).map(e=>e.material)];}
 export function surfaceMaterialName(material:MaterialDef,locale:Locale):string{const known=surfaceLibrary.find(e=>e.material.id===material.id&&e.material.name===material.name);return locale==='hi'&&known?known.hi:material.name;}
+/** FR-022 original furniture finishes (solid colours only). They recolour a model's main material. */
+export const furnitureFinishLibrary:readonly {material:MaterialDef;hi:string}[]=[
+ {material:{id:'m_fin_teak',name:'Finish - teak',baseColor:'#9a6b43',roughness:.6,metalness:0},hi:'सागौन रंग'},
+ {material:{id:'m_fin_walnut',name:'Finish - walnut',baseColor:'#5b3a29',roughness:.6,metalness:0},hi:'अखरोट रंग'},
+ {material:{id:'m_fin_white',name:'Finish - white',baseColor:'#f2f0eb',roughness:.7,metalness:0},hi:'सफ़ेद'},
+ {material:{id:'m_fin_charcoal',name:'Finish - charcoal',baseColor:'#3a3d40',roughness:.7,metalness:0},hi:'कोयला रंग'},
+ {material:{id:'m_fin_sage',name:'Finish - sage green',baseColor:'#8a9a7b',roughness:.8,metalness:0},hi:'हल्का हरा'},
+ {material:{id:'m_fin_navy',name:'Finish - navy',baseColor:'#2f3e5c',roughness:.8,metalness:0},hi:'गहरा नीला'},
+ {material:{id:'m_fin_terracotta',name:'Finish - terracotta',baseColor:'#b5603f',roughness:.8,metalness:0},hi:'टेराकोटा'},
+ {material:{id:'m_fin_mustard',name:'Finish - mustard',baseColor:'#c99a2e',roughness:.8,metalness:0},hi:'सरसों पीला'},
+];
+export function furnitureFinishName(material:MaterialDef,locale:Locale):string{const known=furnitureFinishLibrary.find(e=>e.material.id===material.id&&e.material.name===material.name);return locale==='hi'&&known?known.hi:material.name;}
+type Item=Document['furniture'][number];
+/** null = the model's own colours; a colour = the main-slot finish; undefined = an override the app cannot show. */
+export function furnitureFinish(document:Document,item:Item):string|null|undefined{
+ const keys=Object.keys(item.materialOverrides);if(!keys.length)return null;if(keys.length!==1||keys[0]!==FURNITURE_FINISH_SLOT)return undefined;
+ return document.materials.find(m=>m.id===item.materialOverrides[FURNITURE_FINISH_SLOT])?.baseColor;
+}
