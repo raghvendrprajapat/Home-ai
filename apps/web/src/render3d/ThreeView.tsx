@@ -294,24 +294,21 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
   const modelPages=Math.max(1,Math.ceil(modelStatus.length/20)),currentModelPage=Math.min(modelPage,modelPages-1);
   return <div className="plan-canvas three-canvas" ref={host} data-testid="three-view">
     <div className="three-mount" ref={mount} />
-    <div className="furniture-three-tools" role="group" aria-label={message(locale,'furniture3dTools')}>{(['orbit','move','rotate'] as const).map(mode=><button type="button" key={mode} disabled={mode!=='orbit'&&selectedPick?.kind!=='furniture'} aria-pressed={furnitureMode===mode} onClick={()=>{transformRef.current?.setMode(mode,freeTransform);setFurnitureMode(mode);}}>{message(locale,mode==='orbit'?'furniture3dOrbit':mode==='move'?'furniture3dMove':'furniture3dRotate')}</button>)}<label><input type="checkbox" checked={freeTransform} onChange={e=>{transformRef.current?.setMode(furnitureMode,e.target.checked);setFreeTransform(e.target.checked);}}/>{message(locale,'furniture3dFree')}</label>{selectionAdvisory&&<FurnitureWarning advisory={selectionAdvisory} locale={locale}/>}</div>
+    {!walking&&<div className="furniture-three-tools" role="group" aria-label={message(locale,'furniture3dTools')}><button type="button" data-testid="walk-enter" onClick={()=>{const result=walkControl.current?.enter()??'unavailable';onMessage(message(locale,result==='ok'?'walkStarted':result==='empty'?'walkNeedsRoom':'walkUnavailable'));}}>{message(locale,'walkEnter')}</button>{(['orbit','move','rotate'] as const).map(mode=><button type="button" key={mode} disabled={mode!=='orbit'&&selectedPick?.kind!=='furniture'} aria-pressed={furnitureMode===mode} onClick={()=>{transformRef.current?.setMode(mode,freeTransform);setFurnitureMode(mode);}}>{message(locale,mode==='orbit'?'furniture3dOrbit':mode==='move'?'furniture3dMove':'furniture3dRotate')}</button>)}<label><input type="checkbox" checked={freeTransform} onChange={e=>{transformRef.current?.setMode(furnitureMode,e.target.checked);setFreeTransform(e.target.checked);}}/>{message(locale,'furniture3dFree')}</label>{selectionAdvisory&&<FurnitureWarning advisory={selectionAdvisory} locale={locale}/>}</div>}
     {downgraded&&<p className="three-status" role="status">{message(locale,'qualityLowered')}</p>}
     {status && <div className="three-status" role="status">{message(locale, status)}</div>}
-    <div className="walk-tools" role="group" aria-label={message(locale,'walkTools')}>
-      {!walking?<button type="button" data-testid="walk-enter" onClick={()=>{const result=walkControl.current?.enter()??'unavailable';onMessage(message(locale,result==='ok'?'walkStarted':result==='empty'?'walkNeedsRoom':'walkUnavailable'));}}>{message(locale,'walkEnter')}</button>
-      :<>
-        <button type="button" className="walk-exit" data-testid="walk-exit" onClick={()=>{walkControl.current?.exit();setKnob([0,0]);onMessage(message(locale,'walkEnded'));}}>{message(locale,'walkExit')}</button>
-        <button type="button" aria-label={message(locale,'walkEyeUp')} onClick={()=>walkControl.current?.eye(1)}>{message(locale,'walkEyeUp')}</button>
-        <button type="button" aria-label={message(locale,'walkEyeDown')} onClick={()=>walkControl.current?.eye(-1)}>{message(locale,'walkEyeDown')}</button>
-        <div className="walk-joystick" data-testid="walk-joystick" role="application" aria-label={message(locale,'walkJoystick')}
-          onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);moveStick(e);}}
-          onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))moveStick(e);}}
-          onPointerUp={e=>{releaseStick(e);}} onPointerCancel={e=>{releaseStick(e);}} onLostPointerCapture={()=>{walkControl.current?.axes(0,0);setKnob([0,0]);}}>
-          <span className="walk-knob" style={{transform:`translate(${knob[0]*28}px,${knob[1]*28}px)`}} />
-        </div>
-        <p className="walk-hint" role="status">{message(locale,'walkHint')}</p>
-      </>}
-    </div>
+    {walking&&<div className="walk-tools" role="group" aria-label={message(locale,'walkTools')}>
+      <button type="button" className="walk-exit" data-testid="walk-exit" onClick={()=>{walkControl.current?.exit();setKnob([0,0]);onMessage(message(locale,'walkEnded'));}}>{message(locale,'walkExit')}</button>
+      <button type="button" aria-label={message(locale,'walkEyeUp')} onClick={()=>walkControl.current?.eye(1)}>{message(locale,'walkEyeUp')}</button>
+      <button type="button" aria-label={message(locale,'walkEyeDown')} onClick={()=>walkControl.current?.eye(-1)}>{message(locale,'walkEyeDown')}</button>
+      <div className="walk-joystick" data-testid="walk-joystick" role="application" aria-label={message(locale,'walkJoystick')}
+        onPointerDown={e=>{e.currentTarget.setPointerCapture(e.pointerId);moveStick(e);}}
+        onPointerMove={e=>{if(e.currentTarget.hasPointerCapture(e.pointerId))moveStick(e);}}
+        onPointerUp={e=>{releaseStick(e);}} onPointerCancel={e=>{releaseStick(e);}} onLostPointerCapture={()=>{walkControl.current?.axes(0,0);setKnob([0,0]);}}>
+        <span className="walk-knob" style={{transform:`translate(${knob[0]*28}px,${knob[1]*28}px)`}} />
+      </div>
+      <p className="walk-hint" role="status">{message(locale,'walkHint')}</p>
+    </div>}
     <label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>
     {ceilingWarnings.length>0&&<div className="ceiling-warnings" role="status" tabIndex={0} aria-label={message(locale,'ceilingWarningDetails')}>{ceilingWarnings.map(w=><p key={w.roomIds.join(':')}>{message(locale,'ceilingHeightsDiffer',{a:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[0])?.name??w.roomIds[0],b:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[1])?.name??w.roomIds[1],ha:w.heightsMm[0],hb:w.heightsMm[1]})}</p>)}</div>}
     {modelStatus.length>0&&<details className="furniture-models"><summary>{message(locale,'furnitureModels')}</summary><ul>{modelStatus.slice(currentModelPage*20,(currentModelPage+1)*20).map((m,i)=><li key={m.id} data-model-id={m.id} data-model-phase={m.phase}>{message(locale,'furnitureModelNumber',{n:currentModelPage*20+i+1})}: {message(locale,m.sizeMismatch?'furnitureModelSize':m.unsupportedFinish?'furnitureModelFinish':m.phase==='ready'?'furnitureModelReady':m.phase==='error'?'furnitureModelFailed':'furnitureModelLoading')}{m.phase==='loading'&&m.total?` ${Math.min(100,Math.floor(m.received/m.total*100))}%`:''}{m.retryable&&<button onClick={()=>retryModel.current(m.id)}>{message(locale,'furnitureModelRetry')}</button>}</li>)}</ul>{modelPages>1&&<nav aria-label={message(locale,'furnitureModelPages')}><button disabled={currentModelPage===0} onClick={()=>setModelPage(currentModelPage-1)}>{message(locale,'catalogPrevious')}</button><span>{message(locale,'catalogPage',{page:currentModelPage+1,pages:modelPages})}</span><button disabled={currentModelPage===modelPages-1} onClick={()=>setModelPage(currentModelPage+1)}>{message(locale,'catalogNext')}</button></nav>}</details>}

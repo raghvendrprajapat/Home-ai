@@ -668,7 +668,8 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .split-views { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; background:#dae2d7; }
 .pane-title { padding:8px 12px; background:#f8faf7; font-size:12px; }
 
-.walk-tools { position:absolute; left:.75rem; top:.75rem; z-index:3; display:flex; flex-wrap:wrap; gap:.35rem; align-items:flex-start; max-width:min(22rem,calc(100% - 1.5rem)); pointer-events:auto; background:rgba(255,255,255,.94); padding:.35rem; border-radius:.5rem; }
+/* While walking this panel takes the bottom tool bar's place, so it never covers the top-left model list or top-right toggles. */
+.walk-tools { position:absolute; left:.75rem; right:.75rem; bottom:3rem; z-index:2; display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; pointer-events:auto; background:rgba(255,255,255,.94); padding:.35rem; border-radius:.5rem; max-height:16rem; overflow:auto; }
 .walk-tools .walk-exit { background:#b6723f; color:#fff; font-weight:600; }
 .walk-tools .walk-hint { flex-basis:100%; margin:.2rem; font-size:.75rem; }
 .walk-joystick { position:relative; width:7rem; height:7rem; border-radius:50%; background:rgba(66,83,75,.18); border:2px solid #6c8979; touch-action:none; user-select:none; display:flex; align-items:center; justify-content:center; }
