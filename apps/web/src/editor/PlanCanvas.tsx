@@ -1,4 +1,5 @@
 import {materialColor,wallSurfaceStrips} from './surface-materials';
+import {furnitureFinish} from './material-library';
 import {FurnitureAdvisories} from './furniture-advisories';
 import {FurnitureWarning} from './FurnitureWarning';
 import type {BackAlignment} from './furniture-spatial';
@@ -248,7 +249,7 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
     }
     for (const object of document.furniture) {
       const p = worldToScreen([object.position.x, object.position.y], view);
-      layer.add(new K.Rect({ x: p[0], y: p[1], width: object.size.w * view.scale, height: object.size.d * view.scale, offsetX: object.size.w * view.scale / 2, offsetY: object.size.d * view.scale / 2, rotation: object.rotationDeg, fill: '#c8af90', stroke: object.id===advisoryId&&advisory?.overlap?'#a52e31':(selection?selection.some(p=>p.kind==='furniture'&&p.id===object.id):picked?.kind==='furniture'&&picked.id===object.id)?'#b6723f':'#a38a6d', strokeWidth: object.id===advisoryId&&advisory?.overlap?3:1, cornerRadius: 3 }));
+      layer.add(new K.Rect({ x: p[0], y: p[1], width: object.size.w * view.scale, height: object.size.d * view.scale, offsetX: object.size.w * view.scale / 2, offsetY: object.size.d * view.scale / 2, rotation: object.rotationDeg, fill: furnitureFinish(document,object)??'#c8af90', stroke: object.id===advisoryId&&advisory?.overlap?'#a52e31':(selection?selection.some(p=>p.kind==='furniture'&&p.id===object.id):picked?.kind==='furniture'&&picked.id===object.id)?'#b6723f':'#a38a6d', strokeWidth: object.id===advisoryId&&advisory?.overlap?3:1, cornerRadius: 3 }));
     }
     for (const opening of document.openings) {
       const wall = document.walls.find(w => w.id === opening.wallId)!, a = document.junctions.find(j => j.id === wall.a)!, b = document.junctions.find(j => j.id === wall.b)!;

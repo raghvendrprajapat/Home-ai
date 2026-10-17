@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import fc from 'fast-check';
 import type {ProjectDoc} from '@gharplan/core-model';
 import sample from '../../../../docs/examples/sample-project.json';
-import {FurnitureAssets,furnitureMatrix,furnitureFits} from './furniture-assets';
+import {FurnitureAssets,furnitureMatrix,furnitureFits,mainFurnitureMaterial} from './furniture-assets';
 import type {FurnitureAssetData,FurnitureAssetSource} from './types';
 import type {DecodedFurniture} from './furniture-decoder';
 import {intersectionPick,pickRay} from './picking';
@@ -62,4 +62,23 @@ it('REN-009 throwing disposal of a late parse is contained and releases its phys
 });
 it('REN-004 magnified native tolerance cannot violate the final1mm size contract',()=>{
  const bundle=decoded(),item=doc().furniture[0]!;expect(furnitureFits(item,bundle)).toBe(true);bundle.primitives[0]!.geometry.translate(.000009,0,0);bundle.primitives[0]!.geometry.computeBoundingBox();expect(furnitureFits(item,bundle)).toBe(true);expect(furnitureFits({...item,size:{w:180000,d:900,h:1125}},bundle)).toBe(false);bundle.dispose();
+});
+it('FR-022 a main finish recolours a clone of the largest-volume material per colour group; other parts and the shared material stay unchanged',async()=>{
+ // Claude-authored analytic check: 1.2 x 0.75 x 0.6 body (0.54 m3) beats a 0.1 m cube handle (0.001 m3).
+ const body=new THREE.MeshStandardMaterial({color:0x777777}),handle=new THREE.MeshStandardMaterial({color:0x111111}),bodyGeometry=new THREE.BoxGeometry(1.2,.75,.6).translate(0,.375,0),handleGeometry=new THREE.BoxGeometry(.1,.1,.1).translate(0,.375,.25);
+ bodyGeometry.computeBoundingBox();handleGeometry.computeBoundingBox();
+ const two:DecodedFurniture={primitives:[{name:'handle',geometry:handleGeometry,material:handle},{name:'body',geometry:bodyGeometry,material:body}],dims:{w:1200,d:600,h:750},triangles:24,byteLength:2048,dispose:vi.fn()};
+ expect(mainFurnitureMaterial(two)).toBe(body);
+ const manager=new FurnitureAssets(source,0,()=>{},()=>{},async()=>two),d=doc(4);d.materials.push({id:'m_fin_navy',name:'Finish - navy',baseColor:'#2f3e5c',roughness:.8,metalness:0});
+ d.furniture[1]!.materialOverrides={main:'m_fin_navy'};d.furniture[3]!.materialOverrides={main:'m_fin_navy'};
+ manager.observe(d,'session');await flush();expect(manager.getSnapshot().map(s=>s.unsupportedFinish)).toEqual([false,false,false,false]);
+ expect(manager.present(d).size).toBe(4);expect(manager.group.children).toHaveLength(2); // one plain display, one navy display
+ const meshes=(i:number)=>manager.group.children[i]!.children as THREE.Mesh[],navyGroup=[0,1].find(i=>meshes(i).some(m=>m.userData.entityId==='fu_test_1'))!,plain=1-navyGroup;
+ const tinted=meshes(navyGroup).find(m=>m.geometry===bodyGeometry)!.material as THREE.MeshStandardMaterial;
+ expect(tinted).not.toBe(body);expect(tinted.color.getHex()).toBe(new THREE.Color('#2f3e5c').getHex());expect(body.color.getHex()).toBe(0x777777);
+ expect(meshes(navyGroup).find(m=>m.geometry===handleGeometry)!.material).toBe(handle);expect(meshes(plain).every(m=>m.material===body||m.material===handle)).toBe(true);
+ const dispose=vi.spyOn(tinted,'dispose'),plainAgain=structuredClone(d);plainAgain.furniture.forEach(f=>{f.materialOverrides={};});manager.observe(plainAgain,'session');manager.present(plainAgain);
+ expect(dispose).toHaveBeenCalledTimes(1);expect(manager.group.children).toHaveLength(1);
+ const missing=structuredClone(d);missing.furniture[1]!.materialOverrides={main:'m_missing'};missing.furniture[3]!.materialOverrides={main:'m_fin_navy',frame:'m_fin_navy'};manager.observe(missing,'session');
+ expect(manager.getSnapshot().map(s=>s.unsupportedFinish)).toEqual([false,true,false,true]);expect(manager.present(missing).size).toBe(2);manager.close();
 });
