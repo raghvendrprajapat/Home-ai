@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import type {Command,PreviewResult,ProjectStore} from '@gharplan/core-model';
-import {beginFurnitureGesture,currentFurnitureGesture,furnitureGestureCommand} from '../editor/furniture-gesture';
+import {beginFurnitureGesture,currentFurnitureGesture,furnitureGestureCommand,furnitureGroupMembers} from '../editor/furniture-gesture';
 import type {FurnitureGestureIntent} from '../editor/furniture-gesture';
 import type {Point2} from '../editor/view2d';
 import {FurnitureProjection} from './furniture-projection';
@@ -56,19 +56,19 @@ export class FurniturePointer {
   if(this.#mode==='orbit')return;
   if(blocked){this.#consumed.add(e.pointerId);this.#consume(e);return;}
   if(e.button!==0||!this.hooks.eligible())return;
-  const selected=this.hooks.selected(),hit=this.hooks.hit([e.clientX,e.clientY]);if(!selected||hit?.id!==selected)return;
+  const selected=this.hooks.selected(),hit=this.hooks.hit([e.clientX,e.clientY]);if(!selected||!hit||hit.id!==selected&&!furnitureGroupMembers(this.store.getSnapshot().document,selected)?.includes(hit.id))return; // a group drags from any member
   this.#consumed.add(e.pointerId);this.#consume(e);
   const win=this.element.ownerDocument.defaultView!,viewport=[win.innerWidth,win.innerHeight] as const,position=this.camera.position.clone(),quaternion=this.camera.quaternion.clone(),target=this.controls.target.clone(),flags={enabled:this.controls.enabled,enableDamping:this.controls.enableDamping,autoRotate:this.controls.autoRotate};
   try{
    const projection=new FurnitureProjection(this.camera,this.element.getBoundingClientRect(),hit.point[1]),point=projection.point([e.clientX,e.clientY]);if(!point)throw Error('furniture-projection');
-   const mode=this.#mode,intent=beginFurnitureGesture(this.store,selected,mode,point),owned=()=>!this.#closed&&this.#mode===mode&&win.innerWidth===viewport[0]&&win.innerHeight===viewport[1]&&currentFurnitureGesture(this.store,intent)&&this.hooks.selected()===selected&&this.hooks.eligible();
+   const mode=this.#mode,intent=beginFurnitureGesture(this.store,selected,mode,point,{group:true}),owned=()=>!this.#closed&&this.#mode===mode&&win.innerWidth===viewport[0]&&win.innerHeight===viewport[1]&&currentFurnitureGesture(this.store,intent)&&this.hooks.selected()===selected&&this.hooks.eligible();
    this.hooks.start();if(!owned())return;
    this.controls.enabled=false;this.controls.autoRotate=false;this.controls.enableDamping=false;
    // Public update drains residual orbit deltas. Restore the exact captured pose
    // before freezing projection; disabled alone would still allow damping drift.
    this.controls.update();this.camera.position.copy(position);this.camera.quaternion.copy(quaternion);this.controls.target.copy(target);this.controls.update();
    this.camera.position.copy(position);this.camera.quaternion.copy(quaternion);this.controls.target.copy(target);
-   const item=this.store.getSnapshot().document.furniture.find(f=>f.id===selected)!,centre=projection.screen([item.position.x,item.position.y]);
+   const centre=projection.screen(intent.centre); // the item, or the group pivot for a grouped turn
    if(this.#mode==='rotate'&&(!centre||Math.hypot(e.clientX-centre[0],e.clientY-centre[1])<12))throw Error('furniture-rotation-radius');
    if(!owned())throw Error('furniture-ownership');
    const input:PointerInput={id:e.pointerId,touch,client:[e.clientX,e.clientY],shift:e.shiftKey};
