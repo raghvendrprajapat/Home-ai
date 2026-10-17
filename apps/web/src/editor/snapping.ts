@@ -35,3 +35,26 @@ export function resolveSnap(document:PlanDocument,raw:Point2,view:Viewport,optio
  const target=prior&&within(prior,1.5)&&(!best||best.priority>=prior.priority)?prior:best??null;
  return {point:quantize(target?.point??point),target,gridStep:step};
 }
+export interface LineSnapOptions {exclude?:ReadonlySet<string>;disabled?:boolean;previous?:SnapTarget|null}
+export interface LineSnapResult {coordinate:number;target:SnapTarget|null}
+/**
+ * Snap a dragged wall line along its normal axis to another corner's row/column or the grid.
+ * `along` only places the on-screen marker. Corners that move with the wall are excluded.
+ */
+export function snapLine(document:PlanDocument,raw:number,axis:'x'|'y',along:number,view:Viewport,options:LineSnapOptions={}):LineSnapResult {
+ if(!Number.isFinite(raw)||!Number.isFinite(along)||!Number.isFinite(view.scale)||view.scale<.001||view.scale>1)throw new Error('invalid-pointer');
+ const step=snapGridStep(view.scale),at=(value:number):Point2=>axis==='x'?[value,along]:[along,value];
+ if(options.disabled)return {coordinate:Math.round(raw),target:null};
+ const candidates:SnapTarget[]=[];
+ for(const j of document.junctions){if(options.exclude?.has(j.id))continue;const value=axis==='x'?j.x:j.y;
+  candidates.push({kind:axis==='x'?'guide-x':'guide-y',key:`guide-${axis}:${j.id}`,point:at(value),priority:3,acquirePx:6,guide:{axis,value}});}
+ const grid=(value:number):SnapTarget=>({kind:'grid',key:`grid:${axis}:${value}:${step}`,point:at(value),priority:5,acquirePx:Math.max(4,step*view.scale/2),gridStep:step});
+ candidates.push(grid(Math.round(raw/step)*step));
+ if(options.previous?.kind==='grid'&&options.previous.gridStep===step)candidates.push(grid(options.previous.point[axis==='x'?0:1]));
+ const value=(target:SnapTarget)=>target.point[axis==='x'?0:1],gap=(target:SnapTarget)=>Math.abs(value(target)-raw);
+ const within=(target:SnapTarget,multiple:number)=>gap(target)<=250&&gap(target)*view.scale<=target.acquirePx*multiple;
+ const acquired=candidates.filter(c=>within(c,1)).sort((a,b)=>a.priority-b.priority||gap(a)-gap(b)||stable(a.key,b.key));
+ const prior=options.previous?candidates.find(c=>c.key===options.previous!.key):undefined,best=acquired[0];
+ const target=prior&&within(prior,1.5)&&(!best||best.priority>=prior.priority)?prior:best??null;
+ return {coordinate:Math.round(target?value(target):raw),target};
+}

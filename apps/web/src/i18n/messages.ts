@@ -87,6 +87,8 @@ export const messages = {
   chooseCorner: ['Choose a corner and make this space your own.', 'कोना चुनें और जगह को अपने हिसाब से बनाएँ।'],
   wholeCoordinates: ['Enter both coordinates in whole millimetres.', 'दोनों निर्देशांक पूरे मिलीमीटर में डालें।'],
   cornerUpdated: ['Corner updated. Undo is available.', 'कोना बदला गया। पिछला बदलाव हटा सकते हैं।'],
+  wallMoved: ['Wall moved. Connected walls followed. Undo is available.', 'दीवार खिसकाई गई। जुड़ी दीवारें साथ गईं। पिछला बदलाव हटा सकते हैं।'],
+  wallDragHint: ['Drag sideways to move this wall; connected walls follow. Release to apply; Escape cancels.', 'इस दीवार को बगल में खींचें; जुड़ी दीवारें साथ चलेंगी। छोड़ने पर लागू होगा; Escape से रद्द होगा।'],
   cornerUnchanged: ['The corner is already at these coordinates.', 'कोना पहले से इन निर्देशांकों पर है।'],
   selectedCorner: ['Selected corner', 'चुना हुआ कोना'], cornerOption: ['Corner {number} · {x}, {y} mm', 'कोना {number} · {x}, {y} मिमी'],
   xPosition: ['X position', 'X स्थिति'], yPosition: ['Y position', 'Y स्थिति'], cornerX: ['Corner X coordinate', 'कोने का X निर्देशांक'], cornerY: ['Corner Y coordinate', 'कोने का Y निर्देशांक'],

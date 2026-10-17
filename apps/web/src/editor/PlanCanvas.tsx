@@ -9,13 +9,13 @@ import type { ProjectStore, PreviewResult } from '@gharplan/core-model';
 import { areaDisplay, editError, message } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 import type Konva from 'konva';
-import { fitView, junctionMoves, screenToWorld, worldToScreen, zoomAt } from './view2d';
+import { fitView, junctionMoves, screenToWorld, wallChain, wallDrag, wallMoves, worldToScreen, zoomAt } from './view2d';
 import { PlanGestures } from './gestures';
 import type { GestureStep, DragMotion } from './gestures';
 import { PickIndex, PickCycle } from './hit-test';
 import type { Pick } from './hit-test';
 import { TouchLoupe } from './TouchLoupe';
-import { resolveSnap, snapGridStep } from './snapping';
+import { resolveSnap, snapGridStep, snapLine } from './snapping';
 import type { SnapTarget } from './snapping';
 import { formatLength } from './measurements';
 import { openingSymbol } from './opening-symbol';
@@ -26,7 +26,7 @@ import type { Point2, Viewport } from './view2d';
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
 interface Props { selectedPick?:Pick|null;advisories?:FurnitureAdvisories;previewFurnitureId?:string|undefined;store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface DragBase {pointerId:number;generation:number;start:Point2;last:Point2;touch:boolean;store:ProjectStore;frame:readonly[number,number,number,number];windowSize:readonly[number,number]}
-type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent});
+type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent}|{kind:'wall';wall:string;axis:'x'|'y';along:number;exclude:ReadonlySet<string>});
 export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvisories,previewFurnitureId,store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
   const [ownAdvisories]=useState(()=>new FurnitureAdvisories()),advisories=providedAdvisories??ownAdvisories;
   const furnitureSnapKey=useRef<string|null>(null),[backSnap,setBackSnap]=useState<BackAlignment|null>(null);
@@ -42,8 +42,13 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
   const panKey = useRef(false);
   const lastSnap=useRef<SnapTarget|null>(null),[snapTarget,setSnapTarget]=useState<SnapTarget|null>(null);
   const snapFrame=useRef<number|null>(null),pendingSnap=useRef<SnapTarget|null>(null);
+  const publishSnap=(target:SnapTarget|null)=>{lastSnap.current=target;pendingSnap.current=target;if(snapFrame.current===null)snapFrame.current=requestAnimationFrame(()=>{snapFrame.current=null;setSnapTarget(pendingSnap.current);});};
   const snapAt=(raw:Point2,origin:Point2|null,orthogonal:boolean,disabled:boolean,excludeId?:string):Point2=>{
-    const result=resolveSnap(activeStore.current.getSnapshot().document,raw,viewRef.current,{origin,orthogonal,disabled:disabled||toolRef.current?.getSnapshot().snappingEnabled===false,previous:lastSnap.current,...(excludeId?{excludeId}:{})});lastSnap.current=result.target;pendingSnap.current=result.target;if(snapFrame.current===null)snapFrame.current=requestAnimationFrame(()=>{snapFrame.current=null;setSnapTarget(pendingSnap.current);});return result.point;
+    const result=resolveSnap(activeStore.current.getSnapshot().document,raw,viewRef.current,{origin,orthogonal,disabled:disabled||toolRef.current?.getSnapshot().snappingEnabled===false,previous:lastSnap.current,...(excludeId?{excludeId}:{})});publishSnap(result.target);return result.point;
+  };
+  const wallSnap=(d:Drag&{kind:'wall'},raw:Point2,disabled:boolean):Point2=>{
+    const n=d.axis==='x'?0:1,result=snapLine(activeStore.current.getSnapshot().document,raw[n],d.axis,d.along,viewRef.current,{exclude:d.exclude,disabled:disabled||toolRef.current?.getSnapshot().snappingEnabled===false,previous:lastSnap.current});
+    publishSnap(result.target);return d.axis==='x'?[result.coordinate,d.start[1]]:[d.start[0],result.coordinate];
   };
   const activeStore = useRef(store); activeStore.current = store;
   const toolRef=useRef(drawing);toolRef.current=drawing;
@@ -53,6 +58,8 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
   const index = useMemo(() => new PickIndex(snapshot), [snapshot]);
   const [localPicked, setPicked] = useState<Pick | null>(null), [loupe,setLoupe] = useState<{point:Point2;world:Point2}|null>(null);
   const picked=controlledPick===undefined?localPicked:controlledPick;
+  // Only an already-selected wall drags; pressing an unselected wall still pans, as before.
+  const singleWallId=selection?selection.length===1&&selection[0]?.kind==='wall'?selection[0].id:undefined:picked?.kind==='wall'?picked.id:undefined,selectedWallRef=useRef(singleWallId);selectedWallRef.current=singleWallId;
   const [size, setSize] = useState({ width: 0, height: 0 }), [view, setView] = useState<Viewport>({ x: 0, y: 0, scale: 0.06 });
   const viewRef = useRef(view); viewRef.current = view;
   useEffect(()=>{if(size.width&&size.height)onViewCentre?.(screenToWorld([size.width/2,size.height/2],view));},[view,size,onViewCentre]);
@@ -79,19 +86,28 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
   useEffect(()=>{if(gestures.current.phase!=='idle'||boxDrag.current)cancel();else resetSnap();},[toolState?.snappingEnabled]);
   useEffect(()=>{cancel();},[multiple]);
   useEffect(()=>{const owned=drag.current;if(owned?.kind==='furniture'&&controlledSelectionRef.current&&singleFurnitureId!==owned.intent.id)cancel();},[singleFurnitureId,selection!==undefined]);
+  useEffect(()=>{const owned=drag.current;if(owned?.kind==='wall'&&controlledSelectionRef.current&&singleWallId!==owned.wall)cancel();},[singleWallId,selection!==undefined]);
   useEffect(()=>{if(precisionPreview)cancel();},[precisionPreview]);
   const targetFor = (motion:DragMotion,shift:boolean):Point2|null => {
     const d=drag.current;if(!d||d.pointerId!==motion.pointerId)return null;
     const mapping=host.current?.getBoundingClientRect();
     if(!mapping||d.windowSize[0]!==window.innerWidth||d.windowSize[1]!==window.innerHeight||d.frame.some((value,i)=>value!==[mapping.left,mapping.top,mapping.width,mapping.height][i])){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const current=d.store.getSnapshot();
-    if(d.store!==activeStore.current||current.localGeneration!==d.generation||d.kind==='furniture'&&(!currentFurnitureGesture(d.store,d.intent)||controlledSelectionRef.current&&selectedFurnitureRef.current!==d.intent.id)){cancel();onMessage(message(language.current,'dragRetry'));return null;}
+    if(d.store!==activeStore.current||current.localGeneration!==d.generation||d.kind==='furniture'&&(!currentFurnitureGesture(d.store,d.intent)||controlledSelectionRef.current&&selectedFurnitureRef.current!==d.intent.id)||d.kind==='wall'&&(controlledSelectionRef.current&&selectedWallRef.current!==d.wall||!current.document.walls.some(w=>w.id===d.wall))){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const raw:Point2=[d.start[0]+motion.delta[0]/viewRef.current.scale,d.start[1]+motion.delta[1]/viewRef.current.scale];
-    const target=raw[0]===d.start[0]&&raw[1]===d.start[1]?d.start:d.kind==='junction'?snapAt(raw,null,false,shift,d.junction):raw;d.last=target;
-    if(d.touch)setLoupe({point:motion.point,world:target});return target;
+    // A wall slides on one axis only: no sideways-along motion, and no snap jump from an off-grid wall.
+    const unmoved=d.kind==='wall'?raw[d.axis==='x'?0:1]===d.start[d.axis==='x'?0:1]:raw[0]===d.start[0]&&raw[1]===d.start[1];
+    const target=unmoved?d.start:d.kind==='junction'?snapAt(raw,null,false,shift,d.junction):d.kind==='wall'?wallSnap(d,raw,shift):raw;d.last=target;
+    if(d.touch){
+      // A wall's own anchor can be far from the finger: magnify under the finger, on the snapped wall line.
+      const finger=screenToWorld(motion.point,viewRef.current);
+      setLoupe({point:motion.point,world:d.kind==='wall'?d.axis==='x'?[target[0],Math.round(finger[1])]:[Math.round(finger[0]),target[1]]:target});
+    }
+    return target;
   };
   const dragCommand=(d:Drag,to:Point2,shift:boolean)=>{
     if(d.kind==='junction')return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:junctionMoves(d.store.getSnapshot().document,d.junction,to)};
+    if(d.kind==='wall')return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:wallMoves(d.store.getSnapshot().document,d.wall,to[d.axis==='x'?0:1])};
     const result=advisories.gesture(d.store.getSnapshot().document,d.intent,to,shift||toolRef.current?.getSnapshot().snappingEnabled===false||d.intent.mode==='rotate'&&freeRotationRef.current,snapGridStep(viewRef.current.scale),viewRef.current.scale,furnitureSnapKey.current);
     furnitureSnapKey.current=result.snap?.key??null;setBackSnap(result.snap);return result.command;
   };
@@ -281,7 +297,8 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
         const state=toolRef.current!.getSnapshot(),world=snapAt(screenToWorld(point,viewRef.current),state.anchor,drawingMode==='wall',event.shiftKey);
         toolPointer.current={id:event.pointerId,point,world,generation:snapshot.localGeneration,epoch:state.epoch};if(touch)setLoupe({point,world});return;
       }
-      const canDrag=event.button===0&&!panKey.current&&!multiple&&!event.shiftKey&&(pick?.kind==='junction'||pick?.kind==='furniture');
+      const wallSetup=pick?.kind==='wall'&&pick.id===singleWallId?(()=>{try{return {...wallDrag(snapshot.document,pick.id),exclude:wallChain(snapshot.document,pick.id)};}catch{return null;}})():null;
+      const canDrag=event.button===0&&!panKey.current&&!multiple&&!event.shiftKey&&(pick?.kind==='junction'||pick?.kind==='furniture'||wallSetup!==null);
       if(canDrag)onEditStart?.();
       const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,canDrag,now);
       event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);applyStep(step);
@@ -289,9 +306,10 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
       if(pick&&canDrag){
         onPick?.(pick,false);setPicked(pick);
         if(pick.kind==='junction'){const j=snapshot.document.junctions.find(j=>j.id===pick.id)!;onSelect(j.id);drag.current={...mapping,kind:'junction',pointerId:event.pointerId,junction:j.id,generation:snapshot.localGeneration,start:[j.x,j.y],last:[j.x,j.y],touch,store};}
+        else if(pick.kind==='wall'&&wallSetup){drag.current={...mapping,kind:'wall',wall:pick.id,axis:wallSetup.axis,along:wallSetup.along,exclude:wallSetup.exclude,pointerId:event.pointerId,generation:snapshot.localGeneration,start:wallSetup.origin,last:wallSetup.origin,touch,store};}
         else{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,pick.id,'move',world);drag.current={...mapping,kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
         if(step.phase==='pending')holdTimer.current=setTimeout(()=>applyStep(gestures.current.hold(performance.now())),151);
-        onMessage(message(locale,pick.kind==='furniture'?'furnitureDragHint':touch?'touchHold':'previewHelp'));
+        onMessage(message(locale,pick.kind==='furniture'?'furnitureDragHint':pick.kind==='wall'?'wallDragHint':touch?'touchHold':'previewHelp'));
       }
     }}
     onPointerMove={event=>{
@@ -321,7 +339,7 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
         let command:ReturnType<typeof dragCommand>|null=null;
         try{if(to&&d&&(to[0]!==d.start[0]||to[1]!==d.start[1]))command=dragCommand(d,to,event.shiftKey);}catch{onMessage(message(locale,'furnitureValuesInvalid'));}
         clearEdit();
-        if(command){const started=performance.now();try{const result=store.execute(command);onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,d?.kind==='furniture'?'furnitureApplied':'cornerUpdated'):editError(locale,result.errors[0]));}catch{onMessage(message(locale,'furnitureValuesInvalid'));}}
+        if(command){const started=performance.now();try{const result=store.execute(command);onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,d?.kind==='furniture'?'furnitureApplied':d?.kind==='wall'?'wallMoved':'cornerUpdated'):editError(locale,result.errors[0]));}catch{onMessage(message(locale,'furnitureValuesInvalid'));}}
 
       }else applyStep(step);
       if(step.tap&&!rotateTap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);onPick?.(chosen,multiple||event.shiftKey);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}
