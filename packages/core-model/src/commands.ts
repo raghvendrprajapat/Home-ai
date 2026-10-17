@@ -16,6 +16,8 @@ export function furnitureTurnPivot(items: readonly Pick<FurnitureItem, 'position
   });
   return [Math.round((Math.min(...boxes.map(b => b[0])) + Math.max(...boxes.map(b => b[2]))) / 2), Math.round((Math.min(...boxes.map(b => b[1])) + Math.max(...boxes.map(b => b[3]))) / 2)];
 }
+/** The one furniture override slot the renderer understands: the model's main (largest) material. */
+export const FURNITURE_FINISH_SLOT = 'main';
 export type SurfaceMaterialTarget={kind:'wall';id:string;side:'left'|'right'}|{kind:'floor';id:string};
 export type Command = CommandBase & (
   | { type: 'AddWall'; from: readonly [number, number]; to: readonly [number, number]; thickness: number; height: number }
@@ -26,6 +28,7 @@ export type Command = CommandBase & (
   | { type: 'ReverseWall'; wallId: string }
   | { type: 'UpdateWall'; wallId: string; properties: Partial<Pick<Wall, 'thickness' | 'height' | 'leftMaterial' | 'rightMaterial'>> }
   | { type:'ApplySurfaceMaterial';target:SurfaceMaterialTarget;material:MaterialDef }
+  | { type: 'SetFurnitureFinish'; furnitureIds: readonly string[]; material: MaterialDef | null }
   | { type: 'AddOpening'; opening: Omit<Opening, 'rev'> }
   | { type: 'UpdateOpening'; openingId: string; properties: Partial<Pick<Opening, 'offset' | 'width' | 'height' | 'sill' | 'flipX' | 'flipY'>> }
   | { type: 'DeleteOpening'; openingId: string }
@@ -150,6 +153,21 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       geometryChanged = true; break;
     }
     case 'UpdateWall': assignProperties(wall(command.wallId), command.properties, ['thickness', 'height', 'leftMaterial', 'rightMaterial']); geometryChanged = true; break;
+    case 'SetFurnitureFinish': {
+      // FR-022 furniture colour variants: one main-colour override per item, or null for the model's own colours.
+      if (!Array.isArray(command.furnitureIds) || command.furnitureIds.length < 1 || command.furnitureIds.length > 500 || command.furnitureIds.some(id => typeof id !== 'string') || new Set(command.furnitureIds).size !== command.furnitureIds.length)
+        throw new GeometryError('selection', 'Choose 1 to 500 different furniture items.');
+      const items = command.furnitureIds.map(id => requireEntity(draft.furniture, id)), material = command.material;
+      if (material !== null && (!material || typeof material !== 'object' || Array.isArray(material))) throw new GeometryError('command-properties', 'Choose a valid finish material.');
+      if (material) {
+        const existing = draft.materials.find(m => m.id === material.id);
+        if (existing && canonicalStringify(existing) !== canonicalStringify(material)) throw new GeometryError('material-conflict', 'This material ID already has a different definition.', [material.id]);
+        if (!existing) draft.materials.push({ ...material });
+      }
+      const next = material ? { [FURNITURE_FINISH_SLOT]: material.id } : {};
+      for (const item of items) if (canonicalStringify(item.materialOverrides) !== canonicalStringify(next)) item.materialOverrides = { ...next };
+      break;
+    }
     case 'ApplySurfaceMaterial': {
       const {target,material}=command;
       if(!target||typeof target!=='object'||!['wall','floor'].includes(target.kind)||typeof target.id!=='string'||target.kind==='wall'&&!['left','right'].includes(target.side)||!material||typeof material!=='object'||Array.isArray(material))throw new GeometryError('command-properties','Choose a valid wall side or room floor and material.');

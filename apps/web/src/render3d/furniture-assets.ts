@@ -1,4 +1,5 @@
 import * as THREE from 'three';
+import {furnitureFinish} from '../editor/material-library';
 import type {ProjectStore} from '@gharplan/core-model';
 import type {FurnitureAssetSource} from './types';
 import {decodeFurniture} from './furniture-decoder';
@@ -22,6 +23,11 @@ export function furnitureFits(item:Item,bundle:DecodedFurniture):boolean{
  const d=bundle.dims,expected=new THREE.Box3(new THREE.Vector3(-d.w/2000,0,-d.d/2000),new THREE.Vector3(d.w/2000,d.h/1000,d.d/2000)),matrix=furnitureMatrix(item,0,d);actual.applyMatrix4(matrix);expected.applyMatrix4(matrix);
  return [...actual.min.toArray(),...actual.max.toArray()].every((n,i)=>Math.abs(n-[...expected.min.toArray(),...expected.max.toArray()][i]!)<=.001);
 }
+/** The material covering the largest total part volume; the first one wins a tie. */
+export function mainFurnitureMaterial(bundle:DecodedFurniture):THREE.MeshStandardMaterial{
+ const volume=new Map<THREE.MeshStandardMaterial,number>();for(const p of bundle.primitives){const size=p.geometry.boundingBox!.getSize(new THREE.Vector3());volume.set(p.material,(volume.get(p.material)??0)+size.x*size.y*size.z);}
+ let best=bundle.primitives[0]!.material;for(const [material,v]of volume)if(v>volume.get(best)!)best=material;return best;
+}
 /** Current-document interests and last-displayed leases have different lifetimes.
  * Parse completion only requests presentation; it never acknowledges CPU state. */
 export class FurnitureAssets {
@@ -30,11 +36,12 @@ export class FurnitureAssets {
  get resourceStats(){return {...this.#pool.stats,bytes:this.#bytes,active:this.#active,displayed:this.#displayed.size,cleanupFailures:this.#cleanupFailures};}
  get renderingStats(){let meshes=0,instances=0,triangles=0;const ids=new Set<string>();this.group.traverse(node=>{if(!(node instanceof THREE.Mesh))return;meshes++;const count=node instanceof THREE.InstancedMesh?node.count:1;instances+=count;triangles+=(node.geometry.index?.count??node.geometry.getAttribute('position').count)/3*count;for(const id of node.userData.entityIds??[node.userData.entityId])if(typeof id==='string')ids.add(id);});return {meshes,instances,triangles,ids:[...ids]};}
  #key(item:Item){return `${item.assetId}@${item.assetVersion}:${this.lod}`;}
+ #shows(entry:Entry){for(const display of this.#displayed.values())if(display.entry===entry)return true;return false;}
  #notify(){if(!this.#closed)this.changed();}
  #cleanup(steps:(()=>void)[]):void{try{releaseOnce(steps)();}catch{this.#cleanupFailures++;}}
  #collect():void{
   const releases:(()=>void)[]=[];
-  for(const [key,entry]of this.#entries)if(!entry.interests.size&&!this.#displayed.has(key)){this.#entries.delete(key);releases.push(()=>entry.controller.abort());if(entry.bundle){const bundle=entry.bundle;entry.bundle=undefined;this.#bytes-=bundle.value.byteLength;releases.push(()=>bundle.release());}}
+  for(const [key,entry]of this.#entries)if(!entry.interests.size&&!this.#shows(entry)){this.#entries.delete(key);releases.push(()=>entry.controller.abort());if(entry.bundle){const bundle=entry.bundle;entry.bundle=undefined;this.#bytes-=bundle.value.byteLength;releases.push(()=>bundle.release());}}
   this.#cleanup(releases);
  }
  observe(document:ProjectDoc,session:string):void{
@@ -69,17 +76,20 @@ export class FurnitureAssets {
   }catch{if(owned())entry.phase='error';}
   finally{this.#cleanup(decoded?[()=>decoded!.dispose()]:[]);this.#active--;this.#collect();this.#pump();this.#notify();}
  }
- getSnapshot():FurnitureStatus[]{return (this.#document?.furniture??[]).map(item=>{const e=this.#entries.get(this.#key(item)),unsupportedFinish=Object.keys(item.materialOverrides).length>0,sizeMismatch=!!e?.bundle&&!furnitureFits(item,e.bundle.value);return {id:item.id,phase:unsupportedFinish||sizeMismatch?'error':e?.phase??'error',received:e?.received??0,total:e?.total,retryable:!unsupportedFinish&&!sizeMismatch&&e?.phase==='error',unsupportedFinish,sizeMismatch};});}
+ getSnapshot():FurnitureStatus[]{return (this.#document?.furniture??[]).map(item=>{const e=this.#entries.get(this.#key(item)),unsupportedFinish=furnitureFinish(this.#document!,item)===undefined,sizeMismatch=!!e?.bundle&&!furnitureFits(item,e.bundle.value);return {id:item.id,phase:unsupportedFinish||sizeMismatch?'error':e?.phase??'error',received:e?.received??0,total:e?.total,retryable:!unsupportedFinish&&!sizeMismatch&&e?.phase==='error',unsupportedFinish,sizeMismatch};});}
  retry(id:string):void{
-  const item=this.#document?.furniture.find(f=>f.id===id);if(!item||this.#closed)return;const old=this.#entries.get(this.#key(item));if(!old||old.phase!=='error'||this.#displayed.has(old.key))return;
+  const item=this.#document?.furniture.find(f=>f.id===id);if(!item||this.#closed)return;const old=this.#entries.get(this.#key(item));if(!old||old.phase!=='error'||this.#shows(old))return;
   old.controller.abort();if(old.bundle){const bundle=old.bundle;old.bundle=undefined;this.#bytes-=bundle.value.byteLength;this.#cleanup([()=>bundle.release()]);}
   this.#entries.set(old.key,{...old,phase:'queued',controller:new AbortController(),bundle:undefined,received:0,total:undefined});this.#pump();this.#notify();
  }
  #clearDisplay(){const displays=[...this.#displayed.values()];this.#displayed.clear();releaseOnce(displays.map(d=>()=>{this.group.remove(d.group);d.release();}))();}
- #build(entry:Entry,items:Item[]):Display{
+ #build(entry:Entry,items:Item[],finish:string|null):Display{
   const bundle=entry.bundle!.value,group=new THREE.Group(),releases:(()=>void)[]=[];
   try{
-   for(const primitive of bundle.primitives){
+   // A finish recolours a per-display clone of the main material; the shared decoded material is never changed.
+   const main=mainFurnitureMaterial(bundle),tinted=finish?main.clone():undefined;
+   if(tinted){tinted.color.set(finish!);tinted.onBeforeCompile=main.onBeforeCompile;releases.push(()=>tinted.dispose());}
+   for(const decoded of bundle.primitives){const primitive=tinted&&decoded.material===main?{...decoded,material:tinted}:decoded;
     if(items.length>=3){const mesh=new THREE.InstancedMesh(primitive.geometry,primitive.material,items.length);const lease=this.#pool.acquire(`instances:${++this.#serial}`,()=>mesh);releases.push(()=>lease.release());mesh.userData={category:'furniture-model-instances',entityIds:items.map(i=>i.id)};mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);}
     else for(const item of items){const mesh=new THREE.Mesh(primitive.geometry,primitive.material);mesh.matrixAutoUpdate=false;mesh.userData={category:'furniture-model',entityId:item.id};mesh.castShadow=true;mesh.receiveShadow=true;group.add(mesh);}
    }
@@ -88,11 +98,12 @@ export class FurnitureAssets {
  }
  /** Called only for the applied, live CPU tag. Assemble each asset atomically. */
  present(document:ProjectDoc):Set<string>{
-  if(this.#closed)return new Set();const wanted=new Map<string,Item[]>();
-  for(const item of document.furniture){const key=this.#key(item),entry=this.#entries.get(key);if(entry?.phase==='ready'&&entry.bundle&&!Object.keys(item.materialOverrides).length&&furnitureFits(item,entry.bundle.value)){const items=wanted.get(key)??[];items.push(item);wanted.set(key,items);}}
+  // One display per asset and finish colour, so same-coloured copies still share instancing.
+  if(this.#closed)return new Set();const wanted=new Map<string,{entry:Entry;finish:string|null;items:Item[]}>();
+  for(const item of document.furniture){const entry=this.#entries.get(this.#key(item)),finish=furnitureFinish(document,item);if(entry?.phase==='ready'&&entry.bundle&&finish!==undefined&&furnitureFits(item,entry.bundle.value)){const key=`${entry.key}|${finish??''}`,group=wanted.get(key)??{entry,finish,items:[]};group.items.push(item);wanted.set(key,group);}}
   const next=new Map<string,Display>(),attached=new Set<string>();
-  for(const [key,items]of wanted){const entry=this.#entries.get(key)!,old=this.#displayed.get(key);let display:Display|undefined;
-   try{display=old&&old.entry===entry&&old.ids.length===items.length&&old.ids.every((id,i)=>id===items[i]!.id)?old:this.#build(entry,items);
+  for(const [key,{entry,finish,items}]of wanted){const old=this.#displayed.get(key);let display:Display|undefined;
+   try{display=old&&old.entry===entry&&old.ids.length===items.length&&old.ids.every((id,i)=>id===items[i]!.id)?old:this.#build(entry,items,finish);
     for(let p=0;p<entry.bundle!.value.primitives.length;p++){
      if(items.length>=3){const mesh=display.group.children[p] as THREE.InstancedMesh;items.forEach((item,i)=>mesh.setMatrixAt(i,furnitureMatrix(item,document.floors.find(f=>f.id===item.floorId)!.elevation,entry.bundle!.value.dims)));mesh.instanceMatrix.needsUpdate=true;mesh.computeBoundingBox();mesh.computeBoundingSphere();}
      else items.forEach((item,i)=>{const mesh=display!.group.children[p*items.length+i]!;mesh.matrix.copy(furnitureMatrix(item,document.floors.find(f=>f.id===item.floorId)!.elevation,entry.bundle!.value.dims));mesh.matrixWorldNeedsUpdate=true;});
