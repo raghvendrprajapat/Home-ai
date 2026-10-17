@@ -18,6 +18,10 @@ Built by Claude Code under the owner's D52 continuation. **Status: complete loca
 - `tests/e2e/furniture-group.spec.ts` case 3 was **deliberately updated** for the D60 behaviour change: 3D Move is now enabled with the "whole group" note, where D57 expected it disabled. Nothing else was relaxed.
 - All 7 grouping browser cases pass.
 
+**Whole checks:**
+- `pnpm check` after merging `main` (D59): 71 files, 526 product tests, 18 tooling tests passed. The merge had additive conflicts in `commands.ts` and the docs, resolved by keeping both sides.
+- Whole browser suite on that exact merged tree: **153 passed, 1 failed (13.3 m)**. The 1 failure is the same `furniture-gestures.spec.ts` "UX-005 … rotation-handle tap … Enter rotates once" deep-equality failure that fails on unmodified `main` in this sandbox (Chromium 141) and passed in pinned CI for PRs #100–#106. Not caused by this change; cause unproven; pinned CI is the gate.
+
 ## Limits
 
 - No physical phone, mobile-optimization or independent-review claim.
