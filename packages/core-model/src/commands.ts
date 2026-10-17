@@ -29,6 +29,7 @@ export type Command = CommandBase & (
   | { type: 'DeleteSelection'; wallIds: readonly string[]; openingIds: readonly string[]; furnitureIds: readonly string[]; deleteDependents: boolean }
   | { type: 'DuplicateFurniture'; furnitureIds: readonly string[] }
   | { type: 'AlignFurniture'; furnitureIds: readonly string[]; mode: FurnitureAlignMode }
+  | { type: 'RotateFurniture'; furnitureIds: readonly string[]; deltaDeg: number }
   | { type: 'GroupFurniture'; furnitureIds: readonly string[] }
   | { type: 'UngroupFurniture'; furnitureIds: readonly string[] }
   | { type: 'MoveFurniture'; furnitureIds: readonly string[]; dx: number; dy: number }
@@ -242,6 +243,26 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
         if (command.mode === 'left') item.position.x = Math.round(refs.left + halfX); else if (command.mode === 'right') item.position.x = Math.round(refs.right - halfX);
         else if (command.mode === 'top') item.position.y = Math.round(refs.top + halfY); else if (command.mode === 'bottom') item.position.y = Math.round(refs.bottom - halfY);
         else if (command.mode === 'centreX') item.position.x = Math.round((refs.left + refs.right) / 2); else item.position.y = Math.round((refs.top + refs.bottom) / 2);
+      }
+      break;
+    }
+    case 'RotateFurniture': {
+      // Turn the items together, clockwise on screen for positive degrees (the footprint convention), about the
+      // integer-rounded centre of their combined bounding box. Multiples of 90 degrees are exact; other angles round
+      // each centre to the nearest mm (at most 0.5 mm per turn).
+      if (!Array.isArray(command.furnitureIds) || command.furnitureIds.length < 1 || command.furnitureIds.length > 500 || command.furnitureIds.some(id => typeof id !== 'string') || new Set(command.furnitureIds).size !== command.furnitureIds.length)
+        throw new GeometryError('selection', 'Choose 1 to 500 different furniture items to rotate.');
+      if (typeof command.deltaDeg !== 'number' || !Number.isFinite(command.deltaDeg) || Math.abs(command.deltaDeg) > 360) throw new GeometryError('rotation', 'Rotation must be a finite angle between -360 and 360 degrees.');
+      const items = command.furnitureIds.map(id => requireEntity(draft.furniture, id)), turn = ((command.deltaDeg % 360) + 360) % 360;
+      if (turn === 0) break;
+      const extent = (item: FurnitureItem) => { const r = item.rotationDeg * Math.PI / 180; return [(Math.abs(Math.cos(r)) * item.size.w + Math.abs(Math.sin(r)) * item.size.d) / 2, (Math.abs(Math.sin(r)) * item.size.w + Math.abs(Math.cos(r)) * item.size.d) / 2] as const; };
+      const boxes = items.map(item => { const [hx, hy] = extent(item); return [item.position.x - hx, item.position.y - hy, item.position.x + hx, item.position.y + hy] as const; });
+      const cx = Math.round((Math.min(...boxes.map(b => b[0])) + Math.max(...boxes.map(b => b[2]))) / 2), cy = Math.round((Math.min(...boxes.map(b => b[1])) + Math.max(...boxes.map(b => b[3]))) / 2);
+      const clean = (v: number) => Math.abs(v - Math.round(v)) < 1e-12 ? Math.round(v) : v, angle = turn * Math.PI / 180, c = clean(Math.cos(angle)), n = clean(Math.sin(angle));
+      for (const item of items) {
+        const dx = item.position.x - cx, dy = item.position.y - cy;
+        item.position = { x: Math.round(cx + dx * c - dy * n) + 0, y: Math.round(cy + dx * n + dy * c) + 0 };
+        const next = (item.rotationDeg + turn) % 360; item.rotationDeg = next >= 360 - 1e-9 ? 0 : next + 0;
       }
       break;
     }

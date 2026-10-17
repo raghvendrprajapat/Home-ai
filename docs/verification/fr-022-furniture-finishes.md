@@ -34,6 +34,10 @@ Built by Claude Code under the owner's D52 continuation.
 - A placed catalog desk coloured teak still loads as the **real 3D model** (phase ready, 6 meshes, 72 triangles), not the fallback box. On `main` before this change, any override made it fall back.
 - Related browser suites re-run (`furniture-models`, `surface-controls`, `plan-image`, `material-bindings`): passed 29/29 together with the new spec.
 - `pnpm check` under Node 24.19.0: 70 files, 517 product tests, 18 tooling tests passed.
+- Whole browser suite on the frozen branch code: **150 passed, 1 failed (13.1 m)**. The 1 failure is the same `furniture-gestures.spec.ts` "UX-005 … rotation-handle tap … Enter rotates once" deep-equality failure that fails on unmodified `main` in this sandbox (Chromium 141) and passed in pinned CI for PRs #100–#105. Not caused by this change; cause unproven; pinned CI is the gate.
+- After D58 (PR #105) merged, `main` was merged into this branch. Three additive conflicts (the Selection panel and both docs) were resolved by keeping both sides. On the merged tree:
+  - `pnpm check` passed: 71 files, 523 product tests, 18 tooling tests.
+  - The finish, grouping, alignment and selection browser specs passed 18/18.
 
 ## Failures and fixes recorded honestly
 

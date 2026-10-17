@@ -8,7 +8,7 @@ async function backup(page:Page){const download=page.waitForEvent('download');aw
 async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await panel.locator('summary').click();return panel;}
 async function frame(page:Page){const canvas=page.getByTestId('plan-canvas');await canvas.scrollIntoViewIfNeeded();const box=await canvas.boundingBox();expect(box).toBeTruthy();const view=await canvas.evaluate(el=>({x:Number((el as HTMLElement).dataset.viewX),y:Number((el as HTMLElement).dataset.viewY),scale:Number((el as HTMLElement).dataset.viewScale)}));return {box:box!,view};}
 const screenOf=(f:Awaited<ReturnType<typeof frame>>,x:number,y:number)=>({x:f.box.x+f.view.x+x*f.view.scale,y:f.box.y+f.view.y+y*f.view.scale});
-type Doc={furniture:{id:string;position:{x:number;y:number};groupId?:string}[]};
+type Doc={furniture:{id:string;position:{x:number;y:number};rotationDeg:number;groupId?:string}[]};
 const item=(doc:Doc,id:string)=>doc.furniture.find(f=>f.id===id)!;
 const tools=(page:Page)=>page.getByRole('group',{name:'Group furniture',exact:true});
 const undo=(page:Page)=>page.getByRole('button',{name:'Undo',exact:true});
@@ -75,4 +75,19 @@ test('FR-019 deleting one of two members leaves a single item that picks and mov
   const f=await frame(page),sofa=screenOf(f,1300,4300);await page.mouse.click(sofa.x,sofa.y);await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-selection-count','1');
   await page.getByRole('button',{name:'3D view',exact:true}).click();
   await expect(page.getByTestId('group-3d-locked')).toHaveCount(0);await expect(page.getByRole('button',{name:'Move selected furniture',exact:true})).toBeEnabled();
+});
+
+test('FR-019 a group turns 90 degrees about its shared centre with exact hand values; Q turns it 15 degrees; Undo restores',async({page})=>{
+  const {panel,original}=await groupSofaAndTv(page),right=tools(page).getByRole('button',{name:'Turn selection 90° right',exact:true});
+  await expect(right).toBeEnabled();await right.click();await saved(page);
+  // Combined box x 300..3150, y 200..4750 -> pivot (1725, 2475); +90 maps offset (dx,dy) to (-dy,dx).
+  const turned=await backup(page) as Doc,rot=(id:string)=>item(turned,id).rotationDeg;
+  expect(item(turned,'fu_sofa').position).toEqual({x:-100,y:2050});expect(rot('fu_sofa')).toBe(270);
+  expect(item(turned,'fu_tv').position).toEqual({x:3800,y:3000});expect(rot('fu_tv')).toBe(90);
+  const f=await frame(page),tv=screenOf(f,3800,3000);await page.mouse.click(tv.x,tv.y);await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-selection-count','2');
+  await page.keyboard.press('q');await saved(page);
+  const q=await backup(page) as Doc;expect(item(q,'fu_sofa').rotationDeg).toBe(255);expect(item(q,'fu_tv').rotationDeg).toBe(75);
+  await undo(page).click();await undo(page).click();await saved(page);
+  const back=await backup(page) as Doc;expect(back.furniture.map(i=>i.position)).toEqual(original.furniture.map(i=>i.position));
+  await panel.getByLabel('Select furniture fu_sofa',{exact:true}).uncheck();await expect(right).toBeDisabled(); // one item: use the single-item rotate tools
 });
