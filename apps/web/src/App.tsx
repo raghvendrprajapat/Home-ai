@@ -13,7 +13,7 @@ import {CameraControls} from './editor/CameraControls';
 import {ThreeImageControls} from './export/ThreeImageControls';
 import type {ThreeControlsApi} from './render3d/types';
 import type {QualityChoice} from './render3d/quality';
-import { lazy, Suspense, useCallback, useEffect, useState, useRef, useSyncExternalStore } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState, useRef, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { parseProject, ProjectStore } from '@gharplan/core-model';
 import sample from '../../../docs/examples/sample-project.json';
@@ -80,7 +80,12 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
   useEffect(()=>{if(!snapshot.document.walls.some(w=>w.id===selectedWall))setSelectedWall(snapshot.document.walls[0]?.id??'');},[snapshot.document.walls,selectedWall]);
   const [selected, setSelected] = useState(() => store.getSnapshot().document.junctions[1]?.id ?? ''), [notice, setMessage] = useState(() => t('chooseCorner'));
   const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0);
-  const [view, setView] = useState<'2d' | '3d'>('2d');
+  const [view, setView] = useState<'2d' | '3d' | 'split'>('2d');
+  const drawingPanel=useRef<HTMLElement>(null),[splitAvailable,setSplitAvailable]=useState(false);
+  useLayoutEffect(()=>{const panel=drawingPanel.current!;const measure=()=>setSplitAvailable(panel.clientWidth>=760);measure();if(typeof ResizeObserver==='undefined'){window.addEventListener('resize',measure);return()=>window.removeEventListener('resize',measure);}const observer=new ResizeObserver(measure);observer.observe(panel);return()=>observer.disconnect();},[]);
+  useEffect(()=>{if(view==='split'&&!splitAvailable){drawing.clear();setView('2d');}},[view,splitAvailable,drawing]);
+  const showPlan=view!=='3d',showThree=view!=='2d';
+  const changeView=(next:typeof view)=>{drawing.setMode('select');setThreeFallback(false);setView(next);};
   const [threeFallback,setThreeFallback]=useState(false);
   const corner = snapshot.document.junctions.find(j => j.id === selected);
   useEffect(() => { if (!corner && snapshot.document.junctions.length) setSelected(snapshot.document.junctions[1]?.id ?? snapshot.document.junctions[0]!.id); }, [corner, snapshot.document.junctions]);
@@ -115,12 +120,15 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
       <div className="plan-summary"><span>{snapshot.document.rooms.length === 1 ? t('oneRoom') : t('roomsCount', { count: snapshot.document.rooms.length })}</span><strong data-testid="total-area">{totalLabel.value} <small>{totalLabel.unit} {t('clearArea')}</small></strong></div>
     </section>
     <div className="editor-layout">
-      <section className="drawing-panel" aria-label={t('floorEditor')}>
+      <section ref={drawingPanel} className="drawing-panel" aria-label={t('floorEditor')}>
         <div className="editor-toolbar">
-          <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => setView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => {drawing.setMode('select');setThreeFallback(false);setView('3d');}}>{t('view3d')}</button></div>
-          <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{view === '2d' && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
+          <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => changeView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => changeView('3d')}>{t('view3d')}</button>{splitAvailable&&<button className={view==='split'?'active-tab':''} aria-pressed={view==='split'} onClick={()=>changeView('split')}>{t('splitView')}</button>}</div>
+          <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{showPlan && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
         </div>
-        {view === '2d' ? <PlanCanvas advisories={advisories} previewFurnitureId={ghost?.item.id} onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /> : <Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} advisories={advisories} assetSource={assetSource} placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense>}
+        <div className={view==='split'?'editor-views split-views':'editor-views'} data-testid="editor-views" data-layout={view}>
+          {showPlan&&<section className="editor-pane" aria-label={t('plan2d')} key={`${view}:plan`}>{view==='split'&&<h3 className="pane-title">{t('plan2d')}</h3>}<PlanCanvas selectedPick={activePick??null} advisories={advisories} previewFurnitureId={ghost?.item.id} onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /></section>}
+          {showThree&&<section className="editor-pane" aria-label={t('view3d')} key={`${view}:three`}>{view==='split'&&<h3 className="pane-title">{t('view3d')}</h3>}<Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} advisories={advisories} assetSource={assetSource} placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense></section>}
+        </div>
         {threeFallback&&<p role="status">{t('threeFallback')}</p>}
         <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span>{t('groundFloor')} · {t('mm')}</span></footer>
       </section>
@@ -131,14 +139,14 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
         <FurnitureControls onEditStart={startFurnitureEdit} advisories={advisories} cancelToken={furnitureCancel} onPreview={furnitureEditPreview} store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/>
         <SurfaceControls store={store} locale={ui.locale} view={view} picked={activePick} onSelect={choosePick} onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} onMessage={setMessage}/>
         <PlanImageControls store={store} locale={ui.locale}/>
-        {view==='3d'&&<><CameraControls store={store} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={store} locale={ui.locale}/></>}
+        {showThree&&<><CameraControls store={store} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={store} locale={ui.locale}/></>}
         <label>{t('currentProjectUnits')}<select aria-label={t('currentProjectUnits')} value={snapshot.document.units} onChange={event=>{const result=store.execute({id:`units_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:snapshot.localGeneration,type:'SetUnits',units:event.target.value as 'metric'|'imperial'});setMessage(result.ok?t('unitDisplayChanged'):editError(ui.locale,result.errors[0]));}}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>
         <div className="inspector-title"><span className="eyebrow">{t('precision')}</span><h3>{t('shapeSpace')}</h3><p>{t('moveCornerHelp')}</p></div>
         <div className="history-buttons"><button disabled={!snapshot.canUndo} onClick={() => { store.undo(); setMessage(t('undone')); }} aria-label={t('undo')}>↶ &nbsp; {t('undo')}</button><button disabled={!snapshot.canRedo} onClick={() => { store.redo(); setMessage(t('redone')); }} aria-label={t('redo')}>↷ &nbsp; {t('redo')}</button></div>
-        {view==='2d'&&<DrawingControls tool={drawing} store={store} locale={ui.locale} onMessage={setMessage}/>}
-        {view==='2d'&&<WallPrecision store={store} drawing={drawing} selected={selectedWall} onSelect={id=>{setSelectedWall(id);setSelectedOpening('');}} onPreview={wallPreview} cancelToken={precisionCancel} locale={ui.locale} onMessage={setMessage}/>}
-        {view==='2d'&&<OpeningControls store={store} wallId={selectedWall} selected={selectedOpening} onSelect={setSelectedOpening} onPreview={openingPreview} cancelToken={openingCancel} locale={ui.locale} onMessage={setMessage}/>}
-        {view==='2d'&&<SelectionControls store={store} drawing={drawing} selected={selection} onSelect={selectEntities} multiple={multiple} onMultiple={setMultiple} onPreview={selectionPreview} cancelToken={selectionCancel} locale={ui.locale} onMessage={setMessage}/>}
+        {showPlan&&<DrawingControls tool={drawing} store={store} locale={ui.locale} onMessage={setMessage}/>}
+        {showPlan&&<WallPrecision store={store} drawing={drawing} selected={selectedWall} onSelect={id=>{setSelectedWall(id);setSelectedOpening('');}} onPreview={wallPreview} cancelToken={precisionCancel} locale={ui.locale} onMessage={setMessage}/>}
+        {showPlan&&<OpeningControls store={store} wallId={selectedWall} selected={selectedOpening} onSelect={setSelectedOpening} onPreview={openingPreview} cancelToken={openingCancel} locale={ui.locale} onMessage={setMessage}/>}
+        {showPlan&&<SelectionControls store={store} drawing={drawing} selected={selection} onSelect={selectEntities} multiple={multiple} onMultiple={setMultiple} onPreview={selectionPreview} cancelToken={selectionCancel} locale={ui.locale} onMessage={setMessage}/>}
         {!snapshot.document.walls.length && <div className="blank-plan"><p>{t('blankPlan')}</p><button className="primary-button" onClick={() => {
           const result = store.execute({ type: 'AddRectangle', id: `starter_${snapshot.localGeneration}`, baseGeneration: snapshot.localGeneration, x: 0, y: 0, width: 4000, depth: 4000, thickness: 200, height: 2700 });
           if (result.ok) setFit(n => n + 1);

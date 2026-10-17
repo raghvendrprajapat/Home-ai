@@ -1,0 +1,157 @@
+{
+  "task": "PH3-T03 / FR-024 wide split view, final already-running development task before D52 handoff",
+  "date": "2026-10-17",
+  "scope": "No new feature task after owner stop. No D36 scope. Final post-commit checkpoint/results are authoritative in GitHub issue98.",
+  "parentCatalog": {
+    "pr": 97,
+    "testedHead": "dcb0d545dea508ee0c0cf588f0fea05560b325de",
+    "mainMerge": "7862dea5150e7fe7e524411fac6b0c7e658c3f8d",
+    "run": 38919696211,
+    "checkJob": 117036108665,
+    "androidJob": 117040554780,
+    "both": "COMPLETED SUCCESS; CLEAN before SHA-guarded merge"
+  },
+  "check": {
+    "product": 453,
+    "files": 65,
+    "tooling": 18,
+    "durationSeconds": 43.98,
+    "failed": 0,
+    "skipped": 0
+  },
+  "focusedBrowser": {
+    "passed": 17,
+    "elapsed": "1.7m",
+    "suites": [
+      "furniture-advisories",
+      "furniture-placement",
+      "split-view"
+    ],
+    "newSplitCases": 7,
+    "browser": "LinuxChromium151.0.7922.173/SwiftShader; distinct from pinnedCI156/rev1248 and physical devices"
+  },
+  "fullBrowserAndCi": {
+    "expectedWholeCases": 128,
+    "atCommit": "Corrected whole local suite still running; no full-pass or CI-pass claim at commit. Runtime is frozen at the hashes below.",
+    "postCommitEvidence": "https://github.com/raghvendrprajapat/Home-ai/issues/98",
+    "protocol": "Record actual whole-run outcome and exact-head CI in PR/FINAL issue after commit; verify these source hashes before merging. Do not read earlier pending evidence as passed."
+  },
+  "regressions": {
+    "initialSixBrowser": {
+      "passed": 6,
+      "elapsed": "34.9s"
+    },
+    "initialCheck": {
+      "result": "FAILURE",
+      "stage": "E2E TypeScript",
+      "cause": "Native overloaded WebGL getExtension test wrapper typing",
+      "fix": "Reflect.apply with explicit unknown and runtime function guard; original assertions retained"
+    },
+    "correctedSevenBeforeWhole": {
+      "passed": 7,
+      "elapsed": "49.7s"
+    },
+    "firstWhole": {
+      "passed": 126,
+      "failed": 2,
+      "elapsed": "9.2m",
+      "failures": [
+        "furniture-advisories.spec.ts property/placement preview ownership through view switch",
+        "furniture-placement.spec.ts draft37degree survives2D/3D and closes oldGPU ownership"
+      ],
+      "cause": "New view handler called cancelPrecision, clearing shared tagged property/placement drafts.",
+      "productFix": "Remove broad cancellation from mode/width transitions; retain tagged shared forms while keyed pane teardown retires held pointer/renderer ownership.",
+      "assertionsChanged": false,
+      "tracesPreserved": "/tmp/gharplan-wide-split-first-full-failures"
+    }
+  },
+  "gradle": {
+    "result": "BUILD SUCCESSFUL in43s",
+    "tasks": 170,
+    "executed": 40,
+    "upToDate": 130
+  },
+  "android": {
+    "applicationId": "com.gharplan.app.debug",
+    "bytes": 8122614,
+    "sha256": "cbfa8ee709dd5b87661a7e8bf9ac4b69f67716a299a53c0a8887b9938cfef873",
+    "permissions": [
+      "android.permission.INTERNET",
+      "com.gharplan.app.debug.DYNAMIC_RECEIVER_NOT_EXPORTED_PERMISSION"
+    ],
+    "verified": [
+      "decoded debug manifest flags and backup policy references",
+      "private local HTTPS configuration",
+      "packaged editor/import-worker/3D/performance assets",
+      "registered and packaged native Filesystem plugin",
+      "packaged app-owned native file export classes",
+      "compiled MainActivity invokes app-owned ProjectFiles plugin registration"
+    ],
+    "limitations": [
+      "Compilation and packaging only; no emulator or phone run",
+      "Debug APK size is not Play AAB download size"
+    ]
+  },
+  "packagedBytes": {
+    "sha256": "cbfa8ee709dd5b87661a7e8bf9ac4b69f67716a299a53c0a8887b9938cfef873",
+    "bytes": 8122614,
+    "webFilesByteEqual": 74,
+    "lint": {
+      "Error": 0,
+      "Warning": 15
+    },
+    "nativeJUnit": {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "apkV2Verified": true,
+  "packagedSplitFeatureLiteralVerified": true,
+  "preDraftFixDebugArtifact": {
+    "sha256": "4f27111b0b8d65afe4b8ca3aba91ee1ced965a0553dcc4350c3fae4d95c6d2b2",
+    "scope": "Earlier compiled build before the full suite exposed the draft regression. Not the final artifact."
+  },
+  "productionBuild": {
+    "initialGzipBytes": 177427,
+    "initialModules": 1,
+    "crashHooks": "absent",
+    "limitBytes": 600000
+  },
+  "runtimeSourceSha256": {
+    "apps/web/src/App.tsx": "72ca7f39dac5d893a52afaf3003808257301d3833d068f1ea569f922a4d982d6",
+    "apps/web/src/app.css": "ea7c999162cc40bbbf5e4f477eb909c5965c171fe40b24d999d0e6b0515fc539",
+    "apps/web/src/editor/PlanCanvas.tsx": "aa0afa2daf701d72ef18d4e8c2efab067a9ff7adc60c8cbca8e00e676a4d8a90",
+    "apps/web/src/editor/SurfaceControls.tsx": "c08c3ac5b96eda891e5d8a04e5f19046d31f4563e2d6c90b2fea3a9f0df37faf",
+    "apps/web/src/i18n/messages.ts": "d41c48c89265537b7c4995ccc34e166430cd477f08a4ead8ba5d73eb46a923cb"
+  },
+  "newBrowserTestSha256": "a547703f901d6abc422786fb03fa39ee7da029299e7a2ad37899203cc7e4f1f2",
+  "protectedInputs": {
+    "protectedFiles": 39,
+    "hashMismatches": 0,
+    "mismatchedPaths": []
+  },
+  "sampleSchema": {
+    "sampleSchemaValid": true,
+    "sampleSchemaErrors": []
+  },
+  "ciBudget": {
+    "previousCatalogCheckElapsed": "9m25s",
+    "jobMinutesBefore": 10,
+    "jobMinutesAfter": 15,
+    "perTestTimeoutSeconds": 30,
+    "retries": 0,
+    "assertionsPerformanceThresholdsFixtures": "unchanged"
+  },
+  "visualInspection": {
+    "image": "two-live-views.png",
+    "scope": "Actual wide simultaneous layout inspected, supplemental only; no screenshot-only correctness claim."
+  },
+  "pending": [
+    "Corrected full local/pinnedCI results recorded after commit at issue98 before FINAL",
+    "Physical Low/Mid, native providers, independent accessibility/usability/rights and whole-process/driver memory",
+    "Wall-segment dragging not started; other deferred editor options remain",
+    "All D36 accounts/cloud/conflicts/history/mobileoptimization/sharing/billing/security/privacy/release/finalClaude gates"
+  ]
+}

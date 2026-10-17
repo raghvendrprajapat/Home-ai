@@ -24,10 +24,10 @@ import type { DrawingTool } from './drawing-tools';
 import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
-interface Props { advisories?:FurnitureAdvisories;previewFurnitureId?:string|undefined;store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
-interface DragBase {pointerId:number;generation:number;start:Point2;last:Point2;touch:boolean;store:ProjectStore}
+interface Props { selectedPick?:Pick|null;advisories?:FurnitureAdvisories;previewFurnitureId?:string|undefined;store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
+interface DragBase {pointerId:number;generation:number;start:Point2;last:Point2;touch:boolean;store:ProjectStore;frame:readonly[number,number,number,number];windowSize:readonly[number,number]}
 type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent});
-export function PlanCanvas({ advisories:providedAdvisories,previewFurnitureId,store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
+export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvisories,previewFurnitureId,store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
   const [ownAdvisories]=useState(()=>new FurnitureAdvisories()),advisories=providedAdvisories??ownAdvisories;
   const furnitureSnapKey=useRef<string|null>(null),[backSnap,setBackSnap]=useState<BackAlignment|null>(null);
   const language = useRef(locale); language.current = locale;
@@ -51,7 +51,8 @@ export function PlanCanvas({ advisories:providedAdvisories,previewFurnitureId,st
   const [toolState,setToolState]=useState(()=>drawing?.getSnapshot());
   useEffect(()=>{if(!drawing)return;setToolState(drawing.getSnapshot());return drawing.subscribe(()=>setToolState(drawing.getSnapshot()));},[drawing]);
   const index = useMemo(() => new PickIndex(snapshot), [snapshot]);
-  const [picked, setPicked] = useState<Pick | null>(null), [loupe,setLoupe] = useState<{point:Point2;world:Point2}|null>(null);
+  const [localPicked, setPicked] = useState<Pick | null>(null), [loupe,setLoupe] = useState<{point:Point2;world:Point2}|null>(null);
+  const picked=controlledPick===undefined?localPicked:controlledPick;
   const [size, setSize] = useState({ width: 0, height: 0 }), [view, setView] = useState<Viewport>({ x: 0, y: 0, scale: 0.06 });
   const viewRef = useRef(view); viewRef.current = view;
   useEffect(()=>{if(size.width&&size.height)onViewCentre?.(screenToWorld([size.width/2,size.height/2],view));},[view,size,onViewCentre]);
@@ -81,6 +82,8 @@ export function PlanCanvas({ advisories:providedAdvisories,previewFurnitureId,st
   useEffect(()=>{if(precisionPreview)cancel();},[precisionPreview]);
   const targetFor = (motion:DragMotion,shift:boolean):Point2|null => {
     const d=drag.current;if(!d||d.pointerId!==motion.pointerId)return null;
+    const mapping=host.current?.getBoundingClientRect();
+    if(!mapping||d.windowSize[0]!==window.innerWidth||d.windowSize[1]!==window.innerHeight||d.frame.some((value,i)=>value!==[mapping.left,mapping.top,mapping.width,mapping.height][i])){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const current=d.store.getSnapshot();
     if(d.store!==activeStore.current||current.localGeneration!==d.generation||d.kind==='furniture'&&(!currentFurnitureGesture(d.store,d.intent)||controlledSelectionRef.current&&selectedFurnitureRef.current!==d.intent.id)){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const raw:Point2=[d.start[0]+motion.delta[0]/viewRef.current.scale,d.start[1]+motion.delta[1]/viewRef.current.scale];
@@ -250,7 +253,7 @@ export function PlanCanvas({ advisories:providedAdvisories,previewFurnitureId,st
   const handleDocument=preview?.ok&&drag.current?.generation===snapshot.localGeneration?preview.document:snapshot.document,handleItem=singleFurnitureId?handleDocument.furniture.find(f=>f.id===singleFurnitureId):undefined;
   const handleAngle=(handleItem?.rotationDeg??0)*Math.PI/180,handleDistance=(handleItem?.size.d??0)/2+36/view.scale,handlePoint=handleItem?worldToScreen([handleItem.position.x+Math.sin(handleAngle)*handleDistance,handleItem.position.y-Math.cos(handleAngle)*handleDistance],view):undefined;
   return <div ref={host} className="plan-canvas" role="application" aria-label={message(locale, 'canvas2d')} tabIndex={0} data-testid="plan-canvas"
-    data-advisory-id={advisoryId??''} data-furniture-overlap={advisory?.overlap??false} data-wall-alignment={backSnap?.key??''} data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id} data-snap-kind={snapTarget?.kind} data-selection-count={selection?.length??0}
+    data-model-generation={snapshot.localGeneration} data-preview-active={!!visiblePreview} data-advisory-id={advisoryId??''} data-furniture-overlap={advisory?.overlap??false} data-wall-alignment={backSnap?.key??''} data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id} data-snap-kind={snapTarget?.kind} data-selection-count={selection?.length??0}
     onPointerDown={event=>{
       if(event.button!==0&&event.button!==1)return;
       const live=store.getSnapshot();if(live.document.id!==snapshot.document.id||live.sessionId!==snapshot.sessionId||live.localGeneration!==snapshot.localGeneration){cancel();onMessage(message(locale,'dragRetry'));return;}
@@ -261,10 +264,11 @@ export function PlanCanvas({ advisories:providedAdvisories,previewFurnitureId,st
       // A view remount has no prior pointer records. A nonprimary touch still
       // belongs to a physical gesture begun elsewhere, so it cannot start an edit.
       if(touch&&!event.isPrimary&&!gestures.current.ids().length){gestures.current.begin(event.pointerId,true,point,viewRef.current,false,now);gestures.current.cancel();event.currentTarget.setPointerCapture(event.pointerId);onMessage(message(locale,'twoFingerCancel'));return;}
+      const mapping={frame:[rect.left,rect.top,rect.width,rect.height] as const,windowSize:[window.innerWidth,window.innerHeight] as const};
       const drawingMode=toolRef.current?.getSnapshot().mode,rotateHandle=event.target instanceof Element&&event.target.closest('[data-furniture-rotate]')!==null&&singleFurnitureId!==undefined;
       if(rotateHandle&&(!drawingMode||drawingMode==='select')&&event.button===0&&!panKey.current){
         onEditStart?.();const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,true,now);event.preventDefault();event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);applyStep(step);if(step.cancelEdit)return;
-        try{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,singleFurnitureId!,'rotate',world);drag.current={kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};if(step.phase==='pending')holdTimer.current=setTimeout(()=>applyStep(gestures.current.hold(performance.now())),151);onMessage(message(locale,'furnitureDragHint'));}catch{cancel();}return;
+        try{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,singleFurnitureId!,'rotate',world);drag.current={...mapping,kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};if(step.phase==='pending')holdTimer.current=setTimeout(()=>applyStep(gestures.current.hold(performance.now())),151);onMessage(message(locale,'furnitureDragHint'));}catch{cancel();}return;
       }
       if((!drawingMode||drawingMode==='select')&&!touch&&event.button===0&&!panKey.current&&(multiple||event.shiftKey)){
         onEditStart?.();boxDrag.current={id:event.pointerId,start:point,last:point,generation:snapshot.localGeneration,additive:event.shiftKey};setBoxPreview({a:point,b:point});event.currentTarget.focus({preventScroll:true});event.currentTarget.setPointerCapture(event.pointerId);return;
@@ -284,8 +288,8 @@ export function PlanCanvas({ advisories:providedAdvisories,previewFurnitureId,st
       if(step.cancelEdit){onMessage(message(locale,'twoFingerCancel'));return;}
       if(pick&&canDrag){
         onPick?.(pick,false);setPicked(pick);
-        if(pick.kind==='junction'){const j=snapshot.document.junctions.find(j=>j.id===pick.id)!;onSelect(j.id);drag.current={kind:'junction',pointerId:event.pointerId,junction:j.id,generation:snapshot.localGeneration,start:[j.x,j.y],last:[j.x,j.y],touch,store};}
-        else{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,pick.id,'move',world);drag.current={kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
+        if(pick.kind==='junction'){const j=snapshot.document.junctions.find(j=>j.id===pick.id)!;onSelect(j.id);drag.current={...mapping,kind:'junction',pointerId:event.pointerId,junction:j.id,generation:snapshot.localGeneration,start:[j.x,j.y],last:[j.x,j.y],touch,store};}
+        else{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,pick.id,'move',world);drag.current={...mapping,kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
         if(step.phase==='pending')holdTimer.current=setTimeout(()=>applyStep(gestures.current.hold(performance.now())),151);
         onMessage(message(locale,pick.kind==='furniture'?'furnitureDragHint':touch?'touchHold':'previewHelp'));
       }

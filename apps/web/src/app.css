@@ -662,3 +662,8 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .surface-palette button{display:flex;align-items:center;gap:8px;min-height:48px;text-align:start;white-space:normal;overflow-wrap:anywhere;padding:8px;}
 .surface-palette button[aria-pressed=true]{outline:2px solid #3b7255;outline-offset:1px;}
 .surface-chip{width:24px;height:24px;flex:none;border:1px solid #637466;border-radius:5px;}
+
+/* Explicit wide-panel mode; narrow screens retain the existing view toggle. */
+.editor-views,.editor-pane { min-width:0; }
+.split-views { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:1px; background:#dae2d7; }
+.pane-title { padding:8px 12px; background:#f8faf7; font-size:12px; }

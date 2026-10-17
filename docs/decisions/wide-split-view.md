@@ -1,0 +1,15 @@
+# D51 — shared wide-screen2D/3D view
+
+PH3-T03 / FR-024 follow-up. Begun under D17 before the owner's D52 stop/new-task restriction; this is the last active development task before handoff. D36 scopes remain unstarted.
+
+Offer explicit bilingual2D+3D mode only when the drawing panel measures at least760CSSpx, leaving at least360px per pane in the test layout. Both adapters read the same existing ProjectStore, and every edit still enters through core-model commands. No model mirroring, scene serialization, schema/dependency/persistence change or backendGPU service is introduced. Numeric and pointer previews stay transient;3D structural geometry acknowledges committed generations only. The existing furniture ghost retains its tagged transient representation.
+
+Shared model-ID selection includes rooms, furniture and wall-side targets. PlanCanvas accepts an optional controlled pick while retaining its standalone local behavior.2D tools remain available with the plan pane, and camera/3D export controls with the3D pane. Explicit view-mode changes remount pane owners to release old pointers/renderers. Preserve valid shared furniture-property/placement form drafts across those changes; retiring a physical pointer must not discard a separate tagged form draft. The first full run caught and corrected an over-broad cancelPrecision call. Window narrowing returns2D; widening does not silently resurrect split mode. A stuck real GPU loss falls back to the same live store/history.
+
+Every2D drag captures canvas rectangle and window dimensions. Validate them again synchronously during preview/final release so a delayed resize observer cannot commit through an obsolete coordinate mapping, even when the canvas rectangle itself remains exactly unchanged. Native cross-pane secondary touch cancels editing until all contacts lift; a fresh primary stream can edit.
+
+Seven actual browser cases check simultaneous canvases, shared selection and canonical isolation, paint/Undo/Redo, preview/apply structural generations, narrow-window fallback, exact unchanged-rectangle/window-change rejection and native cross-pane multi-touch/fresh recovery, plus real stuckGPU fallback. The GPU fault wrapper delegates unknown native extensions with a runtime guard; its initial TypeScript overload mismatch is recorded, not hidden. Full existing tests remain required.
+
+CI's Check job previously took9m25s for catalog PR97. Seven added browser cases require roughly50s locally. Raise the job infrastructure budget10→15minutes so the full enlarged suite can finish; individual30s test deadlines, zero retries, exact assertions, fixtures and all performance thresholds are unchanged. This is not a product performance relaxation.
+
+Narrow browser simulation is ordinary regression evidence, not mobile optimization or physical Low/Mid testing. Real devices, external accessibility/usability, renderer-driver/whole-process memory, independent review and all D36 scopes remain pending. No commercial-readiness claim.
