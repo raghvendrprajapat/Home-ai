@@ -7,7 +7,7 @@ import type {Pick} from './hit-test';
 import {editError,message} from '../i18n/messages';
 import type {Locale} from '../i18n/messages';
 type Armed={paint:SurfacePaintIntent;epoch:number;button:HTMLButtonElement;rect:readonly number[];input:'pointer'|'keyboard';pointer:number;start:readonly[number,number];released:boolean};
-export function SurfaceControls({store,locale,view,picked,onSelect,onEditStart,onMessage}:{store:ProjectStore;locale:Locale;view:'2d'|'3d';picked?:Pick|undefined;onSelect(pick:Pick):void;onEditStart():void;onMessage(text:string):void}){
+export function SurfaceControls({store,locale,view,picked,onSelect,onEditStart,onMessage}:{store:ProjectStore;locale:Locale;view:'2d'|'3d'|'split';picked?:Pick|undefined;onSelect(pick:Pick):void;onEditStart():void;onMessage(text:string):void}){
  const snapshot=useSyncExternalStore(store.subscribe,store.getSnapshot),doc=snapshot.document,pickKey=picked?.kind==='wall'?`wall:${picked.id}`:picked?.kind==='room'?`floor:${picked.id}`:null;
  const [choice,setChoice]=useState(()=>({pickKey,value:pickKey??(doc.walls[0]?`wall:${doc.walls[0].id}`:doc.rooms[0]?`floor:${doc.rooms[0].id}`:'')})),[side,setSide]=useState<'left'|'right'>('left');
  const value=choice.pickKey===pickKey?choice.value:pickKey??choice.value,id=value.slice(value.indexOf(':')+1),target:SurfaceTarget|null=value.startsWith('wall:')&&doc.walls.some(w=>w.id===id)?{kind:'wall',id,side}:value.startsWith('floor:')&&doc.rooms.some(r=>r.id===id)?{kind:'floor',id}:null;
