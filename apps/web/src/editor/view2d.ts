@@ -44,3 +44,34 @@ export function junctionMoves(doc: PlanDocument, junctionId: string, to: Point2)
   const changeX = component(false), changeY = component(true);
   return doc.junctions.filter(j => changeX.has(j.id) || changeY.has(j.id)).map(j => ({ junction: j.id, to: [changeX.has(j.id) ? to[0] : j.x, changeY.has(j.id) ? to[1] : j.y] }));
 }
+/**
+ * Axis a straight wall slides along when it is dragged sideways, and its fixed anchor.
+ * A horizontal wall moves in Y, a vertical wall moves in X. Sliding along its own
+ * length would turn every perpendicular neighbour diagonal, which L0 rejects.
+ */
+export function wallDrag(doc: PlanDocument, wallId: string): { axis: 'x' | 'y'; origin: Point2; along: number } {
+  const wall = doc.walls.find(w => w.id === wallId);
+  if (!wall) throw new Error('Selected wall no longer exists.');
+  const a = doc.junctions.find(j => j.id === wall.a), b = doc.junctions.find(j => j.id === wall.b);
+  if (!a || !b) throw new Error('Selected wall has a missing corner.');
+  if (a.y === b.y && a.x !== b.x) return { axis: 'y', origin: [a.x, a.y], along: (a.x + b.x) / 2 };
+  if (a.x === b.x && a.y !== b.y) return { axis: 'x', origin: [a.x, a.y], along: (a.y + b.y) / 2 };
+  throw new Error('Only horizontal and vertical walls can be dragged.');
+}
+/**
+ * Slide a straight wall sideways to a new centreline coordinate. Collinear walls joined
+ * end-to-end move with it (the same connected-component rule as junctionMoves), so no
+ * neighbour is left diagonal. Perpendicular neighbours stretch or shrink and the command
+ * stays one atomic MoveJunctions; for a wall without collinear neighbours this is exactly MoveWall.
+ */
+export function wallMoves(doc: PlanDocument, wallId: string, coordinate: number): { junction: string; to: [number, number] }[] {
+  if (!Number.isSafeInteger(coordinate)) throw new Error('Wall coordinate must use integer mm.');
+  const { axis, origin } = wallDrag(doc, wallId), wall = doc.walls.find(w => w.id === wallId)!;
+  return junctionMoves(doc, wall.a, axis === 'y' ? [origin[0], coordinate] : [coordinate, origin[1]]);
+}
+/** Corners that slide with a dragged wall: the wall's own corners and its collinear chain. */
+export function wallChain(doc: PlanDocument, wallId: string): Set<string> {
+  const { axis, origin } = wallDrag(doc, wallId), wall = doc.walls.find(w => w.id === wallId)!, index = new Map(doc.junctions.map(j => [j.id, j]));
+  const probe: Point2 = axis === 'y' ? [origin[0], origin[1] + 1] : [origin[0] + 1, origin[1]];
+  return new Set(junctionMoves(doc, wall.a, probe).filter(move => move.to[axis === 'x' ? 0 : 1] !== index.get(move.junction)![axis]).map(move => move.junction));
+}
