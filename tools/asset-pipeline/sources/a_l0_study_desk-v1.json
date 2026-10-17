@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_study_desk",
+  "version": 1,
+  "name_en": "Study desk",
+  "name_hi": "पढ़ने की मेज़",
+  "category": "tables",
+  "tags": [
+    "table",
+    "desk",
+    "पढ़ने की मेज़"
+  ],
+  "dims": {
+    "w": 1400,
+    "d": 700,
+    "h": 750
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_study_desk-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_study_desk-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "top",
+      "center": [
+        0,
+        725,
+        0
+      ],
+      "size": [
+        1400,
+        50,
+        700
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "leg-0-0",
+      "center": [
+        -650,
+        350,
+        -300
+      ],
+      "size": [
+        50,
+        700,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-0-1",
+      "center": [
+        -650,
+        350,
+        300
+      ],
+      "size": [
+        50,
+        700,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-0",
+      "center": [
+        650,
+        350,
+        -300
+      ],
+      "size": [
+        50,
+        700,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-1",
+      "center": [
+        650,
+        350,
+        300
+      ],
+      "size": [
+        50,
+        700,
+        50
+      ],
+      "color": "#4e6658"
+    }
+  ]
+}

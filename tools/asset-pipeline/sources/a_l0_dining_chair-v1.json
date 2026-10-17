@@ -1,0 +1,113 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_dining_chair",
+  "version": 1,
+  "name_en": "Dining chair",
+  "name_hi": "खाने की कुर्सी",
+  "category": "seating",
+  "tags": [
+    "chair",
+    "खाने की कुर्सी"
+  ],
+  "dims": {
+    "w": 450,
+    "d": 500,
+    "h": 900
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_dining_chair-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_chair-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "leg-0-0",
+      "center": [
+        -175,
+        190,
+        -200
+      ],
+      "size": [
+        50,
+        380,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-0-1",
+      "center": [
+        -175,
+        190,
+        200
+      ],
+      "size": [
+        50,
+        380,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-0",
+      "center": [
+        175,
+        190,
+        -200
+      ],
+      "size": [
+        50,
+        380,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-1",
+      "center": [
+        175,
+        190,
+        200
+      ],
+      "size": [
+        50,
+        380,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "seat",
+      "center": [
+        0,
+        415,
+        0
+      ],
+      "size": [
+        450,
+        70,
+        500
+      ],
+      "color": "#718d91"
+    },
+    {
+      "name": "back",
+      "center": [
+        0,
+        675,
+        225
+      ],
+      "size": [
+        450,
+        450,
+        50
+      ],
+      "color": "#718d91"
+    }
+  ]
+}

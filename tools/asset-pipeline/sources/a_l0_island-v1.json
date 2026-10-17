@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_island",
+  "version": 1,
+  "name_en": "Kitchen island",
+  "name_hi": "रसोई का बीच वाला काउंटर",
+  "category": "kitchen",
+  "tags": [
+    "kitchen",
+    "counter",
+    "रसोई का बीच वाला काउंटर"
+  ],
+  "dims": {
+    "w": 1200,
+    "d": 800,
+    "h": 900
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_island-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_island-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "center": [
+        0,
+        425,
+        20
+      ],
+      "size": [
+        1200,
+        850,
+        760
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "door-0",
+      "center": [
+        -285,
+        425,
+        -370
+      ],
+      "size": [
+        560,
+        750,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-0",
+      "center": [
+        -35,
+        425,
+        -390
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "door-1",
+      "center": [
+        285,
+        425,
+        -370
+      ],
+      "size": [
+        560,
+        750,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-1",
+      "center": [
+        535,
+        425,
+        -390
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "counter",
+      "center": [
+        0,
+        875,
+        0
+      ],
+      "size": [
+        1200,
+        50,
+        800
+      ],
+      "color": "#e8e3da"
+    }
+  ]
+}

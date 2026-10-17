@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_sofa_3",
+  "version": 1,
+  "name_en": "Three-seat sofa",
+  "name_hi": "तीन सीट का सोफ़ा",
+  "category": "seating",
+  "tags": [
+    "sofa",
+    "couch",
+    "तीन सीट का सोफ़ा"
+  ],
+  "dims": {
+    "w": 2100,
+    "d": 850,
+    "h": 850
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_sofa_3-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_sofa_3-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "leg-0-0",
+      "center": [
+        -1000,
+        50,
+        -375
+      ],
+      "size": [
+        50,
+        100,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-0-1",
+      "center": [
+        -1000,
+        50,
+        375
+      ],
+      "size": [
+        50,
+        100,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-0",
+      "center": [
+        1000,
+        50,
+        -375
+      ],
+      "size": [
+        50,
+        100,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-1",
+      "center": [
+        1000,
+        50,
+        375
+      ],
+      "size": [
+        50,
+        100,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "base",
+      "center": [
+        0,
+        175,
+        0
+      ],
+      "size": [
+        2100,
+        150,
+        850
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "cushion",
+      "center": [
+        0,
+        350,
+        -40
+      ],
+      "size": [
+        1900,
+        200,
+        770
+      ],
+      "color": "#718d91"
+    },
+    {
+      "name": "back",
+      "center": [
+        0,
+        550,
+        375
+      ],
+      "size": [
+        2100,
+        600,
+        100
+      ],
+      "color": "#718d91"
+    },
+    {
+      "name": "arm-0",
+      "center": [
+        -1000,
+        400,
+        -40
+      ],
+      "size": [
+        100,
+        300,
+        770
+      ],
+      "color": "#718d91"
+    },
+    {
+      "name": "arm-1",
+      "center": [
+        1000,
+        400,
+        -40
+      ],
+      "size": [
+        100,
+        300,
+        770
+      ],
+      "color": "#718d91"
+    }
+  ]
+}

@@ -1,0 +1,254 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_bunk_bed",
+  "version": 1,
+  "name_en": "Bunk bed",
+  "name_hi": "दो मंज़िला पलंग",
+  "category": "beds",
+  "tags": [
+    "bed",
+    "bunk",
+    "दो मंज़िला पलंग"
+  ],
+  "dims": {
+    "w": 1000,
+    "d": 2000,
+    "h": 1800
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_bunk_bed-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bunk_bed-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "leg-0-0",
+      "center": [
+        -450,
+        75,
+        -950
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-0-1",
+      "center": [
+        -450,
+        75,
+        950
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-0",
+      "center": [
+        450,
+        75,
+        -950
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "leg-1-1",
+      "center": [
+        450,
+        75,
+        950
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "frame",
+      "center": [
+        0,
+        250,
+        0
+      ],
+      "size": [
+        1000,
+        200,
+        2000
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "mattress",
+      "center": [
+        0,
+        450,
+        -50
+      ],
+      "size": [
+        960,
+        200,
+        1900
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "headboard",
+      "center": [
+        0,
+        525,
+        960
+      ],
+      "size": [
+        1000,
+        750,
+        80
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "pillow-0",
+      "center": [
+        -250,
+        590,
+        700
+      ],
+      "size": [
+        440,
+        80,
+        350
+      ],
+      "color": "#f4f4f2"
+    },
+    {
+      "name": "pillow-1",
+      "center": [
+        250,
+        590,
+        700
+      ],
+      "size": [
+        440,
+        80,
+        350
+      ],
+      "color": "#f4f4f2"
+    },
+    {
+      "name": "post-0-0",
+      "center": [
+        -460,
+        900,
+        -960
+      ],
+      "size": [
+        80,
+        1800,
+        80
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "post-0-1",
+      "center": [
+        -460,
+        900,
+        960
+      ],
+      "size": [
+        80,
+        1800,
+        80
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "post-1-0",
+      "center": [
+        460,
+        900,
+        -960
+      ],
+      "size": [
+        80,
+        1800,
+        80
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "post-1-1",
+      "center": [
+        460,
+        900,
+        960
+      ],
+      "size": [
+        80,
+        1800,
+        80
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "upper-frame",
+      "center": [
+        0,
+        1400,
+        0
+      ],
+      "size": [
+        1000,
+        100,
+        2000
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "upper-mattress",
+      "center": [
+        0,
+        1550,
+        -20
+      ],
+      "size": [
+        960,
+        200,
+        1960
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "upper-back",
+      "center": [
+        0,
+        1730,
+        960
+      ],
+      "size": [
+        1000,
+        140,
+        80
+      ],
+      "color": "#a07850"
+    }
+  ]
+}

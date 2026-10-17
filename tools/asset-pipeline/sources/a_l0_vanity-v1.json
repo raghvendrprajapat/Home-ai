@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_vanity",
+  "version": 1,
+  "name_en": "Vanity cabinet",
+  "name_hi": "स्नानघर की अलमारी",
+  "category": "bathroom",
+  "tags": [
+    "vanity",
+    "cabinet",
+    "स्नानघर की अलमारी"
+  ],
+  "dims": {
+    "w": 600,
+    "d": 450,
+    "h": 850
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_vanity-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_vanity-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "center": [
+        0,
+        400,
+        20
+      ],
+      "size": [
+        600,
+        800,
+        410
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "door-0",
+      "center": [
+        -135,
+        400,
+        -195
+      ],
+      "size": [
+        260,
+        700,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-0",
+      "center": [
+        -35,
+        400,
+        -215
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "door-1",
+      "center": [
+        135,
+        400,
+        -195
+      ],
+      "size": [
+        260,
+        700,
+        20
+      ],
+      "color": "#e8e3da"
+    },
+    {
+      "name": "handle-1",
+      "center": [
+        235,
+        400,
+        -215
+      ],
+      "size": [
+        20,
+        160,
+        20
+      ],
+      "color": "#4e6658"
+    },
+    {
+      "name": "counter",
+      "center": [
+        0,
+        825,
+        0
+      ],
+      "size": [
+        600,
+        50,
+        450
+      ],
+      "color": "#f4f4f2"
+    }
+  ]
+}

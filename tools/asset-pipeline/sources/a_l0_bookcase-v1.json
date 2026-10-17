@@ -1,0 +1,156 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_bookcase",
+  "version": 1,
+  "name_en": "Open bookcase",
+  "name_hi": "किताबों की खुली अलमारी",
+  "category": "storage",
+  "tags": [
+    "books",
+    "shelf",
+    "किताबों की खुली अलमारी"
+  ],
+  "dims": {
+    "w": 800,
+    "d": 300,
+    "h": 1800
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_bookcase-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bookcase-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "back",
+      "center": [
+        0,
+        900,
+        140
+      ],
+      "size": [
+        800,
+        1800,
+        20
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "side-0",
+      "center": [
+        -385,
+        900,
+        0
+      ],
+      "size": [
+        30,
+        1800,
+        300
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "side-1",
+      "center": [
+        385,
+        900,
+        0
+      ],
+      "size": [
+        30,
+        1800,
+        300
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "shelf-0",
+      "center": [
+        0,
+        15,
+        0
+      ],
+      "size": [
+        740,
+        30,
+        300
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "shelf-1",
+      "center": [
+        0,
+        369,
+        0
+      ],
+      "size": [
+        740,
+        30,
+        300
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "shelf-2",
+      "center": [
+        0,
+        723,
+        0
+      ],
+      "size": [
+        740,
+        30,
+        300
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "shelf-3",
+      "center": [
+        0,
+        1077,
+        0
+      ],
+      "size": [
+        740,
+        30,
+        300
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "shelf-4",
+      "center": [
+        0,
+        1431,
+        0
+      ],
+      "size": [
+        740,
+        30,
+        300
+      ],
+      "color": "#a07850"
+    },
+    {
+      "name": "shelf-5",
+      "center": [
+        0,
+        1785,
+        0
+      ],
+      "size": [
+        740,
+        30,
+        300
+      ],
+      "color": "#a07850"
+    }
+  ]
+}

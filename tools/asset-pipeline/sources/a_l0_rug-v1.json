@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "id": "a_l0_rug",
+  "version": 1,
+  "name_en": "Solid rug",
+  "name_hi": "सादा गलीचा",
+  "category": "rugs",
+  "tags": [
+    "rug",
+    "carpet",
+    "सादा गलीचा"
+  ],
+  "dims": {
+    "w": 1600,
+    "d": 1000,
+    "h": 10
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_rug-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_rug-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural starter geometry authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-16"
+  },
+  "parts": [
+    {
+      "name": "rug",
+      "center": [
+        0,
+        5,
+        0
+      ],
+      "size": [
+        1600,
+        10,
+        1000
+      ],
+      "color": "#718d91"
+    }
+  ]
+}
