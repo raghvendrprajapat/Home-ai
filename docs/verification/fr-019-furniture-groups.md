@@ -27,6 +27,12 @@ Built by Claude Code under the owner's D52 continuation.
   - Arrow and Shift+Arrow nudges move both members by exactly +10 / +100 mm. 3D Move is disabled with the lock message while grouped and enabled after Ungroup, and the item then picks singly.
   - Deleting one of two members leaves a single item that picks singly and can move in 3D.
 - Related browser suites re-run with the change (`selection`, `picking-furniture`, `furniture-align`): all passed (19/19 together with the new spec).
+- `pnpm check` under Node 24.19.0 on the branch: 68 files, 496 product tests, 18 tooling tests passed.
+- Whole existing browser suite on the frozen branch code before merging main: **142 passed, 1 failed (12.7 m)**. The 1 failure is the same `furniture-gestures.spec.ts` "UX-005 … rotation-handle tap … Enter rotates once" deep-equality failure that fails on unmodified `main` in this sandbox (Chromium 141) and passed in pinned CI for PRs #100–#103. Not caused by this change; cause unproven; pinned CI is the gate.
+- After walk mode (D56, PR #103) merged, I merged `main` into this branch. Three additive conflicts were resolved by keeping both sides: the 3D tool bar keeps the Walk button and the group lock, and the docs keep both rows. On the merged tree:
+  - The first `pnpm check` hit the 30 s timeout of the existing core-model "mixed edit/undo/redo" property test. Timed alone, that test takes 28.4 s on this branch and 29.2 s on unmodified `main`, so it is this sandbox's speed, not this change.
+  - The re-run passed: 69 files, 512 product tests and 18 tooling tests.
+  - The grouping, walk-mode, 3D furniture gesture and furniture model browser specs passed (28/28).
 
 ## Failures and fixes recorded honestly
 
