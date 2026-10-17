@@ -98,7 +98,7 @@ export const messages = {
   turnSelectionLeft: ['Turn selection 90° left', 'चुनी चीज़ें 90° बाएँ घुमाएँ'], turnSelectionRight: ['Turn selection 90° right', 'चुनी चीज़ें 90° दाएँ घुमाएँ'],
   selectionRotated: ['Furniture turned together. Undo is available.', 'फर्नीचर साथ में घुमाया गया। पिछला बदलाव हटा सकते हैं।'],
   groupDragHint: ['Drag to move the whole group. Hold Shift for free movement.', 'पूरा समूह खिसकाने के लिए खींचें। बिना ग्रिड के खिसकाने के लिए Shift दबाए रखें।'],
-  group3dLocked: ['This item is in a group. Move the group in the 2D plan, or ungroup it there to move one item in 3D.', 'यह चीज़ एक समूह में है। समूह को 2D नक्शे में खिसकाएँ, या वहाँ समूह तोड़कर 3D में एक चीज़ खिसकाएँ।'],
+  group3dTogether: ['This item is in a group: Move and Rotate act on the whole group. Ungroup it in the 2D plan to edit one item.', 'यह चीज़ एक समूह में है: खिसकाना और घुमाना पूरे समूह पर होगा। एक चीज़ बदलने के लिए 2D नक्शे में समूह तोड़ें।'],
   templateLabel: ['Start from', 'शुरुआत किससे करें'], template_blank: ['Blank drawing', 'खाली ड्रॉइंग'],
   template_1bhk: ['1 BHK home: living, kitchen, bedroom, bathroom', '1 BHK घर: बैठक, रसोई, सोने का कमरा, स्नानघर'],
   template_2bhk: ['2 BHK home: living, dining, kitchen, 2 bedrooms, bathroom', '2 BHK घर: बैठक, भोजन कक्ष, रसोई, 2 सोने के कमरे, स्नानघर'],

@@ -7,6 +7,15 @@ import type { RoomIdentityChoice } from '@gharplan/geometry';
 interface CommandBase { id: string; baseGeneration: number; roomChoices?: readonly RoomIdentityChoice[] }
 export type FurnitureAlignMode = 'left' | 'right' | 'top' | 'bottom' | 'centreX' | 'centreY';
 export const FURNITURE_ALIGN_MODES: readonly FurnitureAlignMode[] = ['left', 'right', 'top', 'bottom', 'centreX', 'centreY'];
+/** Pivot used by RotateFurniture: the integer-rounded centre of the items' combined axis-aligned footprint box. */
+export function furnitureTurnPivot(items: readonly Pick<FurnitureItem, 'position' | 'size' | 'rotationDeg'>[]): [number, number] {
+  if (!items.length) throw new GeometryError('selection', 'Choose furniture to turn.');
+  const boxes = items.map(item => {
+    const r = item.rotationDeg * Math.PI / 180, hx = (Math.abs(Math.cos(r)) * item.size.w + Math.abs(Math.sin(r)) * item.size.d) / 2, hy = (Math.abs(Math.sin(r)) * item.size.w + Math.abs(Math.cos(r)) * item.size.d) / 2;
+    return [item.position.x - hx, item.position.y - hy, item.position.x + hx, item.position.y + hy] as const;
+  });
+  return [Math.round((Math.min(...boxes.map(b => b[0])) + Math.max(...boxes.map(b => b[2]))) / 2), Math.round((Math.min(...boxes.map(b => b[1])) + Math.max(...boxes.map(b => b[3]))) / 2)];
+}
 export type SurfaceMaterialTarget={kind:'wall';id:string;side:'left'|'right'}|{kind:'floor';id:string};
 export type Command = CommandBase & (
   | { type: 'AddWall'; from: readonly [number, number]; to: readonly [number, number]; thickness: number; height: number }
@@ -237,9 +246,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       if (typeof command.deltaDeg !== 'number' || !Number.isFinite(command.deltaDeg) || Math.abs(command.deltaDeg) > 360) throw new GeometryError('rotation', 'Rotation must be a finite angle between -360 and 360 degrees.');
       const items = command.furnitureIds.map(id => requireEntity(draft.furniture, id)), turn = ((command.deltaDeg % 360) + 360) % 360;
       if (turn === 0) break;
-      const extent = (item: FurnitureItem) => { const r = item.rotationDeg * Math.PI / 180; return [(Math.abs(Math.cos(r)) * item.size.w + Math.abs(Math.sin(r)) * item.size.d) / 2, (Math.abs(Math.sin(r)) * item.size.w + Math.abs(Math.cos(r)) * item.size.d) / 2] as const; };
-      const boxes = items.map(item => { const [hx, hy] = extent(item); return [item.position.x - hx, item.position.y - hy, item.position.x + hx, item.position.y + hy] as const; });
-      const cx = Math.round((Math.min(...boxes.map(b => b[0])) + Math.max(...boxes.map(b => b[2]))) / 2), cy = Math.round((Math.min(...boxes.map(b => b[1])) + Math.max(...boxes.map(b => b[3]))) / 2);
+      const [cx, cy] = furnitureTurnPivot(items);
       const clean = (v: number) => Math.abs(v - Math.round(v)) < 1e-12 ? Math.round(v) : v, angle = turn * Math.PI / 180, c = clean(Math.cos(angle)), n = clean(Math.sin(angle));
       for (const item of items) {
         const dx = item.position.x - cx, dy = item.position.y - cy;

@@ -49,7 +49,7 @@ test('FR-019 dragging one member moves the whole group by the same integer delta
   await undo(page).click();await saved(page);expect((await backup(page) as Doc).furniture.map(f=>f.position)).toEqual(before.furniture.map(f=>f.position));
 });
 
-test('FR-019 arrow keys nudge a selected group together; Ungroup makes items single again and 3D Move is locked only while grouped',async({page})=>{
+test('FR-019 arrow keys nudge a selected group together; Ungroup makes items single again and 3D shows the whole-group note only while grouped',async({page})=>{
   await groupSofaAndTv(page);const before=await backup(page) as Doc;
   const f=await frame(page),sofa=screenOf(f,1300,4300);await page.mouse.click(sofa.x,sofa.y);await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-selection-count','2');
   await page.keyboard.press('ArrowRight');await saved(page);await page.keyboard.press('Shift+ArrowDown');await saved(page);
@@ -57,12 +57,12 @@ test('FR-019 arrow keys nudge a selected group together; Ungroup makes items sin
   expect(item(moved,'fu_sofa').position).toEqual({x:item(before,'fu_sofa').position.x+10,y:item(before,'fu_sofa').position.y+100});
   expect(item(moved,'fu_tv').position).toEqual({x:item(before,'fu_tv').position.x+10,y:item(before,'fu_tv').position.y+100});
   await page.getByRole('button',{name:'3D view',exact:true}).click();
-  await expect(page.getByTestId('group-3d-locked')).toBeVisible();await expect(page.getByRole('button',{name:'Move selected furniture',exact:true})).toBeDisabled();
+  await expect(page.getByTestId('group-3d-together')).toBeVisible();await expect(page.getByRole('button',{name:'Move selected furniture',exact:true})).toBeEnabled(); // D60: 3D Move acts on the whole group
   await page.getByRole('button',{name:'2D plan',exact:true}).click(); // grouping tools live with the 2D selection panel
   await tools(page).getByRole('button',{name:'Ungroup',exact:true}).click();await saved(page);
   const single=await backup(page) as Doc;expect(single.furniture.every(f=>f.groupId===undefined)).toBe(true);
   await page.getByRole('button',{name:'3D view',exact:true}).click();
-  await expect(page.getByTestId('group-3d-locked')).toHaveCount(0);await expect(page.getByRole('button',{name:'Move selected furniture',exact:true})).toBeEnabled();
+  await expect(page.getByTestId('group-3d-together')).toHaveCount(0);await expect(page.getByRole('button',{name:'Move selected furniture',exact:true})).toBeEnabled();
   await page.getByRole('button',{name:'2D plan',exact:true}).click();
   const g=await frame(page),tv=screenOf(g,2250,400);await page.mouse.click(tv.x,tv.y);await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-selection-count','1');
 });
@@ -74,7 +74,7 @@ test('FR-019 deleting one of two members leaves a single item that picks and mov
   const doc=await backup(page) as Doc;expect(doc.furniture.some(f=>f.id==='fu_tv')).toBe(false);expect(item(doc,'fu_sofa').groupId).toBe('group_1'); // stored id kept; a lone member acts as single
   const f=await frame(page),sofa=screenOf(f,1300,4300);await page.mouse.click(sofa.x,sofa.y);await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-selection-count','1');
   await page.getByRole('button',{name:'3D view',exact:true}).click();
-  await expect(page.getByTestId('group-3d-locked')).toHaveCount(0);await expect(page.getByRole('button',{name:'Move selected furniture',exact:true})).toBeEnabled();
+  await expect(page.getByTestId('group-3d-together')).toHaveCount(0);await expect(page.getByRole('button',{name:'Move selected furniture',exact:true})).toBeEnabled();
 });
 
 test('FR-019 a group turns 90 degrees about its shared centre with exact hand values; Q turns it 15 degrees; Undo restores',async({page})=>{
