@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createBlankProject, ProjectStore, recoveryCopy, serializeProject } from '@gharplan/core-model';
-import type { ProjectDoc } from '@gharplan/core-model';
+import { createBlankProject, createTemplateProject, ProjectStore, recoveryCopy, serializeProject, TEMPLATE_IDS } from '@gharplan/core-model';
+import type { ProjectDoc, RoomType, TemplateId } from '@gharplan/core-model';
 import { recover, sameHead } from '@gharplan/persistence';
 import type { ProjectMeta, Recovered } from '@gharplan/persistence';
 import { DiagnosticSettings } from '../diagnostics/Settings';
@@ -24,7 +24,7 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
   const [imported, setImported] = useState<ProjectDoc | null>(null), [importCopyOnly, setImportCopyOnly] = useState(true);
   const fileInput = useRef<HTMLInputElement>(null), reading = useRef<AbortController | null>(null);
   useEffect(() => () => { reading.current?.abort(); }, []);
-  const [name, setName] = useState(''), [units, setUnits] = useState(ui.units), [proposal, setProposal] = useState<Recovered | null>(null);
+  const [name, setName] = useState(''), [template, setTemplate] = useState<'blank' | TemplateId>('blank'), [units, setUnits] = useState(ui.units), [proposal, setProposal] = useState<Recovered | null>(null);
   const flight = useRef(false), current = useRef(session); current.current = session;
   const refresh = useCallback(async () => {
     if (!inspection.storage) { setProjects([]); return; }
@@ -109,7 +109,8 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
     if (modal === 'create') {
       if (!name.trim() || name.trim().length > 120) { setError('nameRequired'); return; }
       if (!await canLeave()) return;
-      const doc = createBlankProject({ name, units, now: new Date().toISOString(), nextId, floorName: t('groundFloor'), materialName: t('baseFinish') });
+      const base = { name, units, now: new Date().toISOString(), nextId, floorName: t('groundFloor'), materialName: t('baseFinish') };
+      const doc = template === 'blank' ? createBlankProject(base) : createTemplateProject({ ...base, template, roomName: (type: RoomType) => t(`room_${type}` as const) });
       switchTo(await createWorkspace(inspection, doc)); setModal(null); return;
     }
     if (!target || !inspection.storage || !await canLeave()) return;
@@ -136,7 +137,7 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
   return <main className="workspace shell-page"><header className="app-header"><h1>GharPlan</h1>{navigation}</header>
     {error && <p role="alert">{message(ui.locale, error)}</p>}
     {screen === 'settings' ? <section className="settings-card"><h2>{t('settings')}</h2><p>{t('settingsText')}</p>{language}<label className="field-label">{t('defaultUnits')}<select aria-label={t('defaultUnits')} value={ui.units} onChange={e => ui.setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label><DiagnosticSettings />{!ui.preferencesRemembered && <p role="alert">{t('preferenceWarning')}</p>}<button onClick={() => ui.setScreen(ui.returnTo)}>{t('back')}</button></section> : <section>
-      <div className="project-list-heading"><div><h2>{showTrash ? t('trash') : t('projectList')}</h2><p>{t('projectListText')}</p></div><button className="primary-button" disabled={busy} onClick={() => { setName(t('unnamed')); setUnits(ui.units); setTarget(null); setModal('create'); setError(null); }}>{t('newProject')}</button></div>
+      <div className="project-list-heading"><div><h2>{showTrash ? t('trash') : t('projectList')}</h2><p>{t('projectListText')}</p></div><button className="primary-button" disabled={busy} onClick={() => { setName(t('unnamed')); setUnits(ui.units); setTemplate('blank'); setTarget(null); setModal('create'); setError(null); }}>{t('newProject')}</button></div>
       <div className="project-list-actions"><button onClick={() => { setShowTrash(v => !v); }}>{showTrash ? t('showProjects') : t('showTrash')}</button><button disabled={loading || busy} onClick={() => { void refresh(); }}>{t('refresh')}</button></div>
       <button disabled={busy} onClick={() => fileInput.current?.click()}>{t('importDrawing')}</button><input ref={fileInput} type="file" accept=".json,application/json" hidden aria-label={t('chooseBackup')} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; if (file) void selectImport(file); }} />{busy && <p role="status">{t('working')}</p>}
       {loading && <p role="status">{t('loadingProjects')}</p>}{listWarnings && <p role="alert">{t('damagedProjects')}</p>}
@@ -145,7 +146,7 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
     </section>}
     {modal && <Dialog title={modal === 'create' ? t('newProject') : modal === 'rename' ? t('rename') : modal === 'trash' ? t('trash') : modal === 'import' ? t('importTitle') : t('recoveryTitle')} busy={busy} onCancel={() => { setModal(null); setError(null); }}>
       {modal === 'import' && imported && <><p>{t('importPreview', { name: imported.name, count: imported.rooms.length, units: imported.units === 'metric' ? t('metric') : t('imperial') })}</p>{importCopyOnly ? <p>{t('importConflict')}</p> : <button disabled={busy} onClick={() => { void acceptImport(false); }}>{t('importExact')}</button>}<button disabled={busy} onClick={() => { void acceptImport(true); }}>{t('importCopy')}</button></>}
-      {(modal === 'create' || modal === 'rename') && <form onSubmit={e => { e.preventDefault(); void submit(); }}><label className="field-label">{t('projectName')}<input value={name} maxLength={120} required onChange={e => setName(e.target.value)} /></label>{modal === 'create' && <label className="field-label">{t('units')}<select aria-label={t('units')} value={units} onChange={e => setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>}<button className="primary-button" disabled={busy} type="submit">{busy ? t('working') : modal === 'create' ? t('create') : t('saveName')}</button></form>}
+      {(modal === 'create' || modal === 'rename') && <form onSubmit={e => { e.preventDefault(); void submit(); }}><label className="field-label">{t('projectName')}<input value={name} maxLength={120} required onChange={e => setName(e.target.value)} /></label>{modal === 'create' && <label className="field-label">{t('templateLabel')}<select aria-label={t('templateLabel')} value={template} onChange={e => setTemplate(e.target.value as 'blank' | TemplateId)}><option value="blank">{t('template_blank')}</option>{TEMPLATE_IDS.map(id => <option key={id} value={id}>{t(`template_${id}` as const)}</option>)}</select></label>}{modal === 'create' && <p>{t('templateHint')}</p>}{modal === 'create' && <label className="field-label">{t('units')}<select aria-label={t('units')} value={units} onChange={e => setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>}<button className="primary-button" disabled={busy} type="submit">{busy ? t('working') : modal === 'create' ? t('create') : t('saveName')}</button></form>}
       {modal === 'trash' && target && <><p>{t('trashConfirm', { name: target.name })}</p><p>{t('trashText')}</p><button disabled={busy} onClick={() => { void submit(); }}>{t('moveTrash')}</button></>}
       {modal === 'recover' && proposal && <><p>{t('recoveryHelp')}</p>{proposal.roomRepair && <p>{t('repairedSource')}</p>}<button disabled={busy} onClick={() => { void perform(async () => { if (!await canLeave()) return; switchTo(await createWorkspace(inspection, copied(proposal.document, t('copiedName', { name: proposal.document.name })))); setModal(null); }); }}>{t('recoverCopy')}</button></>}
       {error && <p role="alert">{message(ui.locale, error)}</p>}<button disabled={busy} onClick={() => { setModal(null); setError(null); }}>{t('cancel')}</button>
