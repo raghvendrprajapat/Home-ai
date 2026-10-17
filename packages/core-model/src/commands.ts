@@ -5,6 +5,8 @@ import {canonicalStringify} from './serialization';
 import type { RoomIdentityChoice } from '@gharplan/geometry';
 
 interface CommandBase { id: string; baseGeneration: number; roomChoices?: readonly RoomIdentityChoice[] }
+export type FurnitureAlignMode = 'left' | 'right' | 'top' | 'bottom' | 'centreX' | 'centreY';
+export const FURNITURE_ALIGN_MODES: readonly FurnitureAlignMode[] = ['left', 'right', 'top', 'bottom', 'centreX', 'centreY'];
 export type SurfaceMaterialTarget={kind:'wall';id:string;side:'left'|'right'}|{kind:'floor';id:string};
 export type Command = CommandBase & (
   | { type: 'AddWall'; from: readonly [number, number]; to: readonly [number, number]; thickness: number; height: number }
@@ -23,6 +25,7 @@ export type Command = CommandBase & (
   | { type: 'DeleteFurniture'; furnitureId: string }
   | { type: 'DeleteSelection'; wallIds: readonly string[]; openingIds: readonly string[]; furnitureIds: readonly string[]; deleteDependents: boolean }
   | { type: 'DuplicateFurniture'; furnitureIds: readonly string[] }
+  | { type: 'AlignFurniture'; furnitureIds: readonly string[]; mode: FurnitureAlignMode }
   | { type: 'UpdateRoom'; roomId: string; properties: Partial<Pick<Room, 'name' | 'ceilingHeight' | 'floorMaterial'>> & { type?: RoomType } }
   | { type:'AddCameraPreset'; camera:Omit<import('./types').CameraPreset,'id'> }
   | { type:'DeleteCameraPreset'; cameraId:string }
@@ -179,6 +182,26 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
         const copy = JSON.parse(JSON.stringify(item)) as FurnitureItem;
         copy.id = freshId('furniture', used); copy.position.x += 200; copy.position.y += 200; copy.rev = 0; delete copy.groupId;
         draft.furniture.push(copy);
+      }
+      break;
+    }
+    case 'AlignFurniture': {
+      // Axis-aligned bounding boxes of the rotated footprints. Positions stay integer mm,
+      // so each result is rounded to the nearest mm (at most 0.5 mm from the exact edge).
+      if (!Array.isArray(command.furnitureIds) || command.furnitureIds.length < 2 || command.furnitureIds.length > 500 || command.furnitureIds.some(id => typeof id !== 'string') || new Set(command.furnitureIds).size !== command.furnitureIds.length)
+        throw new GeometryError('selection', 'Choose 2 to 500 different furniture items to align.');
+      if (!FURNITURE_ALIGN_MODES.includes(command.mode)) throw new GeometryError('align-mode', 'Choose left, right, top, bottom or a centre line.');
+      const items = command.furnitureIds.map(id => requireEntity(draft.furniture, id)), boxes = items.map(item => {
+        const r = item.rotationDeg * Math.PI / 180, halfX = (Math.abs(Math.cos(r)) * item.size.w + Math.abs(Math.sin(r)) * item.size.d) / 2, halfY = (Math.abs(Math.sin(r)) * item.size.w + Math.abs(Math.cos(r)) * item.size.d) / 2;
+        return { item, halfX, halfY };
+      });
+      // Reference lines are fixed before any item moves, from the original positions.
+      const edge = (axis: 'x' | 'y', side: 'lo' | 'hi') => (side === 'lo' ? Math.min : Math.max)(...boxes.map(b => b.item.position[axis] + (side === 'lo' ? -1 : 1) * (axis === 'x' ? b.halfX : b.halfY)));
+      const refs = { left: edge('x', 'lo'), right: edge('x', 'hi'), top: edge('y', 'lo'), bottom: edge('y', 'hi') };
+      for (const { item, halfX, halfY } of boxes) {
+        if (command.mode === 'left') item.position.x = Math.round(refs.left + halfX); else if (command.mode === 'right') item.position.x = Math.round(refs.right - halfX);
+        else if (command.mode === 'top') item.position.y = Math.round(refs.top + halfY); else if (command.mode === 'bottom') item.position.y = Math.round(refs.bottom - halfY);
+        else if (command.mode === 'centreX') item.position.x = Math.round((refs.left + refs.right) / 2); else item.position.y = Math.round((refs.top + refs.bottom) / 2);
       }
       break;
     }
