@@ -26,7 +26,7 @@ import type { Point2, Viewport } from './view2d';
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
 interface Props { selectedPick?:Pick|null;advisories?:FurnitureAdvisories;previewFurnitureId?:string|undefined;store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface DragBase {pointerId:number;generation:number;start:Point2;last:Point2;touch:boolean;store:ProjectStore;frame:readonly[number,number,number,number];windowSize:readonly[number,number]}
-type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent}|{kind:'wall';wall:string;axis:'x'|'y';along:number;exclude:ReadonlySet<string>});
+type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent}|{kind:'wall';wall:string;axis:'x'|'y';along:number;exclude:ReadonlySet<string>}|{kind:'group';ids:readonly string[];anchor:Point2});
 export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvisories,previewFurnitureId,store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
   const [ownAdvisories]=useState(()=>new FurnitureAdvisories()),advisories=providedAdvisories??ownAdvisories;
   const furnitureSnapKey=useRef<string|null>(null),[backSnap,setBackSnap]=useState<BackAlignment|null>(null);
@@ -38,6 +38,10 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
   const [freeRotation,setFreeRotation]=useState(false),freeRotationRef=useRef(false);freeRotationRef.current=freeRotation;
   const singleFurnitureId=selection?.length===1&&selection[0]?.kind==='furniture'?selection[0].id:undefined,selectedFurnitureRef=useRef(singleFurnitureId);selectedFurnitureRef.current=singleFurnitureId;
   const controlledSelectionRef=useRef(selection!==undefined);controlledSelectionRef.current=selection!==undefined;
+  // FR-019: a selection that is exactly one whole furniture group moves together (drag and arrow keys).
+  const groupMembers=(id:string)=>{const group=snapshot.document.furniture.find(f=>f.id===id)?.groupId,members=group?snapshot.document.furniture.filter(f=>f.groupId===group).map(f=>f.id):[];return members.length>=2?members:null;}; // a lone leftover member acts as a single item
+  const selectedGroup=selection&&selection.length>=2&&selection.every(p=>p.kind==='furniture')?(()=>{const members=groupMembers(selection[0]!.id);return members&&members.length===selection.length&&selection.every(p=>members.includes(p.id))?members:undefined;})():undefined,selectedGroupRef=useRef(selectedGroup);selectedGroupRef.current=selectedGroup;
+  const selectionRef=useRef(selection);selectionRef.current=selection;
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null), frame = useRef<number | null>(null), latestMotion = useRef<{motion:DragMotion;shift:boolean}|null>(null);
   const panKey = useRef(false);
   const lastSnap=useRef<SnapTarget|null>(null),[snapTarget,setSnapTarget]=useState<SnapTarget|null>(null);
@@ -87,13 +91,14 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
   useEffect(()=>{cancel();},[multiple]);
   useEffect(()=>{const owned=drag.current;if(owned?.kind==='furniture'&&controlledSelectionRef.current&&singleFurnitureId!==owned.intent.id)cancel();},[singleFurnitureId,selection!==undefined]);
   useEffect(()=>{const owned=drag.current;if(owned?.kind==='wall'&&controlledSelectionRef.current&&singleWallId!==owned.wall)cancel();},[singleWallId,selection!==undefined]);
+  useEffect(()=>{const owned=drag.current;if(owned?.kind==='group'&&selection&&!owned.ids.every(id=>selection.some(p=>p.id===id)))cancel();},[selection]);
   useEffect(()=>{if(precisionPreview)cancel();},[precisionPreview]);
   const targetFor = (motion:DragMotion,shift:boolean):Point2|null => {
     const d=drag.current;if(!d||d.pointerId!==motion.pointerId)return null;
     const mapping=host.current?.getBoundingClientRect();
     if(!mapping||d.windowSize[0]!==window.innerWidth||d.windowSize[1]!==window.innerHeight||d.frame.some((value,i)=>value!==[mapping.left,mapping.top,mapping.width,mapping.height][i])){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const current=d.store.getSnapshot();
-    if(d.store!==activeStore.current||current.localGeneration!==d.generation||d.kind==='furniture'&&(!currentFurnitureGesture(d.store,d.intent)||controlledSelectionRef.current&&selectedFurnitureRef.current!==d.intent.id)||d.kind==='wall'&&(controlledSelectionRef.current&&selectedWallRef.current!==d.wall||!current.document.walls.some(w=>w.id===d.wall))){cancel();onMessage(message(language.current,'dragRetry'));return null;}
+    if(d.store!==activeStore.current||current.localGeneration!==d.generation||d.kind==='furniture'&&(!currentFurnitureGesture(d.store,d.intent)||controlledSelectionRef.current&&selectedFurnitureRef.current!==d.intent.id)||d.kind==='wall'&&(controlledSelectionRef.current&&selectedWallRef.current!==d.wall||!current.document.walls.some(w=>w.id===d.wall))||d.kind==='group'&&(d.ids.some(id=>!current.document.furniture.some(f=>f.id===id))||!!selectionRef.current&&!d.ids.every(id=>selectionRef.current!.some(p=>p.id===id)))){cancel();onMessage(message(language.current,'dragRetry'));return null;}
     const raw:Point2=[d.start[0]+motion.delta[0]/viewRef.current.scale,d.start[1]+motion.delta[1]/viewRef.current.scale];
     // A wall slides on one axis only: no sideways-along motion, and no snap jump from an off-grid wall.
     const unmoved=d.kind==='wall'?raw[d.axis==='x'?0:1]===d.start[d.axis==='x'?0:1]:raw[0]===d.start[0]&&raw[1]===d.start[1];
@@ -108,6 +113,11 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
   const dragCommand=(d:Drag,to:Point2,shift:boolean)=>{
     if(d.kind==='junction')return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:junctionMoves(d.store.getSnapshot().document,d.junction,to)};
     if(d.kind==='wall')return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:wallMoves(d.store.getSnapshot().document,d.wall,to[d.axis==='x'?0:1])};
+    if(d.kind==='group'){
+      // The touched item lands on the grid (unless Shift or snapping is off); every member shares its integer delta.
+      const free=shift||toolRef.current?.getSnapshot().snappingEnabled===false,step=snapGridStep(viewRef.current.scale),land=(value:number)=>free?Math.round(value):Math.round(value/step)*step;
+      return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveFurniture' as const,furnitureIds:d.ids,dx:land(d.anchor[0]+to[0]-d.start[0])-d.anchor[0],dy:land(d.anchor[1]+to[1]-d.start[1])-d.anchor[1]};
+    }
     const result=advisories.gesture(d.store.getSnapshot().document,d.intent,to,shift||toolRef.current?.getSnapshot().snappingEnabled===false||d.intent.mode==='rotate'&&freeRotationRef.current,snapGridStep(viewRef.current.scale),viewRef.current.scale,furnitureSnapKey.current);
     furnitureSnapKey.current=result.snap?.key??null;setBackSnap(result.snap);return result.command;
   };
@@ -169,6 +179,8 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
       if(gestures.current.phase!=='idle'||boxDrag.current)return;
       const furniture=selectedFurnitureRef.current,steps:Record<string,{dx?:number;dy?:number;rotation?:number}>={ArrowLeft:{dx:event.shiftKey?-100:-10},ArrowRight:{dx:event.shiftKey?100:10},ArrowUp:{dy:event.shiftKey?-100:-10},ArrowDown:{dy:event.shiftKey?100:10},q:{rotation:-15},e:{rotation:15}};
       const action=steps[event.key.length===1?event.key.toLowerCase():event.key];
+      const group=selectedGroupRef.current;
+      if(group&&action&&action.rotation===undefined&&!panKey.current&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();if(event.repeat)return;const current=activeStore.current.getSnapshot();if(group.some(id=>!current.document.furniture.some(item=>item.id===id))){onMessage(message(language.current,'dragRetry'));return;}const result=activeStore.current.execute({id:`nudge_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:current.localGeneration,type:'MoveFurniture',furnitureIds:group,dx:action.dx??0,dy:action.dy??0});onMessage(result.ok?message(language.current,'groupMoved'):editError(language.current,result.errors[0]));return;}
       if(furniture&&action&&!panKey.current&&!event.ctrlKey&&!event.metaKey&&!event.altKey){event.preventDefault();if(event.repeat)return;const current=activeStore.current.getSnapshot();if(!current.document.furniture.some(item=>item.id===furniture)){onMessage(message(language.current,'dragRetry'));return;}const result=activeStore.current.execute(furnitureStepCommand(current,furniture,action));onMessage(result.ok?message(language.current,'furnitureApplied'):editError(language.current,result.errors[0]));return;}
       const v=viewRef.current;
       const arrows:Record<string,Point2>={ArrowLeft:[50,0],ArrowRight:[-50,0],ArrowUp:[0,50],ArrowDown:[0,-50]};
@@ -298,6 +310,7 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
         toolPointer.current={id:event.pointerId,point,world,generation:snapshot.localGeneration,epoch:state.epoch};if(touch)setLoupe({point,world});return;
       }
       const wallSetup=pick?.kind==='wall'&&pick.id===singleWallId?(()=>{try{return {...wallDrag(snapshot.document,pick.id),exclude:wallChain(snapshot.document,pick.id)};}catch{return null;}})():null;
+      const groupIds=pick?.kind==='furniture'?groupMembers(pick.id):null;
       const canDrag=event.button===0&&!panKey.current&&!multiple&&!event.shiftKey&&(pick?.kind==='junction'||pick?.kind==='furniture'||wallSetup!==null);
       if(canDrag)onEditStart?.();
       const step=gestures.current.begin(event.pointerId,touch,point,viewRef.current,canDrag,now);
@@ -307,9 +320,10 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
         onPick?.(pick,false);setPicked(pick);
         if(pick.kind==='junction'){const j=snapshot.document.junctions.find(j=>j.id===pick.id)!;onSelect(j.id);drag.current={...mapping,kind:'junction',pointerId:event.pointerId,junction:j.id,generation:snapshot.localGeneration,start:[j.x,j.y],last:[j.x,j.y],touch,store};}
         else if(pick.kind==='wall'&&wallSetup){drag.current={...mapping,kind:'wall',wall:pick.id,axis:wallSetup.axis,along:wallSetup.along,exclude:wallSetup.exclude,pointerId:event.pointerId,generation:snapshot.localGeneration,start:wallSetup.origin,last:wallSetup.origin,touch,store};}
+        else if(groupIds){const world=screenToWorld(point,viewRef.current),item=snapshot.document.furniture.find(f=>f.id===pick.id)!;drag.current={...mapping,kind:'group',ids:groupIds,anchor:[item.position.x,item.position.y],pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
         else{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,pick.id,'move',world);drag.current={...mapping,kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
         if(step.phase==='pending')holdTimer.current=setTimeout(()=>applyStep(gestures.current.hold(performance.now())),151);
-        onMessage(message(locale,pick.kind==='furniture'?'furnitureDragHint':pick.kind==='wall'?'wallDragHint':touch?'touchHold':'previewHelp'));
+        onMessage(message(locale,groupIds?'groupDragHint':pick.kind==='furniture'?'furnitureDragHint':pick.kind==='wall'?'wallDragHint':touch?'touchHold':'previewHelp'));
       }
     }}
     onPointerMove={event=>{
@@ -339,7 +353,7 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
         let command:ReturnType<typeof dragCommand>|null=null;
         try{if(to&&d&&(to[0]!==d.start[0]||to[1]!==d.start[1]))command=dragCommand(d,to,event.shiftKey);}catch{onMessage(message(locale,'furnitureValuesInvalid'));}
         clearEdit();
-        if(command){const started=performance.now();try{const result=store.execute(command);onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,d?.kind==='furniture'?'furnitureApplied':d?.kind==='wall'?'wallMoved':'cornerUpdated'):editError(locale,result.errors[0]));}catch{onMessage(message(locale,'furnitureValuesInvalid'));}}
+        if(command){const started=performance.now();try{const result=store.execute(command);onTiming?.('command',performance.now()-started);onMessage(result.ok?message(locale,d?.kind==='group'?'groupMoved':d?.kind==='furniture'?'furnitureApplied':d?.kind==='wall'?'wallMoved':'cornerUpdated'):editError(locale,result.errors[0]));}catch{onMessage(message(locale,'furnitureValuesInvalid'));}}
 
       }else applyStep(step);
       if(step.tap&&!rotateTap&&event.button===0&&!panKey.current){const chosen=cycle.current.next(index.picks(point,viewRef.current,event.pointerType==='touch'),point,performance.now());setPicked(chosen);onPick?.(chosen,multiple||event.shiftKey);if(chosen?.kind==='junction')onSelect(chosen.id);if(chosen)onMessage(message(locale,'pickedItem',{kind:message(locale,chosen.kind==='junction'?'pickJunction':chosen.kind==='opening'?'pickOpening':chosen.kind==='furniture'?'pickFurniture':chosen.kind==='wall'?'pickWall':'pickRoom')}));}

@@ -26,6 +26,9 @@ export type Command = CommandBase & (
   | { type: 'DeleteSelection'; wallIds: readonly string[]; openingIds: readonly string[]; furnitureIds: readonly string[]; deleteDependents: boolean }
   | { type: 'DuplicateFurniture'; furnitureIds: readonly string[] }
   | { type: 'AlignFurniture'; furnitureIds: readonly string[]; mode: FurnitureAlignMode }
+  | { type: 'GroupFurniture'; furnitureIds: readonly string[] }
+  | { type: 'UngroupFurniture'; furnitureIds: readonly string[] }
+  | { type: 'MoveFurniture'; furnitureIds: readonly string[]; dx: number; dy: number }
   | { type: 'UpdateRoom'; roomId: string; properties: Partial<Pick<Room, 'name' | 'ceilingHeight' | 'floorMaterial'>> & { type?: RoomType } }
   | { type:'AddCameraPreset'; camera:Omit<import('./types').CameraPreset,'id'> }
   | { type:'DeleteCameraPreset'; cameraId:string }
@@ -171,6 +174,25 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       if(openings.size||walls.size)draft.openings = draft.openings.filter(o => !openings.has(o.id) && !walls.has(o.wallId));
       if(furniture.size)draft.furniture = draft.furniture.filter(f => !furniture.has(f.id));
       if (walls.size) { draft.walls = draft.walls.filter(w => !walls.has(w.id)); geometryChanged = true; }
+      break;
+    }
+    case 'GroupFurniture': case 'UngroupFurniture': case 'MoveFurniture': {
+      const minimum = command.type === 'GroupFurniture' ? 2 : 1;
+      if (!Array.isArray(command.furnitureIds) || command.furnitureIds.length < minimum || command.furnitureIds.length > 500 || command.furnitureIds.some(id => typeof id !== 'string') || new Set(command.furnitureIds).size !== command.furnitureIds.length)
+        throw new GeometryError('selection', `Choose ${minimum} to 500 different furniture items.`);
+      const items = command.furnitureIds.map(id => requireEntity(draft.furniture, id));
+      if (command.type === 'MoveFurniture') {
+        if (!Number.isSafeInteger(command.dx) || !Number.isSafeInteger(command.dy)) throw new GeometryError('command-delta', 'Furniture movement must use integer mm.');
+        for (const item of items) { item.position.x += command.dx; item.position.y += command.dy; }
+        break;
+      }
+      // A group is the set of items sharing a groupId. Touching one member touches its whole group.
+      const groups = new Set(items.flatMap(item => item.groupId ? [item.groupId] : [])), members = draft.furniture.filter(f => items.includes(f) || (f.groupId !== undefined && groups.has(f.groupId)));
+      if (command.type === 'UngroupFurniture') { for (const item of members) delete item.groupId; break; }
+      if (groups.size === 1 && members.every(f => f.groupId === [...groups][0])) break; // already exactly one group
+      const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id), ...draft.furniture.flatMap(f => f.groupId ? [f.groupId] : [])]);
+      const groupId = freshId('group', used);
+      for (const item of members) item.groupId = groupId;
       break;
     }
     case 'DuplicateFurniture': {
