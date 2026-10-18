@@ -32,23 +32,24 @@ async function openPicture(file:File):Promise<Picture>{
  * drawing with the real commands and previewed; the person then opens it as a new project.
  */
 export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale:Locale;provider:AiProvider;units:ProjectDoc['units'];onUnderlay(underlay:PlanUnderlay|null):void;onOpen(document:ProjectDoc):void}){
- const [picture,setPicture]=useState<Picture|null>(null),[failed,setFailed]=useState(false),[widthMm,setWidthMm]=useState(10000),[shown,setShown]=useState(false),[strength,setStrength]=useState(50);
+ const [picture,setPicture]=useState<Picture|null>(null),[failed,setFailed]=useState(false),[widthMm,setWidthMm]=useState(10000),[shown,setShown]=useState(false),[strength,setStrength]=useState(50),[left,setLeft]=useState(0),[top,setTop]=useState(0);
  const [reading,setReading]=useState<Reading|null>(null),input=useRef<HTMLInputElement>(null);
- const validWidth=Number.isInteger(widthMm)&&widthMm>=2000&&widthMm<=60000;
+ const validWidth=Number.isInteger(widthMm)&&widthMm>=2000&&widthMm<=60000,validPlace=[left,top].every(v=>Number.isInteger(v)&&Math.abs(v)<=40000);
  useEffect(()=>()=>{if(picture)URL.revokeObjectURL(picture.url);},[picture]);
  useEffect(()=>{
-  onUnderlay(picture&&shown&&validWidth?{image:picture.image,x:0,y:0,widthMm,heightMm:Math.round(widthMm*picture.pixels.height/picture.pixels.width),opacity:strength/100}:null);
- },[picture,shown,widthMm,strength,validWidth,onUnderlay]);
+  onUnderlay(picture&&shown&&validWidth&&validPlace?{image:picture.image,x:left,y:top,widthMm,heightMm:Math.round(widthMm*picture.pixels.height/picture.pixels.width),opacity:strength/100}:null);
+ },[picture,shown,widthMm,strength,left,top,validWidth,validPlace,onUnderlay]);
  useEffect(()=>()=>onUnderlay(null),[onUnderlay]);
  const choose=async(file:File|undefined)=>{
   setReading(null);setFailed(false);if(!file)return;
   try{setPicture(await openPicture(file));}catch{setPicture(null);setFailed(true);}
  };
  const read=async()=>{
-  if(!picture||!validWidth)return;
+  if(!picture||!validWidth||!validPlace)return;
   setReading({phase:'reading'});
   try{
-   const sketch=acceptSketch(await provider.planFromImage(picture.pixels,widthMm,new AbortController().signal));
+   // Rooms are read relative to the picture's top-left corner, then placed where the picture is shown.
+   const read=acceptSketch(await provider.planFromImage(picture.pixels,widthMm,new AbortController().signal)),sketch={...read,rooms:read.rooms.map(r=>({...r,x:r.x+left,y:r.y+top}))};
    let n=0;const nextId=()=>`ph_${crypto.randomUUID().replaceAll('-','')}${n++}`;
    const built=sketch.rooms.length?createRoomsProject({rooms:sketch.rooms,name:message(locale,'aiPhotoProjectName'),units,now:new Date().toISOString(),nextId,floorName:message(locale,'groundFloor'),materialName:message(locale,'baseFinish'),roomName:(type:RoomType)=>message(locale,`room_${type}` as const)}):undefined;
    setReading({phase:'ready',sketch,document:built&&built.skipped.length<sketch.rooms.length?built.document:undefined,skipped:built?.skipped.length??0});
@@ -63,11 +64,13 @@ export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale
   {picture&&<>
    <img className="ai-photo-thumb" src={picture.url} alt=""/>
    <label>{message(locale,'aiPhotoWidth')}<input type="number" inputMode="numeric" min={2000} max={60000} step={100} aria-label={message(locale,'aiPhotoWidth')} value={widthMm} onChange={event=>{setWidthMm(Number(event.target.value));setReading(null);}}/></label>
+   <label>{message(locale,'aiPhotoLeft')}<input type="number" inputMode="numeric" min={-40000} max={40000} step={50} aria-label={message(locale,'aiPhotoLeft')} value={left} onChange={event=>{setLeft(Number(event.target.value));setReading(null);}}/></label>
+   <label>{message(locale,'aiPhotoTop')}<input type="number" inputMode="numeric" min={-40000} max={40000} step={50} aria-label={message(locale,'aiPhotoTop')} value={top} onChange={event=>{setTop(Number(event.target.value));setReading(null);}}/></label>
    <label className="ai-check"><input type="checkbox" checked={shown} onChange={event=>setShown(event.target.checked)}/>{message(locale,'aiPhotoShow')}</label>
    <label>{message(locale,'aiPhotoStrength')}<input type="range" min={20} max={80} step={10} aria-label={message(locale,'aiPhotoStrength')} value={strength} onChange={event=>setStrength(Number(event.target.value))}/></label>
    <p className="structure-note">{message(locale,provider.kind==='stand-in'?'aiPhotoTestNote':'aiServerMode')}</p>
    <div className="ai-layout-actions">
-    <button className="primary-button" disabled={!validWidth||reading?.phase==='reading'} onClick={()=>{void read();}}>{message(locale,'aiPhotoRead')}</button>
+    <button className="primary-button" disabled={!validWidth||!validPlace||reading?.phase==='reading'} onClick={()=>{void read();}}>{message(locale,'aiPhotoRead')}</button>
     <button onClick={remove}>{message(locale,'aiPhotoRemove')}</button>
    </div>
   </>}

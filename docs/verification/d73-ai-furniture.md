@@ -41,7 +41,13 @@ Furniture sizes are copied by hand from the catalog.
 | Small bedroom, 2400 × 3000 | 3,600,000 mm² | Queen bed only. The king bed needs 4,085,000; after the queen bed's 3,483,000 only 117,000 is left. |
 
 - A room that already has a king bed and a bedside table gets the queen bed instead and no second bedside table.
-- A bathroom gets no ideas.
+- A pooja room gets no ideas.
+- **Kitchen, bathroom and utility** (furniture only):
+  - Kitchen 2800 × 2200: island (960,000 mm²) and base cabinet (360,000 mm²).
+  - Kitchen 2000 × 1300: island only. It fits only when turned, and leaves 340,000 of the 1,300,000 budget, which is less than the base cabinet's 360,000.
+  - Kitchen 1300 × 1300: base cabinet only. The island needs 1400 mm across either way.
+  - Bathroom 1600 × 2000: vanity.
+  - Utility 1800 × 1500: shoe cabinet, then sideboard.
 - A request that was already cancelled is rejected.
 
 ### Mutation check
@@ -210,8 +216,11 @@ Each of these was removed or changed separately, and at least one test then fail
 ### Browser tests (`tests/e2e/ai-photo-plan.spec.ts`, 2 tests)
 The test picture is the same two-room PNG, built in the test.
 1. The privacy note is shown.
-2. "Show under the plan" draws it at 0,0, 10000 × 7500 mm, 50% strength; 30% changes the strength. The drawing is unchanged.
-3. "Read rooms" reports "Found 2 rooms.", with rectangles 1000,1000,4050,5600 living and 5050,1000,4050,5600 bedroom.
+2. "Show under the plan" draws it at 0,0, 10000 × 7500 mm, 50% strength.
+   - 30% changes the strength.
+   - X −500 and Y 250 move it; Y 0 moves it back.
+   - The drawing is unchanged.
+3. With the picture at X −500, "Read rooms" reports "Found 2 rooms.", with rectangles 500,1000,4050,5600 living and 4550,1000,4050,5600 bedroom: the picture-relative 1000 and 5050, minus 500.
 4. "Create a new drawing" opens a new project, "Plan from photo", with:
    - 6 junctions and 7 walls;
    - Living room and Bedroom;

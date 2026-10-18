@@ -20,6 +20,9 @@ export const ROOM_PLANS:Readonly<Partial<Record<RoomType,readonly (readonly stri
  dining:[['a_l0_dining_set_6','a_l0_dining_set_4'],['a_l0_low_cabinet'],['a_l0_planter']],
  study:[['a_l0_study_desk'],['a_l0_bookcase'],['a_l0_armchair']],
  balcony:[['a_l0_planter'],['a_l0_stool']],
+ kitchen:[['a_l0_island'],['a_l0_kitchen_base']],
+ bathroom:[['a_l0_vanity']],
+ utility:[['a_l0_shoe_rack'],['a_l0_low_cabinet']],
 };
 
 export const standInAi:AiProvider={
@@ -54,7 +57,7 @@ function roleOf(a:CatalogAsset):Role{
  if(/nightstand|side_table/.test(a.id))return 'beside';
  if(/tv_unit/.test(a.id))return 'facing';
  if(/coffee_table/.test(a.id))return 'front';
- if(/dining_set|dining_4|dining_6/.test(a.id))return 'centre';
+ if(/dining_set|dining_4|dining_6|island/.test(a.id))return 'centre';
  return 'corner';
 }
 /** Furthest a bedside or side table may stand from its bed or sofa. */

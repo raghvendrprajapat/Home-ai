@@ -32,13 +32,18 @@ test('D73 AI-3 a two-room sketch shows under the plan, reads as two rooms and op
  await photo.getByLabel('Picture strength (%)',{exact:true}).fill('30');
  await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-underlay','0,0,10000,7500,0.3');
  await page.getByTestId('plan-canvas').screenshot({path:test.info().outputPath('ai-photo-underlay.png')});
+ // Moving the picture moves the underlay; rooms are then read where the picture is shown (500 mm further west).
+ await photo.getByLabel('Picture left edge on the plan, X (mm)',{exact:true}).fill('-500');await photo.getByLabel('Picture top edge on the plan, Y (mm)',{exact:true}).fill('250');
+ await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-underlay','-500,250,10000,7500,0.3');
+ await photo.getByLabel('Picture top edge on the plan, Y (mm)',{exact:true}).fill('0');
+ await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-underlay','-500,0,10000,7500,0.3');
  expect(await backup(page)).toEqual(before);
 
  await photo.getByRole('button',{name:'Read rooms from the picture',exact:true}).click();
  const sketch=photo.getByTestId('ai-sketch');
  await expect(sketch.getByRole('status')).toHaveText('Found 2 rooms.');
- // Partition ink centre x 101 px = 5050 mm; rooms 1000..5050 and 5050..9100 by 1000..6600.
- expect(await sketch.locator('rect[data-room]').evaluateAll(rs=>rs.map(r=>r.getAttribute('data-room')))).toEqual(['1000,1000,4050,5600,living','5050,1000,4050,5600,bedroom']);
+ // Partition ink centre x 101 px = 5050 mm; rooms 1000..5050 and 5050..9100 by 1000..6600, shifted by the picture's -500 X.
+ expect(await sketch.locator('rect[data-room]').evaluateAll(rs=>rs.map(r=>r.getAttribute('data-room')))).toEqual(['500,1000,4050,5600,living','4550,1000,4050,5600,bedroom']);
  await sketch.screenshot({path:test.info().outputPath('ai-photo-rooms.png')});
  expect(await backup(page)).toEqual(before);
 

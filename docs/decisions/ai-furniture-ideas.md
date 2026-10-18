@@ -73,11 +73,11 @@ Status: accepted by Claude Code on the owner's instruction, 2026-10-18. This ove
   - The stand-in reads it on the device.
   - Sending a photo to a hosted vision model stays gated (see "What stays gated").
 - **Stage 1, trace-over (no AI).** "Show under the plan" draws the picture under the 2D plan:
-  - its top-left corner is at (0, 0) mm;
+  - its top-left corner is at an X/Y position the person enters (default 0, 0; up to ±40 m), so it can be lined up with an existing plan;
   - its width is the real width the person enters (2–60 m);
   - its strength is 20–80%.
   - It is a renderer-only image: it is not hit-tested and never written to the model (AGENTS.md §4.1).
-- **Stage 2, reading rooms.** `AiProvider.planFromImage(pixels, realWidthMm, signal)` returns untrusted room rectangles. The picture is read at most 480 px across.
+- **Stage 2, reading rooms.** `AiProvider.planFromImage(pixels, realWidthMm, signal)` returns untrusted room rectangles relative to the picture's top-left corner; after `acceptSketch` they are moved to the picture's X/Y position. The picture is read at most 480 px across.
 - **Trust boundary** (`acceptSketch`):
   - It reads at most 50 entries and keeps at most 12 rooms.
   - Each room must be 1.2–15 m along each side, inside ±50 m.
@@ -101,7 +101,7 @@ Status: accepted by Claude Code on the owner's instruction, 2026-10-18. This ove
 ## Not done
 - Any server provider, and cost or usage limits.
 - Photo reading in test mode works only on clean line drawings. It does not read doors, windows, text or measurements written on the paper.
-- The trace-over picture is not kept when another drawing opens, and cannot yet be moved by dragging; the person chooses it again and enters its width.
+- The trace-over picture is not kept when another drawing opens, and is positioned by numbers rather than by dragging.
 - The layout uses quarter turns and box shapes only. It does not plan circulation paths between rooms, and it does not move existing furniture.
-- The stand-in knows only bedroom, living, hall, dining, study and balcony. Other room types get "no ideas".
+- The stand-in has plans for bedroom, living, hall, dining, study, balcony, kitchen (island, base cabinet), bathroom (vanity) and utility (shoe cabinet, sideboard). Per the owner, it never suggests appliances or sanitaryware. Pooja and "other" rooms get "no ideas".
 - The ideas list (AI-1) does not look at doors, windows or existing furniture positions; the layout step (AI-2) does.

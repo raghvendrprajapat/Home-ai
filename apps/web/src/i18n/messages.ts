@@ -63,6 +63,7 @@ export const messages = {
   aiPhotoTitle: ['Photo or sketch to plan', 'फ़ोटो या स्केच से नक्शा'],
   aiPhotoPrivacy: ['The photo stays on this device. It is not saved in the drawing and not sent anywhere.', 'फ़ोटो इसी डिवाइस पर रहती है। यह ड्रॉइंग में सेव नहीं होती और कहीं भेजी नहीं जाती।'],
   aiPhotoChoose: ['Choose a photo or sketch', 'फ़ोटो या स्केच चुनें'], aiPhotoWidth: ['Real width of the whole picture (mm)', 'पूरी तस्वीर की असली चौड़ाई (मिमी)'],
+  aiPhotoLeft: ['Picture left edge on the plan, X (mm)', 'नक्शे पर तस्वीर का बायाँ किनारा, X (मिमी)'], aiPhotoTop: ['Picture top edge on the plan, Y (mm)', 'नक्शे पर तस्वीर का ऊपरी किनारा, Y (मिमी)'],
   aiPhotoShow: ['Show under the plan', 'नक्शे के नीचे दिखाएँ'], aiPhotoStrength: ['Picture strength (%)', 'तस्वीर कितनी गहरी (%)'],
   aiPhotoRead: ['Read rooms from the picture', 'तस्वीर से कमरे पढ़ें'],
   aiPhotoTestNote: ['Test mode reads only clean dark lines on white paper, with closed rooms. A real AI model can read normal photos later.', 'टेस्ट मोड सिर्फ़ सफ़ेद कागज़ पर साफ़ गहरी लाइनें और बंद कमरे पढ़ता है। असली AI मॉडल बाद में सामान्य फ़ोटो भी पढ़ सकेगा।'],

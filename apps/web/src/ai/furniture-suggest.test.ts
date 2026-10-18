@@ -92,7 +92,22 @@ describe('D73 offline stand-in',()=>{
  });
  it('skips what the room already has and proposes nothing for a room type without a plan',async()=>{
   expect(ids(await ask(brief(3327,4770,'bedroom',['a_l0_king_bed','a_l0_nightstand'])))).toEqual(['a_l0_queen_bed','a_l0_wardrobe_sliding','a_l0_dressing_table','a_l0_study_desk']);
-  expect(await ask(brief(3000,3000,'bathroom'))).toEqual([]);
+  expect(await ask(brief(3000,3000,'pooja'))).toEqual([]);
+ });
+ it('kitchen, bathroom and utility rooms get catalog furniture only: no appliances or sanitaryware',async()=>{
+  const more=[...catalog,asset('a_l0_island',1200,800),asset('a_l0_kitchen_base',600,600),asset('a_l0_vanity',600,450),asset('a_l0_shoe_rack',800,350),asset('a_l0_low_cabinet',1500,420)];
+  const askMore=async(b:RoomBrief)=>ids(acceptSuggestions(await standInAi.suggestFurniture(b,more,new AbortController().signal),b,more));
+  // Kitchen 2800 x 2200, budget 3,080,000: island 960,000 (1200 <= 2800, 800+600 <= 2200), base cabinet 360,000.
+  expect(await askMore(brief(2800,2200,'kitchen'))).toEqual(['a_l0_island','a_l0_kitchen_base']);
+  // Kitchen 2000 x 1300, budget 1,300,000: the island only fits turned (1200 <= 1300, 800+600 <= 2000) and uses 960,000;
+  // the base cabinet's 360,000 is more than the 340,000 left.
+  expect(await askMore(brief(2000,1300,'kitchen'))).toEqual(['a_l0_island']);
+  // Kitchen 1300 x 1300: the island fits neither way (1400 > 1300); the base cabinet does (600, 1200 <= 1300).
+  expect(await askMore(brief(1300,1300,'kitchen'))).toEqual(['a_l0_kitchen_base']);
+  // Bathroom 1600 x 2000, budget 1,600,000: vanity 270,000.
+  expect(await askMore(brief(1600,2000,'bathroom'))).toEqual(['a_l0_vanity']);
+  // Utility 1800 x 1500, budget 1,350,000: shoe cabinet 280,000, then the 1500 x 420 sideboard 630,000 (1500 <= 1800, 1020 <= 1500).
+  expect(await askMore(brief(1800,1500,'utility'))).toEqual(['a_l0_shoe_rack','a_l0_low_cabinet']);
  });
  it('rejects a request that was already cancelled',async()=>{
   const controller=new AbortController();controller.abort();
