@@ -19,6 +19,7 @@ If code, this file and the spec disagree, investigate and record a reasoned reso
   - Never ask him to read or edit code.
   - Always give step-by-step phone test instructions.
   - D36 (2026-10-14) requires explicit owner permission BEFORE any accounts/cloud saving/sync/conflicts/version-history work; mobile optimization/direct sharing/real Low–Mid testing; billing/subscriptions/security/privacy/release packaging/final Claude review. Do not start these scopes, including preparatory implementation, until authorized. D17 continues for other editor/3D/furniture/material tasks and green merges. Existing automated product checks/debug CI remain ordinary validation; no release packaging or real-phone tests.
+  - D63 (2026-10-18): the owner explicitly authorized FR-031 accounts + cloud save, FR-032 conflicts + version history, FR-033 read-only share link and FR-043 account/data deletion + export (these D36 scopes are now open), plus FR-034 multiple floors and FR-035 stairs/roofs. Still gated: billing/ads/subscriptions, mobile optimization and real Low–Mid testing, analytics, release packaging, final Claude review. Live cloud features need owner-created Supabase/Google projects; secrets never enter code or chat.
   - D17 (2026-10-11) authorizes continuous development, routine decisions, verification and green-PR merges without repeated plan approval. Real-phone and external-service checks remain release requirements; report them pending until actually executed.
 - **Codex = outgoing main builder (D52).** Plans, implements, writes tests, runs checks, opens/pushes PR branches and applies review findings.
 - **Claude Code = incoming builder only under the owner's D52 continuation prompt; otherwise the D16 review role below applies.** The older review-only/no-development/no-push instructions are historical for that delegated continuation. Review results remain PR comments or chat:
@@ -33,7 +34,7 @@ If code, this file and the spec disagree, investigate and record a reasoned reso
   - Marketing website pages (home, about, blog). The only web pages are the Play-required privacy-policy page and account-deletion page.
   - Real-time collaboration, photoreal server renders, DWG/BIM, iOS app, AR, user-uploaded 3D models.
   - AI before the first release.
-- **L0 (first release):** one floor; straight walls at 0°/90° only, with L/T junctions; X-crossings and other angles are rejected.
+- **L0 (first release):** straight walls at 0°/90° only, with L/T junctions; X-crossings and other angles are rejected. D63 (owner, 2026-10-18) adds multiple floors (FR-034) and stairs/roofs (FR-035) to the first release; walls stay orthogonal.
 - Never copy anything from Planner 5D (code, assets, catalog, UI art, private APIs).
 
 ## 4. Architecture rules (never break)
