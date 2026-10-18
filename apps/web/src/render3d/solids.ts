@@ -29,6 +29,12 @@ export function openingRect(document: SolidDocument, wall: Wall, opening: Openin
 /** Validated L0 documents only. Cut each host before union; retain actual exposed faces.
  * Bounds/work/surface limits deliberately match the retained 3D derivation. */
 export function buildWallSolids(document:SolidDocument):WallSolids {
+  // FR-034: each floor is cut and unioned on its own, at its own elevation; floors never merge.
+  if(document.floors.length>1){
+    const parts=document.floors.map(floor=>{const walls=document.walls.filter(w=>w.floorId===floor.id),ids=new Set(walls.map(w=>w.id));
+      return buildWallSolids({...document,floors:[floor],junctions:document.junctions.filter(j=>j.floorId===floor.id),walls,openings:document.openings.filter(o=>ids.has(o.wallId))} as SolidDocument);});
+    return {boxes:parts.flatMap(p=>p.boxes),faces:parts.flatMap(p=>p.faces),longitudinalSides:parts.flatMap(p=>p.longitudinalSides)};
+  }
   const elevation = document.floors[0]!.elevation, walls = new Map(document.walls.map(w => [w.id, w]));
   const openings = new Map<string, Opening[]>();
   for (const opening of document.openings) openings.set(opening.wallId, [...(openings.get(opening.wallId) ?? []), opening]);

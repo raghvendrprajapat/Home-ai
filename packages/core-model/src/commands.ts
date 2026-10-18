@@ -384,6 +384,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       });
       for (const [a, b] of candidatePairs(boxes)) {
         const x = entries[a]!.w.id, y = entries[b]!.w.id;
+        if (entries[a]!.w.floorId !== entries[b]!.w.floorId) continue; // FR-034: walls on other floors never share geometry
         if (changedGeometry.has(x) || changedGeometry.has(y)) { dirtyWalls.add(x); dirtyWalls.add(y); }
       }
     }
