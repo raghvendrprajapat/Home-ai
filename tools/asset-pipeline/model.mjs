@@ -3,7 +3,7 @@ import {TextDecoder} from 'node:util';
 import {createHash} from 'node:crypto';
 import {Document,NodeIO,getBounds} from '@gltf-transform/core';
 import validator from 'gltf-validator';
-import {boxData,thumbnail} from './geometry.mjs';
+import {boxData,thumbnail,roundedBoxData,cylinderData,meshThumbnail} from './geometry.mjs';
 
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex');
 const fail = code => {throw new Error(code);};
@@ -29,6 +29,7 @@ export function validateSource(source,path) {
   return source;
 }
 
+const linearColor=hex=>hex.slice(1).match(/../g).map(s=>parseInt(s,16)/255).map(n=>n<=.04045?n/12.92:((n+.055)/1.055)**2.4);
 export function createAssetDocument(source) {
   const doc=new Document(),buffer=doc.createBuffer(),scene=doc.createScene('catalog-model'),data=boxData();doc.getRoot().setDefaultScene(scene);
   const accessor=(name,type,array)=>doc.createAccessor(name).setType(type).setArray(array).setBuffer(buffer);
@@ -36,8 +37,8 @@ export function createAssetDocument(source) {
   const meshes=new Map();
   for(const p of source.parts){
     let mesh=meshes.get(p.color);
-    if(!mesh){const channels=p.color.slice(1).match(/../g).map(s=>parseInt(s,16)/255).map(n=>n<=.04045?n/12.92:((n+.055)/1.055)**2.4);
-      const material=doc.createMaterial(p.color).setBaseColorFactor([...channels,1]).setMetallicFactor(0).setRoughnessFactor(.8);
+    if(!mesh){
+      const material=doc.createMaterial(p.color).setBaseColorFactor([...linearColor(p.color),1]).setMetallicFactor(0).setRoughnessFactor(.8);
       mesh=doc.createMesh(p.color).addPrimitive(doc.createPrimitive().setAttribute('POSITION',positions).setAttribute('NORMAL',normals).setIndices(indices).setMaterial(material));meshes.set(p.color,mesh);
     }
     scene.addChild(doc.createNode(p.name).setMesh(mesh).setTranslation(p.center.map(n=>n/1000)).setScale(p.size.map(n=>n/1000)));
@@ -77,9 +78,45 @@ export async function inspectGlb(bytes,dims,maximumTriangles) {
   return {triangles,bounds:{min,max},validator:{version:validator.version(),errors:report.issues.numErrors,warnings:report.issues.numWarnings,infos:report.issues.numInfos,messages:report.issues.messages}};
 }
 
+/* D72 modern original profile (schemaVersion 3): still original, integer-mm and untextured, but parts may be rounded
+ * boxes or cylinders with a surface finish. Each part is baked into its own flat node, so the FR-022 main-material
+ * rule keeps measuring real part volumes. Schema 1 sources and their published bytes are unchanged. */
+// [metallic, roughness]. The 3D view has no reflection map, so `metal` stays partly metallic to avoid rendering black.
+export const FINISHES={matte:[0,.85],satin:[0,.5],gloss:[0,.25],metal:[.35,.4]};
+const PART_KEYS={box:['name','shape','center','size','color','finish'],rounded:['name','shape','center','size','color','finish','radius','segments'],cylinder:['name','shape','center','size','color','finish','axis','segments']};
+export function validateModernSource(source,path) {
+  validateSource({...source,schemaVersion:1,parts:source?.parts?.map?.(p=>({name:p?.name,center:p?.center,size:p?.size,color:p?.color}))},path);
+  if(!exactKeys(source,SOURCE_KEYS)||source.schemaVersion!==3)fail('source-identity');
+  for(const p of source.parts){
+    if(!exactKeys(p,PART_KEYS[p?.shape]??[])||!Object.hasOwn(FINISHES,p.finish))fail('source-part');
+    if(p.shape==='rounded'&&(!integer(p.radius,1,Math.floor(Math.min(...p.size)/2))||!integer(p.segments,1,3)))fail('source-part');
+    if(p.shape==='cylinder'&&(!['x','y','z'].includes(p.axis)||![8,12,16,24].includes(p.segments)))fail('source-part');
+  }
+  return source;
+}
+export function modernMeshes(source) {
+  return source.parts.map(p=>{
+    const data=p.shape==='rounded'?roundedBoxData(p.size,p.radius,p.segments):p.shape==='cylinder'?cylinderData(p.size,p.axis,p.segments):(()=>{const b=boxData();return {positions:[...b.positions].map((n,i)=>n*p.size[i%3]),normals:[...b.normals],indices:[...b.indices]};})();
+    return {name:p.name,color:p.color,finish:p.finish,positions:data.positions.map((n,i)=>n+p.center[i%3]),normals:data.normals,indices:data.indices};
+  });
+}
+export function createModernDocument(meshes) {
+  const doc=new Document(),buffer=doc.createBuffer(),scene=doc.createScene('catalog-model'),materials=new Map();doc.getRoot().setDefaultScene(scene);
+  const accessor=(name,type,array)=>doc.createAccessor(name).setType(type).setArray(array).setBuffer(buffer);
+  for(const m of meshes){
+    const key=`${m.color}-${m.finish}`;let material=materials.get(key);
+    if(!material){const [metallic,roughness]=FINISHES[m.finish];material=doc.createMaterial(key).setBaseColorFactor([...linearColor(m.color),1]).setMetallicFactor(metallic).setRoughnessFactor(roughness);materials.set(key,material);}
+    const primitive=doc.createPrimitive().setAttribute('POSITION',accessor(`${m.name}-position`,'VEC3',new Float32Array(m.positions.map(n=>n/1000)))).setAttribute('NORMAL',accessor(`${m.name}-normal`,'VEC3',new Float32Array(m.normals))).setIndices(accessor(`${m.name}-index`,'SCALAR',new Uint16Array(m.indices))).setMaterial(material);
+    scene.addChild(doc.createNode(m.name).setMesh(doc.createMesh(m.name).addPrimitive(primitive)));
+  }
+  return doc;
+}
+
 export async function compileSource(bytes,path) {
-  const source=validateSource(JSON.parse(Buffer.from(bytes).toString('utf8')),path),doc=createAssetDocument(source),glb=Buffer.from(await new NodeIO().writeBinary(doc));
-  const inspection=await inspectGlb(glb,source.dims,3000),thumb=thumbnail(source.parts),modelHash=sha256(glb),thumbHash=sha256(thumb);
+  const raw=JSON.parse(Buffer.from(bytes).toString('utf8'));let source,glb,thumb;
+  if(raw?.schemaVersion===3){source=validateModernSource(raw,path);const meshes=modernMeshes(source);glb=Buffer.from(await new NodeIO().writeBinary(createModernDocument(meshes)));thumb=meshThumbnail(meshes);}
+  else{source=validateSource(raw,path);glb=Buffer.from(await new NodeIO().writeBinary(createAssetDocument(source)));thumb=thumbnail(source.parts);}
+  const inspection=await inspectGlb(glb,source.dims,3000),modelHash=sha256(glb),thumbHash=sha256(thumb);
   const file=(hash,extension)=>`blobs/${hash}.${extension}`;
   const entry={id:source.id,version:source.version,name_en:source.name_en,name_hi:source.name_hi,category:source.category,tags:source.tags,dims:source.dims,sourceSha256:sha256(bytes),license:source.license,lods:[0,1].map(level=>({level,path:file(modelHash,'glb'),sha256:modelHash,bytes:glb.length,triangles:inspection.triangles})),thumb:{path:file(thumbHash,'svg'),sha256:thumbHash,bytes:thumb.length,width:256,height:256},inspection};
   return {entry,files:new Map([[file(modelHash,'glb'),glb],[file(thumbHash,'svg'),thumb]])};

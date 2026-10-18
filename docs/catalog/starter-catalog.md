@@ -35,6 +35,22 @@ PH4-T05 · 30 local untextured original procedural models. Dimensions are author
 | a_l0_wardrobe_2@1 | Two-door wardrobe / दो दरवाज़े की अलमारी | storage | 1000 × 600 × 2000 | 60 | [a_l0_wardrobe_2-v1.json](../../tools/asset-pipeline/sources/a_l0_wardrobe_2-v1.json) |
 | a_l0_wardrobe_3@1 | Three-door wardrobe / तीन दरवाज़े की अलमारी | storage | 1500 × 600 × 2100 | 84 | [a_l0_wardrobe_3-v1.json](../../tools/asset-pipeline/sources/a_l0_wardrobe_3-v1.json) |
 
+
+## D72 modern living-room designs (2026-10-18)
+
+Newer versions and two new items in the modern original profile (schemaVersion 3: rounded boxes, cylinders and surface finishes). The catalog lists the newest version of each ID; the version1 entries above stay published, so existing drawings keep their exact models. Sizes are typical for furniture sold in India, chosen by Claude Code; they are not measured from any specific product. See [D72](../decisions/modern-furniture.md) and the [rendered designs](../verification/images/d72-living-room-designs.png).
+
+| ID | English / Hindi | Category | W × D × H (mm) | Triangles | Source |
+|---|---|---|---|---:|---|
+| a_l0_armchair@2 | Accent armchair / सजावटी आराम कुर्सी | seating | 800 × 820 × 820 | 1544 | [a_l0_armchair-v2.json](../../tools/asset-pipeline/sources/a_l0_armchair-v2.json) |
+| a_l0_bookcase@2 | Open bookshelf / खुली किताबों की अलमारी | storage | 800 × 300 × 1800 | 228 | [a_l0_bookcase-v2.json](../../tools/asset-pipeline/sources/a_l0_bookcase-v2.json) |
+| a_l0_coffee_table@2 | Coffee table with shelf / शेल्फ़ वाली छोटी बैठक मेज़ | tables | 1100 × 600 × 450 | 344 | [a_l0_coffee_table-v2.json](../../tools/asset-pipeline/sources/a_l0_coffee_table-v2.json) |
+| a_l0_side_table@2 | Round side table / गोल बगल की मेज़ | tables | 450 × 450 × 550 | 240 | [a_l0_side_table-v2.json](../../tools/asset-pipeline/sources/a_l0_side_table-v2.json) |
+| a_l0_sofa_2@2 | Two-seat sofa / दो सीट का सोफ़ा | seating | 1500 × 860 × 820 | 2144 | [a_l0_sofa_2-v2.json](../../tools/asset-pipeline/sources/a_l0_sofa_2-v2.json) |
+| a_l0_sofa_3@2 | Three-seat sofa / तीन सीट का सोफ़ा | seating | 2100 × 860 × 820 | 2744 | [a_l0_sofa_3-v2.json](../../tools/asset-pipeline/sources/a_l0_sofa_3-v2.json) |
+| a_l0_sofa_l@1 | L-shape sofa (5 seats) / L आकार का सोफ़ा (5 सीट) | seating | 2500 × 1600 × 820 | 2800 | [a_l0_sofa_l-v1.json](../../tools/asset-pipeline/sources/a_l0_sofa_l-v1.json) |
+| a_l0_tv_unit@1 | TV unit / टीवी यूनिट | storage | 1800 × 400 × 440 | 296 | [a_l0_tv_unit-v1.json](../../tools/asset-pipeline/sources/a_l0_tv_unit-v1.json) |
+
 All LOD0/LOD1 pairs currently share the same already-small GLB; no simplification/compression claim. No downloaded/proprietary art, electrical fixtures, textures or entitlement/cloud-delivery adapter is added. Canonical furniture pins ID/version and nominal dimensions; user scaling/elevation/rotation remain the existing commands. Physical-device performance, aesthetic/accessibility review and all D36 gates remain pending.
 
 Change an existing asset by adding a new version, never by editing an accepted source/blob under the same ID/version. Rebuild via pnpm assets:build, then run assets:check and assets:versions. See the PH4-T05 verification and decision records for actual validator/hash/paging/placement/Undo evidence.
