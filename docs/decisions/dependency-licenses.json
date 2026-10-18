@@ -1,9 +1,9 @@
 {
   "checkedOn": "2026-10-18",
-  "method": "Official exact-version npm metadata.324 prior package records retained verbatim;3 PH4-T01 static asset-tool additions checked before frozen install; zero unknown/GPL/AGPL candidates. Metadata is not a complete distributed notice or legal review. FR-031 appended 8 Supabase client packages (MIT, official exact-version metadata, checked in a throwaway install before adding).",
-  "packageCount": 335,
+  "method": "Official exact-version npm metadata.324 prior package records retained verbatim;3 PH4-T01 static asset-tool additions checked before frozen install; zero unknown/GPL/AGPL candidates. Metadata is not a complete distributed notice or legal review. FR-031 appended 8 Supabase client packages (MIT, official exact-version metadata, checked in a throwaway install before adding). FR-031 Android sign-in appended @capacitor/app 8.1.1 and @capacitor/browser 8.0.4 (MIT, no npm dependencies).",
+  "packageCount": 337,
   "licenseCounts": {
-    "MIT": 252,
+    "MIT": 254,
     "ISC": 16,
     "MIT-0": 2,
     "Apache-2.0": 26,
@@ -2027,6 +2027,18 @@
       "version": "0.8.1",
       "license": "MIT",
       "source": "https://registry.npmjs.org/iceberg-js/0.8.1"
+    },
+    {
+      "name": "@capacitor/app",
+      "version": "8.1.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fapp/8.1.1"
+    },
+    {
+      "name": "@capacitor/browser",
+      "version": "8.0.4",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40capacitor%2Fbrowser/8.0.4"
     }
   ]
 }

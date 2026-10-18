@@ -31,10 +31,13 @@ export class CloudSession {
     return this.#api;
   }
 }
-/** A stored Supabase session or an OAuth return (`?code=`) means the person already chose the cloud. */
+/**
+ * A stored Supabase session, a sign-in still waiting for its code (the Android app may have been restarted while the
+ * system browser was open), or an OAuth return (`?code=`) means the person already chose the cloud.
+ */
 export function cloudWasUsed(storage: Pick<Storage, 'length' | 'key'> | null, search: string): boolean {
   if (/[?&]code=/.test(search)) return true;
-  try { for (let i = 0; storage && i < storage.length; i++) if (/^sb-.+-auth-token$/.test(storage.key(i) ?? '')) return true; } catch { /* blocked storage: wait for a tap */ }
+  try { for (let i = 0; storage && i < storage.length; i++) if (/^sb-.+-auth-token(-code-verifier)?$/.test(storage.key(i) ?? '')) return true; } catch { /* blocked storage: wait for a tap */ }
   return false;
 }
 const config = cloudConfig();
