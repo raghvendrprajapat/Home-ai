@@ -8,6 +8,8 @@ import type {FurnitureGhost} from './render3d/placement-ghost';
 import type {Point2} from './editor/view2d';
 import {CatalogApi,CatalogSource} from './catalog/api';
 import {CatalogControls} from './catalog/CatalogControls';
+import {AiFurniturePanel} from './ai/AiFurniturePanel';
+import {standInAi} from './ai/stand-in';
 import {FurnitureControls} from './editor/FurnitureControls';
 import {CameraControls} from './editor/CameraControls';
 import {ThreeImageControls} from './export/ThreeImageControls';
@@ -185,6 +187,7 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
         </section>
         {unclosedWalls&&<p role="status">{t('incompletePlan')}</p>}
         <RoomControls selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} store={store} locale={ui.locale} onMessage={setMessage}/>
+        <AiFurniturePanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInAi} catalog={signal=>assetSource.catalog(signal)} onPlace={(asset,centre)=>{drawing.setMode('select');cancelPrecision();try{setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
         <div className="tip"><span aria-hidden="true">✦</span><p><strong>{t('measured')}</strong><br />{t('measuredHelp')}</p></div>
       </aside>
     </div>
