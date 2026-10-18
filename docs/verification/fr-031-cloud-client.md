@@ -28,7 +28,8 @@ These are Claude-authored tests run against a stand-in for Supabase. They are no
 ## Results (2026-10-18, local)
 - `vitest run apps/web/src/cloud`: 12/12 passed.
 - `playwright test tests/e2e/cloud.spec.ts`: 4/4 passed.
-- Full `pnpm check` and the full browser suite: see the PR for this commit.
+- `pnpm check` (after merging main): 75 files, 549 tests passed.
+- Full browser suite: 163 passed, 1 failed. The failure is the known sandbox-only UX-005 rotation-handle tap, which also fails on `main` here and passes in CI. The 48 px touch-target test (UX-004) passes with the new cloud panel.
 
 ## Pending
 - A real Supabase project and real Google sign-in (owner setup in `docs/decisions/cloud-client.md`).

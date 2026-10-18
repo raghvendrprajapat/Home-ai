@@ -4,10 +4,13 @@ export { openingRect, subtractRectangle } from './solids';
 import { sceneInvalidation } from './dependencies';
 import { applyGeometry, partitionRectangles } from '@gharplan/geometry';
 import type { Rect } from '@gharplan/geometry';
+import { roofShape, stairSteps } from '@gharplan/core-model';
 import type { ProjectDoc } from '@gharplan/core-model';
 import type { MeshData, SceneBundle, CeilingWarning } from './types';
 
 type V3 = [number, number, number];
+/** FR-035 flat roof slab thickness (derived display only, not stored). */
+export const ROOF_SLAB_MM = 150;
 interface Quad { axis: 0 | 1 | 2; at: number; rect: Rect; sign: -1 | 1; ownerId: string; materialId: string; slot: 'left' | 'right' }
 interface CacheEntry { signature: string; mesh: MeshData }
 type MeshCache = Map<string, CacheEntry>;
@@ -123,12 +126,66 @@ function buildGeometryScene(document: ProjectDoc, cache: MeshCache): SceneBundle
     const wall = walls.get(opening.wallId)!, material = document.rooms.find(r => r.boundary.includes(wall.a) && r.boundary.includes(wall.b))?.floorMaterial ?? document.materials[0]!.id;
     plane(`threshold:${opening.id}`, opening.id, 'threshold', [openingRect(document, wall, opening)], material, elevationOf(wall.floorId));
   }
+  // FR-035 (D66): stairs and roofs are closed solids built from plan-frame polygons (mm, z up).
+  // Each polygon is wound so its geometric normal agrees with the outward hint, then fan-triangulated flat.
+  type P3 = readonly [number, number, number];
+  const solid = (id: string, entityId: string, category: 'stair' | 'roof', materialId: string, polygons: { hint: P3; points: P3[] }[]) => {
+    const signature = JSON.stringify([category, entityId, polygons]), old = cache.get(id);
+    if (old?.signature === signature) { meshes.push(bindMeshMaterials(old.mesh, bindings)); return; }
+    const p: number[] = [], n: number[] = [], uv: number[] = [];
+    for (const { hint, points } of polygons) {
+      const [a, b, c] = points as [P3, P3, P3], u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+      let normal = [u[1]! * v[2]! - u[2]! * v[1]!, u[2]! * v[0]! - u[0]! * v[2]!, u[0]! * v[1]! - u[1]! * v[0]!];
+      const length = Math.hypot(...normal), ordered = normal[0]! * hint[0] + normal[1]! * hint[1] + normal[2]! * hint[2] >= 0 ? points : [...points].reverse();
+      normal = normal.map(x => x / length * (ordered === points ? 1 : -1));
+      // Plan (x, y, z) mm → Three (x, z, y) m swaps two axes, which mirrors handedness: emit each triangle reversed.
+      for (let i = 1; i + 1 < ordered.length; i++) for (const q of [ordered[0]!, ordered[i + 1]!, ordered[i]!]) {
+        p.push(q[0] / 1000, q[2] / 1000, q[1] / 1000); n.push(normal[0]!, normal[2]!, normal[1]!);
+        uv.push((Math.abs(normal[0]!) > 0.5 ? q[1] : q[0]) / 1000, (Math.abs(normal[2]!) > 0.5 ? q[1] : q[2]) / 1000);
+      }
+    }
+    const mesh: MeshData = { id, entityId, category, positions: new Float64Array(p), normals: new Float32Array(n), uv: new Float32Array(uv), groups: [{ start: 0, count: p.length / 3, materialId }], materialRanges: [{ start: 0, count: p.length / 3, slot: category }] };
+    cache.set(id, { signature, mesh }); meshes.push(mesh); meshesBuilt++;
+  };
+  const box = ([x0, y0, x1, y1]: readonly number[], z0: number, z1: number, bottom: boolean) => [
+    { hint: [0, 0, 1] as P3, points: [[x0!, y0!, z1], [x1!, y0!, z1], [x1!, y1!, z1], [x0!, y1!, z1]] as P3[] },
+    ...bottom ? [{ hint: [0, 0, -1] as P3, points: [[x0!, y0!, z0], [x1!, y0!, z0], [x1!, y1!, z0], [x0!, y1!, z0]] as P3[] }] : [],
+    { hint: [-1, 0, 0] as P3, points: [[x0!, y0!, z0], [x0!, y1!, z0], [x0!, y1!, z1], [x0!, y0!, z1]] as P3[] },
+    { hint: [1, 0, 0] as P3, points: [[x1!, y0!, z0], [x1!, y1!, z0], [x1!, y1!, z1], [x1!, y0!, z1]] as P3[] },
+    { hint: [0, -1, 0] as P3, points: [[x0!, y0!, z0], [x1!, y0!, z0], [x1!, y0!, z1], [x0!, y0!, z1]] as P3[] },
+    { hint: [0, 1, 0] as P3, points: [[x0!, y1!, z0], [x1!, y1!, z0], [x1!, y1!, z1], [x0!, y1!, z1]] as P3[] },
+  ];
+  for (const stair of document.stairs ?? []) {
+    const z = elevationOf(stair.floorId);
+    solid(`stair:${stair.id}`, stair.id, 'stair', stair.material, stairSteps(stair).flatMap(step => box(step.rect, z, z + step.top, false)));
+  }
+  for (const roof of document.roofs ?? []) {
+    const shape = roofShape(document, roof);
+    if (!shape) continue;
+    const { rect: [x0, y0, x1, y1], base, rise } = shape;
+    if (roof.kind === 'flat') { solid(`roof:${roof.id}`, roof.id, 'roof', roof.material, box(shape.rect, base, base + ROOF_SLAB_MM, true)); continue; }
+    const top = base + rise, alongX = roof.ridgeAxis === 'x', ym = (y0 + y1) / 2, xm = (x0 + x1) / 2;
+    const polygons = alongX ? [
+      { hint: [0, -1, 1] as P3, points: [[x0, y0, base], [x1, y0, base], [x1, ym, top], [x0, ym, top]] as P3[] },
+      { hint: [0, 1, 1] as P3, points: [[x0, y1, base], [x1, y1, base], [x1, ym, top], [x0, ym, top]] as P3[] },
+      { hint: [-1, 0, 0] as P3, points: [[x0, y0, base], [x0, y1, base], [x0, ym, top]] as P3[] },
+      { hint: [1, 0, 0] as P3, points: [[x1, y0, base], [x1, y1, base], [x1, ym, top]] as P3[] },
+    ] : [
+      { hint: [-1, 0, 1] as P3, points: [[x0, y0, base], [x0, y1, base], [xm, y1, top], [xm, y0, top]] as P3[] },
+      { hint: [1, 0, 1] as P3, points: [[x1, y0, base], [x1, y1, base], [xm, y1, top], [xm, y0, top]] as P3[] },
+      { hint: [0, -1, 0] as P3, points: [[x0, y0, base], [x1, y0, base], [xm, y0, top]] as P3[] },
+      { hint: [0, 1, 0] as P3, points: [[x0, y1, base], [x1, y1, base], [xm, y1, top]] as P3[] },
+    ];
+    polygons.push({ hint: [0, 0, -1], points: [[x0, y0, base], [x1, y0, base], [x1, y1, base], [x0, y1, base]] }); // soffit
+    solid(`roof:${roof.id}`, roof.id, 'roof', roof.material, polygons);
+  }
   let bounds: SceneBundle['bounds'] = null;
   for (const box of boxes) {
     if (!bounds) bounds = [box.lo[0] / 1000, box.lo[1] / 1000, box.lo[2] / 1000, box.hi[0] / 1000, box.hi[1] / 1000, box.hi[2] / 1000];
     else for (const axis of [0, 1, 2] as const) { bounds[axis] = Math.min(bounds[axis], box.lo[axis] / 1000); bounds[axis + 3] = Math.max(bounds[axis + 3]!, box.hi[axis] / 1000); }
   }
   for(const room of document.rooms)if(bounds)bounds[4]=Math.max(bounds[4],(elevationOf(room.floorId)+room.ceilingHeight)/1000);
+  for(const mesh of meshes)if(bounds&&(mesh.category==='stair'||mesh.category==='roof'))for(let i=0;i<mesh.positions.length;i+=3)for(const axis of [0,1,2] as const){bounds[axis]=Math.min(bounds[axis],mesh.positions[i+axis]!);bounds[axis+3]=Math.max(bounds[axis+3]!,mesh.positions[i+axis]!);}
   const warningMap=new Map<string,CeilingWarning>();
   for(const wall of document.walls){const adjacent=document.rooms.filter(room=>room.boundary.some((id,i)=>id===wall.a&&room.boundary[(i+1)%room.boundary.length]===wall.b||id===wall.b&&room.boundary[(i+1)%room.boundary.length]===wall.a)).sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);if(adjacent.length===2&&adjacent[0]!.ceilingHeight!==adjacent[1]!.ceilingHeight){const a=adjacent[0]!,b=adjacent[1]!,key=JSON.stringify([a.id,b.id]);const warning:CeilingWarning=warningMap.get(key)??{roomIds:[a.id,b.id],wallIds:[],heightsMm:[a.ceilingHeight,b.ceilingHeight]};warning.wallIds.push(wall.id);warningMap.set(key,warning);}}
   const ceilingWarnings=[...warningMap.values()].map(w=>({...w,wallIds:[...w.wallIds].sort()})).sort((a,b)=>JSON.stringify(a.roomIds)<JSON.stringify(b.roomIds)?-1:1);
