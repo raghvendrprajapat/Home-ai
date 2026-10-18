@@ -91,3 +91,15 @@ test('FR-019 a group turns 90 degrees about its shared centre with exact hand va
   const back=await backup(page) as Doc;expect(back.furniture.map(i=>i.position)).toEqual(original.furniture.map(i=>i.position));
   await panel.getByLabel('Select furniture fu_sofa',{exact:true}).uncheck();await expect(right).toBeDisabled(); // one item: use the single-item rotate tools
 });
+
+test('FR-019 a selected group shows the overlap warning live and after commit when a member touches outside furniture; Undo clears it',async({page})=>{
+  await groupSofaAndTv(page);const canvas=page.getByTestId('plan-canvas');
+  const f=await frame(page),sofa=screenOf(f,1300,4300);await page.mouse.click(sofa.x,sofa.y);await expect(canvas).toHaveAttribute('data-selection-count','2');
+  await expect(canvas).toHaveAttribute('data-furniture-overlap','false');await expect(page.locator('.canvas-furniture-advisory').getByTestId('furniture-warning')).toHaveAttribute('data-overlap','false');
+  // Drag the sofa +4950 mm east: x 5250..7250 at y 3850..4750 overlaps the wardrobe (x 5350..7150, y 4200..4800), which is outside the group.
+  const to=screenOf(f,6250,4300);await page.mouse.move(sofa.x,sofa.y);await page.mouse.down();await page.mouse.move(to.x,to.y,{steps:6});
+  await expect(canvas).toHaveAttribute('data-furniture-overlap','true'); // live during the preview
+  await page.mouse.up();await saved(page);
+  await expect(canvas).toHaveAttribute('data-furniture-overlap','true');await expect(page.locator('.canvas-furniture-advisory').getByTestId('furniture-warning')).toHaveAttribute('data-overlap','true');
+  await page.getByRole('button',{name:'Undo',exact:true}).click();await saved(page);await expect(canvas).toHaveAttribute('data-furniture-overlap','false');
+});

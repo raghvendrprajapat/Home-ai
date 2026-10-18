@@ -43,3 +43,19 @@ it('a structural failure is cached across100 furniture/paint previews and retrie
  for(let i=0;i<100;i++){d.furniture[0]!.position.x=1000+i;d.materials[0]!.baseColor=i%2?'#000000':'#ffffff';expect(service.check(d,d.furniture[0]!)).toEqual({available:false,overlap:false});expect(service.align(d,d.furniture[0]!).available).toBe(false);}
  expect(cache.builds).toBe(1);d.walls[0]!.height=2500;expect(service.check(d,d.furniture[0]!).available).toBe(true);expect(cache.builds).toBe(2);
 });
+// FR-019 group advisories. Claude-authored analytic checks on the H.6 sample (not independent fixtures).
+// Sofa (1300,4300) 2000x900 rot180: x 300..2300, y 3850..4750. Wardrobe (6250,4500) 1800x600: x 5350..7150, y 4200..4800.
+it('FR-019 a group warns about walls and outside furniture touching any member, never about members overlapping each other',()=>{
+ const doc=()=>structuredClone(sample) as ProjectDoc,service=new FurnitureAdvisories(),ids=['fu_sofa','fu_tv'];
+ const clear=service.checkGroup(doc(),ids);expect(clear).toEqual({available:true,overlap:false,wallIds:[],furnitureIds:[]});
+ // Sofa moved to x 6250 spans 5250..7250 at y 3850..4750, overlapping the wardrobe box; the wardrobe is not a member.
+ const onWardrobe=doc();onWardrobe.furniture.find(f=>f.id==='fu_sofa')!.position={x:6250,y:4300};
+ expect(service.checkGroup(onWardrobe,ids)).toMatchObject({available:true,overlap:true,furnitureIds:['fu_wardrobe']});
+ // TV moved onto the sofa: the two members overlap each other, which is allowed (for example chairs under a table).
+ const stacked=doc();stacked.furniture.find(f=>f.id==='fu_tv')!.position={x:1300,y:4300};
+ expect(service.checkGroup(stacked,ids)).toEqual({available:true,overlap:false,wallIds:[],furnitureIds:[]});
+ // TV centre y=50 puts its 400 mm depth across the 230 mm north wall w1 (y -115..115).
+ const inWall=doc();inWall.furniture.find(f=>f.id==='fu_tv')!.position={x:2250,y:50};
+ const walled=service.checkGroup(inWall,ids);expect(walled.overlap).toBe(true);expect(walled.available&&walled.wallIds).toContain('w1');
+ expect(service.checkGroup(doc(),['fu_sofa','missing'])).toEqual({available:false,overlap:false});
+});

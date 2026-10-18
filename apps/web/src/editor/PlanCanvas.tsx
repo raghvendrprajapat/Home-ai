@@ -216,7 +216,9 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
   const visiblePreview=toolState?.preview?.ok?toolState.preview:preview?.ok&&drag.current?.generation===snapshot.localGeneration?preview:precision;
   const visibleDocument=visiblePreview?visiblePreview.document:snapshot.document;
   const advisoryId=previewFurnitureId??(selection!==undefined?singleFurnitureId:picked?.kind==='furniture'?picked.id:undefined),advisoryItem=visibleDocument.furniture.find(f=>f.id===advisoryId);
-  const advisory=useMemo(()=>advisoryItem?advisories.check(visibleDocument,advisoryItem):null,[advisories,visibleDocument,advisoryItem]);
+  const groupKey=advisoryItem?'':selectedGroup?.join(',')??'';
+  const advisory=useMemo(()=>advisoryItem?advisories.check(visibleDocument,advisoryItem):groupKey?advisories.checkGroup(visibleDocument,groupKey.split(',')):null,[advisories,visibleDocument,advisoryItem,groupKey]);
+  const warned=(id:string)=>!!advisory?.overlap&&(id===advisoryId||!advisoryItem&&!!selectedGroup?.includes(id));
   useEffect(() => {
     const K = library.current, canvas = stage.current, layer=drawingLayer.current; if (!K || !canvas || !layer) return;
     // Keep the DOM canvas stable: removing a native touch target cancels its touch stream.
@@ -249,7 +251,7 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
     }
     for (const object of document.furniture) {
       const p = worldToScreen([object.position.x, object.position.y], view);
-      layer.add(new K.Rect({ x: p[0], y: p[1], width: object.size.w * view.scale, height: object.size.d * view.scale, offsetX: object.size.w * view.scale / 2, offsetY: object.size.d * view.scale / 2, rotation: object.rotationDeg, fill: furnitureFinish(document,object)??'#c8af90', stroke: object.id===advisoryId&&advisory?.overlap?'#a52e31':(selection?selection.some(p=>p.kind==='furniture'&&p.id===object.id):picked?.kind==='furniture'&&picked.id===object.id)?'#b6723f':'#a38a6d', strokeWidth: object.id===advisoryId&&advisory?.overlap?3:1, cornerRadius: 3 }));
+      layer.add(new K.Rect({ x: p[0], y: p[1], width: object.size.w * view.scale, height: object.size.d * view.scale, offsetX: object.size.w * view.scale / 2, offsetY: object.size.d * view.scale / 2, rotation: object.rotationDeg, fill: furnitureFinish(document,object)??'#c8af90', stroke: warned(object.id)?'#a52e31':(selection?selection.some(p=>p.kind==='furniture'&&p.id===object.id):picked?.kind==='furniture'&&picked.id===object.id)?'#b6723f':'#a38a6d', strokeWidth: warned(object.id)?3:1, cornerRadius: 3 }));
     }
     for (const opening of document.openings) {
       const wall = document.walls.find(w => w.id === opening.wallId)!, a = document.junctions.find(j => j.id === wall.a)!, b = document.junctions.find(j => j.id === wall.b)!;
@@ -264,7 +266,7 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
     }
     if(picked?.kind==='furniture'&&(!selection||selection.some(p=>p.kind==='furniture'&&p.id===picked.id))){
       const object=document.furniture.find(f=>f.id===picked.id);
-      if(object){const p=worldToScreen([object.position.x,object.position.y],view);layer.add(new K.Rect({x:p[0],y:p[1],width:object.size.w*view.scale,height:object.size.d*view.scale,offsetX:object.size.w*view.scale/2,offsetY:object.size.d*view.scale/2,rotation:object.rotationDeg,stroke:object.id===advisoryId&&advisory?.overlap?'#a52e31':'#b6723f',strokeWidth:3,dash:[5,3]}));}
+      if(object){const p=worldToScreen([object.position.x,object.position.y],view);layer.add(new K.Rect({x:p[0],y:p[1],width:object.size.w*view.scale,height:object.size.d*view.scale,offsetX:object.size.w*view.scale/2,offsetY:object.size.d*view.scale/2,rotation:object.rotationDeg,stroke:warned(object.id)?'#a52e31':'#b6723f',strokeWidth:3,dash:[5,3]}));}
     }
     for (const label of labels) {
       layer.add(new K.Rect({ x: label.x, y: label.y - 4, width: label.width, height: 49, fill: 'rgba(255,255,255,0.92)', cornerRadius: 6 }));
