@@ -33,7 +33,8 @@ export function validateOpening(document: ProjectDoc, opening: Opening): Validat
 export function validateProject(value: unknown): ValidationIssue[] {
   if (!validateShape(value)) return (validateShape.errors ?? []).slice(0, 20).map(e => issue('schema', `${e.instancePath || '/'} ${e.message ?? e.keyword}`));
   const doc = value, errors: ValidationIssue[] = [];
-  const groups = [doc.floors, doc.junctions, doc.walls, doc.openings, doc.rooms, doc.furniture, doc.materials, doc.lights, doc.cameras];
+  const stairs = doc.stairs ?? [], roofs = doc.roofs ?? [];
+  const groups = [doc.floors, doc.junctions, doc.walls, doc.openings, doc.rooms, doc.furniture, doc.materials, doc.lights, doc.cameras, stairs, roofs];
   if (!Number.isSafeInteger(doc.revision)) errors.push(issue('revision', 'Server revision must be a safe non-negative integer.'));
   const ids = new Set([doc.id]);
   for (const entities of groups) for (const entity of entities) {
@@ -47,7 +48,7 @@ export function validateProject(value: unknown): ValidationIssue[] {
   else for (let i = 1; i < byLevel.length; i++) if (byLevel[i]!.elevation <= byLevel[i - 1]!.elevation) errors.push(issue('floors', 'A higher floor must start above the floor below it.', [byLevel[i]!.id]));
   const floors = new Set(doc.floors.map(f => f.id)), materials = new Set(doc.materials.map(m => m.id));
   if (!materials.size) errors.push(issue('materials', 'A project needs at least one material.'));
-  for (const e of [...doc.junctions, ...doc.walls, ...doc.rooms, ...doc.furniture, ...doc.lights])
+  for (const e of [...doc.junctions, ...doc.walls, ...doc.rooms, ...doc.furniture, ...doc.lights, ...stairs, ...roofs])
     if (!floors.has(e.floorId)) errors.push(issue('floor-reference', 'Entity floor does not exist.', [e.id]));
   for (const wall of doc.walls) if (!materials.has(wall.leftMaterial) || !materials.has(wall.rightMaterial)) errors.push(issue('material-reference', 'Wall material does not exist.', [wall.id]));
   for (const room of doc.rooms) if (!materials.has(room.floorMaterial)) errors.push(issue('material-reference', 'Room floor material does not exist.', [room.id]));
@@ -55,6 +56,15 @@ export function validateProject(value: unknown): ValidationIssue[] {
     try { assertCoordinate(f.position.x); assertCoordinate(f.position.y); } catch { errors.push(issue('coordinates', 'Furniture position must use integer mm within the L0 domain.', [f.id])); }
     for (const material of Object.values(f.materialOverrides)) if (!materials.has(material)) errors.push(issue('material-reference', 'Furniture override material does not exist.', [f.id]));
   }
+  // FR-035 (D66): a stair's whole footprint stays inside the drawing limits; one roof per floor.
+  for (const stair of stairs) {
+    if (!materials.has(stair.material)) errors.push(issue('material-reference', 'Stair material does not exist.', [stair.id]));
+    const along = stair.rotationDeg % 180 === 0, hx = (along ? stair.width : stair.length) / 2, hy = (along ? stair.length : stair.width) / 2;
+    if (!Number.isSafeInteger(stair.position.x) || !Number.isSafeInteger(stair.position.y) || Math.abs(stair.position.x) + hx > 100000 || Math.abs(stair.position.y) + hy > 100000)
+      errors.push(issue('coordinates', 'Stairs must use integer mm inside the drawing limits.', [stair.id]));
+  }
+  for (const roof of roofs) if (!materials.has(roof.material)) errors.push(issue('material-reference', 'Roof material does not exist.', [roof.id]));
+  if (new Set(roofs.map(r => r.floorId)).size !== roofs.length) errors.push(issue('roof-floor', 'A floor can have only one roof.', roofs.map(r => r.id)));
   for (const light of doc.lights) {
     try { assertCoordinate(light.position.x); assertCoordinate(light.position.y); } catch { errors.push(issue('coordinates', 'Light position is outside the L0 domain.', [light.id])); }
   }

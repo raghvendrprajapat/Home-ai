@@ -685,3 +685,7 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .floor-tabs button{min-height:48px;min-width:48px;padding:0 14px}
 .floor-tabs .snap-toggle{margin-top:0;font-size:12px}
 .floor-settings{font-size:13px}.floor-settings form{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:8px 0}
+.structure-controls{padding:8px 20px 0;font-size:13px}.structure-controls summary{min-height:48px;display:flex;align-items:center;cursor:pointer;font-weight:600}
+.structure-controls fieldset{display:flex;flex-wrap:wrap;gap:8px;align-items:end;border:1px solid #d7e0da;border-radius:8px;margin:8px 0;padding:8px 12px}
+.structure-controls label{display:flex;flex-direction:column;gap:4px}.structure-controls input{width:110px;min-height:40px}.structure-controls select{min-height:40px}
+.structure-controls button{min-height:48px;min-width:48px;padding:0 14px}.structure-controls .primary-button{width:auto}.structure-note{margin:4px 0;color:#5b6a62;flex-basis:100%}
