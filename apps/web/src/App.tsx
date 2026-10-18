@@ -16,6 +16,7 @@ import type {QualityChoice} from './render3d/quality';
 import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState, useRef, useSyncExternalStore } from 'react';
 import type { ReactNode } from 'react';
 import { parseProject, ProjectStore } from '@gharplan/core-model';
+import type { ProjectDoc } from '@gharplan/core-model';
 import sample from '../../../docs/examples/sample-project.json';
 import { PlanCanvas } from './editor/PlanCanvas';
 import { createFloorScope } from './editor/floor-scope';
@@ -31,6 +32,8 @@ import type {Pick} from './editor/hit-test';
 import type { PrecisionPreview } from './editor/WallPrecision';
 import { junctionMoves } from './editor/view2d';
 import { SaveControls } from './storage/SaveControls';
+import { CloudPanel } from './cloud/CloudPanel';
+import { cloudCopy } from './cloud/linked';
 import {PlanImageControls} from './export/PlanImageControls';
 import type { WorkspaceSession } from './storage/workspace';
 import { areaDisplay, editError, message } from './i18n/messages';
@@ -48,7 +51,7 @@ function createDemo(): ProjectStore {
   if (!parsed.ok) throw new Error('Bundled sample project failed validation.');
   return new ProjectStore(parsed.document, `editor_${crypto.randomUUID()}`);
 }
-export function App({ session, navigation }: { session?: WorkspaceSession; navigation?: ReactNode } = {}) {
+export function App({ session, navigation, onOpenDocument }: { session?: WorkspaceSession; navigation?: ReactNode; onOpenDocument?: (document: ProjectDoc, linkToCloud: boolean) => void } = {}) {
   const ui = useUi(), t = <K extends MessageKey>(key: K, ...args: MessageArgs<K>) => message(ui.locale, key, ...args);
   // FR-034: `baseStore`/`house` is the whole project (save, 3D, totals); `store`/`snapshot` is the active floor's view for 2D editing.
   const [baseStore] = useState(() => session?.store ?? createDemo()), house = useSyncExternalStore(baseStore.subscribe, baseStore.getSnapshot);
@@ -148,6 +151,7 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
       </section>
       <aside className="inspector" aria-label={t('planControls')}>
         <SaveControls store={baseStore} {...(session ? { session } : {})} />
+        <CloudPanel store={baseStore} locale={ui.locale} flush={() => session?.saving?.flush() ?? Promise.resolve()} onSaveAsNew={document => onOpenDocument?.(cloudCopy(document), true)} />
         <CatalogControls buttonRef={browseButton} locale={ui.locale} units={snapshot.document.units} onBrowse={()=>{drawing.setMode('select');cancelPrecision();}} onChoose={asset=>{drawing.setMode('select');cancelPrecision();try{const pose=view==='3d'?threeApi?.pose():undefined,centre:Point2=pose?[pose.target[0]*1000,pose.target[2]*1000]:viewCentre.current;setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
         {placement&&<FurniturePlacementControls advisories={advisories} key={placement.intent.id} store={store} intent={placement.intent} label={ui.locale==='hi'?placement.name_hi:placement.name_en} locale={ui.locale} onPreview={furniturePreview} onCancel={cancelPlacement} onAdded={id=>{cancelPlacement();selectEntities([{kind:'furniture',id}]);setMessage(t('placementAdded'));}}/>}
         <FurnitureControls onEditStart={startFurnitureEdit} advisories={advisories} cancelToken={furnitureCancel} onPreview={furnitureEditPreview} store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/>

@@ -5,5 +5,5 @@ export default defineConfig({
   timeout: 30000, reporter: [['list'], ...(process.env.CI ? [['github'] as ['github']] : []), ['html', { open: 'never' }]],
   use: { baseURL: 'http://127.0.0.1:4185', hasTouch: true, trace: 'retain-on-failure', screenshot: 'only-on-failure',
     launchOptions: { args: ['--use-angle=swiftshader', '--enable-unsafe-swiftshader'], ...(process.env.GHARPLAN_CHROMIUM_PATH ? { executablePath: process.env.GHARPLAN_CHROMIUM_PATH } : {}) } },
-  webServer: { command: 'pnpm --filter @gharplan/web exec vite build --mode e2e && pnpm --filter @gharplan/web exec vite preview --mode e2e --host 127.0.0.1 --port 4185 --strictPort', url: 'http://127.0.0.1:4185', reuseExistingServer: false, timeout: 60000, env: { VITE_SENTRY_DSN: '' } },
+  webServer: { command: 'pnpm --filter @gharplan/web exec vite build --mode e2e && pnpm --filter @gharplan/web exec vite preview --mode e2e --host 127.0.0.1 --port 4185 --strictPort', url: 'http://127.0.0.1:4185', reuseExistingServer: false, timeout: 60000, env: { VITE_SENTRY_DSN: '', VITE_SUPABASE_URL: 'https://gharplan-e2e.supabase.co', VITE_SUPABASE_ANON_KEY: 'sb_publishable_gharplan_e2e_only' } },
 });

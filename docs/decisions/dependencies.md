@@ -1,5 +1,22 @@
 # PH0-T01 dependency register
 
+## FR-031 cloud sign-in and saving (2026-10-18, recorded before installation)
+
+| Dependency | Exact version | License / primary evidence | Purpose |
+|---|---|---|---|
+| @supabase/supabase-js | 2.117.2 | MIT; [official metadata](https://registry.npmjs.org/@supabase%2fsupabase-js/2.117.2) | Supabase Auth (Google sign-in, session refresh) and calls to the D65 database functions |
+| @supabase/auth-js, postgrest-js, realtime-js, storage-js, functions-js | 2.117.2 each | MIT; official metadata for each exact version | supabase-js's own sub-packages (only auth and postgrest are used) |
+| @supabase/phoenix | 0.4.5 | MIT; [official metadata](https://registry.npmjs.org/@supabase%2fphoenix/0.4.5) | realtime-js transitive dependency (realtime is not used) |
+| iceberg-js | 0.8.1 | MIT; [official metadata](https://registry.npmjs.org/iceberg-js/0.8.1) | storage-js transitive dependency (storage is not used) |
+| tslib | 2.8.1 | 0BSD; [official metadata](https://registry.npmjs.org/tslib/2.8.1) | TypeScript runtime helpers used by the sub-packages |
+
+Version 2.117.2 (published 2026-09-25) is chosen over the three-day-old 2.118.0 so a new release has had time to show
+problems. The whole tree was installed in a throwaway folder first and every package's license read: MIT and 0BSD only,
+no GPL/AGPL. The library is loaded lazily (dynamic import) only when someone opens the cloud panel, so the start-up
+bundle and the offline editor are unchanged. The Supabase project URL and its public anon key come from build-time
+`VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` (owner's GitHub/hosting settings, never committed); the anon key is
+designed to be public and row level security (D65) protects the data. No service-role key ever reaches the app.
+
 ## PH1-T03 UI state (2026-10-12, recorded before installation)
 
 | Dependency | Exact version | License / primary evidence | Purpose |

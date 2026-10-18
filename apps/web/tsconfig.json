@@ -11,7 +11,12 @@
       "vite/client",
       "node"
     ],
-    "allowImportingTsExtensions": true
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "@supabase/supabase-js": [
+        "./src/cloud/supabase-types.d.ts"
+      ]
+    }
   },
   "include": [
     "src",
