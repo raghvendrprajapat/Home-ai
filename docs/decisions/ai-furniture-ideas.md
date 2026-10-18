@@ -67,8 +67,41 @@ Status: accepted by Claude Code on the owner's instruction, 2026-10-18. This ove
   - Nothing is added until "Add this layout".
   - If the drawing changed after the preview, the person is asked to arrange again.
 
+## AI-3 photo or sketch to plan
+- **Privacy.** The picture stays on the device.
+  - It is read from the file into memory and never stored in the drawing, the local backup or the cloud.
+  - The stand-in reads it on the device.
+  - Sending a photo to a hosted vision model stays gated (see "What stays gated").
+- **Stage 1, trace-over (no AI).** "Show under the plan" draws the picture under the 2D plan:
+  - its top-left corner is at (0, 0) mm;
+  - its width is the real width the person enters (2–60 m);
+  - its strength is 20–80%.
+  - It is a renderer-only image: it is not hit-tested and never written to the model (AGENTS.md §4.1).
+- **Stage 2, reading rooms.** `AiProvider.planFromImage(pixels, realWidthMm, signal)` returns untrusted room rectangles. The picture is read at most 480 px across.
+- **Trust boundary** (`acceptSketch`):
+  - It reads at most 50 entries and keeps at most 12 rooms.
+  - Each room must be 1.2–15 m along each side, inside ±50 m.
+  - Unknown room types become "other".
+  - Shapes of the wrong size are dropped *before* edges are merged, so they cannot pull good edges.
+  - Edges within 300 mm of each other are merged onto their mean, on a 50 mm grid.
+  - Overlapping rooms are dropped.
+  - Four-way crossings are not allowed in L0. Where one would appear, the line east of the crossing moves 150 mm south for the rooms touching it, which leaves two T junctions.
+- **Building** (`createRoomsProject`, core-model, next to the templates):
+  - Each room becomes a 200 mm-wall `AddRectangle`, then `UpdateRoom` sets its name and type through the real commands. Shared edges merge into one wall.
+  - A room already closed by its neighbours is only named.
+  - A room the L0 rules reject is left out and counted, and the preview says so before anything opens.
+  - The result opens as a **new** project; the current drawing stays saved.
+- **Stand-in reader** (`readSketch`). It is honest test mode, not a vision model, and needs clean dark lines on light paper with closed rooms:
+  1. Finds the ink with Otsu's threshold, kept between 60 and 200.
+  2. Thickens the lines by 500 mm, which closes door gaps up to about 1 m.
+  3. Takes each light area that does not touch the picture edge and is at least 60% rectangular as a room.
+  4. Undoes the thickening and adds 100 mm to reach a 200 mm wall's centreline.
+  5. Guesses room types: the largest room is the living room, rooms under 4.5 m² are bathrooms, and the rest are bedrooms. The person can change the types later.
+
 ## Not done
-- AI-3, any server provider, and cost or usage limits.
+- Any server provider, and cost or usage limits.
+- Photo reading in test mode works only on clean line drawings. It does not read doors, windows, text or measurements written on the paper.
+- The trace-over picture is not kept when another drawing opens, and cannot yet be moved by dragging; the person chooses it again and enters its width.
 - The layout uses quarter turns and box shapes only. It does not plan circulation paths between rooms, and it does not move existing furniture.
 - The stand-in knows only bedroom, living, hall, dining, study and balcony. Other room types get "no ideas".
 - The ideas list (AI-1) does not look at doors, windows or existing furniture positions; the layout step (AI-2) does.

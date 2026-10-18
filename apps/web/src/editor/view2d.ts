@@ -75,3 +75,6 @@ export function wallChain(doc: PlanDocument, wallId: string): Set<string> {
   const probe: Point2 = axis === 'y' ? [origin[0], origin[1] + 1] : [origin[0] + 1, origin[1]];
   return new Set(junctionMoves(doc, wall.a, probe).filter(move => move.to[axis === 'x' ? 0 : 1] !== index.get(move.junction)![axis]).map(move => move.junction));
 }
+
+/** D73 AI-3: a picture drawn under the 2D plan, top-left at (x, y) mm and widthMm across. Kept in memory only, never saved. */
+export interface PlanUnderlay {readonly image:CanvasImageSource;readonly x:number;readonly y:number;readonly widthMm:number;readonly heightMm:number;readonly opacity:number}

@@ -3,6 +3,8 @@ import type {CatalogAsset} from '../catalog/catalog';
 import {FLOOR_SHARE,fitsRoom} from './furniture-suggest';
 import type {AiProvider,RoomBrief} from './furniture-suggest';
 import {footprint,placementProblem} from './layout';
+import {readSketch} from './sketch';
+import type {SketchPixels} from './sketch';
 import type {LayoutPlacement,LayoutRoom,Rect,Turn} from './layout';
 
 /**
@@ -37,6 +39,10 @@ export const standInAi:AiProvider={
  async suggestLayout(room:LayoutRoom,assets:readonly CatalogAsset[],signal:AbortSignal):Promise<unknown>{
   if(signal.aborted)throw new DOMException('aborted','AbortError');
   return planLayout(room,assets).map(p=>({assetId:p.asset.id,x:p.x,y:p.y,rotationDeg:p.rotationDeg}));
+ },
+ async planFromImage(image:SketchPixels,realWidthMm:number,signal:AbortSignal):Promise<unknown>{
+  if(signal.aborted)throw new DOMException('aborted','AbortError');
+  return {rooms:readSketch(image,realWidthMm)};
  },
 };
 

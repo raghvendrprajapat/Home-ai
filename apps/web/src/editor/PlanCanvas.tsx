@@ -1,3 +1,4 @@
+import type {PlanUnderlay} from './view2d';
 import {materialColor,wallSurfaceStrips} from './surface-materials';
 import {furnitureFinish} from './material-library';
 import {FurnitureAdvisories} from './furniture-advisories';
@@ -26,10 +27,10 @@ import type { DrawingTool } from './drawing-tools';
 import type { Point2, Viewport } from './view2d';
 
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
-interface Props { selectedPick?:Pick|null;advisories?:FurnitureAdvisories;previewFurnitureId?:string|undefined;store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
+interface Props { selectedPick?:Pick|null;advisories?:FurnitureAdvisories;previewFurnitureId?:string|undefined;store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void; underlay?: PlanUnderlay | null }
 interface DragBase {pointerId:number;generation:number;start:Point2;last:Point2;touch:boolean;store:ProjectStore;frame:readonly[number,number,number,number];windowSize:readonly[number,number]}
 type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent}|{kind:'wall';wall:string;axis:'x'|'y';along:number;exclude:ReadonlySet<string>}|{kind:'group';ids:readonly string[];anchor:Point2;leader:string});
-export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvisories,previewFurnitureId,store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
+export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvisories,previewFurnitureId,store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en', underlay = null }: Props) {
   const [ownAdvisories]=useState(()=>new FurnitureAdvisories()),advisories=providedAdvisories??ownAdvisories;
   const furnitureSnapKey=useRef<string|null>(null),[backSnap,setBackSnap]=useState<BackAlignment|null>(null);
   const language = useRef(locale); language.current = locale;
@@ -240,6 +241,8 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
         const sy = worldToScreen([0, y], view)[1]; layer.add(new K.Line({ points: [0, sy, size.width, sy], stroke: '#e4e9e5', strokeWidth: 1 }));
       }
     }
+    // D73 AI-3 trace-over picture: under the rooms, never hit-tested, never saved.
+    if(underlay){const p=worldToScreen([underlay.x,underlay.y],view);layer.add(new K.Image({image:underlay.image,x:p[0],y:p[1],width:underlay.widthMm*view.scale,height:underlay.heightMm*view.scale,opacity:underlay.opacity,listening:false}));}
     const document=visibleDocument,derived=visiblePreview?visiblePreview.derived:snapshot.derived;
     const labels: { x: number; y: number; width: number; text: string }[] = [];
     for (const face of derived.faces) {
@@ -299,10 +302,10 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
     if(toolState?.anchor&&toolState.end){const a=worldToScreen(toolState.anchor,view),b=worldToScreen(toolState.end,view);layer.add(new K.Line({points:toolState.mode==='rectangle'?[a[0],a[1],b[0],a[1],b[0],b[1],a[0],b[1],a[0],a[1]]:[...a,...b],stroke:toolState.error?'#b33d3d':'#b6723f',strokeWidth:3,dash:[7,4]}));}
     if(boxPreview)layer.add(new K.Rect({x:Math.min(boxPreview.a[0],boxPreview.b[0]),y:Math.min(boxPreview.a[1],boxPreview.b[1]),width:Math.abs(boxPreview.a[0]-boxPreview.b[0]),height:Math.abs(boxPreview.a[1]-boxPreview.b[1]),fill:'rgba(59,138,148,0.1)',stroke:'#3b8a94',strokeWidth:1,dash:[5,3]}));
     canvas.batchDraw();
-  }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale, toolState, precisionPreview, snapTarget, selection, boxPreview, visibleDocument, visiblePreview, advisory, advisoryId]);
+  }, [ready, preview, snapshot, selected, view, size, showGrid, picked, locale, toolState, precisionPreview, snapTarget, selection, boxPreview, visibleDocument, visiblePreview, advisory, advisoryId, underlay]);
   const handleDocument=preview?.ok&&drag.current?.generation===snapshot.localGeneration?preview.document:snapshot.document,handleItem=singleFurnitureId?handleDocument.furniture.find(f=>f.id===singleFurnitureId):undefined;
   const handleAngle=(handleItem?.rotationDeg??0)*Math.PI/180,handleDistance=(handleItem?.size.d??0)/2+36/view.scale,handlePoint=handleItem?worldToScreen([handleItem.position.x+Math.sin(handleAngle)*handleDistance,handleItem.position.y-Math.cos(handleAngle)*handleDistance],view):undefined;
-  return <div ref={host} className="plan-canvas" role="application" aria-label={message(locale, 'canvas2d')} tabIndex={0} data-testid="plan-canvas"
+  return <div ref={host} className="plan-canvas" role="application" aria-label={message(locale, 'canvas2d')} tabIndex={0} data-testid="plan-canvas" data-underlay={underlay?`${underlay.x},${underlay.y},${underlay.widthMm},${underlay.heightMm},${underlay.opacity}`:''}
     data-model-generation={snapshot.localGeneration} data-preview-active={!!visiblePreview} data-advisory-id={advisoryId??''} data-furniture-overlap={advisory?.overlap??false} data-wall-alignment={backSnap?.key??''} data-view-x={view.x} data-view-y={view.y} data-view-scale={view.scale} data-picked-kind={picked?.kind} data-picked-id={picked?.id} data-snap-kind={snapTarget?.kind} data-selection-count={selection?.length??0}
     onPointerDown={event=>{
       if(event.button!==0&&event.button!==1)return;
