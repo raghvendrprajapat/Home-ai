@@ -59,6 +59,27 @@ jobs:
             playwright-report/
             test-results/
 
+  database:
+    name: Cloud database
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Start the runner's PostgreSQL 16
+        run: |
+          sudo systemctl start postgresql.service
+          sudo -u postgres psql -q -c "alter user postgres password 'postgres'"
+          psql --version
+      - name: Migration, RLS, save protocol and concurrency tests
+        env:
+          PGHOST: localhost
+          PGUSER: postgres
+          PGPASSWORD: postgres
+        run: bash server/supabase/tests/run.sh
+
   android:
     name: Android debug
     needs: check
