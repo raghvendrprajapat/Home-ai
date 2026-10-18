@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_nightstand",
+  "version": 1,
+  "name_en": "Bedside table",
+  "name_hi": "पलंग के पास की मेज़",
+  "category": "tables",
+  "tags": [
+    "bedside table",
+    "nightstand",
+    "side table",
+    "2 drawers",
+    "walnut",
+    "पलंग के पास की मेज़"
+  ],
+  "dims": {
+    "w": 450,
+    "d": 400,
+    "h": 520
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_nightstand-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_nightstand-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "shape": "rounded",
+      "center": [
+        0,
+        340,
+        6
+      ],
+      "size": [
+        450,
+        360,
+        388
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "drawer-top",
+      "shape": "box",
+      "center": [
+        0,
+        430,
+        -191
+      ],
+      "size": [
+        430,
+        165,
+        6
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "drawer-bottom",
+      "shape": "box",
+      "center": [
+        0,
+        250,
+        -191
+      ],
+      "size": [
+        430,
+        165,
+        6
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "knob-top",
+      "shape": "cylinder",
+      "center": [
+        0,
+        430,
+        -197
+      ],
+      "size": [
+        24,
+        24,
+        6
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "z",
+      "segments": 8
+    },
+    {
+      "name": "knob-bottom",
+      "shape": "cylinder",
+      "center": [
+        0,
+        250,
+        -197
+      ],
+      "size": [
+        24,
+        24,
+        6
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "z",
+      "segments": 8
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -185,
+        80,
+        -150
+      ],
+      "size": [
+        30,
+        160,
+        30
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        185,
+        80,
+        -150
+      ],
+      "size": [
+        30,
+        160,
+        30
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -185,
+        80,
+        160
+      ],
+      "size": [
+        30,
+        160,
+        30
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        185,
+        80,
+        160
+      ],
+      "size": [
+        30,
+        160,
+        30
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    }
+  ]
+}

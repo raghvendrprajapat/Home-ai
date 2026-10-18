@@ -51,6 +51,25 @@ Newer versions and two new items in the modern original profile (schemaVersion 3
 | a_l0_sofa_l@1 | L-shape sofa (5 seats) / L आकार का सोफ़ा (5 सीट) | seating | 2500 × 1600 × 820 | 2800 | [a_l0_sofa_l-v1.json](../../tools/asset-pipeline/sources/a_l0_sofa_l-v1.json) |
 | a_l0_tv_unit@1 | TV unit / टीवी यूनिट | storage | 1800 × 400 × 440 | 296 | [a_l0_tv_unit-v1.json](../../tools/asset-pipeline/sources/a_l0_tv_unit-v1.json) |
 
+
+## D72 modern bedroom designs (2026-10-18)
+
+Same profile and rules as the living-room set; see the [rendered designs](../verification/images/d72-bedroom-designs.png). Bed widths follow Indian mattress sizes (king 72 in, queen 60 in, double 54 in, single 36 in, all 78 in long) plus the frame.
+
+| ID | English / Hindi | Category | W × D × H (mm) | Triangles | Source |
+|---|---|---|---|---:|---|
+| a_l0_double_bed@2 | Double bed / दो लोगों का पलंग | beds | 1460 × 2150 × 1050 | 1944 | [a_l0_double_bed-v2.json](../../tools/asset-pipeline/sources/a_l0_double_bed-v2.json) |
+| a_l0_drawers@2 | Chest of drawers / दराज़ वाली अलमारी | storage | 800 × 450 × 1000 | 332 | [a_l0_drawers-v2.json](../../tools/asset-pipeline/sources/a_l0_drawers-v2.json) |
+| a_l0_dressing_table@1 | Dressing table with mirror / शीशे वाली ड्रेसिंग टेबल | storage | 1000 × 450 × 1600 | 420 | [a_l0_dressing_table-v1.json](../../tools/asset-pipeline/sources/a_l0_dressing_table-v1.json) |
+| a_l0_king_bed@2 | King bed / किंग पलंग | beds | 1900 × 2150 × 1100 | 1944 | [a_l0_king_bed-v2.json](../../tools/asset-pipeline/sources/a_l0_king_bed-v2.json) |
+| a_l0_nightstand@1 | Bedside table / पलंग के पास की मेज़ | tables | 450 × 400 × 520 | 324 | [a_l0_nightstand-v1.json](../../tools/asset-pipeline/sources/a_l0_nightstand-v1.json) |
+| a_l0_queen_bed@2 | Queen bed / क्वीन पलंग | beds | 1620 × 2150 × 1100 | 1944 | [a_l0_queen_bed-v2.json](../../tools/asset-pipeline/sources/a_l0_queen_bed-v2.json) |
+| a_l0_single_bed@2 | Single bed / एकल पलंग | beds | 1000 × 2150 × 950 | 1536 | [a_l0_single_bed-v2.json](../../tools/asset-pipeline/sources/a_l0_single_bed-v2.json) |
+| a_l0_study_desk@2 | Study table with drawers / दराज़ वाली पढ़ने की मेज़ | tables | 1200 × 600 × 750 | 364 | [a_l0_study_desk-v2.json](../../tools/asset-pipeline/sources/a_l0_study_desk-v2.json) |
+| a_l0_wardrobe_2@2 | Two-door wardrobe / दो दरवाज़े की अलमारी | storage | 1000 × 600 × 2000 | 208 | [a_l0_wardrobe_2-v2.json](../../tools/asset-pipeline/sources/a_l0_wardrobe_2-v2.json) |
+| a_l0_wardrobe_3@2 | Three-door wardrobe with mirror / शीशे वाली तीन दरवाज़े की अलमारी | storage | 1500 × 600 × 2100 | 252 | [a_l0_wardrobe_3-v2.json](../../tools/asset-pipeline/sources/a_l0_wardrobe_3-v2.json) |
+| a_l0_wardrobe_sliding@1 | Sliding-door wardrobe / स्लाइडिंग दरवाज़े की अलमारी | storage | 1800 × 650 × 2100 | 180 | [a_l0_wardrobe_sliding-v1.json](../../tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v1.json) |
+
 All LOD0/LOD1 pairs currently share the same already-small GLB; no simplification/compression claim. No downloaded/proprietary art, electrical fixtures, textures or entitlement/cloud-delivery adapter is added. Canonical furniture pins ID/version and nominal dimensions; user scaling/elevation/rotation remain the existing commands. Physical-device performance, aesthetic/accessibility review and all D36 gates remain pending.
 
 Change an existing asset by adding a new version, never by editing an accepted source/blob under the same ID/version. Rebuild via pnpm assets:build, then run assets:check and assets:versions. See the PH4-T05 verification and decision records for actual validator/hash/paging/placement/Undo evidence.

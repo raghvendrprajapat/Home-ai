@@ -41,8 +41,16 @@ The owner chose original designs made by Claude Code (chat, 2026-10-18).
 - Sizes are typical for furniture sold in India, chosen by Claude Code, not measured from a specific product.
 - Front is −Z as before. Every design was checked from the front in a Three.js render using the app's exact lights and exposure: [image](../verification/images/d72-living-room-designs.png).
 
+## Bedroom set (second PR)
+- **New versions:** king, queen, double and single beds, the two- and three-door wardrobes, the study table and the chest of drawers.
+- **New items:** a sliding-door wardrobe, a bedside table and a dressing table with mirror.
+- **Beds** have an upholstered base and headboard (the main colour), a white mattress, pillows and a blanket. Widths follow Indian mattress sizes plus the frame.
+- **Wardrobes** share one colour for carcass and doors, so a furniture colour recolours both. Mirror doors keep their own glass colour.
+- **Owner instruction (chat, 2026-10-18):** no fridge, toilet or other unnecessary models. Only furniture that people buy is added. Appliances and sanitaryware are not planned.
+- [Rendered designs](../verification/images/d72-bedroom-designs.png).
+
 ## Not done
-- Bedroom, dining and storage redesigns (beds with upholstered headboards, wardrobes, dining sets): next.
+- Dining and storage redesigns (dining sets, shoe rack, console table, rug): next.
 - Textures (wood grain, fabric weave): need real-phone performance checks, which are gated.
 - Affiliate links or any Amazon integration (gated monetization).
 - Aesthetic review by a designer, and phone tests.

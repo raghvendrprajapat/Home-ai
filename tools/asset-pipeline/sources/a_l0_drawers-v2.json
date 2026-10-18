@@ -1,0 +1,251 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_drawers",
+  "version": 2,
+  "name_en": "Chest of drawers",
+  "name_hi": "दराज़ वाली अलमारी",
+  "category": "storage",
+  "tags": [
+    "chest of drawers",
+    "drawer cabinet",
+    "4 drawers",
+    "storage",
+    "oak",
+    "दराज़ वाली अलमारी"
+  ],
+  "dims": {
+    "w": 800,
+    "d": 450,
+    "h": 1000
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_drawers-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_drawers-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "shape": "rounded",
+      "center": [
+        0,
+        550,
+        10
+      ],
+      "size": [
+        800,
+        900,
+        430
+      ],
+      "color": "#c49a6c",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "drawer-1",
+      "shape": "box",
+      "center": [
+        0,
+        215,
+        -208
+      ],
+      "size": [
+        760,
+        212,
+        6
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "drawer-2",
+      "shape": "box",
+      "center": [
+        0,
+        437,
+        -208
+      ],
+      "size": [
+        760,
+        212,
+        6
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "drawer-3",
+      "shape": "box",
+      "center": [
+        0,
+        659,
+        -208
+      ],
+      "size": [
+        760,
+        212,
+        6
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "drawer-4",
+      "shape": "box",
+      "center": [
+        0,
+        881,
+        -208
+      ],
+      "size": [
+        760,
+        212,
+        6
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "handle-1",
+      "shape": "box",
+      "center": [
+        0,
+        280,
+        -218
+      ],
+      "size": [
+        300,
+        12,
+        14
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "handle-2",
+      "shape": "box",
+      "center": [
+        0,
+        502,
+        -218
+      ],
+      "size": [
+        300,
+        12,
+        14
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "handle-3",
+      "shape": "box",
+      "center": [
+        0,
+        724,
+        -218
+      ],
+      "size": [
+        300,
+        12,
+        14
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "handle-4",
+      "shape": "box",
+      "center": [
+        0,
+        946,
+        -218
+      ],
+      "size": [
+        300,
+        12,
+        14
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -360,
+        50,
+        -170
+      ],
+      "size": [
+        35,
+        100,
+        35
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        360,
+        50,
+        -170
+      ],
+      "size": [
+        35,
+        100,
+        35
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -360,
+        50,
+        190
+      ],
+      "size": [
+        35,
+        100,
+        35
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        360,
+        50,
+        190
+      ],
+      "size": [
+        35,
+        100,
+        35
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    }
+  ]
+}
