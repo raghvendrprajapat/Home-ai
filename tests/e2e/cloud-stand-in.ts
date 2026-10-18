@@ -3,7 +3,7 @@ import type {Page,Route} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 // Shared stand-in for Supabase Auth + the D65 functions used by the cloud browser tests (FR-031/032). Not shipped.
 export const CLOUD='https://gharplan-e2e.supabase.co',USER={id:'00000000-0000-4000-8000-0000000000e2',aud:'authenticated',role:'authenticated',email:'owner@example.test',user_metadata:{full_name:'Raghvendr Test'},app_metadata:{provider:'google'},created_at:'2026-10-18T00:00:00Z'};
-export const session=()=>({access_token:'e2e-access',token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+3600,refresh_token:'e2e-refresh',user:USER});
+export const session=(lastSignInAt=new Date().toISOString())=>({access_token:'e2e-access',token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+3600,refresh_token:'e2e-refresh',user:{...USER,last_sign_in_at:lastSignInAt}});
 export type Doc={id:string;name:string;revision:number;floors:unknown[]};
 export type SaveArgs={p_project_id:string;p_expected_revision:number;p_command_id:string;p_document:Doc};
 /** The D65 save rules in memory: receipts before the head, compare-and-set, head + 1. */
@@ -25,6 +25,8 @@ export class FakeCloud {
  createShare(projectId:string){if(!this.heads.has(projectId))return {ok:false,code:'NOT_FOUND'};const token=[...crypto.getRandomValues(new Uint8Array(32))].map(b=>b.toString(16).padStart(2,'0')).join(''),id=crypto.randomUUID();this.shares.set(token,{id,projectId,revoked:false,createdAt:new Date().toISOString()});return {ok:true,shareId:id,token};}
  revokeShare(id:string){const share=[...this.shares.values()].find(s=>s.id===id&&!s.revoked);if(!share)return {ok:false,code:'NOT_FOUND'};share.revoked=true;return {ok:true};}
  getShared(token:string){const share=this.shares.get(token),head=share&&!share.revoked?this.heads.get(share.projectId):undefined;return head?{ok:true,serverRevision:head.revision,name:head.name,document:head.document}:{ok:false,code:'NOT_FOUND'};}
+ deleted=false;
+ deleteAccount(confirm:string){if(confirm!=='DELETE')return {ok:false,code:'CONFIRMATION_REQUIRED'};this.heads.clear();this.versions.clear();this.shares.clear();this.deleted=true;return {ok:true};}
  restores:{p_project_id:string;p_from_revision:number;p_expected_revision:number;p_command_id:string}[]=[];
  restore(a:{p_project_id:string;p_from_revision:number;p_expected_revision:number;p_command_id:string}){
   this.restores.push(a);const key=`${a.p_project_id}/${a.p_command_id}`,digest=JSON.stringify(['restore',a.p_from_revision,a.p_expected_revision]),receipt=this.receipts.get(key);
@@ -43,10 +45,11 @@ export async function install(page:Page,cloud:FakeCloud){
   if(request.method()==='OPTIONS')return route.fulfill({status:204,headers:cors});
   if(url.pathname==='/auth/v1/authorize'){expect(url.searchParams.get('provider')).toBe('google');expect(url.searchParams.get('code_challenge')).toBeTruthy();return route.fulfill({status:302,headers:{location:`${url.searchParams.get('redirect_to')}?code=e2e-code`}});}
   if(url.pathname==='/auth/v1/token'){expect(url.searchParams.get('grant_type')).toBe('pkce');expect(request.postDataJSON()).toMatchObject({auth_code:'e2e-code'});return json(session());}
-  if(url.pathname==='/auth/v1/user')return json(USER);
+  if(url.pathname==='/auth/v1/user')return json({...USER,last_sign_in_at:new Date().toISOString()});
   if(url.pathname==='/auth/v1/logout')return route.fulfill({status:204,headers:cors});
   if(url.pathname==='/rest/v1/rpc/save_snapshot'){const args=request.postDataJSON() as SaveArgs;if(cloud.failNext>0){cloud.failNext--;cloud.saves.push(args);return route.abort('internetdisconnected');}return json(cloud.save(args));}
   if(url.pathname==='/rest/v1/rpc/load_project'){const id=(request.postDataJSON() as {p_project_id:string}).p_project_id,head=cloud.heads.get(id);return json(head?{ok:true,serverRevision:head.revision,name:head.name,document:head.document}:{ok:false,code:'NOT_FOUND'});}
+  if(url.pathname==='/rest/v1/rpc/delete_account')return json(cloud.deleteAccount((request.postDataJSON() as {p_confirm:string}).p_confirm));
   if(url.pathname==='/rest/v1/rpc/create_share')return json(cloud.createShare((request.postDataJSON() as {p_project_id:string}).p_project_id));
   if(url.pathname==='/rest/v1/rpc/revoke_share')return json(cloud.revokeShare((request.postDataJSON() as {p_share_id:string}).p_share_id));
   if(url.pathname==='/rest/v1/rpc/get_shared_project')return json(cloud.getShared((request.postDataJSON() as {p_token:string}).p_token));

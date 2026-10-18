@@ -10,6 +10,7 @@ import { CLOUD_OFF, cloud as defaultCloud, cloudWasUsed, noSubscription } from '
 import type { CloudSession } from './session';
 import { cloudCopy, isLinked, setLinked, takeInSync } from './linked';
 import { SharePanel } from './SharePanel';
+import { AccountPanel } from './AccountPanel';
 const cloudOff = () => CLOUD_OFF;
 
 const idleState: CloudSaveState = { phase: 'idle', serverRevision: 0, ackedGeneration: null }, idleSaver = { getSnapshot: () => idleState, subscribe: () => () => undefined };
@@ -71,11 +72,11 @@ export function CloudPanel({ store, locale, flush, onOpenDocument, cloud = defau
   if (!cloud) return <section className="cloud-panel" aria-label={message(locale, 'cloudTitle')}><h3>{message(locale, 'cloudTitle')}</h3><p data-testid="cloud-status" data-phase="off">{message(locale, 'cloudOff')}</p></section>;
   const user = session.user, mine = () => store.getSnapshot().document as ProjectDoc;
   return <section className="cloud-panel" aria-label={message(locale, 'cloudTitle')} data-cloud-session={session.status}><h3>{message(locale, 'cloudTitle')}</h3>
+    {notice && <p role="status">{notice}</p>}
     {session.status === 'signed-in' && user ? <>
       <p>{message(locale, 'cloudSignedInAs', { name: user.name ?? user.email ?? user.id.slice(0, 8) })}</p>
       {linked ? <p data-testid="cloud-status" data-phase={state.phase} aria-live="polite">{phaseText(locale, state)}</p>
         : <p data-testid="cloud-status" data-phase="unlinked">{message(locale, 'cloudNotLinked')}</p>}
-      {notice && <p role="status">{notice}</p>}
       {linked && state.phase === 'conflict' && <div className="cloud-conflict" role="group" aria-label={message(locale, 'cloudConflictChoices')}>
         <button onClick={() => { void openCloudCopy(); }}>{message(locale, 'cloudInspect')}</button>
         <button onClick={() => onOpenDocument(cloudCopy(mine()), true)}>{message(locale, 'cloudKeepMine')}</button>
@@ -92,6 +93,7 @@ export function CloudPanel({ store, locale, flush, onOpenDocument, cloud = defau
         {linked && <button onClick={() => { setLinked(projectId, false); setLinkedState(false); }}>{message(locale, 'cloudStop')}</button>}
         <button onClick={() => { void cloud.ensure().then(api => api?.signOut()); }}>{message(locale, 'cloudSignOut')}</button>
       </div>
+      <AccountPanel cloud={cloud} user={user} locale={locale} onDeleted={text => { setLinkedState(false); setNotice(text); }} />
       {linked && <SharePanel key={`share:${projectId}`} projectId={projectId} cloud={cloud} locale={locale} available={state.serverRevision > 0} />}
       {linked && saver && <VersionHistory key={projectId} store={store} saver={saver} state={state} cloud={cloud} locale={locale} onOpenCopy={revision => { void openCloudCopy(revision); }} onNotice={setNotice} />}
     </> : <>

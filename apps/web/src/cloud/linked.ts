@@ -11,6 +11,8 @@ export function setLinked(projectId: string, linked: boolean): void {
   const next = read().filter(id => id !== projectId); if (linked) next.push(projectId);
   try { localStorage.setItem(KEY, JSON.stringify(next.slice(-500))); } catch { /* still linked for this page */ }
 }
+/** FR-043: after account deletion this device stops trying to save any drawing to the cloud. */
+export function forgetLinked(): void { try { localStorage.removeItem(KEY); } catch { /* nothing stored */ } }
 /** Drawings just opened from their cloud head: the first save waits for a real change (no duplicate version). */
 const inSync = new Set<string>();
 export const markInSync = (projectId: string): void => { inSync.add(projectId); };

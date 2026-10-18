@@ -42,14 +42,14 @@ describe('FR-031 lazy cloud connection', () => {
     expect(cloudWasUsed(null, '?x=1')).toBe(false);
   });
   it('loads the library once, reports the signed-in person, and can retry after a failed load', async () => {
-    let calls = 0, fail = true, notify: ((user: { id: string; email: null; name: string } | null) => void) | undefined;
+    let calls = 0, fail = true, notify: ((user: { id: string; email: null; name: string; lastSignInAt: null } | null) => void) | undefined;
     const api = { user: () => null, onUser: (listener: typeof notify) => { notify = listener; return () => undefined; } } as unknown as CloudApi;
     const session = new CloudSession({ url: E2E_CLOUD_URL, anonKey: 'k' }, () => { calls++; if (fail) return Promise.reject(new Error('offline')); return Promise.resolve(api); });
     expect(await session.ensure()).toBeNull(); expect(session.getSnapshot().status).toBe('failed');
     fail = false;
     expect(await session.ensure()).toBe(api); expect(await session.ensure()).toBe(api); expect(calls).toBe(2);
     expect(session.getSnapshot().status).toBe('signed-out');
-    notify!({ id: 'u1', email: null, name: 'R' });
-    expect(session.getSnapshot()).toEqual({ status: 'signed-in', user: { id: 'u1', email: null, name: 'R' } });
+    notify!({ id: 'u1', email: null, name: 'R', lastSignInAt: null });
+    expect(session.getSnapshot()).toEqual({ status: 'signed-in', user: { id: 'u1', email: null, name: 'R', lastSignInAt: null } });
   });
 });
