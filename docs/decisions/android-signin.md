@@ -20,9 +20,22 @@ The web app keeps the normal redirect flow (D67).
 - **No new permission.** The Browser plugin only adds a `<queries>` entry for Custom Tabs.
 - **Debug and release share the link.** A debug build (`com.gharplan.app.debug`) uses the same link. If both builds are installed, Android asks which app should open it.
 
-## Owner setup (adds to D67 step 5)
+## Owner setup (adds to D67 steps 5 and 6)
 - In Supabase → Authentication → URL configuration, add `com.gharplan.app://auth-callback` as an allowed redirect URL.
 - Nothing changes in the Google Cloud client: Google still returns to Supabase's own callback.
+- **Test APK with the cloud on.** CI's "Android debug" APK is local-only unless the repository has these GitHub Actions secrets (Settings → Secrets and variables → Actions → New repository secret):
+  - `VITE_SUPABASE_URL`: the project URL.
+  - `VITE_SUPABASE_ANON_KEY`: the anon/publishable key only. The build fails on a secret or service-role key.
+  - `VITE_PUBLIC_APP_URL` (optional): the public `https://` address where the web app is hosted.
+  - The two Supabase values are public by design and end up inside the app. They are stored as secrets only so they stay out of CI logs.
+  - The next CI run's `gharplan-debug-<sha>` artifact then has the cloud on.
+
+## Share links from the Android app
+- The Android app's pages come from an internal `https://localhost`, so a link built from its own address would be dead for everyone else.
+- Links therefore use `VITE_PUBLIC_APP_URL`.
+- Without that address, the Android app says it cannot make view-only links and creates none.
+- The web app keeps using its own address unless `VITE_PUBLIC_APP_URL` is set.
+- Hosting the web app (which is also needed for the visitor page and `delete-account.html`) is the owner's choice and is not done here.
 
 ## Not done
 - A real phone test with a real Supabase project and Google account.

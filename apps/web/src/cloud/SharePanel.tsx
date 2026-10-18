@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
+import { Capacitor } from '@capacitor/core';
 import { message } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 import type { CloudShare } from './api';
 import type { CloudSession } from './session';
-import { shareLink } from './share-link';
+import { shareBase, shareLink } from './share-link';
 
 /**
  * FR-033 (D69) view-only links for a drawing saved in the cloud. A new link is shown once (only its hash is stored);
@@ -17,11 +18,13 @@ export function SharePanel({ projectId, cloud, locale, available }: { projectId:
     void cloud.ensure().then(api => api?.listShares(projectId)).then(result => { if (live) setShares(result?.ok ? result.shares : []); });
     return () => { live = false; };
   }, [open, cloud, projectId, round]);
+  const base = shareBase(Capacitor.isNativePlatform(), import.meta.env, location);
   const create = async () => {
+    if (!base) return;
     setBusy(true); setNote(null);
     try {
       const api = await cloud.ensure(), result = api ? await api.createShare(projectId) : null;
-      if (result?.ok) { setLink(shareLink(location.origin, location.pathname, result.token)); setRound(n => n + 1); }
+      if (result?.ok && base) { setLink(shareLink(base.origin, base.pathname, result.token)); setRound(n => n + 1); }
       else setNote(message(locale, result && !result.ok && result.code === 'SHARE_LIMIT' ? 'shareLimit' : 'shareFailed'));
     } finally { setBusy(false); }
   };
@@ -34,7 +37,7 @@ export function SharePanel({ projectId, cloud, locale, available }: { projectId:
   const when = (iso: string) => { const date = new Date(iso); return Number.isNaN(date.getTime()) ? iso : date.toLocaleString(locale === 'hi' ? 'hi-IN' : 'en-IN', { dateStyle: 'medium', timeStyle: 'short' }); };
   return <details className="share-panel" onToggle={event => setOpen(event.currentTarget.open)}><summary>{message(locale, 'shareTitle')}</summary>
     <p className="structure-note">{message(locale, 'shareHelp')}</p>
-    {!available ? <p>{message(locale, 'shareNeedsCloud')}</p> : <button className="primary-button" disabled={busy} onClick={() => { void create(); }}>{message(locale, 'shareCreate')}</button>}
+    {!available ? <p>{message(locale, 'shareNeedsCloud')}</p> : !base ? <p>{message(locale, 'shareNeedsWebAddress')}</p> : <button className="primary-button" disabled={busy} onClick={() => { void create(); }}>{message(locale, 'shareCreate')}</button>}
     {link && <div className="share-link"><label>{message(locale, 'shareLinkLabel')}<input readOnly value={link} onFocus={event => event.currentTarget.select()} /></label>
       <button onClick={copy}>{message(locale, 'shareCopy')}</button><p className="structure-note">{message(locale, 'shareOnce')}</p></div>}
     {note && <p role="status">{note}</p>}

@@ -108,6 +108,12 @@ jobs:
       - name: Install locked dependencies
         run: pnpm install --frozen-lockfile
       - name: Prepare local web assets
+        # D71: optional public cloud values for the owner's test APK. Unset values keep the app fully local; the build
+        # refuses a secret or service-role key (vite.config.ts).
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_PUBLIC_APP_URL: ${{ secrets.VITE_PUBLIC_APP_URL }}
         run: pnpm android:sync
       - name: Prepare Android SDK components
         run: |
