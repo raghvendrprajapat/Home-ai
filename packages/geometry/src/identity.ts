@@ -3,7 +3,7 @@ import { bounds, freshId, insidePolygon, rectArea, rectIntersection } from './pr
 import { clearRegion } from './regions';
 import { candidatePairs } from './spatial';
 import { GeometryError } from './types';
-import type { DerivedPlan, Plan, Point, Room } from './types';
+import type { DerivedPlan, Plan, Point, Rect, Room } from './types';
 
 function cycleKey(boundary: string[], plan: Plan): string {
   // A tree attached inside a room traverses each bridge in both directions.
@@ -28,14 +28,17 @@ function cycleKey(boundary: string[], plan: Plan): string {
 /** Exact cycle first, conservative overlap next, then explicit split/merge rules. */
 export interface RoomIdentityChoice { roomId: string; point: Point }
 export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, reservedIds: readonly string[] = [], choices: readonly RoomIdentityChoice[] = []): { rooms: Room[]; checkRoomNamesHint: boolean } {
-  const oldStrips = wallStrips(oldPlan).map(s => s.rect);
+  // FR-034: identity only ever passes between rooms on the same floor; clear areas use that floor's walls.
+  const stripsByFloor = new Map<string, Rect[]>();
+  const floorStrips = (floorId: string) => { let strips = stripsByFloor.get(floorId); if (!strips) { strips = wallStrips({ junctions: oldPlan.junctions.filter(j => j.floorId === floorId), walls: oldPlan.walls.filter(w => w.floorId === floorId), rooms: [] }).map(s => s.rect); stripsByFloor.set(floorId, strips); } return strips; };
+  const faceFloor = derived.faces.map(face => plan.junctions.find(j => j.id === face.boundary[0])?.floorId);
   const old = oldPlan.rooms.map(room => {
     const polygon = room.boundary.map(id => {
       const j = oldPlan.junctions.find(j => j.id === id);
       if (!j) throw new GeometryError('room-boundary', 'Room boundary references a missing junction.', [room.id]);
       return [j.x, j.y] as Point;
     });
-    return { room, rects: polygon.length ? clearRegion(polygon, oldStrips) : [], key: cycleKey(room.boundary, oldPlan), box: bounds(polygon) };
+    return { room, rects: polygon.length ? clearRegion(polygon, floorStrips(room.floorId)) : [], key: cycleKey(room.boundary, oldPlan), box: bounds(polygon) };
   });
   const exact = new Map(old.map((o, i) => [o.key, i]));
   const faceKeys = derived.faces.map(face => cycleKey(face.boundary, plan));
@@ -46,6 +49,7 @@ export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, res
   for (const [i, j] of candidatePairs([...derived.faces.map(f => f.clearRect), ...old.map(o => o.box)])) {
     if (i >= count || j < count || exact.has(faceKeys[i]!)) continue;
     const source = j - count;
+    if (old[source]!.room.floorId !== faceFloor[i]) continue;
     const overlap = derived.faces[i]!.clearRects.reduce((sum, r) => sum + old[source]!.rects.reduce((s, q) => s + rectArea(rectIntersection(r, q)), 0), 0);
     if (overlap > 0) {
       overlaps[i]!.set(source, overlap);
@@ -60,7 +64,7 @@ export function assignRooms(oldPlan: Plan, plan: Plan, derived: DerivedPlan, res
     const source = old.findIndex(o => o.room.id === choice.roomId);
     // Rectangle partition seams are not room boundaries. Test the union's polygons,
     // excluding only their actual orthogonal boundary segments.
-    const faces = derived.faces.flatMap((f, i) => f.clearPolygons.some(polygon => insidePolygon(choice.point, polygon) &&
+    const faces = derived.faces.flatMap((f, i) => (source < 0 || faceFloor[i] === old[source]!.room.floorId) && f.clearPolygons.some(polygon => insidePolygon(choice.point, polygon) &&
       !polygon.some((a, n) => { const b=polygon[(n+1)%polygon.length]!;return a[0]===b[0]&&choice.point[0]===a[0]&&choice.point[1]>=Math.min(a[1],b[1])&&choice.point[1]<=Math.max(a[1],b[1]) || a[1]===b[1]&&choice.point[1]===a[1]&&choice.point[0]>=Math.min(a[0],b[0])&&choice.point[0]<=Math.max(a[0],b[0]); })) ? [i] : []);
     const face = faces[0];
     if (source < 0 || faces.length !== 1 || face === undefined || chosen.has(face) || chosenSource.has(source) ||

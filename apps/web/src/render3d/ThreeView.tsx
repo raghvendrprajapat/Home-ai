@@ -21,6 +21,7 @@ import {profiles,pixelRatio,resolveQuality} from './quality';
 import type {QualityChoice} from './quality';
 import {captureFrame} from './capture';
 import {advance,buildWalkWorld,walkPose,walkStart} from './walk';
+import {floorSnapshot} from '../editor/floor-scope';
 import type {WalkInput,WalkState,WalkWorld} from './walk';
 import type {ThreeControlsApi} from './types';
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
@@ -34,8 +35,8 @@ import type { RenderReading } from '../perf/metrics';
 import { editError,message } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 
-export default function ThreeView({ advisories:providedAdvisories,store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d,onPick,selectedPick,placementPreview,assetSource,onEditStart }: {
-  onEditStart?:()=>void;advisories?:FurnitureAdvisories;store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;assetSource?:FurnitureAssetSource;
+export default function ThreeView({ activeFloorId,advisories:providedAdvisories,store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d,onPick,selectedPick,placementPreview,assetSource,onEditStart }: {
+  activeFloorId?:string;onEditStart?:()=>void;advisories?:FurnitureAdvisories;store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;assetSource?:FurnitureAssetSource;
 }) {
   const [furnitureMode,setFurnitureMode]=useState<FurniturePointerMode>('orbit'),[freeTransform,setFreeTransform]=useState(false);
   // FR-019: 3D Move/Rotate on a grouped item act on its whole group (MoveFurniture/RotateFurniture).
@@ -48,6 +49,10 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
   const [downgraded,setDowngraded]=useState(false);
   // Walk mode (FR-026): the view owns the camera only while active; the canonical model is never written.
   const [walking,setWalking]=useState(false),[knob,setKnob]=useState<[number,number]>([0,0]);
+  // FR-034: 3D always shows the whole house; walking, placement and the cutaway follow the active floor.
+  const floorRef=useRef(activeFloorId);floorRef.current=activeFloorId;
+  const [showAbove,setShowAbove]=useState(false),showAboveRef=useRef(showAbove);showAboveRef.current=showAbove;const clipRef=useRef<()=>void>(()=>{});
+  const floorCount=useSyncExternalStore(store.subscribe,()=>store.getSnapshot().document.floors.length);
   const walkControl=useRef<{enter():'ok'|'empty'|'unavailable';exit():void;axes(forward:number,strafe:number):void;eye(step:-1|1):void}|null>(null);
   const [ceilings,setCeilings]=useState(false),[ceilingWarnings,setCeilingWarnings]=useState<CeilingWarning[]>([]);
   const poseRef=useRef<CameraPose|null>(null),apiCallback=useRef(onControlsReady);apiCallback.current=onControlsReady;
@@ -103,13 +108,17 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
     controls.maxPolarAngle = 85*Math.PI/180;
     let needsRender = true, lost = false, bundle: SceneBundle | undefined, first = true, generation = -1, sceneState:'pending'|'current'|'stale'|'failed'='pending';
     const invalidate = () => { needsRender = true; };
+    const activeFloor=()=>{const d=store.getSnapshot().document;return d.floors.find(f=>f.id===floorRef.current)??d.floors[0]!;};
+    // Cutaway: hide everything above the active floor's walls unless the viewer asks to see upper floors.
+    const updateClip=()=>{if(!renderer)return;const d=store.getSnapshot().document,floor=activeFloor(),higher=d.floors.some(f=>f.level>floor.level);renderer.clippingPlanes=higher&&!showAboveRef.current?[new THREE.Plane(new THREE.Vector3(0,-1,0),(floor.elevation+floor.defaultWallHeight)/1000+0.005)]:[];element.dataset.clipHeight=renderer.clippingPlanes.length?String(floor.elevation+floor.defaultWallHeight):'';invalidate();};
+    clipRef.current=updateClip;teardown.push(store.subscribe(updateClip));
     let appliedTag='';let appliedDocument:ReturnType<ProjectStore['getSnapshot']>['document']|null=null,previewDocument:ReturnType<ProjectStore['getSnapshot']>['document']|null=null,transform:FurniturePointer|undefined;
     const effectiveDocument=()=>previewDocument??store.getSnapshot().document;
     const syncModels=()=>{if(disposed)return;try{if(sceneState==='current'&&!lost&&appliedTag===JSON.stringify(store.asyncTag()))adapter.refreshFurniture(effectiveDocument());setModelStatus(models?.getSnapshot()??[]);element.dataset.modelAttached=JSON.stringify(models?.renderingStats.ids??[]);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);element.dataset.modelResources=JSON.stringify(models?.resourceStats??null);invalidate();}catch{fallback();}};
     const models:FurnitureAssets|undefined=assetSource?new FurnitureAssets(assetSource,tier==='low'?1:0,syncModels,uniforms=>shaderTextures.observe(uniforms)):undefined;
     if(models){adapter.furnitureAssets=models;adapter.group.add(models.group);retryModel.current=id=>models.retry(id);teardown.push(()=>{models.close();retryModel.current=()=>{};element.dataset.modelResources=JSON.stringify(models.resourceStats);});}
 
-    const syncGhost=()=>{if(disposed)return;try{ghost.set(ghostRef.current,store.asyncTag(),store.getSnapshot().document.floors[0]!.elevation,sceneState==='current'&&!lost&&!transform?.active&&generation===store.getSnapshot().localGeneration);element.dataset.placementId=ghost.group.visible?ghostRef.current?.item.id??'':'';element.dataset.placementOverlap=String(ghost.group.visible&&ghostRef.current?.warning===true);element.dataset.placementResources=JSON.stringify(ghost.resourceStats);selectionUpdate.current();invalidate();}catch{fallback();}};ghostUpdate.current=syncGhost;
+    const syncGhost=()=>{if(disposed)return;try{ghost.set(ghostRef.current,store.asyncTag(),activeFloor().elevation,sceneState==='current'&&!lost&&!transform?.active&&generation===store.getSnapshot().localGeneration);element.dataset.placementId=ghost.group.visible?ghostRef.current?.item.id??'':'';element.dataset.placementOverlap=String(ghost.group.visible&&ghostRef.current?.warning===true);element.dataset.placementResources=JSON.stringify(ghost.resourceStats);selectionUpdate.current();invalidate();}catch{fallback();}};ghostUpdate.current=syncGhost;
     const gesture=new PickGesture(),tag=()=>JSON.stringify(store.asyncTag());teardown.push(()=>gesture.clear());
     const selectOutline=()=>{if(disposed)return;if(sceneState!=='current'||lost||generation!==store.getSnapshot().localGeneration){outline.group.visible=false;setSelectionAdvisory(null);element.dataset.furnitureOverlap='false';invalidate();return;}try{const document=effectiveDocument(),item=selectedRef.current?.kind==='furniture'?document.furniture.find(f=>f.id===selectedRef.current!.id):undefined,advisory=item?advisories.check(document,item):null;const effective=previewDocument?advisory:ghost.group.visible?ghostRef.current?.advisory??advisory:advisory;setSelectionAdvisory(effective);element.dataset.furnitureOverlap=String(effective?.overlap??false);outline.set(selectedRef.current,adapter,document,advisory?.overlap??false);element.dataset.selectedEntity=selectedRef.current?.id??'';element.dataset.selectedKind=selectedRef.current?.kind??'';element.dataset.selectionResources=JSON.stringify(outline.resourceStats);invalidate();}catch{fallback();}};selectionUpdate.current=selectOutline;
     const applyPose=(p:CameraPose)=>{camera.position.fromArray(p.position);controls.target.fromArray(p.target);};
@@ -133,8 +142,8 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
     // ---- Walk mode ----
     let walkActive=false,walkState:WalkState|null=null,walkWorld:WalkWorld|null=null,walkGeneration=-1,walkLast=0,saved:CameraPose|null=null,look:{id:number;x:number;y:number}|null=null;
     const held=new Set<string>();let lookX=0,lookY=0,eyePress=0,padForward=0,padStrafe=0;
-    const walkWorldFor=()=>{const snap=store.getSnapshot();if(!walkWorld||walkGeneration!==snap.localGeneration){walkWorld=buildWalkWorld(snap.document,snap.derived.footprints);walkGeneration=snap.localGeneration;}return walkWorld;};
-    const publishWalk=()=>{if(!walkState){element.dataset.walkActive='false';element.dataset.walkPose='';return;}element.dataset.walkActive='true';element.dataset.walkPose=JSON.stringify({x:Math.round(walkState.x*10)/10,y:Math.round(walkState.y*10)/10,yaw:Math.round(walkState.yaw*1000)/1000,pitch:Math.round(walkState.pitch*1000)/1000,eye:walkState.eye});};
+    let walkFloor:string|undefined;const walkWorldFor=()=>{const snap=floorSnapshot(store.getSnapshot(),floorRef.current);if(!walkWorld||walkGeneration!==snap.localGeneration||walkFloor!==floorRef.current){walkWorld=buildWalkWorld(snap.document,snap.derived.footprints);walkFloor=floorRef.current;walkGeneration=snap.localGeneration;}return walkWorld;};
+    const publishWalk=()=>{if(!walkState){element.dataset.walkActive='false';element.dataset.walkPose='';return;}element.dataset.walkActive='true';element.dataset.walkPose=JSON.stringify({x:Math.round(walkState.x*10)/10,y:Math.round(walkState.y*10)/10,yaw:Math.round(walkState.yaw*1000)/1000,pitch:Math.round(walkState.pitch*1000)/1000,eye:walkState.eye,floorElevation:activeFloor().elevation});};
     const clearWalkInput=()=>{held.clear();lookX=0;lookY=0;eyePress=0;padForward=0;padStrafe=0;look=null;};
     const exitWalk=()=>{
       if(!walkActive)return;walkActive=false;walkState=null;walkWorld=null;clearWalkInput();controls.enabled=true;camera.fov=45;camera.updateProjectionMatrix();
@@ -142,7 +151,7 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
     };
     const enterWalk=():'ok'|'empty'|'unavailable'=>{
       if(walkActive)return 'ok';if(disposed||lost||recovery.active||sceneState!=='current'||generation!==store.getSnapshot().localGeneration)return 'unavailable';
-      const start=walkStart(store.getSnapshot(),walkWorldFor());if(!start)return 'empty';
+      const start=walkStart(floorSnapshot(store.getSnapshot(),floorRef.current),walkWorldFor());if(!start)return 'empty';
       transform?.cancel();gesture.cancel();saved={position:camera.position.toArray() as CameraPose['position'],target:controls.target.toArray() as CameraPose['target']};
       walkState=start;walkActive=true;walkLast=performance.now();clearWalkInput();controls.enabled=false;camera.fov=65;camera.updateProjectionMatrix();publishWalk();setWalking(true);invalidate();return 'ok';
     };
@@ -152,7 +161,7 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
       const input:WalkInput={forward:Math.max(-1,Math.min(1,key('w','s')+key('ArrowUp','ArrowDown')+padForward)),strafe:Math.max(-1,Math.min(1,key('d','a')+padStrafe)),turn:key('ArrowRight','ArrowLeft'),lookX,lookY,eyeStep:Math.sign(eyePress)};
       lookX=0;lookY=0;eyePress-=Math.sign(eyePress); // presses queue: one 100 mm step per frame, none lost
       const before=JSON.stringify(walkState);walkState=advance(walkState,input,dt,walkWorldFor());
-      const pose=walkPose(walkState,store.getSnapshot().document.floors[0]!.elevation);camera.position.fromArray(pose.position);camera.lookAt(pose.target[0],pose.target[1],pose.target[2]);
+      const pose=walkPose(walkState,activeFloor().elevation);camera.position.fromArray(pose.position);camera.lookAt(pose.target[0],pose.target[1],pose.target[2]);
       if(JSON.stringify(walkState)!==before){publishWalk();invalidate();}
     };
     const walkKeyDown=(event:KeyboardEvent)=>{
@@ -261,7 +270,7 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
         adapter.group.traverse(o=>{if(o instanceof THREE.Mesh&&o.userData.entityId===id)selected.union(new THREE.Box3().setFromObject(o));});
         if(selected.isEmpty()){
           const f=store.getSnapshot().document.furniture.find(f=>f.id===id);
-          if(f){const p=new THREE.Vector3(f.position.x/1000,(store.getSnapshot().document.floors[0]!.elevation+f.elevation+f.size.h/2)/1000,f.position.y/1000);selected.setFromCenterAndSize(p,new THREE.Vector3(Math.hypot(f.size.w,f.size.d)/1000,f.size.h/1000,Math.hypot(f.size.w,f.size.d)/1000));}
+          if(f){const p=new THREE.Vector3(f.position.x/1000,((store.getSnapshot().document.floors.find(floor=>floor.id===f.floorId)??store.getSnapshot().document.floors[0]!).elevation+f.elevation+f.size.h/2)/1000,f.position.y/1000);selected.setFromCenterAndSize(p,new THREE.Vector3(Math.hypot(f.size.w,f.size.d)/1000,f.size.h/1000,Math.hypot(f.size.w,f.size.d)/1000));}
         }
         if(selected.isEmpty())throw new Error('camera-selection');
         const b:Bounds3=[selected.min.x,selected.min.y,selected.min.z,selected.max.x,selected.max.y,selected.max.z],fitted=fitPose(b,camera.aspect);
@@ -281,6 +290,8 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
     }catch{fallback();return cleanup;}
   }, [store, onMessage,quality,lighting,assetSource]);
   useEffect(()=>{transformRef.current?.tick();selectionUpdate.current();if(!editablePick){transformRef.current?.setMode('orbit',freeRef.current);setFurnitureMode('orbit');}},[selectedPick,editablePick]);
+  useEffect(()=>{clipRef.current();},[activeFloorId,showAbove]);
+  useEffect(()=>{walkControl.current?.exit();},[activeFloorId]); // walking always starts again on the floor being edited
   useEffect(()=>{transformRef.current?.setMode(furnitureMode,freeTransform);},[furnitureMode,freeTransform]);
   useEffect(()=>{ghostUpdate.current();},[placementPreview]);
   useEffect(()=>{adapterRef.current?.setCeilingsVisible(ceilings);if(host.current)host.current.dataset.ceilingsVisible=String(ceilings);invalidateRef.current();},[ceilings]);
@@ -311,7 +322,7 @@ export default function ThreeView({ advisories:providedAdvisories,store, fitRequ
       </div>
       <p className="walk-hint" role="status">{message(locale,'walkHint')}</p>
     </div>}
-    <label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>
+    <label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>{floorCount>1&&<label className="upper-floors-toggle snap-toggle"><input type="checkbox" checked={showAbove} onChange={e=>setShowAbove(e.target.checked)}/>{message(locale,'showUpperFloors')}</label>}
     {ceilingWarnings.length>0&&<div className="ceiling-warnings" role="status" tabIndex={0} aria-label={message(locale,'ceilingWarningDetails')}>{ceilingWarnings.map(w=><p key={w.roomIds.join(':')}>{message(locale,'ceilingHeightsDiffer',{a:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[0])?.name??w.roomIds[0],b:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[1])?.name??w.roomIds[1],ha:w.heightsMm[0],hb:w.heightsMm[1]})}</p>)}</div>}
     {modelStatus.length>0&&<details className="furniture-models"><summary>{message(locale,'furnitureModels')}</summary><ul>{modelStatus.slice(currentModelPage*20,(currentModelPage+1)*20).map((m,i)=><li key={m.id} data-model-id={m.id} data-model-phase={m.phase}>{message(locale,'furnitureModelNumber',{n:currentModelPage*20+i+1})}: {message(locale,m.sizeMismatch?'furnitureModelSize':m.unsupportedFinish?'furnitureModelFinish':m.phase==='ready'?'furnitureModelReady':m.phase==='error'?'furnitureModelFailed':'furnitureModelLoading')}{m.phase==='loading'&&m.total?` ${Math.min(100,Math.floor(m.received/m.total*100))}%`:''}{m.retryable&&<button onClick={()=>retryModel.current(m.id)}>{message(locale,'furnitureModelRetry')}</button>}</li>)}</ul>{modelPages>1&&<nav aria-label={message(locale,'furnitureModelPages')}><button disabled={currentModelPage===0} onClick={()=>setModelPage(currentModelPage-1)}>{message(locale,'catalogPrevious')}</button><span>{message(locale,'catalogPage',{page:currentModelPage+1,pages:modelPages})}</span><button disabled={currentModelPage===modelPages-1} onClick={()=>setModelPage(currentModelPage+1)}>{message(locale,'catalogNext')}</button></nav>}</details>}
     <div className="canvas-hint">{message(locale, 'threeHint')}<br />{message(locale, 'dimensionsFurniture')}</div>

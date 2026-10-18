@@ -131,7 +131,7 @@ export class SceneAdapter {
       const mesh = this.#furniture.get(item.id) ?? new THREE.Mesh(this.#unitBox, this.#placeholder);
       if (!this.#furniture.has(item.id)) { this.#furniture.set(item.id, mesh);this.#own(mesh,[this.#shared('unit-box',this.#unitBox),this.#shared('placeholder',this.#placeholder)]); this.group.add(mesh); }
       mesh.scale.set(item.size.w / 1000, item.size.h / 1000, item.size.d / 1000);
-      mesh.position.set(item.position.x / 1000, (document.floors[0]!.elevation + item.elevation + item.size.h / 2) / 1000, item.position.y / 1000);
+      mesh.position.set(item.position.x / 1000, ((document.floors.find(f => f.id === item.floorId) ?? document.floors[0]!).elevation + item.elevation + item.size.h / 2) / 1000, item.position.y / 1000);
       mesh.visible=!instanced&&!loaded.has(item.id);mesh.castShadow=true;mesh.receiveShadow=true;
       mesh.rotation.y = -item.rotationDeg * Math.PI / 180; mesh.userData = { entityId: item.id, category: 'furniture-placeholder' };
     }
