@@ -547,6 +547,127 @@
           }
         }
       }
+    },
+    "stairs": {
+      "type": "array",
+      "maxItems": 50,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "floorId",
+          "position",
+          "rotationDeg",
+          "width",
+          "length",
+          "height",
+          "steps",
+          "material",
+          "rev"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "floorId": {
+            "$ref": "#/$defs/id"
+          },
+          "position": {
+            "$ref": "#/$defs/vec2"
+          },
+          "rotationDeg": {
+            "enum": [
+              0,
+              90,
+              180,
+              270
+            ]
+          },
+          "width": {
+            "type": "integer",
+            "minimum": 600,
+            "maximum": 2000
+          },
+          "length": {
+            "type": "integer",
+            "minimum": 1000,
+            "maximum": 8000
+          },
+          "height": {
+            "type": "integer",
+            "minimum": 500,
+            "maximum": 6000
+          },
+          "steps": {
+            "type": "integer",
+            "minimum": 2,
+            "maximum": 30
+          },
+          "material": {
+            "$ref": "#/$defs/id"
+          },
+          "rev": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "roofs": {
+      "type": "array",
+      "maxItems": 6,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "floorId",
+          "kind",
+          "pitchDeg",
+          "overhang",
+          "ridgeAxis",
+          "material",
+          "rev"
+        ],
+        "properties": {
+          "id": {
+            "$ref": "#/$defs/id"
+          },
+          "floorId": {
+            "$ref": "#/$defs/id"
+          },
+          "kind": {
+            "enum": [
+              "flat",
+              "gable"
+            ]
+          },
+          "pitchDeg": {
+            "type": "integer",
+            "minimum": 5,
+            "maximum": 60
+          },
+          "overhang": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 1000
+          },
+          "ridgeAxis": {
+            "enum": [
+              "x",
+              "y"
+            ]
+          },
+          "material": {
+            "$ref": "#/$defs/id"
+          },
+          "rev": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
     }
   }
 }

@@ -20,6 +20,7 @@ import { resolveSnap, snapGridStep, snapLine } from './snapping';
 import type { SnapTarget } from './snapping';
 import { formatLength } from './measurements';
 import { openingSymbol } from './opening-symbol';
+import { roofOutline, stairSymbol } from './structure-symbol';
 import type { PrecisionPreview } from './WallPrecision';
 import type { DrawingTool } from './drawing-tools';
 import type { Point2, Viewport } from './view2d';
@@ -254,6 +255,18 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
       for(const strip of wallSurfaceStrips(document,piece)){const [x0,y0,x1,y1]=strip.rect,p=worldToScreen([x0,y0],view);layer.add(new K.Rect({x:p[0],y:p[1],width:(x1-x0)*view.scale,height:(y1-y0)*view.scale,fill:strip.color}));}
       const [x0,y0,x1,y1]=piece.rect,p=worldToScreen([x0,y0],view),chosen=selection?selection.some(p=>p.kind==='wall'&&p.id===piece.ownerId):picked?.kind==='wall'&&picked.id===piece.ownerId;
       layer.add(new K.Rect({x:p[0],y:p[1],width:(x1-x0)*view.scale,height:(y1-y0)*view.scale,stroke:chosen?'#b6723f':'#42534b',strokeWidth:chosen?2:.75}));
+    }
+    // FR-035 (D66): stairs as footprint, riser lines and a climb arrow; the roof edge as a dashed outline. Display only.
+    for (const stair of document.stairs ?? []) {
+      const symbol = stairSymbol(stair), [x0, y0, x1, y1] = symbol.outline, p = worldToScreen([x0, y0], view);
+      layer.add(new K.Rect({ x: p[0], y: p[1], width: (x1 - x0) * view.scale, height: (y1 - y0) * view.scale, fill: '#e9e4dc', stroke: '#6f665b', strokeWidth: 1.5, listening: false }));
+      for (const [a, b] of symbol.risers) layer.add(new K.Line({ points: [...worldToScreen(a, view), ...worldToScreen(b, view)], stroke: '#8d8478', strokeWidth: 1, listening: false }));
+      layer.add(new K.Arrow({ points: [...worldToScreen(symbol.arrow[0], view), ...worldToScreen(symbol.arrow[1], view)], stroke: '#4b443c', fill: '#4b443c', strokeWidth: 1.5, pointerLength: 8, pointerWidth: 8, listening: false }));
+    }
+    for (const roof of document.roofs ?? []) {
+      const outline = roofOutline(document, roof); if (!outline) continue;
+      const p = worldToScreen([outline[0], outline[1]], view);
+      layer.add(new K.Rect({ x: p[0], y: p[1], width: (outline[2] - outline[0]) * view.scale, height: (outline[3] - outline[1]) * view.scale, stroke: '#9c5a3c', strokeWidth: 1.5, dash: [10, 6], listening: false }));
     }
     for (const object of document.furniture) {
       const p = worldToScreen([object.position.x, object.position.y], view);
