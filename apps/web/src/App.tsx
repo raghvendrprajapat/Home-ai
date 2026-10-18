@@ -20,6 +20,7 @@ import sample from '../../../docs/examples/sample-project.json';
 import { PlanCanvas } from './editor/PlanCanvas';
 import { createFloorScope } from './editor/floor-scope';
 import { FloorControls } from './editor/FloorControls';
+import { StructureControls } from './editor/StructureControls';
 import { DrawingTool } from './editor/drawing-tools';
 import { DrawingControls, RoomControls } from './editor/DrawingControls';
 import { WallPrecision } from './editor/WallPrecision';
@@ -133,6 +134,7 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
     <div className="editor-layout">
       <section ref={drawingPanel} className="drawing-panel" aria-label={t('floorEditor')}>
         <FloorControls store={baseStore} activeFloorId={activeFloor} onActivate={setActiveFloor} locale={ui.locale} onMessage={setMessage}/>
+        <StructureControls store={baseStore} activeFloorId={activeFloor} locale={ui.locale} onMessage={setMessage}/>
         <div className="editor-toolbar">
           <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => changeView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => changeView('3d')}>{t('view3d')}</button>{splitAvailable&&<button className={view==='split'?'active-tab':''} aria-pressed={view==='split'} onClick={()=>changeView('split')}>{t('splitView')}</button>}</div>
           <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{showPlan && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
