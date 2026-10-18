@@ -18,7 +18,7 @@ export const BLOCKED: ReadonlySet<CloudPhase> = new Set(['conflict', 'not-in-clo
 
 export class CloudSaver {
   #state: CloudSaveState; #listeners = new Set<() => void>(); #unsubscribe: (() => void) | null = null;
-  #inFlight = false; #retry: { request: SaveRequest; generation: number } | null = null; #attempts = 0; #timer: unknown = null; #closed = false;
+  #inFlight = false; #retry: { request: SaveRequest; generation: number } | null = null; #attempts = 0; #timer: unknown = null; #closed = false; #override: number | null = null;
   readonly #delay: number; readonly #retryMs: (attempt: number) => number; readonly #newKey: () => string;
   readonly #setTimer: (run: () => void, ms: number) => unknown; readonly #clearTimer: (timer: unknown) => void;
   constructor(private readonly store: ProjectStore, private readonly api: CloudApi, options: CloudSaverOptions = {}) {
@@ -44,6 +44,23 @@ export class CloudSaver {
   }
   stop(): void { this.#unsubscribe?.(); this.#unsubscribe = null; this.#cancelTimer(); if (!this.#inFlight) this.#set({ phase: 'idle' }); }
   close(): void { this.#closed = true; this.stop(); this.#listeners.clear(); }
+  /**
+   * FR-032 (D68) "replace the cloud version after review": the person saw the newer cloud head and chose to replace it
+   * with this device's drawing. One save goes on top of that head; it can still conflict if the cloud moved again.
+   */
+  replaceCloudAfterReview(): boolean {
+    const cloudRevision = this.#state.cloudRevision;
+    if (this.#closed || this.#state.phase !== 'conflict' || cloudRevision === undefined) return false;
+    this.#override = cloudRevision; this.#unsubscribe ??= this.store.subscribe(() => this.#changed());
+    this.#set({ phase: 'idle' }); this.#schedule(0); return true;
+  }
+  /** FR-032 (D68) the drawing was just replaced by its cloud head (a restore): nothing to upload until it changes. */
+  markInSync(): void {
+    const snapshot = this.store.getSnapshot(); this.#retry = null; this.#override = null; this.#attempts = 0; this.#cancelTimer();
+    this.#set({ phase: 'saved', ackedGeneration: snapshot.localGeneration, serverRevision: snapshot.document.revision });
+  }
+  /** FR-032 (D68) the cloud moved on while this device kept newer edits: pause exactly like a save conflict. */
+  markConflict(cloudRevision: number): void { this.#retry = null; this.#override = null; this.#cancelTimer(); this.#set({ phase: 'conflict', cloudRevision }); }
   /** Network came back: retry a waiting request now instead of at the end of its back-off. */
   online(): void { if (this.#state.phase === 'offline') this.#schedule(0); }
   #changed(): void {
@@ -59,7 +76,9 @@ export class CloudSaver {
     const snapshot = this.store.getSnapshot();
     if (!this.#retry && snapshot.localGeneration === this.#state.ackedGeneration) { this.#set({ phase: 'saved' }); return; }
     const document = snapshot.document as ProjectDoc;
-    const { request, generation } = this.#retry ?? { request: { projectId: document.id, expectedServerRevision: document.revision, commandId: this.#newKey(), document }, generation: snapshot.localGeneration };
+    // A replace-after-review save goes on top of the reviewed cloud head, with the document claiming that revision.
+    const base = this.#override ?? document.revision; this.#override = null;
+    const { request, generation } = this.#retry ?? { request: { projectId: document.id, expectedServerRevision: base, commandId: this.#newKey(), document: base === document.revision ? document : { ...document, revision: base } }, generation: snapshot.localGeneration };
     this.#inFlight = true; this.#set({ phase: 'saving' });
     const reply = await this.api.save(request);
     this.#inFlight = false;
@@ -67,7 +86,8 @@ export class CloudSaver {
     if (reply.ok) {
       this.#retry = null; this.#attempts = 0;
       const now = this.store.getSnapshot().document.revision;
-      if (now !== reply.serverRevision && !this.store.confirmServerRevision(request.expectedServerRevision, reply.serverRevision)) { this.#set({ phase: 'error' }); return; }
+      const moved = now === reply.serverRevision || (request.expectedServerRevision === now ? this.store.confirmServerRevision(now, reply.serverRevision) : this.store.adoptServerRevision(now, reply.serverRevision));
+      if (!moved) { this.#set({ phase: 'error' }); return; }
       const current = this.store.getSnapshot().localGeneration;
       this.#set({ phase: current === generation ? 'saved' : 'waiting', serverRevision: reply.serverRevision, ackedGeneration: generation, savedAt: reply.savedAt });
       if (current !== generation && this.#unsubscribe) this.#schedule(this.#delay);

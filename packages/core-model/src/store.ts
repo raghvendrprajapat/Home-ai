@@ -111,6 +111,36 @@ export class ProjectStore {
     const [document, patches] = produceWithPatches(this.#document, draft => { draft.revision = confirmedRevision; });
     this.#document = document; this.#publish(patches, 'server'); return true;
   }
+  /**
+   * FR-032 (D68) "replace the cloud version after review": the server stored this drawing on top of a newer head, so
+   * only `document.revision` jumps forward from `expectedCurrentRevision` to `confirmedRevision`; geometry is untouched.
+   */
+  adoptServerRevision(expectedCurrentRevision: number, confirmedRevision: number): boolean {
+    if (this.#publishing) return false;
+    if (!Number.isSafeInteger(expectedCurrentRevision) || !Number.isSafeInteger(confirmedRevision) || expectedCurrentRevision < 0 ||
+      confirmedRevision <= expectedCurrentRevision || this.#document.revision !== expectedCurrentRevision) return false;
+    const [document, patches] = produceWithPatches(this.#document, draft => { draft.revision = confirmedRevision; });
+    this.#document = document; this.#publish(patches, 'server'); return true;
+  }
+  /**
+   * FR-032 (D68) restore: the drawing becomes a server-confirmed head of the same project. This is a new local state, so
+   * the generation advances; undo/redo are cleared because their patches belong to the replaced drawing.
+   */
+  replaceFromServer(document: ProjectDoc): CommitResult {
+    if (this.#publishing) return { ok: false, errors: [{ code: 'reentrant', message: 'Try again after the current change.', entityIds: [] }] };
+    const errors = validateProject(document); if (errors.length) return { ok: false, errors };
+    if (document.id !== this.#document.id || document.revision <= this.#document.revision)
+      return { ok: false, errors: [{ code: 'server-document', message: 'Only a newer cloud version of this drawing can replace it.', entityIds: [] }] };
+    const incoming = JSON.parse(JSON.stringify(document)) as ProjectDoc;
+    const [next, patches] = produceWithPatches(this.#document, draft => {
+      const target = draft as unknown as Record<string, unknown>, source = incoming as unknown as Record<string, unknown>;
+      for (const key of Object.keys(target)) if (!(key in source)) delete target[key];
+      for (const [key, value] of Object.entries(source)) if (JSON.stringify(target[key]) !== JSON.stringify(value)) target[key] = value;
+    });
+    this.#undo = []; this.#redo = []; this.#historyBytes = 0; this.#truncated = false;
+    this.#document = next; this.#derived = freeze(deriveDocument(next), true); this.#generation++; this.#publish(patches, 'server');
+    return { ok: true, changed: true, changedIds: [], patches, inverse: [], checkRoomNamesHint: false };
+  }
   asyncTag(dependencies: unknown = this.#document): AsyncTag {
     return { projectId: this.#document.id, sessionId: this.#sessionId, localGeneration: this.#generation, dependencyHash: dependencyHash(dependencies) };
   }
