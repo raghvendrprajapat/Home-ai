@@ -27,7 +27,7 @@ import type { Point2, Viewport } from './view2d';
 type Snapshot = ReturnType<ProjectStore['getSnapshot']>;
 interface Props { selectedPick?:Pick|null;advisories?:FurnitureAdvisories;previewFurnitureId?:string|undefined;store: ProjectStore; snapshot: Snapshot; selected: string; onSelect(id: string): void; onMessage(text: string): void; zoomRequest: number; showGrid: boolean; locale?: Locale; drawing?: DrawingTool; precisionPreview?:PrecisionPreview|null; onViewCentre?(point:Point2):void; onEditStart?():void; onPick?(pick:Pick|null,additive?:boolean):void; selection?:readonly Pick[]; multiple?:boolean; onBoxSelect?(picks:readonly Pick[],additive:boolean):void; onTiming?: (kind: 'preview' | 'command', durationMs: number) => void }
 interface DragBase {pointerId:number;generation:number;start:Point2;last:Point2;touch:boolean;store:ProjectStore;frame:readonly[number,number,number,number];windowSize:readonly[number,number]}
-type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent}|{kind:'wall';wall:string;axis:'x'|'y';along:number;exclude:ReadonlySet<string>}|{kind:'group';ids:readonly string[];anchor:Point2});
+type Drag=DragBase&({kind:'junction';junction:string}|{kind:'furniture';intent:FurnitureGestureIntent}|{kind:'wall';wall:string;axis:'x'|'y';along:number;exclude:ReadonlySet<string>}|{kind:'group';ids:readonly string[];anchor:Point2;leader:string});
 export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvisories,previewFurnitureId,store, snapshot, selected, onSelect, onMessage, zoomRequest, showGrid, onTiming, drawing, precisionPreview, onViewCentre, onEditStart, onPick, selection, multiple=false, onBoxSelect, locale = 'en' }: Props) {
   const [ownAdvisories]=useState(()=>new FurnitureAdvisories()),advisories=providedAdvisories??ownAdvisories;
   const furnitureSnapKey=useRef<string|null>(null),[backSnap,setBackSnap]=useState<BackAlignment|null>(null);
@@ -115,9 +115,15 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
     if(d.kind==='junction')return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:junctionMoves(d.store.getSnapshot().document,d.junction,to)};
     if(d.kind==='wall')return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveJunctions' as const,moves:wallMoves(d.store.getSnapshot().document,d.wall,to[d.axis==='x'?0:1])};
     if(d.kind==='group'){
-      // The touched item lands on the grid (unless Shift or snapping is off); every member shares its integer delta.
-      const free=shift||toolRef.current?.getSnapshot().snappingEnabled===false,step=snapGridStep(viewRef.current.scale),land=(value:number)=>free?Math.round(value):Math.round(value/step)*step;
-      return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveFurniture' as const,furnitureIds:d.ids,dx:land(d.anchor[0]+to[0]-d.start[0])-d.anchor[0],dy:land(d.anchor[1]+to[1]-d.start[1])-d.anchor[1]};
+      // The touched item snaps its back to a nearby wall face (D62) or else lands on the grid, unless Shift or snapping
+      // is off; every member shares its integer delta.
+      const free=shift||toolRef.current?.getSnapshot().snappingEnabled===false,scale=viewRef.current.scale,step=snapGridStep(scale),land=(value:number)=>free?Math.round(value):Math.round(value/step)*step;
+      const raw:Point2=[d.anchor[0]+to[0]-d.start[0],d.anchor[1]+to[1]-d.start[1]],document=d.store.getSnapshot().document,leader=document.furniture.find(f=>f.id===d.leader);
+      let snap:BackAlignment|null=null;
+      if(!free&&leader){const candidate={...leader,position:{x:raw[0],y:raw[1]}},previous=furnitureSnapKey.current,held=previous?advisories.align(document,candidate,Math.min(12/scale,250),previous):null;snap=(held?.alignment?.key===previous?held:advisories.align(document,candidate,Math.min(8/scale,200))).alignment;}
+      furnitureSnapKey.current=snap?.key??null;setBackSnap(snap);
+      const target=snap?[snap.position.x,snap.position.y]:[land(raw[0]),land(raw[1])];
+      return {id:`drag_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:d.generation,type:'MoveFurniture' as const,furnitureIds:d.ids,dx:target[0]!-d.anchor[0],dy:target[1]!-d.anchor[1]};
     }
     const result=advisories.gesture(d.store.getSnapshot().document,d.intent,to,shift||toolRef.current?.getSnapshot().snappingEnabled===false||d.intent.mode==='rotate'&&freeRotationRef.current,snapGridStep(viewRef.current.scale),viewRef.current.scale,furnitureSnapKey.current);
     furnitureSnapKey.current=result.snap?.key??null;setBackSnap(result.snap);return result.command;
@@ -323,7 +329,7 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
         onPick?.(pick,false);setPicked(pick);
         if(pick.kind==='junction'){const j=snapshot.document.junctions.find(j=>j.id===pick.id)!;onSelect(j.id);drag.current={...mapping,kind:'junction',pointerId:event.pointerId,junction:j.id,generation:snapshot.localGeneration,start:[j.x,j.y],last:[j.x,j.y],touch,store};}
         else if(pick.kind==='wall'&&wallSetup){drag.current={...mapping,kind:'wall',wall:pick.id,axis:wallSetup.axis,along:wallSetup.along,exclude:wallSetup.exclude,pointerId:event.pointerId,generation:snapshot.localGeneration,start:wallSetup.origin,last:wallSetup.origin,touch,store};}
-        else if(groupIds){const world=screenToWorld(point,viewRef.current),item=snapshot.document.furniture.find(f=>f.id===pick.id)!;drag.current={...mapping,kind:'group',ids:groupIds,anchor:[item.position.x,item.position.y],pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
+        else if(groupIds){const world=screenToWorld(point,viewRef.current),item=snapshot.document.furniture.find(f=>f.id===pick.id)!;drag.current={...mapping,kind:'group',ids:groupIds,anchor:[item.position.x,item.position.y],leader:item.id,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
         else{const world=screenToWorld(point,viewRef.current),intent=beginFurnitureGesture(store,pick.id,'move',world);drag.current={...mapping,kind:'furniture',intent,pointerId:event.pointerId,generation:snapshot.localGeneration,start:world,last:world,touch,store};}
         if(step.phase==='pending')holdTimer.current=setTimeout(()=>applyStep(gestures.current.hold(performance.now())),151);
         onMessage(message(locale,groupIds?'groupDragHint':pick.kind==='furniture'?'furnitureDragHint':pick.kind==='wall'?'wallDragHint':touch?'touchHold':'previewHelp'));
