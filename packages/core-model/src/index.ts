@@ -7,3 +7,4 @@ export * from './recovery';
 export * from './migrations';
 export * from './project-factory';
 export * from './templates';
+export * from './structures';
