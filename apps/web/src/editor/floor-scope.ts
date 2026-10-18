@@ -3,7 +3,7 @@ import type { PlanDocument } from './view2d';
 
 /**
  * FR-034 (D63): the 2D editor works on one floor at a time. A floor view keeps only that floor's
- * junctions, walls, their openings, rooms, furniture and lights, and lists the active floor first so
+ * junctions, walls, their openings, rooms, furniture, lights, stairs and roof, and lists the active floor first so
  * floor-relative helpers (for example furniture placement) use it. A one-floor project is returned
  * unchanged, so single-floor behaviour cannot drift. The canonical project is never replaced by a view.
  */
@@ -23,6 +23,8 @@ export function floorView(document: PlanDocument, floorId: string | undefined): 
     rooms: document.rooms.filter(r => r.floorId === floorId),
     furniture: document.furniture.filter(f => f.floorId === floorId),
     lights: document.lights.filter(l => l.floorId === floorId),
+    ...document.stairs ? { stairs: document.stairs.filter(s => s.floorId === floorId) } : {},
+    ...document.roofs ? { roofs: document.roofs.filter(r => r.floorId === floorId) } : {},
   } as PlanDocument;
   cache.set(floorId, view); return view;
 }

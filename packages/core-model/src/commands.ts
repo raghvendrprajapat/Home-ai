@@ -1,6 +1,6 @@
 import { assignRooms, bounds, candidatePairs, derivePlan, detectFaces, endpoints, freshId, GeometryError, normalizePlan, wallLength } from '@gharplan/geometry';
 import type { Draft } from 'immer';
-import type { Floor, FurnitureItem, MaterialDef, Opening, ProjectDoc, Room, RoomType, Wall } from './types';
+import type { Floor, FurnitureItem, MaterialDef, Opening, ProjectDoc, Roof, Room, RoomType, Stair, Wall } from './types';
 import {canonicalStringify} from './serialization';
 import type { RoomIdentityChoice } from '@gharplan/geometry';
 
@@ -50,10 +50,18 @@ export type Command = CommandBase & (
   | { type: 'UpdateRoom'; roomId: string; properties: Partial<Pick<Room, 'name' | 'ceilingHeight' | 'floorMaterial'>> & { type?: RoomType } }
   | { type:'AddCameraPreset'; camera:Omit<import('./types').CameraPreset,'id'> }
   | { type:'DeleteCameraPreset'; cameraId:string }
+  | { type: 'AddStair'; stair: Omit<Stair, 'id' | 'rev' | 'material'>; material: MaterialDef }
+  | { type: 'UpdateStair'; stairId: string; properties: Partial<Pick<Stair, 'position' | 'rotationDeg' | 'width' | 'length' | 'height' | 'steps'>> }
+  | { type: 'DeleteStair'; stairId: string }
+  | { type: 'SetRoof'; floorId: string; roof: Pick<Roof, 'kind' | 'pitchDeg' | 'overhang' | 'ridgeAxis'> | null; material?: MaterialDef }
   | { type: 'RenameProject'; name: string }
   | { type: 'SetUnits'; units: 'metric' | 'imperial' }
 );
 export interface CommandEffects { changedIds: string[]; checkRoomNamesHint: boolean }
+/** Every entity ID in the document, for fresh-ID generation. Stairs and roofs (FR-035) are optional arrays. */
+export function entityIds(d: ProjectDoc | Draft<ProjectDoc>): string[] {
+  return [d.id, ...[d.floors, d.junctions, d.walls, d.openings, d.rooms, d.furniture, d.materials, d.lights, d.cameras, d.stairs ?? [], d.roofs ?? []].flat().map(e => e.id)];
+}
 function requireEntity<T extends { id: string }>(entities: T[], id: string): T {
   const entity = entities.find(e => e.id === id);
   if (!entity) throw new GeometryError('entity', 'The selected entity no longer exists.', [id]); return entity;
@@ -81,10 +89,16 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       (command.type !== 'MoveJunctions' || !['a', 'b', 'centre'].includes(command.openingPlacement)))
     throw new GeometryError('opening-placement', 'Opening placement must be A, B or centre on a junction movement.');
   const wall = (id: string) => requireEntity(draft.walls, id);
+  const installMaterial = (material: MaterialDef) => {
+    if (!material || typeof material !== 'object' || Array.isArray(material) || typeof material.id !== 'string') throw new GeometryError('command-properties', 'Choose a valid material.');
+    const existing = draft.materials.find(m => m.id === material.id);
+    if (existing && canonicalStringify(existing) !== canonicalStringify(material)) throw new GeometryError('material-conflict', 'This material ID already has a different definition.', [material.id]);
+    if (!existing) draft.materials.push({ ...material });
+  };
   // FR-034: wall tools draw on the requested floor (default: the first floor, as before multi-floor projects).
   const floorId = (command.type === 'AddWall' || command.type === 'AddRectangle') && command.floorId !== undefined ? requireEntity(draft.floors, command.floorId).id : draft.floors[0]!.id;
   const addWall = (from: readonly [number, number], to: readonly [number, number], thickness: number, height: number, materials?: Pick<Wall, 'leftMaterial' | 'rightMaterial'>) => {
-    const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)]);
+    const used = new Set([...entityIds(draft)]);
     const endpoint = ([x, y]: readonly [number, number]) => {
       const existing = draft.junctions.find(j => j.x === x && j.y === y && j.floorId === floorId);
       if (existing) return existing.id;
@@ -129,7 +143,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       if (typeof command.name !== 'string' || !command.name.trim() || command.name.trim().length > 60) throw new GeometryError('floor-name', 'Give the floor a name of 1-60 characters.');
       if (draft.floors.length >= MAX_FLOORS) throw new GeometryError('floor-limit', `A project can have at most ${MAX_FLOORS} floors.`);
       const top = [...draft.floors].sort((a, b) => b.level - a.level)[0]!;
-      const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)]);
+      const used = new Set([...entityIds(draft)]);
       // The new floor sits on top: its floor level is the top floor's level plus that floor's wall height.
       const floor = { id: freshId('floor', used), name: command.name.trim(), level: top.level + 1, elevation: top.elevation + top.defaultWallHeight, defaultWallHeight: top.defaultWallHeight };
       draft.floors.push(floor); used.add(floor.id);
@@ -156,6 +170,8 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       draft.openings = draft.openings.filter(o => !walls.has(o.wallId));
       const keep = <T extends { floorId: string }>(list: T[]) => list.filter(e => e.floorId !== command.floorId);
       draft.junctions = keep(draft.junctions); draft.walls = keep(draft.walls); draft.rooms = keep(draft.rooms); draft.furniture = keep(draft.furniture); draft.lights = keep(draft.lights);
+      if (draft.stairs) { draft.stairs = keep(draft.stairs); if (!draft.stairs.length) delete draft.stairs; }
+      if (draft.roofs) { draft.roofs = keep(draft.roofs); if (!draft.roofs.length) delete draft.roofs; }
       draft.floors = draft.floors.filter(f => f.id !== command.floorId);
       geometryChanged = true; break;
     }
@@ -259,7 +275,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       const groups = new Set(items.flatMap(item => item.groupId ? [item.groupId] : [])), members = draft.furniture.filter(f => items.includes(f) || (f.groupId !== undefined && groups.has(f.groupId)));
       if (command.type === 'UngroupFurniture') { for (const item of members) delete item.groupId; break; }
       if (groups.size === 1 && members.every(f => f.groupId === [...groups][0])) break; // already exactly one group
-      const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id), ...draft.furniture.flatMap(f => f.groupId ? [f.groupId] : [])]);
+      const used = new Set([...entityIds(draft), ...draft.furniture.flatMap(f => f.groupId ? [f.groupId] : [])]);
       const groupId = freshId('group', used);
       for (const item of members) item.groupId = groupId;
       break;
@@ -268,7 +284,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       if (!Array.isArray(command.furnitureIds) || command.furnitureIds.length > 500 || command.furnitureIds.some(id => typeof id !== 'string') || new Set(command.furnitureIds).size !== command.furnitureIds.length)
         throw new GeometryError('selection', 'Furniture IDs must be unique and bounded to 500 items.');
       const source = command.furnitureIds.map(id => requireEntity(draft.furniture, id));
-      const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)]);
+      const used = new Set([...entityIds(draft)]);
       for (const item of source) {
         const copy = JSON.parse(JSON.stringify(item)) as FurnitureItem;
         copy.id = freshId('furniture', used); copy.position.x += 200; copy.position.y += 200; copy.rev = 0; delete copy.groupId;
@@ -322,11 +338,48 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       const delta=position.map((v,i)=>v-target[i]!),distance=Math.hypot(...delta);
       // Up to3mm covers integer quantization; runtime orbit always clamps to1–200metres.
       if(distance<997||distance>200_003||position[2]!<=draft.floors[0]!.elevation||target[2]!<draft.floors[0]!.elevation||delta[2]!<distance*Math.cos(85*Math.PI/180)-3)throw new GeometryError('camera-bookmark','Camera bookmark must be within orbit limits and above the floor.');
-      const used=new Set([draft.id,...[draft.floors,draft.junctions,draft.walls,draft.openings,draft.rooms,draft.furniture,draft.materials,draft.lights,draft.cameras].flat().map(e=>e.id)]),id=freshId('camera',used);
+      const used=new Set([...entityIds(draft)]),id=freshId('camera',used);
       draft.cameras.push({...command.camera,name:command.camera.name.trim(),id});return {changedIds:[id],checkRoomNamesHint:false};
     }
     case 'DeleteCameraPreset': {
       requireEntity(draft.cameras,command.cameraId);draft.cameras=draft.cameras.filter(c=>c.id!==command.cameraId);return {changedIds:[command.cameraId],checkRoomNamesHint:false};
+    }
+    case 'AddStair': {
+      // FR-035 (D66): ranges are checked by the schema after the command; here only shape and references.
+      const { stair } = command;
+      if (!stair || typeof stair !== 'object' || !stair.position || typeof stair.position !== 'object') throw new GeometryError('command-properties', 'Give the stairs a position and size.');
+      requireEntity(draft.floors, stair.floorId); installMaterial(command.material);
+      const id = freshId('stair', new Set(entityIds(draft)));
+      (draft.stairs ??= []).push({ id, floorId: stair.floorId, position: { x: stair.position.x, y: stair.position.y }, rotationDeg: stair.rotationDeg, width: stair.width, length: stair.length, height: stair.height, steps: stair.steps, material: command.material.id, rev: 0 });
+      break;
+    }
+    case 'UpdateStair': {
+      const stair = requireEntity(draft.stairs ?? [], command.stairId);
+      assignProperties(stair, command.properties, ['position', 'rotationDeg', 'width', 'length', 'height', 'steps']);
+      if (command.properties.position) stair.position = { x: command.properties.position.x, y: command.properties.position.y };
+      break;
+    }
+    case 'DeleteStair': {
+      requireEntity(draft.stairs ?? [], command.stairId);
+      draft.stairs = draft.stairs!.filter(s => s.id !== command.stairId); if (!draft.stairs.length) delete draft.stairs;
+      break;
+    }
+    case 'SetRoof': {
+      // One roof per floor: SetRoof adds, changes or (with null) removes it.
+      requireEntity(draft.floors, command.floorId);
+      const existing = draft.roofs?.find(r => r.floorId === command.floorId);
+      if (command.roof === null) {
+        if (!existing) break;
+        draft.roofs = draft.roofs!.filter(r => r !== existing); if (!draft.roofs.length) delete draft.roofs; break;
+      }
+      const { kind, pitchDeg, overhang, ridgeAxis } = command.roof ?? {} as Partial<Roof>;
+      if (command.material) installMaterial(command.material);
+      const material = command.material?.id ?? existing?.material;
+      if (material === undefined) throw new GeometryError('command-properties', 'Choose a roof material.');
+      const next = { kind: kind!, pitchDeg: pitchDeg!, overhang: overhang!, ridgeAxis: ridgeAxis!, material };
+      if (existing) Object.assign(existing, next);
+      else (draft.roofs ??= []).push({ id: freshId('roof', new Set(entityIds(draft))), floorId: command.floorId, ...next, rev: 0 });
+      break;
     }
     case 'RenameProject': draft.name = command.name; break;
     case 'SetUnits': draft.units = command.units; break;
@@ -336,7 +389,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
   if (command.roomChoices !== undefined && (!Array.isArray(command.roomChoices) || !geometryChanged || command.roomChoices.length > previous.rooms.length))
     throw new GeometryError('room-choice', 'Room identity choices must accompany a geometry edit.');
   if (geometryChanged) {
-    const reservedIds = [draft.id, ...[draft.floors, draft.openings, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)];
+    const reservedIds = [draft.id, ...[draft.floors, draft.openings, draft.furniture, draft.materials, draft.lights, draft.cameras, draft.stairs ?? [], draft.roofs ?? []].flat().map(e => e.id)];
     const normalized = normalizePlan(draft, reservedIds);
     if ((command.type === 'AddWall' || command.type === 'AddRectangle') && JSON.stringify(normalized.plan.walls) === JSON.stringify(previous.walls))
       normalized.plan.junctions = previous.junctions.map(j => ({ ...j }));
@@ -392,10 +445,10 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
   const oldJunctions = new Map(previous.junctions.map(j => [j.id, j]));
   for (const j of draft.junctions) if (JSON.stringify(j) !== JSON.stringify(oldJunctions.get(j.id))) changed.add(j.id);
   for (const j of previous.junctions) if (!draft.junctions.some(n => n.id === j.id)) changed.add(j.id);
-  const groups = ['walls', 'openings', 'rooms', 'furniture', 'lights', 'materials', 'cameras'] as const;
+  const groups = ['walls', 'openings', 'rooms', 'furniture', 'lights', 'materials', 'cameras', 'stairs', 'roofs'] as const;
   for (const group of groups) {
-    const old = new Map<string, { id: string }>(previous[group].map(e => [e.id, e]));
-    for (const e of draft[group]) {
+    const old = new Map<string, { id: string }>((previous[group] ?? []).map(e => [e.id, e]));
+    for (const e of draft[group] ?? []) {
       const oldEntity = old.get(e.id), ownChange = JSON.stringify(e) !== JSON.stringify(oldEntity);
       // Surface paint changes one binding, not hosted geometry or room boundaries.
       // Scene material dependencies are derived separately from canonical IDs.
@@ -407,7 +460,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
         if ('rev' in e) e.rev = oldEntity && 'rev' in oldEntity ? (oldEntity.rev as number) + 1 : 0;
       }
     }
-    for (const id of old.keys()) if (!draft[group].some(e => e.id === id)) changed.add(id);
+    for (const id of old.keys()) if (!(draft[group] ?? []).some(e => e.id === id)) changed.add(id);
   }
   return { changedIds: [...changed], checkRoomNamesHint };
 }

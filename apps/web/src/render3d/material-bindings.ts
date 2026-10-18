@@ -6,11 +6,13 @@ export function materialBindings(document:ProjectDoc):Bindings {
  const result=new Map<string,Partial<Record<MaterialRange['slot'],string>>>(),walls=new Map(document.walls.map(w=>[w.id,w]));
  for(const w of document.walls)result.set(`wall:${w.id}`,{left:w.leftMaterial,right:w.rightMaterial});
  for(const r of document.rooms){result.set(`floor:${r.id}`,{floor:r.floorMaterial});result.set(`ceiling:${r.id}`,{ceiling:'__ceiling'});}
+ for(const s of document.stairs??[])result.set(`stair:${s.id}`,{stair:s.material});
+ for(const r of document.roofs??[])result.set(`roof:${r.id}`,{roof:r.material});
  for(const o of document.openings)if(o.kind==='door'&&o.sill===0){const w=walls.get(o.wallId);if(!w)throw Error('material-host');const material=document.rooms.find(r=>r.boundary.includes(w.a)&&r.boundary.includes(w.b))?.floorMaterial??document.materials[0]!.id;result.set(`threshold:${o.id}`,{threshold:material});}
  return result;
 }
 /** Definitions/labels/colours do not change these ID-to-surface bindings. */
-export function materialBindingKey(document:ProjectDoc):string{return JSON.stringify([document.walls.map(w=>[w.id,w.leftMaterial,w.rightMaterial]),document.rooms.map(r=>[r.id,r.floorMaterial]),document.materials[0]?.id]);}
+export function materialBindingKey(document:ProjectDoc):string{return JSON.stringify([document.walls.map(w=>[w.id,w.leftMaterial,w.rightMaterial]),document.rooms.map(r=>[r.id,r.floorMaterial]),document.materials[0]?.id,(document.stairs??[]).map(s=>[s.id,s.material]),(document.roofs??[]).map(r=>[r.id,r.material])]);}
 /** Rebind material groups only. Keep all position/normal/UV/range buffers owned by
  * their original generation; earlier bundles and cache entries stay immutable. */
 export function bindMeshMaterials(mesh:MeshData,bindings:Bindings):MeshData {
