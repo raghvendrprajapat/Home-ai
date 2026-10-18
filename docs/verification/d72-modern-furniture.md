@@ -66,6 +66,24 @@ These are Claude-authored checks. They are not an aesthetic review by a designer
   - Lint and typecheck: passed.
   - Browser tests: catalog 5/5, starter catalog 3/3, modern furniture 2/2, and furniture advisories, finish, models and placement 21/21.
 
+## CI memory check (REN-009) on the bedroom PR
+- **Failure:** CI failed `context-resources.spec.ts` REN-009 twice: main-frame heap growth over 50 3D view toggles was 10.84% and then 10.27%, against a 10% limit. `main` passed.
+- **Not the catalog size itself:** locally, growth did not scale with catalog size (38, 49 and 61 entries all about 7.5–8.2%).
+  - Heap snapshots show the steady growth (about 19 KB per toggle) is V8 compiled code, and it is present on unchanged `main` too.
+- **Real cause on this branch:** a request probe found `catalog.json` downloaded 4 times in 10 toggles.
+  - `CatalogSource` cached the manifest only when the requesting view was still open.
+  - A view closed mid-download aborted and discarded it, and a larger catalog made each repeat cost more.
+- **Fix:** the manifest is now one shared request.
+  - A caller's abort releases only that caller; the request keeps its 15 s timeout.
+  - A completed manifest is cached, and a failed one is forgotten and retried.
+- **New test:** `api.test.ts` "one shared catalog request…".
+  - One download serves an aborted load and two later loads; a 503 is retried once.
+  - Mutation: starting a new request per load fails it.
+- **Measured after the fix, local REN-009 growth:**
+  - This branch: 7.44%, 8.22%, 7.89% (mean 7.85%).
+  - `main`: 7.97% and 7.89% (mean 7.93%).
+  - The 10% limit is unchanged.
+
 ## Pending
 - Dining and storage redesigns.
 - Designer/aesthetic review.

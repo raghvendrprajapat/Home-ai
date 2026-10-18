@@ -40,6 +40,20 @@ it('REN-004/AST-003 real packaged GLB resolves exact pins, decodes grounded nati
  }finally{decoded.dispose();decoded.dispose();}
  await expect(source.load('a_demo_table',2,0,new AbortController().signal,()=>{})).rejects.toMatchObject({code:'failed'});expect(urls).toEqual([base+'catalog.json',base+asset.lods[0]!.path]);
 });
+it('REN-009/D72 one shared catalog request survives a caller abort, is reused by later loads and is retried only after a failure',async()=>{
+ const {CatalogSource}=await import('./api'),model=await readFile(new URL('../../public/catalog/'+asset.lods[0]!.path,import.meta.url));
+ let release!:()=>void,fail=true;const gate=new Promise<void>(resolve=>{release=resolve;}),urls:string[]=[];
+ const source=new CatalogSource(new CatalogApi(base,async(input,init)=>{const url=String(input);urls.push(url);if(url.endsWith('catalog.json')){await gate;if((init as RequestInit).signal?.aborted)throw new DOMException('aborted','AbortError');return response(raw);}return response(model);}));
+ // A 3D view closes while the manifest is still downloading: the caller is released, the shared request keeps going.
+ const first=new AbortController(),closed=source.load('a_demo_table',1,0,first.signal,()=>{});first.abort();await expect(closed).rejects.toMatchObject({code:'cancelled'});
+ const second=source.load('a_demo_table',1,0,new AbortController().signal,()=>{});release();
+ expect((await second).triangles).toBe(72);await source.load('a_demo_table',1,0,new AbortController().signal,()=>{});
+ expect(urls.filter(u=>u.endsWith('catalog.json'))).toHaveLength(1);
+ // A failed manifest is not cached: the next load asks again and succeeds.
+ const retry=new CatalogSource(new CatalogApi(base,async input=>{const url=String(input);urls.push(url);if(url.endsWith('catalog.json')){if(fail){fail=false;return new Response('down',{status:503});}return response(raw);}return response(model);}));urls.length=0;
+ await expect(retry.load('a_demo_table',1,0,new AbortController().signal,()=>{})).rejects.toMatchObject({code:'failed'});
+ expect((await retry.load('a_demo_table',1,0,new AbortController().signal,()=>{})).triangles).toBe(72);expect(urls.filter(u=>u.endsWith('catalog.json'))).toHaveLength(2);
+});
 it('REN-004 model byte/hash truncation and invalid profiles fail before display, including accessor allocation bombs',async()=>{
  const {decodeFurniture,inspectFurniture}=await import('../render3d/furniture-decoder');
  const model=await readFile(new URL('../../public/catalog/'+asset.lods[0]!.path,import.meta.url));
