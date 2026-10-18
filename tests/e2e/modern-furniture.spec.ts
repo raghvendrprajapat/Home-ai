@@ -8,9 +8,10 @@ const dialog=(page:Page)=>page.getByRole('dialog',{name:'Furniture catalog',exac
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
 async function backup(page:Page){const d=page.waitForEvent('download');await page.getByRole('button',{name:'Export drawing',exact:true}).click();return JSON.parse(await readFile((await(await d).path())!,'utf8'));}
 
-test('D72 L-shape sofa, TV unit, coffee table and accent armchair place their newest versions and load as real 3D models',async({page})=>{
+type Choice=[string,number,number,number,number];
+async function placeAndRender(page:Page,chosen:Choice[],shot:string){
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
- const chosen:[string,number,number,number,number][]=[['a_l0_sofa_l',1,2250,3850,0],['a_l0_tv_unit',1,2250,450,180],['a_l0_coffee_table',2,2250,2500,0],['a_l0_armchair',2,700,2300,90]],placed:{id:string}[]=[];
+ const placed:{id:string}[]=[];
  for(const [id,version,x,y,rotation] of chosen){
   const asset=manifest.assets.find(a=>a.id===id&&a.version===version)!;expect(asset).toBeDefined();
   // Exactly this version is the newest one published for the ID.
@@ -28,5 +29,12 @@ test('D72 L-shape sofa, TV unit, coffee table and accent armchair place their ne
  for(const item of placed)await expect(page.locator(`[data-model-id="${item.id}"]`)).toHaveAttribute('data-model-phase','ready');
  const triangles=chosen.reduce((n,[id,version])=>n+manifest.assets.find(a=>a.id===id&&a.version===version)!.lods[0]!.triangles,0);
  await expect.poll(async()=>JSON.parse((await view.getAttribute('data-model-scene'))!).triangles).toBe(triangles);
- await view.screenshot({path:test.info().outputPath('modern-living-room-3d.png')});
+ await view.screenshot({path:test.info().outputPath(shot)});
+}
+
+test('D72 L-shape sofa, TV unit, coffee table and accent armchair place their newest versions and load as real 3D models',async({page})=>{
+ await placeAndRender(page,[['a_l0_sofa_l',1,2250,3850,0],['a_l0_tv_unit',1,2250,450,180],['a_l0_coffee_table',2,2250,2500,0],['a_l0_armchair',2,700,2300,90]],'modern-living-room-3d.png');
+});
+test('D72 king bed, sliding wardrobe, bedside table and dressing table place their newest versions and load as real 3D models',async({page})=>{
+ await placeAndRender(page,[['a_l0_king_bed',2,6250,1300,180],['a_l0_wardrobe_sliding',1,6250,4500,0],['a_l0_nightstand',1,5100,450,180],['a_l0_dressing_table',1,7650,2600,270]],'modern-bedroom-3d.png');
 });

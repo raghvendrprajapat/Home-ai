@@ -51,15 +51,24 @@ export class CatalogApi {
   return {id:asset.id,version:asset.version,lod,sha256:entry.sha256,bytes:bytes.buffer,dims:asset.dims,triangles:entry.triangles};
  }
 }
-/** Only completed immutable metadata is cached. Each caller owns its transport. */
+/**
+ * Only completed immutable metadata is cached. The catalog metadata is one shared request that a caller's abort does
+ * not cancel (it still has the 15 s transport timeout), so a 3D view closed mid-load does not discard and re-download
+ * the manifest next time. A failed request is forgotten and retried. Each model load owns its own transport.
+ */
 export class CatalogSource implements FurnitureAssetSource {
- #catalog:Catalog|undefined;
+ #catalog:Catalog|undefined;#pending:Promise<Catalog>|undefined;
  constructor(private api:CatalogApi){}
+ #metadata(signal:AbortSignal):Promise<Catalog>{
+  if(this.#catalog)return Promise.resolve(this.#catalog);
+  this.#pending??=this.api.catalog(new AbortController().signal).then(catalog=>{this.#catalog=catalog;return catalog;},error=>{this.#pending=undefined;throw error;});
+  return abortable(this.#pending,signal);
+ }
  async load(id:string,version:number,lod:0|1,signal:AbortSignal,onProgress:(received:number,total:number|undefined)=>void):Promise<FurnitureAssetData>{
   if(signal.aborted)throw new CatalogFailure('cancelled');
   if(!/^a_[a-z0-9_]{1,36}$/.test(id)||!Number.isInteger(version)||version<1||version>1000000||(lod!==0&&lod!==1))throw new CatalogFailure('failed');
-  const catalog=this.#catalog??await this.api.catalog(signal);
-  if(signal.aborted)throw new CatalogFailure('cancelled');this.#catalog=catalog;
+  const catalog=await this.#metadata(signal);
+  if(signal.aborted)throw new CatalogFailure('cancelled');
   const asset=exactAsset(catalog,id,version);if(!asset)throw new CatalogFailure('failed');
   return this.api.model(asset,lod,signal,p=>onProgress(p.received,p.total));
  }

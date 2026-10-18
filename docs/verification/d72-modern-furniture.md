@@ -43,7 +43,48 @@ These are Claude-authored checks. They are not an aesthetic review by a designer
   - They fail the same way on unchanged `main` code in this session's container, at 34 s against a 30 s limit.
   - They passed in CI for PR #118.
 
+## Bedroom set (second PR, 2026-10-18, local)
+- **`modern-furniture.test.ts`:** 11 more decoded designs, 19 in total. Each check:
+  - The headboard is at the back and the blanket at the foot. Wardrobe doors, drawers and the dressing table's drawers are at the front.
+  - The main colour is the upholstery for beds, the carcass for wardrobes, and the body for tables and drawers.
+- **`catalog.test.ts`:**
+  - 49 published versions and 35 listed items: tables 8, seating 7, beds 5, storage 9.
+  - "bed" now finds exactly the five beds plus the bedside table.
+- **`starter-catalog.spec.ts`:**
+  - Updated to 35 items (24 + 11 pages).
+  - "bed" and "पलंग" now find 6 items, and "मेज़" finds 8.
+  - The placed single bed and two-door wardrobe pin version 2.
+- **`catalog.spec.ts`:**
+  - The empty-result step inside "Tables" now searches "wardrobe" instead of "bed", because the new bedside table is a table whose name contains "bed".
+  - The assertion is unchanged: no match, no card, every URL released.
+- **`modern-furniture.spec.ts`:** a second test places the king bed, sliding wardrobe, bedside table and dressing table, and loads them as real 3D models.
+- **Results:**
+  - `vitest run apps/web/src/catalog`: 32/32 passed.
+  - Pipeline tests: 14/14 passed.
+  - `assets:check`: 49 assets, 0 validator errors.
+  - `assets:versions`: the 38 earlier versions are unchanged.
+  - Lint and typecheck: passed.
+  - Browser tests: catalog 5/5, starter catalog 3/3, modern furniture 2/2, and furniture advisories, finish, models and placement 21/21.
+
+## CI memory check (REN-009) on the bedroom PR
+- **Failure:** CI failed `context-resources.spec.ts` REN-009 twice: main-frame heap growth over 50 3D view toggles was 10.84% and then 10.27%, against a 10% limit. `main` passed.
+- **Not the catalog size itself:** locally, growth did not scale with catalog size (38, 49 and 61 entries all about 7.5–8.2%).
+  - Heap snapshots show the steady growth (about 19 KB per toggle) is V8 compiled code, and it is present on unchanged `main` too.
+- **Real cause on this branch:** a request probe found `catalog.json` downloaded 4 times in 10 toggles.
+  - `CatalogSource` cached the manifest only when the requesting view was still open.
+  - A view closed mid-download aborted and discarded it, and a larger catalog made each repeat cost more.
+- **Fix:** the manifest is now one shared request.
+  - A caller's abort releases only that caller; the request keeps its 15 s timeout.
+  - A completed manifest is cached, and a failed one is forgotten and retried.
+- **New test:** `api.test.ts` "one shared catalog request…".
+  - One download serves an aborted load and two later loads; a 503 is retried once.
+  - Mutation: starting a new request per load fails it.
+- **Measured after the fix, local REN-009 growth:**
+  - This branch: 7.44%, 8.22%, 7.89% (mean 7.85%).
+  - `main`: 7.97% and 7.89% (mean 7.93%).
+  - The 10% limit is unchanged.
+
 ## Pending
-- Bedroom, dining and storage redesigns.
+- Dining and storage redesigns.
 - Designer/aesthetic review.
 - Low/Mid phone tests (gated).

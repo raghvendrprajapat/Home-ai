@@ -1033,6 +1033,83 @@
       }
     },
     {
+      "id": "a_l0_double_bed",
+      "version": 2,
+      "name_en": "Double bed",
+      "name_hi": "दो लोगों का पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "double bed",
+        "upholstered bed",
+        "4.5x6.5 feet",
+        "fabric",
+        "beige",
+        "दो लोगों का पलंग"
+      ],
+      "dims": {
+        "w": 1460,
+        "d": 2150,
+        "h": 1050
+      },
+      "sourceSha256": "b58c6841a81ca12f4a4acadc16d2047d9e01a0d28e1090cd93023a455c7b7a9a",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_double_bed-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_double_bed-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/63c4f2ead6fced104bb8cb08c798514d06fd83abfc04a10a81f44a501448b7d9.glb",
+          "sha256": "63c4f2ead6fced104bb8cb08c798514d06fd83abfc04a10a81f44a501448b7d9",
+          "bytes": 55336,
+          "triangles": 1944
+        },
+        {
+          "level": 1,
+          "path": "blobs/63c4f2ead6fced104bb8cb08c798514d06fd83abfc04a10a81f44a501448b7d9.glb",
+          "sha256": "63c4f2ead6fced104bb8cb08c798514d06fd83abfc04a10a81f44a501448b7d9",
+          "bytes": 55336,
+          "triangles": 1944
+        }
+      ],
+      "thumb": {
+        "path": "blobs/bb7ac5b777071720b9cbabf4d6706eb398167d33b629f92e942dd0b5b62f7d88.svg",
+        "sha256": "bb7ac5b777071720b9cbabf4d6706eb398167d33b629f92e942dd0b5b62f7d88",
+        "bytes": 39416,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1944,
+        "bounds": {
+          "min": [
+            -0.7300000190734863,
+            0,
+            -1.0750000476837158
+          ],
+          "max": [
+            0.7300000190734863,
+            1.0499999523162842,
+            1.0750000476837158
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_drawers",
       "version": 1,
       "name_en": "Chest of drawers",
@@ -1093,6 +1170,158 @@
             0.4,
             1,
             0.22499999999999998
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_drawers",
+      "version": 2,
+      "name_en": "Chest of drawers",
+      "name_hi": "दराज़ वाली अलमारी",
+      "category": "storage",
+      "tags": [
+        "chest of drawers",
+        "drawer cabinet",
+        "4 drawers",
+        "storage",
+        "oak",
+        "दराज़ वाली अलमारी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 450,
+        "h": 1000
+      },
+      "sourceSha256": "e90cc6358c33401ba8d40db8cafb0d390dbceb4b1713a755ffe37b6bc1aa88ba",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_drawers-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_drawers-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/48a01d2c39003b28181bb662f5d5fe0bb0076005f6f417b66bd463afbca7740b.glb",
+          "sha256": "48a01d2c39003b28181bb662f5d5fe0bb0076005f6f417b66bd463afbca7740b",
+          "bytes": 21392,
+          "triangles": 332
+        },
+        {
+          "level": 1,
+          "path": "blobs/48a01d2c39003b28181bb662f5d5fe0bb0076005f6f417b66bd463afbca7740b.glb",
+          "sha256": "48a01d2c39003b28181bb662f5d5fe0bb0076005f6f417b66bd463afbca7740b",
+          "bytes": 21392,
+          "triangles": 332
+        }
+      ],
+      "thumb": {
+        "path": "blobs/8858e29b8e116c7f1ca587c2ecd327fab04e9049f02f70839f1a7c4ca7754a99.svg",
+        "sha256": "8858e29b8e116c7f1ca587c2ecd327fab04e9049f02f70839f1a7c4ca7754a99",
+        "bytes": 9942,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 332,
+        "bounds": {
+          "min": [
+            -0.4000000059604645,
+            0,
+            -0.22499999403953552
+          ],
+          "max": [
+            0.4000000059604645,
+            1,
+            0.22499999403953552
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_dressing_table",
+      "version": 1,
+      "name_en": "Dressing table with mirror",
+      "name_hi": "शीशे वाली ड्रेसिंग टेबल",
+      "category": "storage",
+      "tags": [
+        "dressing table",
+        "vanity table",
+        "makeup table",
+        "mirror",
+        "white",
+        "ड्रेसिंग टेबल"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 450,
+        "h": 1600
+      },
+      "sourceSha256": "26a208ce0d456c6b39fbf9f696d87b2ff820310cd463a47b3d10c6d41d9b96ca",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dressing_table-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dressing_table-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/4a94e6228869031d21a1aac72a9b11fc9ec9a2dc5800aeaf9ea377a67f27da4d.glb",
+          "sha256": "4a94e6228869031d21a1aac72a9b11fc9ec9a2dc5800aeaf9ea377a67f27da4d",
+          "bytes": 21844,
+          "triangles": 420
+        },
+        {
+          "level": 1,
+          "path": "blobs/4a94e6228869031d21a1aac72a9b11fc9ec9a2dc5800aeaf9ea377a67f27da4d.glb",
+          "sha256": "4a94e6228869031d21a1aac72a9b11fc9ec9a2dc5800aeaf9ea377a67f27da4d",
+          "bytes": 21844,
+          "triangles": 420
+        }
+      ],
+      "thumb": {
+        "path": "blobs/b15ab16383420cb806f508984d96020267e32c2d71c356793599e9ae8a290b8f.svg",
+        "sha256": "b15ab16383420cb806f508984d96020267e32c2d71c356793599e9ae8a290b8f",
+        "bytes": 11751,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 420,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -0.22499999403953552
+          ],
+          "max": [
+            0.5,
+            1.600000023841858,
+            0.22499999403953552
           ]
         },
         "validator": {
@@ -1251,6 +1480,84 @@
       }
     },
     {
+      "id": "a_l0_king_bed",
+      "version": 2,
+      "name_en": "King bed",
+      "name_hi": "किंग पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "king size bed",
+        "upholstered bed",
+        "bed with headboard",
+        "6x6.5 feet",
+        "fabric",
+        "beige",
+        "किंग पलंग"
+      ],
+      "dims": {
+        "w": 1900,
+        "d": 2150,
+        "h": 1100
+      },
+      "sourceSha256": "2dea76c5655e0e0b25adfd86f47c3ba50437e0395bb5edd242f6a5c5d6d1ca8f",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_king_bed-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_king_bed-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/6feb5f1e57feee37af7db031533f12d2f0f4164a01e58ecf719048ac15ceec87.glb",
+          "sha256": "6feb5f1e57feee37af7db031533f12d2f0f4164a01e58ecf719048ac15ceec87",
+          "bytes": 55332,
+          "triangles": 1944
+        },
+        {
+          "level": 1,
+          "path": "blobs/6feb5f1e57feee37af7db031533f12d2f0f4164a01e58ecf719048ac15ceec87.glb",
+          "sha256": "6feb5f1e57feee37af7db031533f12d2f0f4164a01e58ecf719048ac15ceec87",
+          "bytes": 55332,
+          "triangles": 1944
+        }
+      ],
+      "thumb": {
+        "path": "blobs/79226cad5d8edc042afb685932d10df8fc9a3898917abdb2ec092e31dcb2a217.svg",
+        "sha256": "79226cad5d8edc042afb685932d10df8fc9a3898917abdb2ec092e31dcb2a217",
+        "bytes": 39363,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1944,
+        "bounds": {
+          "min": [
+            -0.949999988079071,
+            0,
+            -1.0750000476837158
+          ],
+          "max": [
+            0.949999988079071,
+            1.100000023841858,
+            1.0750000476837158
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_kitchen_base",
       "version": 1,
       "name_en": "Kitchen base cabinet",
@@ -1384,6 +1691,82 @@
             0.75,
             0.5,
             0.19999999999999998
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_nightstand",
+      "version": 1,
+      "name_en": "Bedside table",
+      "name_hi": "पलंग के पास की मेज़",
+      "category": "tables",
+      "tags": [
+        "bedside table",
+        "nightstand",
+        "side table",
+        "2 drawers",
+        "walnut",
+        "पलंग के पास की मेज़"
+      ],
+      "dims": {
+        "w": 450,
+        "d": 400,
+        "h": 520
+      },
+      "sourceSha256": "7d717e2f1251940a5a0a16eee286cca70ac12380e168de4d1fbc47a1a32e99e5",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_nightstand-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_nightstand-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/32d2bc56d90dcc5e09d2d51a08342b4484037b9cd2be9259ab15677f344554eb.glb",
+          "sha256": "32d2bc56d90dcc5e09d2d51a08342b4484037b9cd2be9259ab15677f344554eb",
+          "bytes": 16916,
+          "triangles": 324
+        },
+        {
+          "level": 1,
+          "path": "blobs/32d2bc56d90dcc5e09d2d51a08342b4484037b9cd2be9259ab15677f344554eb.glb",
+          "sha256": "32d2bc56d90dcc5e09d2d51a08342b4484037b9cd2be9259ab15677f344554eb",
+          "bytes": 16916,
+          "triangles": 324
+        }
+      ],
+      "thumb": {
+        "path": "blobs/54a94592462320a2e7b1055f5e6b0ba9183315c39bcd5a2a241ab9d953a9af43.svg",
+        "sha256": "54a94592462320a2e7b1055f5e6b0ba9183315c39bcd5a2a241ab9d953a9af43",
+        "bytes": 9117,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 324,
+        "bounds": {
+          "min": [
+            -0.22499999403953552,
+            0,
+            -0.20000000298023224
+          ],
+          "max": [
+            0.22499999403953552,
+            0.5199999809265137,
+            0.20000000298023224
           ]
         },
         "validator": {
@@ -1530,6 +1913,84 @@
             0.8,
             1,
             1.05
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_queen_bed",
+      "version": 2,
+      "name_en": "Queen bed",
+      "name_hi": "क्वीन पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "queen size bed",
+        "upholstered bed",
+        "bed with headboard",
+        "5x6.5 feet",
+        "fabric",
+        "beige",
+        "क्वीन पलंग"
+      ],
+      "dims": {
+        "w": 1620,
+        "d": 2150,
+        "h": 1100
+      },
+      "sourceSha256": "49d86e0727d070cd1881946032ceef28bd602eb480b6a1142e3dd4e125fd75de",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_queen_bed-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_queen_bed-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/c7de707046632115855c1aa1ac80e3b3cfb991357d0d271f6bd51a9b72c7c7bb.glb",
+          "sha256": "c7de707046632115855c1aa1ac80e3b3cfb991357d0d271f6bd51a9b72c7c7bb",
+          "bytes": 55316,
+          "triangles": 1944
+        },
+        {
+          "level": 1,
+          "path": "blobs/c7de707046632115855c1aa1ac80e3b3cfb991357d0d271f6bd51a9b72c7c7bb.glb",
+          "sha256": "c7de707046632115855c1aa1ac80e3b3cfb991357d0d271f6bd51a9b72c7c7bb",
+          "bytes": 55316,
+          "triangles": 1944
+        }
+      ],
+      "thumb": {
+        "path": "blobs/caeb8f6b61c3d8a6668efaba59b5e368e2dc0c7fc2e8c9759bfe68e0c1702334.svg",
+        "sha256": "caeb8f6b61c3d8a6668efaba59b5e368e2dc0c7fc2e8c9759bfe68e0c1702334",
+        "bytes": 39361,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1944,
+        "bounds": {
+          "min": [
+            -0.8100000023841858,
+            0,
+            -1.0750000476837158
+          ],
+          "max": [
+            0.8100000023841858,
+            1.100000023841858,
+            1.0750000476837158
           ]
         },
         "validator": {
@@ -1898,6 +2359,83 @@
             0.5,
             0.9,
             1
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_single_bed",
+      "version": 2,
+      "name_en": "Single bed",
+      "name_hi": "एकल पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "single bed",
+        "upholstered bed",
+        "3x6.5 feet",
+        "fabric",
+        "beige",
+        "एकल पलंग"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 2150,
+        "h": 950
+      },
+      "sourceSha256": "12ae96b7be14677dbffefc512db95f8916a5708b3d7414afcb19e989e3b4fde4",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_single_bed-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_single_bed-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/6bc675784b73e27e9ada5ab2600c59ea53f3bd872b54067b27b3983bf7686d4f.glb",
+          "sha256": "6bc675784b73e27e9ada5ab2600c59ea53f3bd872b54067b27b3983bf7686d4f",
+          "bytes": 43944,
+          "triangles": 1536
+        },
+        {
+          "level": 1,
+          "path": "blobs/6bc675784b73e27e9ada5ab2600c59ea53f3bd872b54067b27b3983bf7686d4f.glb",
+          "sha256": "6bc675784b73e27e9ada5ab2600c59ea53f3bd872b54067b27b3983bf7686d4f",
+          "bytes": 43944,
+          "triangles": 1536
+        }
+      ],
+      "thumb": {
+        "path": "blobs/9fe813322066bb186958618d78edba9b1c6cb23750f5e27c448065eb5d920023.svg",
+        "sha256": "9fe813322066bb186958618d78edba9b1c6cb23750f5e27c448065eb5d920023",
+        "bytes": 30584,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1536,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -1.0750000476837158
+          ],
+          "max": [
+            0.5,
+            0.949999988079071,
+            1.0750000476837158
           ]
         },
         "validator": {
@@ -2432,6 +2970,83 @@
       }
     },
     {
+      "id": "a_l0_study_desk",
+      "version": 2,
+      "name_en": "Study table with drawers",
+      "name_hi": "दराज़ वाली पढ़ने की मेज़",
+      "category": "tables",
+      "tags": [
+        "study table",
+        "computer table",
+        "office desk",
+        "work from home table",
+        "drawers",
+        "oak",
+        "पढ़ने की मेज़"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 600,
+        "h": 750
+      },
+      "sourceSha256": "786ca0038633d7035f608f3a057aaf490ab088de431921f442bd1019bab9ddd7",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_study_desk-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_study_desk-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/c924a41d7b4ccb66d11f04c9ab3e9bb32b1e2b96759cde47014339ced4d69cdb.glb",
+          "sha256": "c924a41d7b4ccb66d11f04c9ab3e9bb32b1e2b96759cde47014339ced4d69cdb",
+          "bytes": 20596,
+          "triangles": 364
+        },
+        {
+          "level": 1,
+          "path": "blobs/c924a41d7b4ccb66d11f04c9ab3e9bb32b1e2b96759cde47014339ced4d69cdb.glb",
+          "sha256": "c924a41d7b4ccb66d11f04c9ab3e9bb32b1e2b96759cde47014339ced4d69cdb",
+          "bytes": 20596,
+          "triangles": 364
+        }
+      ],
+      "thumb": {
+        "path": "blobs/7d0dff0f7a3f23e7a0fe9f7c0ac1781fd649e0146a16e28acd300a2b110e826c.svg",
+        "sha256": "7d0dff0f7a3f23e7a0fe9f7c0ac1781fd649e0146a16e28acd300a2b110e826c",
+        "bytes": 10377,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 364,
+        "bounds": {
+          "min": [
+            -0.6000000238418579,
+            0,
+            -0.30000001192092896
+          ],
+          "max": [
+            0.6000000238418579,
+            0.75,
+            0.30000001192092896
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_tv_unit",
       "version": 1,
       "name_en": "TV unit",
@@ -2728,6 +3343,82 @@
       }
     },
     {
+      "id": "a_l0_wardrobe_2",
+      "version": 2,
+      "name_en": "Two-door wardrobe",
+      "name_hi": "दो दरवाज़े की अलमारी",
+      "category": "storage",
+      "tags": [
+        "wardrobe",
+        "almirah",
+        "2 door wardrobe",
+        "white",
+        "gloss",
+        "दो दरवाज़े की अलमारी"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 600,
+        "h": 2000
+      },
+      "sourceSha256": "1b74b094e36119419cb448223526894b00f83e3bdc5fb7ff6285fb0d84d2f119",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wardrobe_2-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wardrobe_2-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/04528e75b174902fd46317b01f0f8e90ba5ab08984cbdb42a5312a7400010757.glb",
+          "sha256": "04528e75b174902fd46317b01f0f8e90ba5ab08984cbdb42a5312a7400010757",
+          "bytes": 11672,
+          "triangles": 208
+        },
+        {
+          "level": 1,
+          "path": "blobs/04528e75b174902fd46317b01f0f8e90ba5ab08984cbdb42a5312a7400010757.glb",
+          "sha256": "04528e75b174902fd46317b01f0f8e90ba5ab08984cbdb42a5312a7400010757",
+          "bytes": 11672,
+          "triangles": 208
+        }
+      ],
+      "thumb": {
+        "path": "blobs/14fd4bffea4c2fd77f74987d052ea607823a6485510a29cb2da702979f2f2df8.svg",
+        "sha256": "14fd4bffea4c2fd77f74987d052ea607823a6485510a29cb2da702979f2f2df8",
+        "bytes": 5829,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 208,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -0.30000001192092896
+          ],
+          "max": [
+            0.5,
+            2,
+            0.30000001192092896
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_wardrobe_3",
       "version": 1,
       "name_en": "Three-door wardrobe",
@@ -2788,6 +3479,159 @@
             0.75,
             2.1,
             0.30000000000000004
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wardrobe_3",
+      "version": 2,
+      "name_en": "Three-door wardrobe with mirror",
+      "name_hi": "शीशे वाली तीन दरवाज़े की अलमारी",
+      "category": "storage",
+      "tags": [
+        "wardrobe",
+        "almirah",
+        "3 door wardrobe",
+        "mirror",
+        "walnut",
+        "तीन दरवाज़े की अलमारी"
+      ],
+      "dims": {
+        "w": 1500,
+        "d": 600,
+        "h": 2100
+      },
+      "sourceSha256": "b9f0faf7fd28fc69ad942133088beaa0a810e9c82d6c40f0e984918d5ea808f0",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wardrobe_3-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wardrobe_3-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/dec905fa73d9d731bb294c364f5ea59209d194621feb303200f318cfa05a1965.glb",
+          "sha256": "dec905fa73d9d731bb294c364f5ea59209d194621feb303200f318cfa05a1965",
+          "bytes": 14852,
+          "triangles": 252
+        },
+        {
+          "level": 1,
+          "path": "blobs/dec905fa73d9d731bb294c364f5ea59209d194621feb303200f318cfa05a1965.glb",
+          "sha256": "dec905fa73d9d731bb294c364f5ea59209d194621feb303200f318cfa05a1965",
+          "bytes": 14852,
+          "triangles": 252
+        }
+      ],
+      "thumb": {
+        "path": "blobs/999ef1257c09dbe00691e89822a12993345efccbbb41fa194ff3ef9c2835823d.svg",
+        "sha256": "999ef1257c09dbe00691e89822a12993345efccbbb41fa194ff3ef9c2835823d",
+        "bytes": 6979,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 252,
+        "bounds": {
+          "min": [
+            -0.75,
+            0,
+            -0.30000001192092896
+          ],
+          "max": [
+            0.75,
+            2.0999999046325684,
+            0.30000001192092896
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wardrobe_sliding",
+      "version": 1,
+      "name_en": "Sliding-door wardrobe",
+      "name_hi": "स्लाइडिंग दरवाज़े की अलमारी",
+      "category": "storage",
+      "tags": [
+        "wardrobe",
+        "almirah",
+        "sliding wardrobe",
+        "2 door",
+        "mirror",
+        "walnut",
+        "स्लाइडिंग अलमारी"
+      ],
+      "dims": {
+        "w": 1800,
+        "d": 650,
+        "h": 2100
+      },
+      "sourceSha256": "370cd820d523a36146e77954ccbd5451902703cc810e1120614355c2a0f00ce6",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/95515c23026062473020f736b57ac5cbb8c938f7c53c51a65819afeb27d09224.glb",
+          "sha256": "95515c23026062473020f736b57ac5cbb8c938f7c53c51a65819afeb27d09224",
+          "bytes": 12548,
+          "triangles": 180
+        },
+        {
+          "level": 1,
+          "path": "blobs/95515c23026062473020f736b57ac5cbb8c938f7c53c51a65819afeb27d09224.glb",
+          "sha256": "95515c23026062473020f736b57ac5cbb8c938f7c53c51a65819afeb27d09224",
+          "bytes": 12548,
+          "triangles": 180
+        }
+      ],
+      "thumb": {
+        "path": "blobs/7ed67bec669ded5a1639e8e443908f728daea584fdf303e846c26cccdc2247c6.svg",
+        "sha256": "7ed67bec669ded5a1639e8e443908f728daea584fdf303e846c26cccdc2247c6",
+        "bytes": 5353,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 180,
+        "bounds": {
+          "min": [
+            -0.8999999761581421,
+            0,
+            -0.32499998807907104
+          ],
+          "max": [
+            0.8999999761581421,
+            2.0999999046325684,
+            0.32499998807907104
           ]
         },
         "validator": {

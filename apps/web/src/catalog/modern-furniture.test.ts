@@ -15,6 +15,18 @@ const designs:{id:string;version:number;main:string;back?:string;front?:string}[
  {id:'a_l0_side_table',version:2,main:'#c49a6c'},
  {id:'a_l0_tv_unit',version:1,main:'#e9e6df',front:'door-left'},
  {id:'a_l0_bookcase',version:2,main:'#c49a6c',back:'back'},
+ // Bedroom: beds recolour the upholstered base and headboard; the headboard is at the back, the blanket at the foot.
+ {id:'a_l0_king_bed',version:2,main:'#b5a690',back:'headboard',front:'blanket'},
+ {id:'a_l0_queen_bed',version:2,main:'#b5a690',back:'headboard',front:'blanket'},
+ {id:'a_l0_double_bed',version:2,main:'#b5a690',back:'headboard',front:'blanket'},
+ {id:'a_l0_single_bed',version:2,main:'#b5a690',back:'headboard',front:'blanket'},
+ {id:'a_l0_wardrobe_2',version:2,main:'#ecebe7',front:'door-1'},
+ {id:'a_l0_wardrobe_3',version:2,main:'#8a5a3a',front:'door-1'},
+ {id:'a_l0_wardrobe_sliding',version:1,main:'#8a5a3a',front:'panel-front'},
+ {id:'a_l0_nightstand',version:1,main:'#8a5a3a',front:'drawer-top'},
+ {id:'a_l0_dressing_table',version:1,main:'#ecebe7',back:'mirror-frame',front:'drawer-left'},
+ {id:'a_l0_study_desk',version:2,main:'#ecebe7',front:'drawer-1'},
+ {id:'a_l0_drawers',version:2,main:'#c49a6c',front:'drawer-1'},
 ];
 const channels=(hex:string)=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
 
