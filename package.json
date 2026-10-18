@@ -22,6 +22,7 @@
     "android:debug": "pnpm android:sync && cd apps/web/android && ./gradlew --no-daemon --max-workers=2 :app:assembleDebug :app:lintDebug",
     "android:benchmark-web": "pnpm --filter @gharplan/web exec vite preview --host 127.0.0.1 --port 4173 --strictPort",
     "e2e": "playwright test",
+    "db:test": "bash server/supabase/tests/run.sh",
     "assets:build": "node tools/asset-pipeline/cli.mjs build",
     "assets:check": "node tools/asset-pipeline/cli.mjs check",
     "assets:versions": "node tools/asset-pipeline/check-versions.mjs"
