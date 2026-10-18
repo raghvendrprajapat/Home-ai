@@ -1,4 +1,4 @@
-import type {RoomRectSpec,RoomType} from '@gharplan/core-model';
+import type {DoorPointSpec,RoomRectSpec,RoomType} from '@gharplan/core-model';
 
 /**
  * D73 AI-3 photo or sketch to plan. A provider reads a picture into room rectangles (centreline mm, top-left of the
@@ -14,7 +14,9 @@ export const SKETCH_GRID_MM=50;
 export const SKETCH_STAGGER_MM=150;
 const TYPES:readonly RoomType[]=['living','bedroom','kitchen','bathroom','dining','pooja','balcony','utility','hall','study','other'];
 type Box=[number,number,number,number];
-export interface SketchResult {readonly rooms:readonly RoomRectSpec[];readonly dropped:number}
+export interface SketchResult {readonly rooms:readonly RoomRectSpec[];readonly doors:readonly DoorPointSpec[];readonly dropped:number}
+/** A door gap found by a reader: its centre, width and the direction of the wall it is in. */
+export interface SketchDoor {readonly x:number;readonly y:number;readonly width:number;readonly wall:'vertical'|'horizontal'}
 export interface SketchPixels {readonly width:number;readonly height:number;readonly data:Uint8ClampedArray}
 
 const overlap=(a:Box,b:Box)=>a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3];
@@ -62,18 +64,33 @@ export function acceptSketch(raw:unknown):SketchResult{
   if(moved.some(k=>!size(k.box))||moved.some((k,i)=>moved.some((o,j)=>i<j&&overlap(k.box,o.box))))break;
   kept.splice(0,kept.length,...moved);
  }
- return {rooms:kept.map(k=>({x:k.box[0],y:k.box[1],width:k.box[2]-k.box[0],depth:k.box[3]-k.box[1],type:k.type})),dropped};
+ // Doors: 600-1500 mm, moved onto the nearest final room edge of the same direction (within 300 mm) that holds the
+ // whole door; the same door read from both rooms of a shared wall is kept once.
+ const rawDoors=raw&&typeof raw==='object'&&!Array.isArray(raw)&&Array.isArray((raw as {doors?:unknown}).doors)?(raw as {doors:unknown[]}).doors:[];
+ const boxes=kept.map(k=>k.box),doors:{door:DoorPointSpec;vertical:boolean;line:number;along:number}[]=[];
+ dropped+=Math.max(0,rawDoors.length-40);
+ for(const entry of rawDoors.slice(0,40)){
+  const e=entry&&typeof entry==='object'?entry as Record<string,unknown>:{},{x,y,width,wall}=e;
+  if(![x,y,width].every(v=>typeof v==='number'&&Number.isFinite(v))||wall!=='vertical'&&wall!=='horizontal'){dropped++;continue;}
+  const vertical=wall==='vertical',w=Math.round((width as number)/SKETCH_GRID_MM)*SKETCH_GRID_MM,across=(vertical?x:y) as number,along=Math.round((vertical?y:x) as number/SKETCH_GRID_MM)*SKETCH_GRID_MM;
+  let line:number|undefined,best=SKETCH_MERGE_MM;
+  for(const b of boxes){const [lo,hi]=vertical?[b[1],b[3]]:[b[0],b[2]];if(along-w/2<lo||along+w/2>hi)continue;for(const edge of vertical?[b[0],b[2]]:[b[1],b[3]])if(Math.abs(edge-across)<=best){best=Math.abs(edge-across);line=edge;}}
+  if(w<600||w>1500||line===undefined){dropped++;continue;}
+  if(doors.some(d=>d.vertical===vertical&&d.line===line&&Math.abs(d.along-along)<SKETCH_MERGE_MM))continue;
+  doors.push({door:vertical?{x:line,y:along,width:w}:{x:along,y:line,width:w},vertical,line,along});
+ }
+ return {rooms:kept.map(k=>({x:k.box[0],y:k.box[1],width:k.box[2]-k.box[0],depth:k.box[3]-k.box[1],type:k.type})),doors:doors.map(d=>d.door),dropped};
 }
 
 /**
  * The offline stand-in reader for clean drawings: dark lines on light paper. It thickens the lines enough to close
  * door gaps up to about 1 m, finds light areas fully enclosed by lines, and reports each as a room rectangle. It is
  * not a vision model: shaded photos, text and furniture symbols can confuse it. Sizes come from the picture's real
- * width that the person enters.
+ * width that the person enters. Door gaps of 600-1000 mm in a room's outline are reported as doors.
  */
-export function readSketch(image:SketchPixels,realWidthMm:number):RoomRectSpec[]{
+export function readSketch(image:SketchPixels,realWidthMm:number):{rooms:RoomRectSpec[];doors:SketchDoor[]}{
  const {width:w,height:h,data}=image;
- if(!(w>=16&&h>=16&&w*h<=4_000_000&&data.length===w*h*4)||!(realWidthMm>=2000&&realWidthMm<=60000))return [];
+ if(!(w>=16&&h>=16&&w*h<=4_000_000&&data.length===w*h*4)||!(realWidthMm>=2000&&realWidthMm<=60000))return {rooms:[],doors:[]};
  const mm=realWidthMm/w,gray=new Uint8Array(w*h),histogram=new Array<number>(256).fill(0);
  for(let i=0;i<w*h;i++){const a=data[i*4+3]!/255,v=Math.round((0.299*data[i*4]!+0.587*data[i*4+1]!+0.114*data[i*4+2]!)*a+255*(1-a));gray[i]=v;histogram[v]!++;}
  // Otsu's threshold between ink and paper, kept in a sane range.
@@ -104,5 +121,18 @@ export function readSketch(image:SketchPixels,realWidthMm:number):RoomRectSpec[]
  const out=rooms.map(g=>{const [x0,y0,x1,y1]=[(g.box[0]-r)*mm-100,(g.box[1]-r)*mm-100,(g.box[2]+1+r)*mm+100,(g.box[3]+1+r)*mm+100];return {x:Math.round(x0),y:Math.round(y0),width:Math.round(x1-x0),depth:Math.round(y1-y0),area:(x1-x0)*(y1-y0)};});
  // A first guess at room types: the largest is the living room, small ones are bathrooms, the rest bedrooms.
  const largest=out.findIndex(o=>o.area===Math.max(...out.map(p=>p.area)));
- return out.map(({area,...rect},i)=>({...rect,type:i===largest?'living':area<4_500_000?'bathroom':'bedroom'}));
+ // Doors: along each side of a room, a 600-1000 mm stretch with no ink in the 3 pixels just outside it. Wider gaps are
+ // not closed by the thickening, so such rooms already read as one.
+ const doors:SketchDoor[]=[],ink=(x:number,y:number)=>x>=0&&y>=0&&x<w&&y<h&&dark[y*w+x]===1,band=(test:(k:number)=>boolean)=>test(1)||test(2)||test(3);
+ const gaps=(from:number,to:number,blocked:(i:number)=>boolean,make:(centreMm:number,widthMm:number)=>SketchDoor)=>{
+  for(let i=from;i<=to;){if(blocked(i)){i++;continue;}let j=i;while(j+1<=to&&!blocked(j+1))j++;const width=(j-i+1)*mm;if(width>=600&&width<=1000)doors.push(make(Math.round((i+j+1)/2*mm),Math.round(width)));i=j+1;}
+ };
+ for(const g of rooms){
+  const [ix0,iy0,ix1,iy1]=[g.box[0]-r,g.box[1]-r,g.box[2]+r,g.box[3]+r];
+  gaps(iy0,iy1,i=>band(k=>ink(ix0-k,i)),(c,width)=>({x:Math.round(ix0*mm-100),y:c,width,wall:'vertical'}));
+  gaps(iy0,iy1,i=>band(k=>ink(ix1+k,i)),(c,width)=>({x:Math.round((ix1+1)*mm+100),y:c,width,wall:'vertical'}));
+  gaps(ix0,ix1,i=>band(k=>ink(i,iy0-k)),(c,width)=>({x:c,y:Math.round(iy0*mm-100),width,wall:'horizontal'}));
+  gaps(ix0,ix1,i=>band(k=>ink(i,iy1+k)),(c,width)=>({x:c,y:Math.round((iy1+1)*mm+100),width,wall:'horizontal'}));
+ }
+ return {rooms:out.map(({area,...rect},i)=>({...rect,type:i===largest?'living':area<4_500_000?'bathroom':'bedroom'})),doors};
 }

@@ -41,10 +41,12 @@ test('D73 AI-3 a two-room sketch shows under the plan, reads as two rooms and op
 
  await photo.getByRole('button',{name:'Read rooms from the picture',exact:true}).click();
  const sketch=photo.getByTestId('ai-sketch');
- await expect(sketch.getByRole('status')).toHaveText('Found 2 rooms.');
+ await expect(sketch.getByRole('status')).toHaveText('Rooms found: 2. Doors found: 1.');
  // Partition ink centre x 101 px = 5050 mm; rooms 1000..5050 and 5050..9100 by 1000..6600, shifted by the picture's -500 X.
  expect(await sketch.locator('rect[data-room]').evaluateAll(rs=>rs.map(r=>r.getAttribute('data-room')))).toEqual(['500,1000,4050,5600,living','4550,1000,4050,5600,bedroom']);
  await sketch.screenshot({path:test.info().outputPath('ai-photo-rooms.png')});
+ // The 800 mm gap rows 40..55 (centre 48 px = 2400 mm) on the partition, shifted with the picture.
+ expect(await sketch.locator('circle[data-door]').evaluateAll(cs=>cs.map(c=>c.getAttribute('data-door')))).toEqual(['4550,2400,800']);
  expect(await backup(page)).toEqual(before);
 
  await sketch.getByRole('button',{name:'Create a new drawing from these rooms',exact:true}).click();
@@ -52,6 +54,10 @@ test('D73 AI-3 a two-room sketch shows under the plan, reads as two rooms and op
  const made=await backup(page);
  expect(made.id).not.toBe(before.id);
  expect(made.junctions).toHaveLength(6);expect(made.walls).toHaveLength(7);
+ // One 800 mm door on the partition x 4550 (y 1000..6600), its centre at y 2400.
+ const jx=new Map(made.junctions.map((j:{id:string;x:number;y:number})=>[j.id,j])) as Map<string,{x:number;y:number}>;
+ expect(made.openings).toHaveLength(1);const door=made.openings[0],host=made.walls.find((w:{id:string})=>w.id===door.wallId),a=jx.get(host.a)!,b=jx.get(host.b)!;
+ expect([door.kind,door.width,a.x,b.x,a.y+Math.sign(b.y-a.y)*door.offset]).toEqual(['door',800,4550,4550,2400]);
  expect(made.rooms.map((r:{name:string;type:string})=>[r.name,r.type])).toEqual([['Living room','living'],['Bedroom','bedroom']]);
  // Each clear area: (4050 - 200) x (5600 - 200) = 3850 x 5400 = 20.79 m².
  const areas=page.getByRole('region',{name:'Room areas',exact:true});

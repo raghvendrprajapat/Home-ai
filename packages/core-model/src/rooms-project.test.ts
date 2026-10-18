@@ -1,13 +1,13 @@
 import { describe, expect, it } from 'vitest';
 import { createRoomsProject, ProjectStore, validateProject } from './index';
-import type { ProjectDoc, RoomRectSpec, RoomType } from './index';
+import type { DoorPointSpec, ProjectDoc, RoomRectSpec, RoomType } from './index';
 
 // D73 AI-3 Claude-authored analytic tests. Walls are 200 mm (half 100); a clear rectangle runs from inside face to
 // inside face, so a W x D centreline room alone is (W - 200) x (D - 200).
 const labels: Partial<Record<RoomType, string>> = { living: 'Living', bedroom: 'Bedroom', kitchen: 'Kitchen', bathroom: 'Bathroom', other: 'Room' };
-function build(rooms: RoomRectSpec[]) {
+function build(rooms: RoomRectSpec[], doors: DoorPointSpec[] = []) {
   let n = 0;
-  return createRoomsProject({ rooms, name: 'Sketch', units: 'metric', now: '2026-10-18T00:00:00Z', nextId: () => `sk_${n++}`, roomName: type => labels[type] ?? type });
+  return createRoomsProject({ rooms, doors, name: 'Sketch', units: 'metric', now: '2026-10-18T00:00:00Z', nextId: () => `sk_${n++}`, roomName: type => labels[type] ?? type });
 }
 const areas = (doc: ProjectDoc) => {
   const faces = new ProjectStore(doc, 'rooms_areas').getSnapshot().derived.faces;
@@ -44,6 +44,24 @@ describe('D73 createRoomsProject', () => {
   it('a room inside another is left out; repeated types are numbered', () => {
     const { document, skipped } = build([{ x: 0, y: 0, width: 4000, depth: 4000, type: 'bedroom' }, { x: 1000, y: 1000, width: 2000, depth: 2000, type: 'bathroom' }, { x: 4000, y: 0, width: 3000, depth: 4000, type: 'bedroom' }]);
     expect(skipped).toEqual([1]); expect(document.rooms.map(r => r.name).sort()).toEqual(['Bedroom', 'Bedroom 2']);
+  });
+  it('doors land on the one wall through their point, kept 150 mm clear of the wall ends', () => {
+    const side = [{ x: 0, y: 0, width: 4000, depth: 3000, type: 'living' as const }, { x: 4000, y: 0, width: 3000, depth: 3000, type: 'bedroom' as const }];
+    const { document, skippedDoors } = build(side, [
+      { x: 4000, y: 1500, width: 900 }, // shared wall (4000,0)-(4000,3000): offset 1500
+      { x: 2000, y: 3000, width: 1000 }, // living's south wall, 4000 long: offset 2000 from either end
+      { x: 7000, y: 300, width: 900 }, // east wall: 300 is too close to the corner, moved to 450 + 150 = 600
+      { x: 2000, y: 1500, width: 900 }, // inside the living room, on no wall
+      { x: 5500, y: 0, width: 500 }, // narrower than 600
+      { x: 5500, y: 3000, width: 2900 }, // wider than 1500
+    ]);
+    expect(skippedDoors).toEqual([3, 4, 5]); expect(validateProject(document)).toEqual([]);
+    const at = new Map(document.junctions.map(j => [j.id, j])), where = (wallId: string) => { const w = document.walls.find(v => v.id === wallId)!; return [at.get(w.a)!, at.get(w.b)!].map(j => [j.x, j.y]).sort((p, q) => p[0]! - q[0]! || p[1]! - q[1]!); };
+    expect(document.openings.map(o => [o.kind, where(o.wallId), o.offset, o.width, o.height, o.sill])).toEqual([
+      ['door', [[4000, 0], [4000, 3000]], 1500, 900, 2100, 0],
+      ['door', [[0, 3000], [4000, 3000]], 2000, 1000, 2100, 0],
+      ['door', [[7000, 0], [7000, 3000]], 600, 900, 2100, 0],
+    ]);
   });
   it('refuses an empty or oversized list', () => {
     expect(() => build([])).toThrow(); expect(() => build(Array.from({ length: 21 }, (_, i) => ({ x: i * 3000, y: 0, width: 3000, depth: 3000, type: 'other' as const })))).toThrow();

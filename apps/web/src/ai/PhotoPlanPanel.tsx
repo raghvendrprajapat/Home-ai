@@ -9,7 +9,7 @@ import {acceptSketch} from './sketch';
 import type {SketchPixels,SketchResult} from './sketch';
 
 interface Picture {readonly url:string;readonly image:HTMLImageElement;readonly pixels:SketchPixels}
-type Reading=Readonly<{phase:'reading'}|{phase:'failed'}|{phase:'ready';sketch:SketchResult;document:ProjectDoc|undefined;skipped:number}>;
+type Reading=Readonly<{phase:'reading'}|{phase:'failed'}|{phase:'ready';sketch:SketchResult;document:ProjectDoc|undefined;skipped:number;skippedDoors:number}>;
 const MAX_BYTES=15*1024*1024,READ_PX=480;
 
 async function openPicture(file:File):Promise<Picture>{
@@ -49,10 +49,10 @@ export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale
   setReading({phase:'reading'});
   try{
    // Rooms are read relative to the picture's top-left corner, then placed where the picture is shown.
-   const read=acceptSketch(await provider.planFromImage(picture.pixels,widthMm,new AbortController().signal)),sketch={...read,rooms:read.rooms.map(r=>({...r,x:r.x+left,y:r.y+top}))};
+   const read=acceptSketch(await provider.planFromImage(picture.pixels,widthMm,new AbortController().signal)),sketch={...read,rooms:read.rooms.map(r=>({...r,x:r.x+left,y:r.y+top})),doors:read.doors.map(d=>({...d,x:d.x+left,y:d.y+top}))};
    let n=0;const nextId=()=>`ph_${crypto.randomUUID().replaceAll('-','')}${n++}`;
-   const built=sketch.rooms.length?createRoomsProject({rooms:sketch.rooms,name:message(locale,'aiPhotoProjectName'),units,now:new Date().toISOString(),nextId,floorName:message(locale,'groundFloor'),materialName:message(locale,'baseFinish'),roomName:(type:RoomType)=>message(locale,`room_${type}` as const)}):undefined;
-   setReading({phase:'ready',sketch,document:built&&built.skipped.length<sketch.rooms.length?built.document:undefined,skipped:built?.skipped.length??0});
+   const built=sketch.rooms.length?createRoomsProject({rooms:sketch.rooms,doors:sketch.doors,name:message(locale,'aiPhotoProjectName'),units,now:new Date().toISOString(),nextId,floorName:message(locale,'groundFloor'),materialName:message(locale,'baseFinish'),roomName:(type:RoomType)=>message(locale,`room_${type}` as const)}):undefined;
+   setReading({phase:'ready',sketch,document:built&&built.skipped.length<sketch.rooms.length?built.document:undefined,skipped:built?.skipped.length??0,skippedDoors:built?.skippedDoors.length??0});
   }catch{setReading({phase:'failed'});}
  };
  const remove=()=>{setPicture(null);setShown(false);setReading(null);if(input.current)input.current.value='';};
@@ -81,16 +81,18 @@ export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale
 }
 
 function SketchPreview({reading,locale,onOpen}:{reading:Extract<Reading,{phase:'ready'}>;locale:Locale;onOpen(document:ProjectDoc):void}){
- const {sketch,document,skipped}=reading;
+ const {sketch,document,skipped,skippedDoors}=reading;
  if(!sketch.rooms.length||!document)return <p role="status">{message(locale,'aiPhotoNone')}</p>;
  const x0=Math.min(...sketch.rooms.map(r=>r.x)),y0=Math.min(...sketch.rooms.map(r=>r.y)),x1=Math.max(...sketch.rooms.map(r=>r.x+r.width)),y1=Math.max(...sketch.rooms.map(r=>r.y+r.depth)),pad=200;
  return <div className="ai-layout" data-testid="ai-sketch">
-  <p role="status">{message(locale,'aiPhotoFound',{count:sketch.rooms.length})}</p>
+  <p role="status">{message(locale,'aiPhotoFound',{count:sketch.rooms.length,doors:sketch.doors.length})}</p>
   <svg role="img" aria-label={message(locale,'aiPhotoPreview')} viewBox={`${x0-pad} ${y0-pad} ${x1-x0+2*pad} ${y1-y0+2*pad}`}>
+   {sketch.doors.map((d,i)=><circle key={`d${i}`} className="ai-door-mark" data-door={`${d.x},${d.y},${d.width}`} cx={d.x} cy={d.y} r={d.width/2}/>)}
    {sketch.rooms.map((r,i)=><rect key={i} className="ai-piece" data-room={`${r.x},${r.y},${r.width},${r.depth},${r.type}`} x={r.x} y={r.y} width={r.width} height={r.depth}><title>{message(locale,`room_${r.type}` as const)}</title></rect>)}
   </svg>
   {sketch.dropped>0&&<p className="structure-note">{message(locale,'aiPhotoDropped',{count:sketch.dropped})}</p>}
   {skipped>0&&<p className="structure-note">{message(locale,'aiPhotoSkipped',{count:skipped})}</p>}
+  {skippedDoors>0&&<p className="structure-note">{message(locale,'aiPhotoSkippedDoors',{count:skippedDoors})}</p>}
   <p className="structure-note">{message(locale,'aiPhotoCreateNote')}</p>
   <button className="primary-button" onClick={()=>onOpen(document)}>{message(locale,'aiPhotoCreate')}</button>
  </div>;

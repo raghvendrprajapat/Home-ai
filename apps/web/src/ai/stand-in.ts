@@ -45,7 +45,7 @@ export const standInAi:AiProvider={
  },
  async planFromImage(image:SketchPixels,realWidthMm:number,signal:AbortSignal):Promise<unknown>{
   if(signal.aborted)throw new DOMException('aborted','AbortError');
-  return {rooms:readSketch(image,realWidthMm)};
+  return readSketch(image,realWidthMm);
  },
 };
 

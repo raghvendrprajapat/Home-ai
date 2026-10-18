@@ -105,7 +105,9 @@ export function createTemplateProject(options: TemplateOptions): ProjectDoc {
 
 /** D73 AI-3: one room as an integer-mm centreline rectangle (top-left corner, size). */
 export interface RoomRectSpec { x: number; y: number; width: number; depth: number; type: RoomType }
-export interface RoomsProjectOptions extends Omit<TemplateOptions, 'template'> { rooms: readonly RoomRectSpec[]; thickness?: number }
+/** D73 AI-3: a door gap as its centre point on a wall centreline, and its width. */
+export interface DoorPointSpec { x: number; y: number; width: number }
+export interface RoomsProjectOptions extends Omit<TemplateOptions, 'template'> { rooms: readonly RoomRectSpec[]; doors?: readonly DoorPointSpec[]; thickness?: number }
 export const SKETCH_WALL_THICKNESS = 200;
 /**
  * D73 AI-3: builds a new project from room rectangles (for example read from a sketch) through the real AddRectangle
@@ -113,7 +115,7 @@ export const SKETCH_WALL_THICKNESS = 200;
  * wall. A room whose walls the L0 rules reject (for example a four-way crossing) is left out and its index reported;
  * a room already enclosed by its neighbours' walls is only named.
  */
-export function createRoomsProject(options: RoomsProjectOptions): { document: ProjectDoc; skipped: number[] } {
+export function createRoomsProject(options: RoomsProjectOptions): { document: ProjectDoc; skipped: number[]; skippedDoors: number[] } {
   if (!Array.isArray(options.rooms) || options.rooms.length < 1 || options.rooms.length > 20) throw new Error('Choose 1 to 20 rooms.');
   const blank = createBlankProject({ name: options.name, units: options.units, now: options.now, nextId: options.nextId, ...(options.floorName ? { floorName: options.floorName } : {}), ...(options.materialName ? { materialName: options.materialName } : {}) });
   const store = new ProjectStore(blank, `rooms_${options.nextId()}`, { now: () => options.now });
@@ -137,5 +139,20 @@ export function createRoomsProject(options: RoomsProjectOptions): { document: Pr
     const label = options.roomName(room.type);
     if (!execute({ type: 'UpdateRoom', roomId: face.roomId, properties: { name: n === 1 ? label : `${label} ${n}`, type: room.type } }).ok) skipped.push(i);
   }
-  return { document: JSON.parse(serializeProject(store.getSnapshot().document)) as ProjectDoc, skipped: skipped.sort((a, b) => a - b) };
+  // Doors: the one wall whose centreline passes through the point; kept clear of the wall ends (50 mm plus half a
+  // crossing wall), moving the door inward if needed. A door that still does not fit is reported.
+  const skippedDoors: number[] = [], guard = 50 + thickness / 2;
+  for (const [i, item] of (options.doors ?? []).entries()) {
+    const doc = store.getSnapshot().document, junction = new Map(doc.junctions.map(j => [j.id, j])), [x, y] = [item.x, item.y];
+    const hosts = doc.walls.flatMap(wall => {
+      const a = junction.get(wall.a)!, b = junction.get(wall.b)!;
+      const inside = a.y === b.y ? a.y === y && x > Math.min(a.x, b.x) && x < Math.max(a.x, b.x) : a.x === b.x && a.x === x && y > Math.min(a.y, b.y) && y < Math.max(a.y, b.y);
+      return inside ? [{ wall, offset: Math.abs(x - a.x) + Math.abs(y - a.y), length: Math.abs(b.x - a.x) + Math.abs(b.y - a.y) }] : [];
+    });
+    const host = hosts.length === 1 ? hosts[0]! : undefined;
+    if (!host || !Number.isSafeInteger(item.width) || item.width < 600 || item.width > 1500 || host.length < item.width + 2 * guard) { skippedDoors.push(i); continue; }
+    const offset = Math.min(Math.max(host.offset, item.width / 2 + guard), host.length - item.width / 2 - guard);
+    if (!execute({ type: 'AddOpening', opening: { id: options.nextId(), wallId: host.wall.id, kind: 'door', assetId: 'door_asset', offset, width: item.width, height: 2100, sill: 0, flipX: false, flipY: false } }).ok) skippedDoors.push(i);
+  }
+  return { document: JSON.parse(serializeProject(store.getSnapshot().document)) as ProjectDoc, skipped: skipped.sort((a, b) => a - b), skippedDoors };
 }
