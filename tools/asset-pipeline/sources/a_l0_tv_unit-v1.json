@@ -1,0 +1,205 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_tv_unit",
+  "version": 1,
+  "name_en": "TV unit",
+  "name_hi": "टीवी यूनिट",
+  "category": "storage",
+  "tags": [
+    "tv unit",
+    "tv stand",
+    "tv cabinet",
+    "entertainment unit",
+    "wooden",
+    "white",
+    "walnut",
+    "टीवी यूनिट"
+  ],
+  "dims": {
+    "w": 1800,
+    "d": 400,
+    "h": 440
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_tv_unit-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_tv_unit-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "leg-lf850",
+      "shape": "cylinder",
+      "center": [
+        -850,
+        30,
+        -150
+      ],
+      "size": [
+        30,
+        60,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-lb850",
+      "shape": "cylinder",
+      "center": [
+        -850,
+        30,
+        150
+      ],
+      "size": [
+        30,
+        60,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-rf850",
+      "shape": "cylinder",
+      "center": [
+        850,
+        30,
+        -150
+      ],
+      "size": [
+        30,
+        60,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-rb850",
+      "shape": "cylinder",
+      "center": [
+        850,
+        30,
+        150
+      ],
+      "size": [
+        30,
+        60,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "body",
+      "shape": "rounded",
+      "center": [
+        0,
+        250,
+        5
+      ],
+      "size": [
+        1800,
+        380,
+        390
+      ],
+      "color": "#e9e6df",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "door-left",
+      "shape": "box",
+      "center": [
+        -590,
+        250,
+        -194
+      ],
+      "size": [
+        580,
+        340,
+        8
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "niche",
+      "shape": "box",
+      "center": [
+        0,
+        250,
+        -191
+      ],
+      "size": [
+        580,
+        340,
+        2
+      ],
+      "color": "#3a3530",
+      "finish": "matte"
+    },
+    {
+      "name": "drawer-right",
+      "shape": "box",
+      "center": [
+        590,
+        250,
+        -194
+      ],
+      "size": [
+        580,
+        340,
+        8
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "handle-left",
+      "shape": "box",
+      "center": [
+        -590,
+        380,
+        -199
+      ],
+      "size": [
+        160,
+        10,
+        2
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "handle-right",
+      "shape": "box",
+      "center": [
+        590,
+        380,
+        -199
+      ],
+      "size": [
+        160,
+        10,
+        2
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    }
+  ]
+}

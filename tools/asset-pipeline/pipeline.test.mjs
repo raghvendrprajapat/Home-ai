@@ -7,8 +7,8 @@ import {join} from 'node:path';
 import {tmpdir} from 'node:os';
 import fc from 'fast-check';
 import {NodeIO} from '@gltf-transform/core';
-import {boxData,thumbnail} from './geometry.mjs';
-import {compileSource,validateSource,inspectGlb,binaryProfile,sha256,createAssetDocument} from './model.mjs';
+import {boxData,thumbnail,roundedBoxData,cylinderData} from './geometry.mjs';
+import {compileSource,validateSource,validateModernSource,FINISHES,inspectGlb,binaryProfile,sha256,createAssetDocument} from './model.mjs';
 import {runPipeline,defaults,assertImmutable} from './pipeline.mjs';
 import {verifyVersions} from './versions.mjs';
 
@@ -75,6 +75,49 @@ test('AST-003 generated thumbnails have256px dimensions and finite framed vertic
     const svg=thumbnail([{center:[0,size[1]/2,0],size,color:'#aabbcc'}]).toString('utf8');assert.match(svg,/width="256" height="256"/);assert.doesNotMatch(svg,/NaN|Infinity|<script|href=/);
     const points=[...svg.matchAll(/points="([^"]+)"/g)].flatMap(m=>m[1].split(/[ ,]/).map(Number));assert.equal(points.length,24);assert.ok(points.every(n=>Number.isFinite(n)&&n>=16&&n<=240));
   }),{numRuns:100,seed:402});
+});
+
+// D72 modern original shapes. Expected values are analytic formulas, not values produced by the generators.
+function solid({positions,normals,indices}){
+  const point=i=>[positions[i*3],positions[i*3+1],positions[i*3+2]],key=p=>p.map(n=>n.toFixed(6)).join(','),edges=new Map(),min=[Infinity,Infinity,Infinity],max=[-Infinity,-Infinity,-Infinity];let volume=0,outward=true,unit=true;
+  for(let i=0;i<positions.length/3;i++){const p=point(i),n=normals.slice(i*3,i*3+3);p.forEach((v,a)=>{min[a]=Math.min(min[a],v);max[a]=Math.max(max[a],v);});if(Math.abs(Math.hypot(...n)-1)>1e-9)unit=false;if(dot(p,n)<=0)outward=false;}
+  for(let i=0;i<indices.length;i+=3){const [a,b,c]=[0,1,2].map(k=>point(indices[i+k]));volume+=dot(a,cross(b,c))/6;
+    for(const [from,to]of [[a,b],[b,c],[c,a]]){if(key(from)===key(to))continue;const edge=key(from)+'>'+key(to);edges.set(edge,(edges.get(edge)??0)+1);}}
+  // Watertight and consistently wound: every directed edge appears once and its reverse exactly once.
+  const closed=[...edges].every(([edge,count])=>{const [f,t]=edge.split('>');return count===1&&edges.get(t+'>'+f)===1;});
+  return {min,max,volume,closed,outward,unit};
+}
+test('D72 rounded box: exact outer size, closed outward surface, unit normals, volume between flat-slab and true rounded volume',()=>{
+  fc.assert(fc.property(fc.tuple(...Array.from({length:3},()=>fc.integer({min:2,max:3000}))),fc.integer({min:1,max:1500}),fc.integer({min:1,max:3}),(size,wish,segments)=>{
+    const radius=Math.max(1,Math.min(wish,Math.floor(Math.min(...size)/2))),s=solid(roundedBoxData(size,radius,segments)),[a,b,c]=size,r=radius,[x,y,z]=[a-2*r,b-2*r,c-2*r];
+    s.min.forEach((v,i)=>near(v,-size[i]/2,1e-9));s.max.forEach((v,i)=>near(v,size[i]/2,1e-9));assert.ok(s.closed&&s.outward&&s.unit);
+    const slabs=x*y*z+2*r*(x*y+y*z+x*z),rounded=slabs+Math.PI*r*r*(x+y+z)+4/3*Math.PI*r**3;
+    assert.ok(s.volume>=slabs-1e-6*a*b*c&&s.volume<=rounded+1e-6*a*b*c,`${s.volume} outside [${slabs}, ${rounded}]`);
+  }),{numRuns:100,seed:721});
+});
+test('D72 cylinder: exact extents and the inscribed n-gon prism volume (n/2)·ru·rv·sin(2π/n)·length on every axis',()=>{
+  fc.assert(fc.property(fc.tuple(...Array.from({length:3},()=>fc.integer({min:1,max:3000}))),fc.constantFrom('x','y','z'),fc.constantFrom(8,12,16,24),(size,axis,n)=>{
+    const s=solid(cylinderData(size,axis,n)),k='xyz'.indexOf(axis),[u,v]=[[1,2],[2,0],[0,1]][k];
+    s.min.forEach((m,i)=>near(m,-size[i]/2,1e-9));s.max.forEach((m,i)=>near(m,size[i]/2,1e-9));assert.ok(s.closed&&s.unit);
+    near(s.volume,n/2*(size[u]/2)*(size[v]/2)*Math.sin(2*Math.PI/n)*size[k],1e-6*size[0]*size[1]*size[2]);
+  }),{numRuns:100,seed:722});
+});
+const modernName='a_l0_sofa_3-v2.json',modernPath=`tools/asset-pipeline/sources/${modernName}`,modernBytes=await readFile(join(defaults.sourceDir,modernName)),modern=JSON.parse(modernBytes);
+test('D72 modern source compiles to one untransformed node per part with finish materials, exact bounds and a bounded preview',async()=>{
+  const compiled=await compileSource(modernBytes,modernPath),glb=compiled.files.get(compiled.entry.lods[0].path),doc=await new NodeIO().readBinary(glb),nodes=doc.getRoot().getDefaultScene().listChildren();
+  assert.equal(compiled.entry.inspection.validator.errors,0);assert.deepEqual(nodes.map(n=>n.getName()),modern.parts.map(p=>p.name));
+  for(const [i,node]of nodes.entries()){const p=modern.parts[i],m=node.getMesh().listPrimitives()[0].getMaterial();assert.deepEqual(node.getTranslation(),[0,0,0]);assert.deepEqual(node.getScale(),[1,1,1]);assert.equal(m.getName(),`${p.color}-${p.finish}`);assert.deepEqual([m.getMetallicFactor(),m.getRoughnessFactor()],{matte:[0,.85],satin:[0,.5],gloss:[0,.25],metal:[.35,.4]}[p.finish]);}
+  assert.deepEqual(Object.keys(FINISHES).sort(),['gloss','matte','metal','satin']);
+  // Parts per shape: rounded boxes with flat faces give 6·(2s+1)² quads, 8-sided cylinders 4·8 triangles.
+  const expected=modern.parts.reduce((n,p)=>n+(p.shape==='cylinder'?4*p.segments:p.shape==='box'?12:12*(2*p.segments+1)**2),0);assert.equal(compiled.entry.inspection.triangles,expected);assert.equal(expected,2744);
+  const svg=compiled.files.get(compiled.entry.thumb.path).toString('utf8');assert.ok(svg.length<=128*1024);assert.doesNotMatch(svg,/NaN|Infinity|<script|href=/);
+  const points=[...svg.matchAll(/[ML]([-\d.]+),([-\d.]+)/g)].flatMap(m=>[Number(m[1]),Number(m[2])]);assert.ok(points.length>100&&points.every(n=>n>=15.9&&n<=240.1));
+});
+test('D72 modern sources reject unknown shapes/finishes, oversized radii, unsupported segments, extra keys and schema-1 parts',async()=>{
+  for(const mutate of [s=>{s.parts[0].shape='sphere';},s=>{s.parts[4].finish='chrome';},s=>{delete s.parts[4].finish;},s=>{s.parts[4].radius=111;},s=>{s.parts[4].segments=4;},s=>{s.parts[0].segments=10;},s=>{s.parts[0].axis='w';},s=>{s.parts[0].radius=5;},s=>{s.parts[4].center[0]=.5;},s=>{s.parts.push({...s.parts[0]});},s=>{s.license.type='CC0-1.0';},s=>{s.extra=true;},s=>{s.parts=[{name:'box',center:[0,0,0],size:[1,1,1],color:'#000000'}];}]){
+    const changed=structuredClone(modern);mutate(changed);assert.throws(()=>validateModernSource(changed,modernPath),/source-/);await assert.rejects(compileSource(Buffer.from(JSON.stringify(changed)),modernPath),/source-/);
+  }
+  const wrongSize=structuredClone(modern);wrongSize.dims.w=2101;await assert.rejects(compileSource(Buffer.from(JSON.stringify(wrongSize)),modernPath),/asset-bounds/);
 });
 
 async function snapshot(directory,prefix=''){

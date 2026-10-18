@@ -147,6 +147,83 @@
       }
     },
     {
+      "id": "a_l0_armchair",
+      "version": 2,
+      "name_en": "Accent armchair",
+      "name_hi": "सजावटी आराम कुर्सी",
+      "category": "seating",
+      "tags": [
+        "armchair",
+        "accent chair",
+        "lounge chair",
+        "single seater sofa",
+        "fabric",
+        "teal",
+        "आराम कुर्सी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 820,
+        "h": 820
+      },
+      "sourceSha256": "490f5850f34c9ea6584151e99cf1e1e01c37842a055c2c33feb7a67d456970c7",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_armchair-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_armchair-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/ab6a234bc695bbe0eb30ef5eb45667247eccac02072af3364e94d90e43cc893c.glb",
+          "sha256": "ab6a234bc695bbe0eb30ef5eb45667247eccac02072af3364e94d90e43cc893c",
+          "bytes": 45212,
+          "triangles": 1544
+        },
+        {
+          "level": 1,
+          "path": "blobs/ab6a234bc695bbe0eb30ef5eb45667247eccac02072af3364e94d90e43cc893c.glb",
+          "sha256": "ab6a234bc695bbe0eb30ef5eb45667247eccac02072af3364e94d90e43cc893c",
+          "bytes": 45212,
+          "triangles": 1544
+        }
+      ],
+      "thumb": {
+        "path": "blobs/635035d1ff75ef4fa933d8822cabcc9f522ba61e899b6d324dad9d7bda263585.svg",
+        "sha256": "635035d1ff75ef4fa933d8822cabcc9f522ba61e899b6d324dad9d7bda263585",
+        "bytes": 32221,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1544,
+        "bounds": {
+          "min": [
+            -0.4000000059604645,
+            0,
+            -0.4099999964237213
+          ],
+          "max": [
+            0.4000000059604645,
+            0.8199999928474426,
+            0.4099999964237213
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_bench",
       "version": 1,
       "name_en": "Entry bench",
@@ -280,6 +357,83 @@
             0.4,
             1.8,
             0.15000000000000002
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_bookcase",
+      "version": 2,
+      "name_en": "Open bookshelf",
+      "name_hi": "खुली किताबों की अलमारी",
+      "category": "storage",
+      "tags": [
+        "bookshelf",
+        "bookcase",
+        "book rack",
+        "open shelf",
+        "wooden",
+        "oak",
+        "किताबों की अलमारी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 300,
+        "h": 1800
+      },
+      "sourceSha256": "cab41ac8f8e9db3be7c0d3735c1445f808ac0b5be7eb62969fa0d41f3794810c",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_bookcase-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bookcase-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/e51dab90220dc830649a25f2a24de2e2a9895eb279c774610f9dc778914cfb9c.glb",
+          "sha256": "e51dab90220dc830649a25f2a24de2e2a9895eb279c774610f9dc778914cfb9c",
+          "bytes": 26860,
+          "triangles": 228
+        },
+        {
+          "level": 1,
+          "path": "blobs/e51dab90220dc830649a25f2a24de2e2a9895eb279c774610f9dc778914cfb9c.glb",
+          "sha256": "e51dab90220dc830649a25f2a24de2e2a9895eb279c774610f9dc778914cfb9c",
+          "bytes": 26860,
+          "triangles": 228
+        }
+      ],
+      "thumb": {
+        "path": "blobs/1cd2de02dfacd646b9413c1286a46cb006b6d62499f490fe5096b328ef35c08b.svg",
+        "sha256": "1cd2de02dfacd646b9413c1286a46cb006b6d62499f490fe5096b328ef35c08b",
+        "bytes": 9032,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 228,
+        "bounds": {
+          "min": [
+            -0.4000000059604645,
+            0,
+            -0.15000000596046448
+          ],
+          "max": [
+            0.4000000059604645,
+            1.7999999523162842,
+            0.15000000596046448
           ]
         },
         "validator": {
@@ -426,6 +580,83 @@
             0.5,
             0.45,
             0.25
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_coffee_table",
+      "version": 2,
+      "name_en": "Coffee table with shelf",
+      "name_hi": "शेल्फ़ वाली छोटी बैठक मेज़",
+      "category": "tables",
+      "tags": [
+        "coffee table",
+        "centre table",
+        "center table",
+        "wooden",
+        "metal legs",
+        "walnut",
+        "छोटी बैठक मेज़"
+      ],
+      "dims": {
+        "w": 1100,
+        "d": 600,
+        "h": 450
+      },
+      "sourceSha256": "32e2f440bd351df63cfba970257d105de1e48d9d77e00d56e920aeb062ef4dd3",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_coffee_table-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_coffee_table-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/d3d7094bd54bfaea988a1429a3858bc038e4d853a50221aee0de7cdbff10a6bb.glb",
+          "sha256": "d3d7094bd54bfaea988a1429a3858bc038e4d853a50221aee0de7cdbff10a6bb",
+          "bytes": 14464,
+          "triangles": 344
+        },
+        {
+          "level": 1,
+          "path": "blobs/d3d7094bd54bfaea988a1429a3858bc038e4d853a50221aee0de7cdbff10a6bb.glb",
+          "sha256": "d3d7094bd54bfaea988a1429a3858bc038e4d853a50221aee0de7cdbff10a6bb",
+          "bytes": 14464,
+          "triangles": 344
+        }
+      ],
+      "thumb": {
+        "path": "blobs/1cab0a991677a2a5456c4f83d98a93ff36ffa2a7fbaf73edb0051f90f8e1639e.svg",
+        "sha256": "1cab0a991677a2a5456c4f83d98a93ff36ffa2a7fbaf73edb0051f90f8e1639e",
+        "bytes": 8855,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 344,
+        "bounds": {
+          "min": [
+            -0.550000011920929,
+            0,
+            -0.30000001192092896
+          ],
+          "max": [
+            0.550000011920929,
+            0.44999998807907104,
+            0.30000001192092896
           ]
         },
         "validator": {
@@ -1530,6 +1761,82 @@
       }
     },
     {
+      "id": "a_l0_side_table",
+      "version": 2,
+      "name_en": "Round side table",
+      "name_hi": "गोल बगल की मेज़",
+      "category": "tables",
+      "tags": [
+        "side table",
+        "end table",
+        "round table",
+        "wooden top",
+        "brass",
+        "बगल की मेज़"
+      ],
+      "dims": {
+        "w": 450,
+        "d": 450,
+        "h": 550
+      },
+      "sourceSha256": "ec9d1550cab9ec5f05dde83eda61ff79c34b2ae600b2569250d7c9f2aa05b99a",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_side_table-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_side_table-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/b73eaabc638ff92002d47e00153a5362a729d469171dd0e52baed184b78f6bde.glb",
+          "sha256": "b73eaabc638ff92002d47e00153a5362a729d469171dd0e52baed184b78f6bde",
+          "bytes": 9932,
+          "triangles": 240
+        },
+        {
+          "level": 1,
+          "path": "blobs/b73eaabc638ff92002d47e00153a5362a729d469171dd0e52baed184b78f6bde.glb",
+          "sha256": "b73eaabc638ff92002d47e00153a5362a729d469171dd0e52baed184b78f6bde",
+          "bytes": 9932,
+          "triangles": 240
+        }
+      ],
+      "thumb": {
+        "path": "blobs/e1b57b6b072f97860b6fd5b89e75096f41e3234edc1ff1bc609ec6a95c0b5f1a.svg",
+        "sha256": "e1b57b6b072f97860b6fd5b89e75096f41e3234edc1ff1bc609ec6a95c0b5f1a",
+        "bytes": 5643,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 240,
+        "bounds": {
+          "min": [
+            -0.22499999403953552,
+            0,
+            -0.22499999403953552
+          ],
+          "max": [
+            0.22499999403953552,
+            0.550000011920929,
+            0.22499999403953552
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_single_bed",
       "version": 1,
       "name_en": "Single bed",
@@ -1676,6 +1983,83 @@
       }
     },
     {
+      "id": "a_l0_sofa_2",
+      "version": 2,
+      "name_en": "Two-seat sofa",
+      "name_hi": "दो सीट का सोफ़ा",
+      "category": "seating",
+      "tags": [
+        "sofa",
+        "couch",
+        "2 seater sofa",
+        "loveseat",
+        "fabric sofa",
+        "grey",
+        "दो सीट का सोफ़ा"
+      ],
+      "dims": {
+        "w": 1500,
+        "d": 860,
+        "h": 820
+      },
+      "sourceSha256": "f8385f218ea197d9079f58794621d153ac77456f7658c8426457cc7222c31731",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_sofa_2-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_sofa_2-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/e1080565a07c31bee96e131e3f51c948cef61fa77860dd301c2d0a5d4a360dfa.glb",
+          "sha256": "e1080565a07c31bee96e131e3f51c948cef61fa77860dd301c2d0a5d4a360dfa",
+          "bytes": 60480,
+          "triangles": 2144
+        },
+        {
+          "level": 1,
+          "path": "blobs/e1080565a07c31bee96e131e3f51c948cef61fa77860dd301c2d0a5d4a360dfa.glb",
+          "sha256": "e1080565a07c31bee96e131e3f51c948cef61fa77860dd301c2d0a5d4a360dfa",
+          "bytes": 60480,
+          "triangles": 2144
+        }
+      ],
+      "thumb": {
+        "path": "blobs/9bb412094a090686a0b8e0eb2a8dc39d1a4a853911ae729ec8ccf031ec633c5b.svg",
+        "sha256": "9bb412094a090686a0b8e0eb2a8dc39d1a4a853911ae729ec8ccf031ec633c5b",
+        "bytes": 44050,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 2144,
+        "bounds": {
+          "min": [
+            -0.75,
+            0,
+            -0.4300000071525574
+          ],
+          "max": [
+            0.75,
+            0.8199999928474426,
+            0.4300000071525574
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_sofa_3",
       "version": 1,
       "name_en": "Three-seat sofa",
@@ -1737,6 +2121,160 @@
             1.05,
             0.8500000000000001,
             0.425
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_sofa_3",
+      "version": 2,
+      "name_en": "Three-seat sofa",
+      "name_hi": "तीन सीट का सोफ़ा",
+      "category": "seating",
+      "tags": [
+        "sofa",
+        "couch",
+        "3 seater sofa",
+        "fabric sofa",
+        "grey",
+        "तीन सीट का सोफ़ा"
+      ],
+      "dims": {
+        "w": 2100,
+        "d": 860,
+        "h": 820
+      },
+      "sourceSha256": "884942966b6722d7b8cd659839d1f07b656efefbfca5f5af8fe8e7070cdbd577",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_sofa_3-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_sofa_3-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/561c39a980ef9b661ff2c93858a19f270a942c54f03f1f2484ee92cb3ada43c1.glb",
+          "sha256": "561c39a980ef9b661ff2c93858a19f270a942c54f03f1f2484ee92cb3ada43c1",
+          "bytes": 75816,
+          "triangles": 2744
+        },
+        {
+          "level": 1,
+          "path": "blobs/561c39a980ef9b661ff2c93858a19f270a942c54f03f1f2484ee92cb3ada43c1.glb",
+          "sha256": "561c39a980ef9b661ff2c93858a19f270a942c54f03f1f2484ee92cb3ada43c1",
+          "bytes": 75816,
+          "triangles": 2744
+        }
+      ],
+      "thumb": {
+        "path": "blobs/5be9aa0485308c9042dcf743bc2f5c375d8741c45465ca795a113442ee40c18f.svg",
+        "sha256": "5be9aa0485308c9042dcf743bc2f5c375d8741c45465ca795a113442ee40c18f",
+        "bytes": 56223,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 2744,
+        "bounds": {
+          "min": [
+            -1.0499999523162842,
+            0,
+            -0.4300000071525574
+          ],
+          "max": [
+            1.0499999523162842,
+            0.8199999928474426,
+            0.4300000071525574
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_sofa_l",
+      "version": 1,
+      "name_en": "L-shape sofa (5 seats)",
+      "name_hi": "L आकार का सोफ़ा (5 सीट)",
+      "category": "seating",
+      "tags": [
+        "sofa",
+        "l shaped sofa",
+        "sectional sofa",
+        "corner sofa",
+        "5 seater sofa",
+        "fabric sofa",
+        "grey",
+        "L आकार का सोफ़ा"
+      ],
+      "dims": {
+        "w": 2500,
+        "d": 1600,
+        "h": 820
+      },
+      "sourceSha256": "9327312d668166142205000aeecbe7af48e190344cfeaa0887a2f29c925cd0ba",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_sofa_l-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_sofa_l-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/d9b371f64e5b53e929bf209d3911003ce4ca1611c159ab40071ea59013bd195f.glb",
+          "sha256": "d9b371f64e5b53e929bf209d3911003ce4ca1611c159ab40071ea59013bd195f",
+          "bytes": 80620,
+          "triangles": 2800
+        },
+        {
+          "level": 1,
+          "path": "blobs/d9b371f64e5b53e929bf209d3911003ce4ca1611c159ab40071ea59013bd195f.glb",
+          "sha256": "d9b371f64e5b53e929bf209d3911003ce4ca1611c159ab40071ea59013bd195f",
+          "bytes": 80620,
+          "triangles": 2800
+        }
+      ],
+      "thumb": {
+        "path": "blobs/dc868df1c34563c2a583c0f3788255b29d2908f3df068126d203d160766291ed.svg",
+        "sha256": "dc868df1c34563c2a583c0f3788255b29d2908f3df068126d203d160766291ed",
+        "bytes": 58532,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 2800,
+        "bounds": {
+          "min": [
+            -1.25,
+            0,
+            -0.800000011920929
+          ],
+          "max": [
+            1.25,
+            0.8199999928474426,
+            0.800000011920929
           ]
         },
         "validator": {
@@ -1882,6 +2420,84 @@
             0.7,
             0.75,
             0.35
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_tv_unit",
+      "version": 1,
+      "name_en": "TV unit",
+      "name_hi": "टीवी यूनिट",
+      "category": "storage",
+      "tags": [
+        "tv unit",
+        "tv stand",
+        "tv cabinet",
+        "entertainment unit",
+        "wooden",
+        "white",
+        "walnut",
+        "टीवी यूनिट"
+      ],
+      "dims": {
+        "w": 1800,
+        "d": 400,
+        "h": 440
+      },
+      "sourceSha256": "03e4f492ddd45219ae8d82698d756f5ac4457a7224112b683c6efaca7f4c646a",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_tv_unit-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_tv_unit-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/23c12cb7d285646d9f13c39af49aacaeb52e0f1e610885ef033e1677368d539d.glb",
+          "sha256": "23c12cb7d285646d9f13c39af49aacaeb52e0f1e610885ef033e1677368d539d",
+          "bytes": 17908,
+          "triangles": 296
+        },
+        {
+          "level": 1,
+          "path": "blobs/23c12cb7d285646d9f13c39af49aacaeb52e0f1e610885ef033e1677368d539d.glb",
+          "sha256": "23c12cb7d285646d9f13c39af49aacaeb52e0f1e610885ef033e1677368d539d",
+          "bytes": 17908,
+          "triangles": 296
+        }
+      ],
+      "thumb": {
+        "path": "blobs/67ec42dab840be727e9a1e4a2d115231ee1a1e687602f5f4e9fcc76cf2b060d6.svg",
+        "sha256": "67ec42dab840be727e9a1e4a2d115231ee1a1e687602f5f4e9fcc76cf2b060d6",
+        "bytes": 8512,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 296,
+        "bounds": {
+          "min": [
+            -0.8999999761581421,
+            0,
+            -0.20000000298023224
+          ],
+          "max": [
+            0.8999999761581421,
+            0.4399999976158142,
+            0.20000000298023224
           ]
         },
         "validator": {

@@ -1,0 +1,87 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_side_table",
+  "version": 2,
+  "name_en": "Round side table",
+  "name_hi": "गोल बगल की मेज़",
+  "category": "tables",
+  "tags": [
+    "side table",
+    "end table",
+    "round table",
+    "wooden top",
+    "brass",
+    "बगल की मेज़"
+  ],
+  "dims": {
+    "w": 450,
+    "d": 450,
+    "h": 550
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_side_table-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_side_table-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "top",
+      "shape": "cylinder",
+      "center": [
+        0,
+        535,
+        0
+      ],
+      "size": [
+        450,
+        30,
+        450
+      ],
+      "color": "#c49a6c",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "stem",
+      "shape": "cylinder",
+      "center": [
+        0,
+        280,
+        0
+      ],
+      "size": [
+        50,
+        480,
+        50
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "foot",
+      "shape": "cylinder",
+      "center": [
+        0,
+        20,
+        0
+      ],
+      "size": [
+        300,
+        40,
+        300
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 24
+    }
+  ]
+}

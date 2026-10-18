@@ -1,0 +1,214 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_armchair",
+  "version": 2,
+  "name_en": "Accent armchair",
+  "name_hi": "सजावटी आराम कुर्सी",
+  "category": "seating",
+  "tags": [
+    "armchair",
+    "accent chair",
+    "lounge chair",
+    "single seater sofa",
+    "fabric",
+    "teal",
+    "आराम कुर्सी"
+  ],
+  "dims": {
+    "w": 800,
+    "d": 820,
+    "h": 820
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_armchair-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_armchair-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "leg-lf340",
+      "shape": "cylinder",
+      "center": [
+        -340,
+        70,
+        -350
+      ],
+      "size": [
+        45,
+        140,
+        45
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-lb340",
+      "shape": "cylinder",
+      "center": [
+        -340,
+        70,
+        350
+      ],
+      "size": [
+        45,
+        140,
+        45
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-rf340",
+      "shape": "cylinder",
+      "center": [
+        340,
+        70,
+        -350
+      ],
+      "size": [
+        45,
+        140,
+        45
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-rb340",
+      "shape": "cylinder",
+      "center": [
+        340,
+        70,
+        350
+      ],
+      "size": [
+        45,
+        140,
+        45
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "base",
+      "shape": "rounded",
+      "center": [
+        0,
+        240,
+        0
+      ],
+      "size": [
+        560,
+        200,
+        820
+      ],
+      "color": "#427282",
+      "finish": "matte",
+      "radius": 30,
+      "segments": 1
+    },
+    {
+      "name": "arm-left",
+      "shape": "rounded",
+      "center": [
+        -340,
+        420,
+        0
+      ],
+      "size": [
+        120,
+        560,
+        820
+      ],
+      "color": "#427282",
+      "finish": "matte",
+      "radius": 45,
+      "segments": 2
+    },
+    {
+      "name": "arm-right",
+      "shape": "rounded",
+      "center": [
+        340,
+        420,
+        0
+      ],
+      "size": [
+        120,
+        560,
+        820
+      ],
+      "color": "#427282",
+      "finish": "matte",
+      "radius": 45,
+      "segments": 2
+    },
+    {
+      "name": "back-frame",
+      "shape": "rounded",
+      "center": [
+        0,
+        560,
+        320
+      ],
+      "size": [
+        560,
+        520,
+        180
+      ],
+      "color": "#427282",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 1
+    },
+    {
+      "name": "seat",
+      "shape": "rounded",
+      "center": [
+        0,
+        405,
+        -110
+      ],
+      "size": [
+        552,
+        130,
+        600
+      ],
+      "color": "#427282",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "back-cushion",
+      "shape": "rounded",
+      "center": [
+        0,
+        630,
+        145
+      ],
+      "size": [
+        552,
+        320,
+        170
+      ],
+      "color": "#427282",
+      "finish": "matte",
+      "radius": 70,
+      "segments": 2
+    }
+  ]
+}

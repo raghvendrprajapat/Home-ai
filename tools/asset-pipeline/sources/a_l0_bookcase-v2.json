@@ -1,0 +1,338 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_bookcase",
+  "version": 2,
+  "name_en": "Open bookshelf",
+  "name_hi": "खुली किताबों की अलमारी",
+  "category": "storage",
+  "tags": [
+    "bookshelf",
+    "bookcase",
+    "book rack",
+    "open shelf",
+    "wooden",
+    "oak",
+    "किताबों की अलमारी"
+  ],
+  "dims": {
+    "w": 800,
+    "d": 300,
+    "h": 1800
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_bookcase-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bookcase-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "side-left",
+      "shape": "box",
+      "center": [
+        -391,
+        900,
+        0
+      ],
+      "size": [
+        18,
+        1800,
+        300
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "side-right",
+      "shape": "box",
+      "center": [
+        391,
+        900,
+        0
+      ],
+      "size": [
+        18,
+        1800,
+        300
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "back",
+      "shape": "box",
+      "center": [
+        0,
+        900,
+        147
+      ],
+      "size": [
+        764,
+        1764,
+        6
+      ],
+      "color": "#b88d61",
+      "finish": "satin"
+    },
+    {
+      "name": "shelf-1",
+      "shape": "box",
+      "center": [
+        0,
+        9,
+        0
+      ],
+      "size": [
+        764,
+        18,
+        300
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "shelf-2",
+      "shape": "box",
+      "center": [
+        0,
+        450,
+        0
+      ],
+      "size": [
+        764,
+        18,
+        300
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "shelf-3",
+      "shape": "box",
+      "center": [
+        0,
+        900,
+        0
+      ],
+      "size": [
+        764,
+        18,
+        300
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "shelf-4",
+      "shape": "box",
+      "center": [
+        0,
+        1350,
+        0
+      ],
+      "size": [
+        764,
+        18,
+        300
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "shelf-5",
+      "shape": "box",
+      "center": [
+        0,
+        1791,
+        0
+      ],
+      "size": [
+        764,
+        18,
+        300
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "book-a1",
+      "shape": "box",
+      "center": [
+        -353,
+        148,
+        20
+      ],
+      "size": [
+        35,
+        260,
+        200
+      ],
+      "color": "#5b6f8a",
+      "finish": "matte"
+    },
+    {
+      "name": "book-a2",
+      "shape": "box",
+      "center": [
+        -317,
+        168,
+        20
+      ],
+      "size": [
+        28,
+        300,
+        200
+      ],
+      "color": "#a6584a",
+      "finish": "matte"
+    },
+    {
+      "name": "book-a3",
+      "shape": "box",
+      "center": [
+        -279,
+        138,
+        20
+      ],
+      "size": [
+        40,
+        240,
+        200
+      ],
+      "color": "#d8c9a8",
+      "finish": "matte"
+    },
+    {
+      "name": "book-a4",
+      "shape": "box",
+      "center": [
+        -240,
+        158,
+        20
+      ],
+      "size": [
+        30,
+        280,
+        200
+      ],
+      "color": "#4f6b55",
+      "finish": "matte"
+    },
+    {
+      "name": "book-a5",
+      "shape": "box",
+      "center": [
+        -199,
+        128,
+        20
+      ],
+      "size": [
+        45,
+        220,
+        200
+      ],
+      "color": "#8a6d9b",
+      "finish": "matte"
+    },
+    {
+      "name": "book-b1",
+      "shape": "box",
+      "center": [
+        136,
+        1054,
+        20
+      ],
+      "size": [
+        32,
+        290,
+        200
+      ],
+      "color": "#d8c9a8",
+      "finish": "matte"
+    },
+    {
+      "name": "book-b2",
+      "shape": "box",
+      "center": [
+        175,
+        1034,
+        20
+      ],
+      "size": [
+        38,
+        250,
+        200
+      ],
+      "color": "#4f6b55",
+      "finish": "matte"
+    },
+    {
+      "name": "book-b3",
+      "shape": "box",
+      "center": [
+        213,
+        1064,
+        20
+      ],
+      "size": [
+        30,
+        310,
+        200
+      ],
+      "color": "#8a6d9b",
+      "finish": "matte"
+    },
+    {
+      "name": "book-b4",
+      "shape": "box",
+      "center": [
+        253,
+        1024,
+        20
+      ],
+      "size": [
+        42,
+        230,
+        200
+      ],
+      "color": "#c7a24a",
+      "finish": "matte"
+    },
+    {
+      "name": "box-c",
+      "shape": "box",
+      "center": [
+        -200,
+        549,
+        10
+      ],
+      "size": [
+        260,
+        180,
+        240
+      ],
+      "color": "#d8c9a8",
+      "finish": "matte"
+    },
+    {
+      "name": "vase-c",
+      "shape": "box",
+      "center": [
+        220,
+        1469,
+        0
+      ],
+      "size": [
+        120,
+        220,
+        120
+      ],
+      "color": "#6f8f86",
+      "finish": "gloss"
+    }
+  ]
+}

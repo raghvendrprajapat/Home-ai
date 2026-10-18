@@ -1,0 +1,285 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_sofa_3",
+  "version": 2,
+  "name_en": "Three-seat sofa",
+  "name_hi": "तीन सीट का सोफ़ा",
+  "category": "seating",
+  "tags": [
+    "sofa",
+    "couch",
+    "3 seater sofa",
+    "fabric sofa",
+    "grey",
+    "तीन सीट का सोफ़ा"
+  ],
+  "dims": {
+    "w": 2100,
+    "d": 860,
+    "h": 820
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_sofa_3-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_sofa_3-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "leg-lf940",
+      "shape": "cylinder",
+      "center": [
+        -940,
+        60,
+        -340
+      ],
+      "size": [
+        40,
+        120,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-lb940",
+      "shape": "cylinder",
+      "center": [
+        -940,
+        60,
+        340
+      ],
+      "size": [
+        40,
+        120,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-rf940",
+      "shape": "cylinder",
+      "center": [
+        940,
+        60,
+        -340
+      ],
+      "size": [
+        40,
+        120,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-rb940",
+      "shape": "cylinder",
+      "center": [
+        940,
+        60,
+        340
+      ],
+      "size": [
+        40,
+        120,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "base",
+      "shape": "rounded",
+      "center": [
+        0,
+        230,
+        0
+      ],
+      "size": [
+        1780,
+        220,
+        860
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 30,
+      "segments": 1
+    },
+    {
+      "name": "arm-left",
+      "shape": "rounded",
+      "center": [
+        -970,
+        430,
+        0
+      ],
+      "size": [
+        160,
+        620,
+        860
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 50,
+      "segments": 2
+    },
+    {
+      "name": "arm-right",
+      "shape": "rounded",
+      "center": [
+        970,
+        430,
+        0
+      ],
+      "size": [
+        160,
+        620,
+        860
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 50,
+      "segments": 2
+    },
+    {
+      "name": "back-frame",
+      "shape": "rounded",
+      "center": [
+        0,
+        580,
+        320
+      ],
+      "size": [
+        1780,
+        480,
+        220
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 1
+    },
+    {
+      "name": "seat-1",
+      "shape": "rounded",
+      "center": [
+        -594,
+        410,
+        -120
+      ],
+      "size": [
+        587,
+        140,
+        620
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "seat-2",
+      "shape": "rounded",
+      "center": [
+        -1,
+        410,
+        -120
+      ],
+      "size": [
+        587,
+        140,
+        620
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "seat-3",
+      "shape": "rounded",
+      "center": [
+        592,
+        410,
+        -120
+      ],
+      "size": [
+        587,
+        140,
+        620
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "back-1",
+      "shape": "rounded",
+      "center": [
+        -594,
+        640,
+        120
+      ],
+      "size": [
+        587,
+        320,
+        180
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 70,
+      "segments": 2
+    },
+    {
+      "name": "back-2",
+      "shape": "rounded",
+      "center": [
+        -1,
+        640,
+        120
+      ],
+      "size": [
+        587,
+        320,
+        180
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 70,
+      "segments": 2
+    },
+    {
+      "name": "back-3",
+      "shape": "rounded",
+      "center": [
+        592,
+        640,
+        120
+      ],
+      "size": [
+        587,
+        320,
+        180
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 70,
+      "segments": 2
+    }
+  ]
+}
