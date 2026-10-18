@@ -36,6 +36,8 @@
 - **Room identity crossed floors.** Copying the outline first failed with "More than one room would inherit the same identity": room identity compared the new upstairs room with the ground rooms below it. Fixed so identity, clear areas and room choices are per floor.
 - **Change detection crossed floors.** Adding a floor first bumped the `rev` of ground-floor walls, because the 500 mm neighbour check that marks walls for 3D rebuild ignored floors. The browser test caught it (ground walls not byte-identical). Fixed so the check never crosses floors.
 - **Existing test unchanged.** An existing validation test expected the error code `floors` for a duplicated floor. The new floor rules use the same code, so that test was not changed.
+- **Floor tabs were too small.** The full browser run (158 passed, 2 failed) caught that the floor tab buttons were 40 px tall, below the 48 px touch-target rule (UX-004 responsive buttons). They are now at least 48 × 48 px, and that test passes. The other failure, UX-005 rotation-handle tap, is a known sandbox-only failure: it also fails on `main` here and passes in CI.
+- **After merging `main` (D63):** `pnpm check` passes 73 files / 537 tests. The interactions, floors and foundation specs pass 17/17.
 - **Test-authoring mistakes**, fixed in the new tests only:
   - floor-relative walk data versus camera height (the walk diagnostics now also report the floor elevation);
   - read-only type casts.

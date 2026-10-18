@@ -682,6 +682,6 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .upper-floors-toggle{position:absolute;top:60px;right:12px;background:#fff;padding:0 12px;border-radius:8px;z-index:2}
 .floor-controls{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 20px 0}
 .floor-tabs{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
-.floor-tabs button{min-height:40px;padding:0 14px}
+.floor-tabs button{min-height:48px;min-width:48px;padding:0 14px}
 .floor-tabs .snap-toggle{margin-top:0;font-size:12px}
 .floor-settings{font-size:13px}.floor-settings form{display:flex;flex-wrap:wrap;gap:8px;align-items:end;margin:8px 0}

@@ -54,6 +54,8 @@ FR-003 starter templates (1 BHK, 2 BHK, single-room presets) were added by D54, 
 
 ### D36: explicit owner permission required BEFORE even preparatory implementation
 
+**D63 update (owner, 2026-10-18):** FR-031 accounts/cloud save, FR-032 conflicts/version history, FR-033 read-only share link and FR-043 account/data deletion/export are now authorized, and FR-034 multiple floors and FR-035 stairs/roofs join the first release. The bullets below still apply to everything else.
+
 - Accounts/authentication, cloud saving/sync, conflict resolution and project version history: issues #35–41, including future save-race fixture work.
 - Mobile optimization/direct sharing/physical Low–Mid phone testing: issues #42–46 and retained phone gates in earlier tasks.
 - Billing/subscriptions/paywalls/ads, security/privacy/deletion/release/store preparation and final Claude review: issues #47–55, plus corresponding older pending gates.
