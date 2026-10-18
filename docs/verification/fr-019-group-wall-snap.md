@@ -15,6 +15,10 @@
 
 **Related suites:** together with the group spec and the existing advisory spec, 12/12 pass.
 
+**Whole checks:**
+- `pnpm check` under Node 24.19.0: 71 files, 527 product tests, 18 tooling tests passed.
+- Whole browser suite on the frozen branch code: **155 passed, 1 failed (9.7 m)**. The 1 failure is the same `furniture-gestures.spec.ts` "UX-005 … rotation-handle tap … Enter rotates once" deep-equality failure that fails on unmodified `main` in this sandbox (Chromium 141) and passed in pinned CI for PRs #100–#107. Not caused by this change; cause unproven; pinned CI is the gate.
+
 ## Limits
 
 - Only the touched item snaps; the others are not tested against walls.
