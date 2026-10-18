@@ -17,5 +17,6 @@ These are Claude-authored tests against the Supabase stand-in. They are not a re
   - Replace needs a confirmation naming version 3, lands as version 4, and versions 1–4 are all kept.
   - Restoring version 1 at head 3 gives version 4 with 1 floor and Undo disabled; version 2 opens as a copy with 2 floors.
 
-## Results
-See the PR for the exact local and CI output for this commit.
+## Results (2026-10-18, local)
+- `pnpm check`: 76 files, 555 tests passed.
+- `cloud-versions.spec.ts`: 4/4 passed; with `cloud.spec.ts` (now on the shared stand-in) 8/8.
