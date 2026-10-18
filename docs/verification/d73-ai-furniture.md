@@ -1,4 +1,4 @@
-# D73 AI furniture ideas and layout verification
+# D73 AI furniture ideas, layout and photo-to-plan verification
 
 These checks are Claude-authored. They are not independent fixtures, not a phone test, and not a test of any real hosted model; no hosted model is connected.
 
@@ -41,7 +41,13 @@ Furniture sizes are copied by hand from the catalog.
 | Small bedroom, 2400 × 3000 | 3,600,000 mm² | Queen bed only. The king bed needs 4,085,000; after the queen bed's 3,483,000 only 117,000 is left. |
 
 - A room that already has a king bed and a bedside table gets the queen bed instead and no second bedside table.
-- A bathroom gets no ideas.
+- A pooja room gets no ideas.
+- **Kitchen, bathroom and utility** (furniture only):
+  - Kitchen 2800 × 2200: island (960,000 mm²) and base cabinet (360,000 mm²).
+  - Kitchen 2000 × 1300: island only. It fits only when turned, and leaves 340,000 of the 1,300,000 budget, which is less than the base cabinet's 360,000.
+  - Kitchen 1300 × 1300: base cabinet only. The island needs 1400 mm across either way.
+  - Bathroom 1600 × 2000: vanity.
+  - Utility 1800 × 1500: shoe cabinet, then sideboard.
 - A request that was already cancelled is rejected.
 
 ### Mutation check
@@ -160,6 +166,78 @@ The test uses the sample bedroom, which already has a bed and a wardrobe.
 ![AI layout preview for the sample bedroom](images/d73-ai-layout-preview.png)
 
 In the sample bedroom, the king bed is placed against the west wall, clear of the existing bed, wardrobe and door swing. The dressing table goes on the east wall below the window. The sliding wardrobe, bedside table and study table get "no safe space".
+
+## AI-3 photo or sketch to plan
+### `packages/core-model/src/rooms-project.test.ts` (6 tests)
+These use 200 mm walls, so a W × D room alone has a (W − 200) × (D − 200) clear area.
+
+| Layout | Result |
+|---|---|
+| Two rooms side by side | 6 junctions, 7 walls. Living 3800 × 2800 = 10,640,000 mm²; Bedroom 2800 × 2800 = 7,840,000 mm². |
+| A 7000-wide room under both | T junction; 8 junctions, 10 walls. Kitchen 6800 × 2800 = 19,040,000 mm². |
+| Exact 2 × 2 grid | The X crossing is refused, so rooms 2 and 3 are reported. |
+| The same grid staggered by 150 mm | All four rooms are built: 7,840,000 / 8,260,000 / 7,840,000 / 7,420,000 mm². |
+| A room inside another | Reported; repeated types are numbered "Bedroom 2". |
+| Empty list, or 21 rooms | Refused. |
+| Doors on two side-by-side rooms | Shared wall: offset 1500. Living south wall: offset 2000. East wall at y 300: moved to 600 (450 + 150). A point on no wall, a 500 mm door and a 2900 mm door are reported. |
+
+### `apps/web/src/ai/sketch.test.ts` (10 tests)
+- **Merging edges:**
+  - x edges 3990 and 4110 become 4050, and 7090 becomes 7100;
+  - y edges −100 and −90 become −100, and 3110 and 3120 become 3100.
+- **Dropped entries:**
+  - overlaps, a 1000 mm room, a 16 m room, string and null entries;
+  - an unknown type becomes "other";
+  - a too-small shape at x 4200 does not pull a good 4000 edge to 4100.
+- **Doors:**
+  - 4080/1510/880 becomes the edge 4000, 1500, 900 mm;
+  - the same door read from the other room is kept once;
+  - a horizontal door at y 2900 goes to the 3000 edge;
+  - dropped: a door 2000 mm from any edge, one reaching past the rooms, a 500 mm one, a "diagonal" wall, and a string coordinate.
+- **Staggering:**
+  - The exact 2 × 2 grid becomes [0,0,3000,3000], [3000,0,3000,3150], [0,3000,3000,3000], [3000,3150,3000,2850], and builds with nothing skipped. Without staggering, rooms 2 and 3 are skipped.
+  - Property test, 25 runs: any 1–3 by 1–3 grid of 2.5–4.5 m rooms builds completely after acceptSketch.
+
+**Reader cases.** The picture is 200 × 150 px at 10 m wide, so 50 mm per px. Lines are thickened by r = 10 px.
+
+| Case | Expected result |
+|---|---|
+| Partition with an 800 mm (16 px) door gap | Rooms {1000,1000,4100,5600, living} and {5000,1000,4100,5600, bedroom}. Example: the left inside x 22–99 px becomes 32–89 px after thickening, so (32 − 10)·50 − 100 = 1000 and (89 + 1 + 10)·50 + 100 = 5100. Merged on the partition's ink centre, x 101 px = 5050 mm. Door: rows 40–55, centre 48 px = 2400 mm, 800 mm wide, read at x 5100 and 5000, then kept once at 5050 and built as one 800 mm door. |
+| A 100 mm (2 px) pen break in the top wall | Closed; no door. |
+| A 1600 mm (32 px) gap | Too wide to close: rows 50–61 stay open, so one room {1000,1000,8100,5600}. |
+| An open outline | No room. |
+| Bad width or bad pixel data | Nothing. |
+| Type guesses | 6600 × 5600 is living; 1600 × 2600 = 4.16 m² is a bathroom; 1600 × 3100 = 4.96 m² is a bedroom. |
+
+### Mutation check
+Each of these was removed or changed separately, and at least one test then failed:
+- the merge distance;
+- the overlap drop;
+- staggering;
+- the early size drop;
+- thickening;
+- the edge-touching "outside" rule;
+- the 100 mm half wall;
+- the room-type check;
+- door dedupe, the door-span check, the door-size check, the reader's 600–1000 mm gap limit, the door edge position, the core door clamp, and the core door-size check.
+
+### Browser tests (`tests/e2e/ai-photo-plan.spec.ts`, 2 tests)
+The test picture is the same two-room PNG, built in the test.
+1. The privacy note is shown.
+2. "Show under the plan" draws it at 0,0, 10000 × 7500 mm, 50% strength.
+   - 30% changes the strength.
+   - X −500 and Y 250 move it; Y 0 moves it back.
+   - The drawing is unchanged.
+3. With the picture at X −500, "Read rooms" reports "Rooms found: 2. Doors found: 1.", with the door at 4550, 2400, 800 and rectangles 500,1000,4050,5600 living and 4550,1000,4050,5600 bedroom: the picture-relative 1000 and 5050, minus 500.
+4. "Create a new drawing" opens a new project, "Plan from photo", with:
+   - 6 junctions and 7 walls;
+   - one 800 mm door on the partition at x 4550, centred at y 2400;
+   - Living room and Bedroom;
+   - 20.79 m² clear each: 3850 × 5400.
+5. A picture with no closed room says so and changes nothing. A text file is refused with a clear message.
+
+![Trace-over picture under the sample plan](images/d73-ai-photo-underlay.png)
+![Rooms read from the test sketch](images/d73-ai-photo-rooms.png)
 
 ## Not covered
 - Real phones, a hosted model, cost limits, and how good the ideas look to a designer.

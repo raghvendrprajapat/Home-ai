@@ -5,10 +5,11 @@ import {FurniturePlacementControls} from './editor/FurniturePlacementControls';
 import {beginPlacement} from './editor/furniture-placement';
 import type {PlacementIntent} from './editor/furniture-placement';
 import type {FurnitureGhost} from './render3d/placement-ghost';
-import type {Point2} from './editor/view2d';
+import type {PlanUnderlay,Point2} from './editor/view2d';
 import {CatalogApi,CatalogSource} from './catalog/api';
 import {CatalogControls} from './catalog/CatalogControls';
 import {AiFurniturePanel} from './ai/AiFurniturePanel';
+import {PhotoPlanPanel} from './ai/PhotoPlanPanel';
 import {standInAi} from './ai/stand-in';
 import {FurnitureControls} from './editor/FurnitureControls';
 import {CameraControls} from './editor/CameraControls';
@@ -95,7 +96,7 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
   useEffect(()=>{if(selectedFurniture&&!snapshot.document.furniture.some(f=>f.id===selectedFurniture))setSelectedFurniture('');if(activePick){const fields={wall:'walls',opening:'openings',furniture:'furniture',room:'rooms',junction:'junctions'} as const;if(!snapshot.document[fields[activePick.kind]].some(e=>e.id===activePick.id))setActivePick(undefined);}},[selectedFurniture,activePick,snapshot.document]);
   useEffect(()=>{if(!snapshot.document.walls.some(w=>w.id===selectedWall))setSelectedWall(snapshot.document.walls[0]?.id??'');},[snapshot.document.walls,selectedWall]);
   const [selected, setSelected] = useState(() => store.getSnapshot().document.junctions[1]?.id ?? ''), [notice, setMessage] = useState(() => t('chooseCorner'));
-  const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0);
+  const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0), [underlay, setUnderlay] = useState<PlanUnderlay | null>(null);
   const [view, setView] = useState<'2d' | '3d' | 'split'>('2d');
   const drawingPanel=useRef<HTMLElement>(null),[splitAvailable,setSplitAvailable]=useState(false);
   useLayoutEffect(()=>{const panel=drawingPanel.current!;const measure=()=>setSplitAvailable(panel.clientWidth>=760);measure();if(typeof ResizeObserver==='undefined'){window.addEventListener('resize',measure);return()=>window.removeEventListener('resize',measure);}const observer=new ResizeObserver(measure);observer.observe(panel);return()=>observer.disconnect();},[]);
@@ -144,7 +145,7 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
           <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{showPlan && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
         </div>
         <div className={view==='split'?'editor-views split-views':'editor-views'} data-testid="editor-views" data-layout={view}>
-          {showPlan&&<section className="editor-pane" aria-label={t('plan2d')} key={`${view}:plan`}>{view==='split'&&<h3 className="pane-title">{t('plan2d')}</h3>}<PlanCanvas selectedPick={activePick??null} advisories={advisories} previewFurnitureId={ghost?.item.id} onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /></section>}
+          {showPlan&&<section className="editor-pane" aria-label={t('plan2d')} key={`${view}:plan`}>{view==='split'&&<h3 className="pane-title">{t('plan2d')}</h3>}<PlanCanvas selectedPick={activePick??null} advisories={advisories} previewFurnitureId={ghost?.item.id} onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} underlay={underlay} /></section>}
           {showThree&&<section className="editor-pane" aria-label={t('view3d')} key={`${view}:three`}>{view==='split'&&<h3 className="pane-title">{t('view3d')}</h3>}<Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} advisories={advisories} assetSource={assetSource} placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={baseStore} activeFloorId={activeFloor} onMessage={setMessage} fitRequest={fit} /></Suspense></section>}
         </div>
         {threeFallback&&<p role="status">{t('threeFallback')}</p>}
@@ -188,6 +189,7 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
         {unclosedWalls&&<p role="status">{t('incompletePlan')}</p>}
         <RoomControls selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} store={store} locale={ui.locale} onMessage={setMessage}/>
         <AiFurniturePanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInAi} catalog={signal=>assetSource.catalog(signal)} onPlace={(asset,centre)=>{drawing.setMode('select');cancelPrecision();try{setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
+        <PhotoPlanPanel locale={ui.locale} provider={standInAi} units={snapshot.document.units} onUnderlay={setUnderlay} onOpen={document=>onOpenDocument?.(document,false)}/>
         <div className="tip"><span aria-hidden="true">✦</span><p><strong>{t('measured')}</strong><br />{t('measuredHelp')}</p></div>
       </aside>
     </div>
