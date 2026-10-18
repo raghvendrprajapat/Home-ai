@@ -59,6 +59,8 @@ export class CatalogApi {
 export class CatalogSource implements FurnitureAssetSource {
  #catalog:Catalog|undefined;#pending:Promise<Catalog>|undefined;
  constructor(private api:CatalogApi){}
+ /** The shared catalog metadata, for readers such as the D73 furniture ideas. */
+ catalog(signal:AbortSignal):Promise<Catalog>{return this.#metadata(signal);}
  #metadata(signal:AbortSignal):Promise<Catalog>{
   if(this.#catalog)return Promise.resolve(this.#catalog);
   this.#pending??=this.api.catalog(new AbortController().signal).then(catalog=>{this.#catalog=catalog;return catalog;},error=>{this.#pending=undefined;throw error;});

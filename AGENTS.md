@@ -33,7 +33,7 @@ If code, this file and the spec disagree, investigate and record a reasoned reso
   - Electrical/wiring features of any kind.
   - Marketing website pages (home, about, blog). The only web pages are the Play-required privacy-policy page and account-deletion page.
   - Real-time collaboration, photoreal server renders, DWG/BIM, iOS app, AR, user-uploaded 3D models.
-  - AI before the first release.
+  - ~~AI before the first release~~: D73 (owner, 2026-10-18) allows AI features now, built and tested with an offline stand-in. Real hosted model calls (data or photos leaving the device, cost, keys) still need the owner's explicit choice; see `docs/decisions/ai-furniture-ideas.md`.
 - **L0 (first release):** straight walls at 0°/90° only, with L/T junctions; X-crossings and other angles are rejected. D63 (owner, 2026-10-18) adds multiple floors (FR-034) and stairs/roofs (FR-035) to the first release; walls stay orthogonal.
 - Never copy anything from Planner 5D (code, assets, catalog, UI art, private APIs).
 
