@@ -58,10 +58,11 @@ test('FR-008 a wall dragged into a collision is rejected unchanged with no histo
 });
 test('FR-008 touch: tap selects, hold then drag moves the wall once; early motion pans without editing',async({page})=>{
   await begin(page);const original=await backup(page),cdp=await page.context().newCDPSession(page);
-  let f=await frame(page),a=screenOf(f,4500,3000);
+  let f=await frame(page),a=screenOf(f,4500,3000);const fitted=f.view;
   await touch(cdp,'touchStart',[{id:1,...a}]);await touch(cdp,'touchEnd',[]);await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-picked-id','w7');expect(await backup(page)).toEqual(original);
   await touch(cdp,'touchStart',[{id:1,...a}]);await touch(cdp,'touchMove',[{id:1,x:a.x+30,y:a.y}]);await touch(cdp,'touchEnd',[]);expect(await backup(page)).toEqual(original);
-  await page.getByRole('button',{name:'Fit floor plan',exact:true}).click();f=await frame(page);a=screenOf(f,4500,3000);
+  // Fit is applied by a render after the click: wait for the fitted view before aiming at the wall again.
+  await page.getByRole('button',{name:'Fit floor plan',exact:true}).click();await expect.poll(async()=>(await frame(page)).view).toEqual(fitted);f=await frame(page);a=screenOf(f,4500,3000);
   await touch(cdp,'touchStart',[{id:1,...a}]);await expect(page.getByTestId('touch-loupe')).toBeVisible();
   await touch(cdp,'touchMove',[{id:1,x:a.x+100*f.view.scale,y:a.y}]);await expect(page.getByTestId('touch-loupe')).toContainText('4600, 3000');await touch(cdp,'touchEnd',[]);await saved(page);
   const changed=await backup(page) as Doc;expect([at(changed,'j2').x,at(changed,'j5').x]).toEqual([4600,4600]);
