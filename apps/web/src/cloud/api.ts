@@ -10,6 +10,7 @@ export type LoadReply = { ok: true; serverRevision: number; name: string; docume
 export interface SaveRequest { readonly projectId: string; readonly expectedServerRevision: number; readonly commandId: string; readonly document: ProjectDoc }
 export interface CloudUser { id: string; email: string | null; name: string | null }
 export interface CloudProjectSummary { id: string; name: string; serverRevision: number; updatedAt: string }
+export interface CloudVersion { revision: number; createdAt: string }
 export interface CloudApi {
   user(): CloudUser | null;
   onUser(listener: (user: CloudUser | null) => void): () => void;
@@ -18,6 +19,11 @@ export interface CloudApi {
   save(request: SaveRequest): Promise<SaveReply>;
   load(projectId: string): Promise<LoadReply>;
   listProjects(): Promise<{ ok: true; projects: CloudProjectSummary[] } | CloudFailure>;
+  /** FR-032: the kept versions (newest 20), newest first. */
+  listVersions(projectId: string): Promise<{ ok: true; versions: CloudVersion[] } | CloudFailure>;
+  loadVersion(projectId: string, revision: number): Promise<{ ok: true; document: unknown } | CloudFailure>;
+  /** FR-032: an old version becomes the new head (expected head + 1); the head never moves backwards. */
+  restore(projectId: string, fromRevision: number, expectedServerRevision: number, commandId: string): Promise<SaveReply>;
 }
 const KNOWN = new Set<CloudCode>(['NOT_SIGNED_IN', 'INVALID_REQUEST', 'INVALID_DOCUMENT', 'TOO_LARGE', 'NOT_FOUND', 'PROJECT_ID_TAKEN', 'PROJECT_LIMIT', 'PROJECT_TRASHED', 'REVISION_CONFLICT', 'IDEMPOTENCY_MISMATCH', 'VERSION_NOT_FOUND', 'SHARE_LIMIT', 'CONFIRMATION_REQUIRED']);
 type RpcResult = { data: unknown; error: { message?: string } | null; status: number };
@@ -57,6 +63,25 @@ export async function createSupabaseApi(config: CloudConfig): Promise<CloudApi> 
     async load(projectId) {
       const answer = await rpc('load_project', { p_project_id: projectId });
       return answer.ok ? { ok: true, serverRevision: Number(answer.serverRevision), name: String(answer.name), document: answer.document } : answer;
+    },
+    async listVersions(projectId) {
+      try {
+        const { data, error, status } = await client.from('project_versions').select('revision,created_at').eq('project_id', projectId).order('revision', { ascending: false }).limit(20);
+        if (error || !Array.isArray(data)) return { ok: false, code: status === 0 || status >= 500 ? 'NETWORK' : 'UNEXPECTED' };
+        return { ok: true, versions: (data as Record<string, unknown>[]).map(row => ({ revision: Number(row.revision), createdAt: String(row.created_at) })) };
+      } catch { return { ok: false, code: 'NETWORK' }; }
+    },
+    async loadVersion(projectId, revision) {
+      try {
+        const { data, error, status } = await client.from('project_versions').select('snapshot').eq('project_id', projectId).eq('revision', revision).limit(1);
+        if (error || !Array.isArray(data)) return { ok: false, code: status === 0 || status >= 500 ? 'NETWORK' : 'UNEXPECTED' };
+        const row = data[0] as Record<string, unknown> | undefined;
+        return row ? { ok: true, document: row.snapshot } : { ok: false, code: 'VERSION_NOT_FOUND' };
+      } catch { return { ok: false, code: 'NETWORK' }; }
+    },
+    async restore(projectId, fromRevision, expectedServerRevision, commandId) {
+      const answer = await rpc('restore_version', { p_project_id: projectId, p_from_revision: fromRevision, p_expected_revision: expectedServerRevision, p_command_id: commandId });
+      return answer.ok ? { ok: true, serverRevision: Number(answer.serverRevision), sha256: String(answer.sha256), savedAt: String(answer.savedAt), ...answer.replayed === true ? { replayed: true } : {} } : answer;
     },
     async listProjects() {
       try {

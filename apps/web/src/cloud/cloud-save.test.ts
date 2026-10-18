@@ -124,4 +124,42 @@ describe('FR-031 cloud save queue (§H.5 client rules)', () => {
     gate.resolve({ ok: true, serverRevision: 0, sha256: '', savedAt: '' }); await new Promise(r => setTimeout(r, 0));
     expect(h.store.getSnapshot().document.revision).toBe(0);
   });
+
+  it('FR-032 replace after review: one save on top of the reviewed cloud head; only the revision jumps forward', async () => {
+    const h = harness(0);
+    h.server.head.set('prj_sample_2room', { revision: 3, document: '{}' });
+    h.edit(4600); h.saver.start(); await h.tick();
+    expect(h.saver.getSnapshot()).toMatchObject({ phase: 'conflict', cloudRevision: 3 });
+    expect(h.saver.replaceCloudAfterReview()).toBe(true);
+    await h.tick();
+    const sent = h.server.requests.at(-1)!;
+    expect(sent).toMatchObject({ expectedServerRevision: 3 }); expect(sent.document.revision).toBe(3);
+    expect(sent.document.junctions.find(j => j.id === 'j2')!.x).toBe(4600); // this device's geometry
+    expect(h.store.getSnapshot().document.revision).toBe(4);
+    expect(h.saver.getSnapshot()).toMatchObject({ phase: 'saved', serverRevision: 4 });
+    expect(h.saver.replaceCloudAfterReview()).toBe(false); // only from a conflict
+  });
+
+  it('FR-032 replace after review survives a lost answer: the retry replays and the revision is adopted once', async () => {
+    const h = harness(0); let calls = 0;
+    h.server.head.set('prj_sample_2room', { revision: 5, document: '{}' });
+    h.saver.start(); await h.tick();
+    h.setReply(request => { calls++; if (calls === 1) { h.server.save(request); return Promise.resolve({ ok: false, code: 'NETWORK' }); } return Promise.resolve(h.server.save(request)); });
+    h.saver.replaceCloudAfterReview(); await h.tick();
+    expect(h.saver.getSnapshot().phase).toBe('offline');
+    await h.tick();
+    expect(h.server.head.get('prj_sample_2room')!.revision).toBe(6);
+    expect(h.store.getSnapshot().document.revision).toBe(6);
+    expect(h.saver.getSnapshot().phase).toBe('saved');
+  });
+
+  it('FR-032 a restored drawing is in sync; a cloud that moved on while edits waited pauses as a conflict', async () => {
+    const h = harness(0);
+    h.saver.start(); await h.tick(); h.edit(4600);
+    h.saver.markInSync();
+    expect(h.timers).toEqual([]); expect(h.saver.getSnapshot()).toMatchObject({ phase: 'saved', ackedGeneration: h.store.getSnapshot().localGeneration });
+    h.saver.markConflict(9);
+    expect(h.saver.getSnapshot()).toMatchObject({ phase: 'conflict', cloudRevision: 9 });
+    h.edit(4700); expect(h.timers).toEqual([]);
+  });
 });

@@ -5,7 +5,7 @@ export interface SupabaseUser { id: string; email?: string; user_metadata?: Reco
 export interface SupabaseSession { user: SupabaseUser }
 export interface PostgrestResult { data: unknown; error: { message?: string } | null; status: number }
 export interface Query extends PromiseLike<PostgrestResult> {
-  select(columns: string): Query; is(column: string, value: null): Query; order(column: string, options: { ascending: boolean }): Query; limit(count: number): Query;
+  select(columns: string): Query; is(column: string, value: null): Query; eq(column: string, value: string | number): Query; order(column: string, options: { ascending: boolean }): Query; limit(count: number): Query;
 }
 export interface SupabaseClient {
   auth: {

@@ -33,7 +33,6 @@ import type { PrecisionPreview } from './editor/WallPrecision';
 import { junctionMoves } from './editor/view2d';
 import { SaveControls } from './storage/SaveControls';
 import { CloudPanel } from './cloud/CloudPanel';
-import { cloudCopy } from './cloud/linked';
 import {PlanImageControls} from './export/PlanImageControls';
 import type { WorkspaceSession } from './storage/workspace';
 import { areaDisplay, editError, message } from './i18n/messages';
@@ -151,7 +150,7 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
       </section>
       <aside className="inspector" aria-label={t('planControls')}>
         <SaveControls store={baseStore} {...(session ? { session } : {})} />
-        <CloudPanel store={baseStore} locale={ui.locale} flush={() => session?.saving?.flush() ?? Promise.resolve()} onSaveAsNew={document => onOpenDocument?.(cloudCopy(document), true)} />
+        <CloudPanel store={baseStore} locale={ui.locale} flush={() => session?.saving?.flush() ?? Promise.resolve()} onOpenDocument={(document, link) => onOpenDocument?.(document, link)} />
         <CatalogControls buttonRef={browseButton} locale={ui.locale} units={snapshot.document.units} onBrowse={()=>{drawing.setMode('select');cancelPrecision();}} onChoose={asset=>{drawing.setMode('select');cancelPrecision();try{const pose=view==='3d'?threeApi?.pose():undefined,centre:Point2=pose?[pose.target[0]*1000,pose.target[2]*1000]:viewCentre.current;setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
         {placement&&<FurniturePlacementControls advisories={advisories} key={placement.intent.id} store={store} intent={placement.intent} label={ui.locale==='hi'?placement.name_hi:placement.name_en} locale={ui.locale} onPreview={furniturePreview} onCancel={cancelPlacement} onAdded={id=>{cancelPlacement();selectEntities([{kind:'furniture',id}]);setMessage(t('placementAdded'));}}/>}
         <FurnitureControls onEditStart={startFurnitureEdit} advisories={advisories} cancelToken={furnitureCancel} onPreview={furnitureEditPreview} store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/>
