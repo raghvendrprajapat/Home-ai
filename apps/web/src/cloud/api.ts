@@ -11,6 +11,7 @@ export interface SaveRequest { readonly projectId: string; readonly expectedServ
 export interface CloudUser { id: string; email: string | null; name: string | null }
 export interface CloudProjectSummary { id: string; name: string; serverRevision: number; updatedAt: string }
 export interface CloudVersion { revision: number; createdAt: string }
+export interface CloudShare { id: string; createdAt: string }
 export interface CloudApi {
   user(): CloudUser | null;
   onUser(listener: (user: CloudUser | null) => void): () => void;
@@ -24,6 +25,12 @@ export interface CloudApi {
   loadVersion(projectId: string, revision: number): Promise<{ ok: true; document: unknown } | CloudFailure>;
   /** FR-032: an old version becomes the new head (expected head + 1); the head never moves backwards. */
   restore(projectId: string, fromRevision: number, expectedServerRevision: number, commandId: string): Promise<SaveReply>;
+  /** FR-033: a new view-only link. The raw token is returned once and never stored by the server. */
+  createShare(projectId: string): Promise<{ ok: true; shareId: string; token: string } | CloudFailure>;
+  listShares(projectId: string): Promise<{ ok: true; shares: CloudShare[] } | CloudFailure>;
+  revokeShare(shareId: string): Promise<{ ok: true } | CloudFailure>;
+  /** FR-033: anyone holding a live link (signed in or not) reads the current cloud head. */
+  getShared(token: string): Promise<LoadReply>;
 }
 const KNOWN = new Set<CloudCode>(['NOT_SIGNED_IN', 'INVALID_REQUEST', 'INVALID_DOCUMENT', 'TOO_LARGE', 'NOT_FOUND', 'PROJECT_ID_TAKEN', 'PROJECT_LIMIT', 'PROJECT_TRASHED', 'REVISION_CONFLICT', 'IDEMPOTENCY_MISMATCH', 'VERSION_NOT_FOUND', 'SHARE_LIMIT', 'CONFIRMATION_REQUIRED']);
 type RpcResult = { data: unknown; error: { message?: string } | null; status: number };
@@ -82,6 +89,22 @@ export async function createSupabaseApi(config: CloudConfig): Promise<CloudApi> 
     async restore(projectId, fromRevision, expectedServerRevision, commandId) {
       const answer = await rpc('restore_version', { p_project_id: projectId, p_from_revision: fromRevision, p_expected_revision: expectedServerRevision, p_command_id: commandId });
       return answer.ok ? { ok: true, serverRevision: Number(answer.serverRevision), sha256: String(answer.sha256), savedAt: String(answer.savedAt), ...answer.replayed === true ? { replayed: true } : {} } : answer;
+    },
+    async createShare(projectId) {
+      const answer = await rpc('create_share', { p_project_id: projectId });
+      return answer.ok && typeof answer.token === 'string' && /^[0-9a-f]{64}$/.test(answer.token) ? { ok: true, shareId: String(answer.shareId), token: answer.token } : answer.ok ? { ok: false, code: 'UNEXPECTED' } : answer;
+    },
+    async listShares(projectId) {
+      try {
+        const { data, error, status } = await client.from('project_shares').select('id,created_at').eq('project_id', projectId).is('revoked_at', null).order('created_at', { ascending: false }).limit(10);
+        if (error || !Array.isArray(data)) return { ok: false, code: status === 0 || status >= 500 ? 'NETWORK' : 'UNEXPECTED' };
+        return { ok: true, shares: (data as Record<string, unknown>[]).map(row => ({ id: String(row.id), createdAt: String(row.created_at) })) };
+      } catch { return { ok: false, code: 'NETWORK' }; }
+    },
+    async revokeShare(shareId) { const answer = await rpc('revoke_share', { p_share_id: shareId }); return answer.ok ? { ok: true } : answer; },
+    async getShared(token) {
+      const answer = await rpc('get_shared_project', { p_token: token });
+      return answer.ok ? { ok: true, serverRevision: Number(answer.serverRevision), name: String(answer.name), document: answer.document } : answer;
     },
     async listProjects() {
       try {

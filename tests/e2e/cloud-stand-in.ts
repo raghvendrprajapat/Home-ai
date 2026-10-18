@@ -21,6 +21,10 @@ export class FakeCloud {
   const revision=a.p_expected_revision+1;this.#commit(a.p_project_id,revision,a.p_document);this.receipts.set(key,{digest,revision});
   return {ok:true,serverRevision:revision,sha256:'x',savedAt:new Date().toISOString()};
  }
+ shares=new Map<string,{id:string;projectId:string;revoked:boolean;createdAt:string}>();
+ createShare(projectId:string){if(!this.heads.has(projectId))return {ok:false,code:'NOT_FOUND'};const token=[...crypto.getRandomValues(new Uint8Array(32))].map(b=>b.toString(16).padStart(2,'0')).join(''),id=crypto.randomUUID();this.shares.set(token,{id,projectId,revoked:false,createdAt:new Date().toISOString()});return {ok:true,shareId:id,token};}
+ revokeShare(id:string){const share=[...this.shares.values()].find(s=>s.id===id&&!s.revoked);if(!share)return {ok:false,code:'NOT_FOUND'};share.revoked=true;return {ok:true};}
+ getShared(token:string){const share=this.shares.get(token),head=share&&!share.revoked?this.heads.get(share.projectId):undefined;return head?{ok:true,serverRevision:head.revision,name:head.name,document:head.document}:{ok:false,code:'NOT_FOUND'};}
  restores:{p_project_id:string;p_from_revision:number;p_expected_revision:number;p_command_id:string}[]=[];
  restore(a:{p_project_id:string;p_from_revision:number;p_expected_revision:number;p_command_id:string}){
   this.restores.push(a);const key=`${a.p_project_id}/${a.p_command_id}`,digest=JSON.stringify(['restore',a.p_from_revision,a.p_expected_revision]),receipt=this.receipts.get(key);
@@ -43,6 +47,10 @@ export async function install(page:Page,cloud:FakeCloud){
   if(url.pathname==='/auth/v1/logout')return route.fulfill({status:204,headers:cors});
   if(url.pathname==='/rest/v1/rpc/save_snapshot'){const args=request.postDataJSON() as SaveArgs;if(cloud.failNext>0){cloud.failNext--;cloud.saves.push(args);return route.abort('internetdisconnected');}return json(cloud.save(args));}
   if(url.pathname==='/rest/v1/rpc/load_project'){const id=(request.postDataJSON() as {p_project_id:string}).p_project_id,head=cloud.heads.get(id);return json(head?{ok:true,serverRevision:head.revision,name:head.name,document:head.document}:{ok:false,code:'NOT_FOUND'});}
+  if(url.pathname==='/rest/v1/rpc/create_share')return json(cloud.createShare((request.postDataJSON() as {p_project_id:string}).p_project_id));
+  if(url.pathname==='/rest/v1/rpc/revoke_share')return json(cloud.revokeShare((request.postDataJSON() as {p_share_id:string}).p_share_id));
+  if(url.pathname==='/rest/v1/rpc/get_shared_project')return json(cloud.getShared((request.postDataJSON() as {p_token:string}).p_token));
+  if(url.pathname==='/rest/v1/project_shares'){const id=url.searchParams.get('project_id')!.replace(/^eq\./,'');return json([...cloud.shares.values()].filter(s=>s.projectId===id&&!s.revoked).map(s=>({id:s.id,created_at:s.createdAt})));}
   if(url.pathname==='/rest/v1/rpc/restore_version')return json(cloud.restore(request.postDataJSON()));
   if(url.pathname==='/rest/v1/project_versions'){
    const id=url.searchParams.get('project_id')!.replace(/^eq\./,''),kept=[...(cloud.versions.get(id)??new Map<number,Doc>())].sort((a,b)=>b[0]-a[0]).slice(0,20);
