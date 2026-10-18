@@ -9,6 +9,8 @@ export type FurnitureAlignMode = 'left' | 'right' | 'top' | 'bottom' | 'centreX'
 export const FURNITURE_ALIGN_MODES: readonly FurnitureAlignMode[] = ['left', 'right', 'top', 'bottom', 'centreX', 'centreY'];
 /** FR-034: at most this many floors (ground + 5). */
 export const MAX_FLOORS = 6;
+/** D73: most furniture items one AddFurnitureBatch command may add. */
+export const MAX_FURNITURE_BATCH = 20;
 /** Pivot used by RotateFurniture: the integer-rounded centre of the items' combined axis-aligned footprint box. */
 export function furnitureTurnPivot(items: readonly Pick<FurnitureItem, 'position' | 'size' | 'rotationDeg'>[]): [number, number] {
   if (!items.length) throw new GeometryError('selection', 'Choose furniture to turn.');
@@ -38,6 +40,7 @@ export type Command = CommandBase & (
   | { type: 'UpdateOpening'; openingId: string; properties: Partial<Pick<Opening, 'offset' | 'width' | 'height' | 'sill' | 'flipX' | 'flipY'>> }
   | { type: 'DeleteOpening'; openingId: string }
   | { type: 'AddFurniture'; furniture: Omit<FurnitureItem, 'rev'> }
+  | { type: 'AddFurnitureBatch'; furniture: readonly Omit<FurnitureItem, 'rev'>[] }
   | { type: 'UpdateFurniture'; furnitureId: string; properties: Partial<Pick<FurnitureItem, 'position' | 'elevation' | 'rotationDeg' | 'size' | 'materialOverrides'>> }
   | { type: 'DeleteFurniture'; furnitureId: string }
   | { type: 'DeleteSelection'; wallIds: readonly string[]; openingIds: readonly string[]; furnitureIds: readonly string[]; deleteDependents: boolean }
@@ -241,6 +244,13 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
     case 'UpdateOpening': assignProperties(requireEntity(draft.openings, command.openingId), command.properties, ['offset', 'width', 'height', 'sill', 'flipX', 'flipY']); break;
     case 'DeleteOpening': requireEntity(draft.openings, command.openingId); draft.openings.splice(draft.openings.findIndex(o => o.id === command.openingId), 1); break;
     case 'AddFurniture': draft.furniture.push({ ...command.furniture, rev: 0 }); break;
+    case 'AddFurnitureBatch': {
+      // D73 AI-2: a suggested layout is one command, so one Undo removes all of it; validation rejects the whole batch.
+      if (!Array.isArray(command.furniture) || command.furniture.length < 1 || command.furniture.length > MAX_FURNITURE_BATCH || command.furniture.some(f => !f || typeof f !== 'object'))
+        throw new GeometryError('selection', `Add 1 to ${MAX_FURNITURE_BATCH} furniture items at once.`);
+      for (const item of command.furniture) draft.furniture.push({ ...item, rev: 0 });
+      break;
+    }
     case 'UpdateFurniture': assignProperties(requireEntity(draft.furniture, command.furnitureId), command.properties, ['position', 'elevation', 'rotationDeg', 'size', 'materialOverrides']); break;
     case 'DeleteFurniture': requireEntity(draft.furniture, command.furnitureId); draft.furniture.splice(draft.furniture.findIndex(f => f.id === command.furnitureId), 1); break;
     case 'DeleteSelection': {

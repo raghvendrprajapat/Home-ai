@@ -7,12 +7,16 @@ import type {Locale} from '../i18n/messages';
 import type {Point2} from '../editor/view2d';
 import {acceptSuggestions,roomBrief,WALKWAY_MM} from './furniture-suggest';
 import type {AiProvider,FurnitureSuggestion} from './furniture-suggest';
+import {acceptLayout,footprint,layoutRoom} from './layout';
+import type {LayoutResult,LayoutRoom} from './layout';
 
-type State=Readonly<{phase:'idle'}|{phase:'loading'}|{phase:'ready';roomId:string;items:readonly FurnitureSuggestion[]}|{phase:'failed'}>;
+type Layout=Readonly<{generation:number;floorId:string;room:LayoutRoom;result:LayoutResult}>;
+type State=Readonly<{phase:'idle'}|{phase:'loading'}|{phase:'failed'}|{phase:'ready';roomId:string;items:readonly FurnitureSuggestion[];layout?:Layout|'loading'|'failed'|undefined;note?:'added'|'stale'|'rejected'|undefined;added?:number}>;
 
 /**
  * D73 "AI furniture ideas" for one room. The provider proposes, acceptSuggestions filters, and Place opens the normal
- * placement form centred in the room, so nothing is added to the drawing until the person confirms it there.
+ * placement form centred in the room. AI-2 "Arrange" asks the provider where the ideas should stand, keeps only what
+ * acceptLayout allows, shows a small plan preview, and adds the layout as one AddFurnitureBatch command (one Undo).
  */
 export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,onPlace}:{store:ProjectStore;locale:Locale;selectedRoomId:string|undefined;provider:AiProvider;catalog:(signal:AbortSignal)=>Promise<Catalog>;onPlace(asset:CatalogAsset,centre:Point2):void}){
  const snapshot=useSyncExternalStore(store.subscribe,store.getSnapshot),rooms=snapshot.document.rooms.filter(r=>snapshot.derived.faces.some(f=>f.roomId===r.id));
@@ -31,8 +35,28 @@ export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,o
    setState({phase:'ready',roomId:room.id,items:acceptSuggestions(await provider.suggestFurniture(brief,candidates,controller.signal),brief,candidates)});
   }catch{setState({phase:'failed'});}
  };
+ const arrange=async()=>{
+  if(state.phase!=='ready'||!room||!face)return;
+  const items=state.items.map(s=>s.asset),floorId=snapshot.document.floors[0]!.id,generation=snapshot.localGeneration;
+  const facts=layoutRoom(snapshot.document,face,room.type as RoomType,floorId);
+  setState({...state,layout:'loading',note:undefined});
+  try{
+   const result=acceptLayout(await provider.suggestLayout(facts,items,new AbortController().signal),facts,items);
+   setState(s=>s.phase==='ready'&&s.roomId===state.roomId?{...s,layout:{generation,floorId,room:facts,result}}:s);
+  }catch{setState(s=>s.phase==='ready'?{...s,layout:'failed'}:s);}
+ };
+ const apply=()=>{
+  if(state.phase!=='ready'||!state.layout||typeof state.layout==='string')return;
+  const {generation,floorId,result}=state.layout;
+  // The preview was checked against the drawing as it was; any edit since then means arranging again.
+  if(store.getSnapshot().localGeneration!==generation){setState({...state,layout:undefined,note:'stale'});return;}
+  const furniture=result.placed.map(p=>({id:`fu_${crypto.randomUUID().replaceAll('-','')}`,floorId,assetId:p.asset.id,assetVersion:p.asset.version,position:{x:p.x,y:p.y},elevation:0,rotationDeg:p.rotationDeg,size:{...p.asset.dims},materialOverrides:{}}));
+  const outcome=store.execute({id:`ai_layout_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:generation,type:'AddFurnitureBatch',furniture});
+  setState({...state,layout:undefined,note:outcome.ok?'added':'rejected',added:furniture.length});
+ };
  const reason=(s:FurnitureSuggestion)=>s.reason.kind==='text'?s.reason[locale]:message(locale,s.reason.kind==='largest'?'aiReasonLargest':'aiReasonFits',{walk:WALKWAY_MM});
  const centre=():Point2=>{const [x0,y0,x1,y1]=face!.clearRect;return [Math.round((x0+x1)/2),Math.round((y0+y1)/2)];};
+ const layout=state.phase==='ready'?state.layout:undefined;
  return <section className="drawing-controls ai-panel" aria-label={message(locale,'aiTitle')}>
   <h3>{message(locale,'aiTitle')}</h3>
   <p className="structure-note">{message(locale,provider.kind==='stand-in'?'aiTestMode':'aiServerMode')}</p>
@@ -42,10 +66,39 @@ export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,o
   </>}
   {state.phase==='loading'&&<p role="status">{message(locale,'aiThinking')}</p>}
   {state.phase==='failed'&&<p role="alert">{message(locale,'aiFailed')}</p>}
-  {state.phase==='ready'&&(state.items.length?<ul className="ai-ideas">{state.items.map(s=><li key={s.asset.id} data-asset-id={s.asset.id}>
-   <strong>{assetName(s.asset,locale)}</strong> <span>{message(locale,'aiSize',{w:s.asset.dims.w,d:s.asset.dims.d})}</span>
-   <p className="structure-note">{reason(s)}</p>
-   <button onClick={()=>onPlace(s.asset,centre())}>{message(locale,'aiPlace')}</button>
-  </li>)}</ul>:<p role="status">{message(locale,'aiNone')}</p>)}
+  {state.phase==='ready'&&(state.items.length?<>
+   <ul className="ai-ideas">{state.items.map(s=><li key={s.asset.id} data-asset-id={s.asset.id}>
+    <strong>{assetName(s.asset,locale)}</strong> <span>{message(locale,'aiSize',{w:s.asset.dims.w,d:s.asset.dims.d})}</span>
+    <p className="structure-note">{reason(s)}</p>
+    <button onClick={()=>onPlace(s.asset,centre())}>{message(locale,'aiPlace')}</button>
+   </li>)}</ul>
+   <button disabled={layout==='loading'} onClick={()=>{void arrange();}}>{message(locale,'aiArrange')}</button>
+  </>:<p role="status">{message(locale,'aiNone')}</p>)}
+  {layout==='loading'&&<p role="status">{message(locale,'aiThinking')}</p>}
+  {layout==='failed'&&<p role="alert">{message(locale,'aiFailed')}</p>}
+  {layout&&typeof layout==='object'&&<LayoutPreview layout={layout} locale={locale} onApply={apply} onCancel={()=>{if(state.phase==='ready')setState({...state,layout:undefined});}}/>}
+  {state.phase==='ready'&&state.note&&<p role={state.note==='added'?'status':'alert'}>{state.note==='added'?message(locale,'aiLayoutAdded',{count:state.added??0}):message(locale,state.note==='stale'?'aiLayoutStale':'aiFailed')}</p>}
  </section>;
+}
+
+/** A small top view: the clear floor, door swings, windows, existing furniture and the suggested pieces with their fronts. */
+function LayoutPreview({layout,locale,onApply,onCancel}:{layout:Layout;locale:Locale;onApply():void;onCancel():void}){
+ const {room,result}=layout,[x0,y0,x1,y1]=room.bounds,pad=150;
+ const rect=(r:readonly number[],key:string,className:string,label?:string)=><rect key={key} className={className} x={r[0]} y={r[1]} width={r[2]!-r[0]!} height={r[3]!-r[1]!}>{label&&<title>{label}</title>}</rect>;
+ return <div className="ai-layout" data-testid="ai-layout">
+  <svg role="img" aria-label={message(locale,'aiLayoutPreview')} viewBox={`${x0-pad} ${y0-pad} ${x1-x0+2*pad} ${y1-y0+2*pad}`} preserveAspectRatio="xMidYMid meet">
+   {room.clearRects.map((r,i)=>rect(r,`f${i}`,'ai-floor'))}
+   {room.doors.map((r,i)=>rect(r,`d${i}`,'ai-door'))}
+   {room.windows.map((w,i)=>rect(w.zone,`w${i}`,'ai-window'))}
+   {room.obstacles.map((o,i)=>rect(o.rect,`o${i}`,'ai-existing'))}
+   {result.placed.map(p=>{
+    // The front edge is drawn thicker so the facing direction is visible.
+    const b=footprint(p.asset.dims,p.x,p.y,p.rotationDeg),f=p.rotationDeg===0?[b[0],b[1],b[2],b[1]]:p.rotationDeg===180?[b[0],b[3],b[2],b[3]]:p.rotationDeg===90?[b[2],b[1],b[2],b[3]]:[b[0],b[1],b[0],b[3]];
+    return <g key={p.asset.id} data-asset-id={p.asset.id} data-x={p.x} data-y={p.y} data-rotation={p.rotationDeg}>{rect(b,'b','ai-piece',assetName(p.asset,locale))}<line className="ai-front" x1={f[0]} y1={f[1]} x2={f[2]} y2={f[3]}/></g>;
+   })}
+  </svg>
+  <p className="structure-note">{message(locale,'aiLayoutLegend')}</p>
+  {result.skipped.length>0&&<p className="structure-note">{message(locale,'aiLayoutSkipped',{names:result.skipped.map(a=>assetName(a,locale)).join(', ')})}</p>}
+  {result.placed.length?<div className="ai-layout-actions"><button className="primary-button" onClick={onApply}>{message(locale,'aiLayoutApply',{count:result.placed.length})}</button><button onClick={onCancel}>{message(locale,'aiLayoutCancel')}</button></div>:<p role="status">{message(locale,'aiLayoutEmpty')}</p>}
+ </div>;
 }

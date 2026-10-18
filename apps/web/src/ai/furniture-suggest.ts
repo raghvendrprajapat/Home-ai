@@ -1,5 +1,6 @@
 import type {RoomType} from '@gharplan/core-model';
 import type {CatalogAsset} from '../catalog/catalog';
+import type {LayoutRoom} from './layout';
 
 /**
  * D73 AI furniture ideas. A provider (the offline stand-in now, a server model later) only proposes catalog IDs with
@@ -17,6 +18,8 @@ export interface AiProvider {
  /** 'stand-in' runs offline rules on the device; 'server' will call a hosted model through the app's server. */
  readonly kind:'stand-in'|'server';
  suggestFurniture(brief:RoomBrief,candidates:readonly CatalogAsset[],signal:AbortSignal):Promise<unknown>;
+ /** D73 AI-2: where each chosen item should stand; the answer is checked by acceptLayout. */
+ suggestLayout(room:LayoutRoom,assets:readonly CatalogAsset[],signal:AbortSignal):Promise<unknown>;
 }
 
 /** True when the item, facing either pair of walls, fits with a walkway in front of it (width along the wall). */

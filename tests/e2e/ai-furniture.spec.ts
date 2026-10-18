@@ -47,3 +47,36 @@ test('D73 the AI panel works in Hindi',async({page})=>{
  await ai.getByRole('button',{name:'इस कमरे के लिए फर्नीचर सुझाएँ',exact:true}).click();
  await expect(ai.locator('ul.ai-ideas > li').first().getByRole('button',{name:'इस कमरे में रखें',exact:true})).toBeVisible();
 });
+
+test('D73 AI-2 arranges the bedroom ideas around the existing bed and wardrobe, adds them in one step, and one Undo removes them',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
+ const before=await backup(page),ai=panel(page);
+ await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Bedroom'});
+ await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
+ await expect(ai.locator('ul.ai-ideas > li')).toHaveCount(5);
+ await ai.getByRole('button',{name:'Arrange these in the room',exact:true}).click();
+ const preview=ai.getByTestId('ai-layout');
+ await expect(preview.getByRole('img',{name:'Suggested layout, seen from above',exact:true})).toBeVisible();
+ const pieces=await preview.locator('g[data-asset-id]').evaluateAll(gs=>gs.map(g=>({id:g.getAttribute('data-asset-id')!,x:Number(g.getAttribute('data-x')),y:Number(g.getAttribute('data-y')),r:Number(g.getAttribute('data-rotation'))})));
+ expect(pieces.length).toBeGreaterThan(0);
+ // Hand-derived from the sample: bedroom clear floor, the partition door's 900 mm swing, the existing bed and wardrobe.
+ const floor=[4557.5,115,7885,4885],keepClear=[[4557.5,550,5457.5,1450],[5550,200,7350,2200],[5350,4200,7150,4800]];
+ const dims:Record<string,[number,number]>={a_l0_king_bed:[1900,2150],a_l0_wardrobe_sliding:[1800,650],a_l0_nightstand:[450,400],a_l0_dressing_table:[1000,450],a_l0_study_desk:[1200,600]};
+ const boxes=pieces.map(p=>{const [w,d]=dims[p.id]!,[hx,hy]=p.r%180===0?[w/2,d/2]:[d/2,w/2];return [p.x-hx,p.y-hy,p.x+hx,p.y+hy];});
+ const hit=(a:number[],b:number[])=>a[0]!<b[2]!&&b[0]!<a[2]!&&a[1]!<b[3]!&&b[1]!<a[3]!;
+ for(const [i,b] of boxes.entries()){
+  expect(b[0]).toBeGreaterThanOrEqual(floor[0]!);expect(b[1]).toBeGreaterThanOrEqual(floor[1]!);expect(b[2]).toBeLessThanOrEqual(floor[2]!);expect(b[3]).toBeLessThanOrEqual(floor[3]!);
+  for(const zone of keepClear)expect(hit(b,zone)).toBe(false);
+  for(const other of boxes.slice(i+1))expect(hit(b,other)).toBe(false);
+ }
+ await preview.screenshot({path:test.info().outputPath('ai-layout-preview.png')});
+ // Previewing changes nothing.
+ expect(await backup(page)).toEqual(before);
+ await preview.getByRole('button',{name:`Add this layout (${pieces.length} items)`,exact:true}).click();await saved(page);
+ await expect(ai.getByRole('status')).toHaveText(`Layout added: ${pieces.length} items. One Undo removes all of them.`);
+ const after=await backup(page);
+ expect(after.furniture.length).toBe(before.furniture.length+pieces.length);
+ expect(after.furniture.slice(-pieces.length).map((f:{assetId:string;position:{x:number;y:number};rotationDeg:number})=>({id:f.assetId,x:f.position.x,y:f.position.y,r:f.rotationDeg}))).toEqual(pieces);
+ await page.getByRole('button',{name:'Undo',exact:true}).click();await saved(page);
+ expect(await backup(page)).toEqual(before);
+});
