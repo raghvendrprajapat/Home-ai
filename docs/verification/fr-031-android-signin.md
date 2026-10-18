@@ -11,8 +11,10 @@ These are Claude-authored tests. They are not a phone test and not a real Google
   - **Web:** the web app keeps the normal redirect and never touches the native plugins.
 - **`scripts/verify-android-apk.py` (runs in CI's "Android debug" job)** asserts the registered and packaged App/Browser plugins and the single deep link in the built APK.
 
-## Results
-See the PR for local and CI output.
+## Results (2026-10-18, local)
+- `native-signin.test.ts`: 5/5 passed.
+- `pnpm check` (stacked on FR-032/033/043): 82 files, 581 tests passed.
+- The APK checks run only in CI's "Android debug" job. The sandbox used for this work has no Android SDK, so they were not run locally.
 
 ## Pending
 A real phone with the owner's Supabase project and Google account.
