@@ -18,6 +18,8 @@ import type { ReactNode } from 'react';
 import { parseProject, ProjectStore } from '@gharplan/core-model';
 import sample from '../../../docs/examples/sample-project.json';
 import { PlanCanvas } from './editor/PlanCanvas';
+import { createFloorScope } from './editor/floor-scope';
+import { FloorControls } from './editor/FloorControls';
 import { DrawingTool } from './editor/drawing-tools';
 import { DrawingControls, RoomControls } from './editor/DrawingControls';
 import { WallPrecision } from './editor/WallPrecision';
@@ -47,11 +49,17 @@ function createDemo(): ProjectStore {
 }
 export function App({ session, navigation }: { session?: WorkspaceSession; navigation?: ReactNode } = {}) {
   const ui = useUi(), t = <K extends MessageKey>(key: K, ...args: MessageArgs<K>) => message(ui.locale, key, ...args);
-  const [store] = useState(() => session?.store ?? createDemo()), snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
+  // FR-034: `baseStore`/`house` is the whole project (save, 3D, totals); `store`/`snapshot` is the active floor's view for 2D editing.
+  const [baseStore] = useState(() => session?.store ?? createDemo()), house = useSyncExternalStore(baseStore.subscribe, baseStore.getSnapshot);
+  const [activeFloor, setActiveFloor] = useState(() => [...baseStore.getSnapshot().document.floors].sort((a, b) => a.level - b.level)[0]!.id);
+  const [floorScope] = useState(() => { const scope = createFloorScope(baseStore); scope.setFloor(activeFloor); return scope; }), store = floorScope.store, snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
   const [advisories]=useState(()=>new FurnitureAdvisories()),[furnitureCancel,setFurnitureCancel]=useState(0);
   const [assetSource]=useState(()=>new CatalogSource(new CatalogApi(new URL('catalog/',new URL(import.meta.env.BASE_URL,window.location.href)))));
   const [threeApi,setThreeApi]=useState<ThreeControlsApi|null>(null),[quality,setQuality]=useState<QualityChoice>('auto'),[lighting,setLighting]=useState<'day'|'warm'>('day');
   const [drawing] = useState(()=>new DrawingTool(store));
+  // A deleted or undone floor falls back to the lowest floor; switching floors drops tool drafts.
+  useEffect(()=>{if(!house.document.floors.some(f=>f.id===activeFloor))setActiveFloor([...house.document.floors].sort((a,b)=>a.level-b.level)[0]!.id);},[house.document.floors,activeFloor]);
+  useLayoutEffect(()=>{floorScope.setFloor(activeFloor);drawing.clear();},[floorScope,activeFloor,drawing]);
   const [selectedWall,setSelectedWall]=useState(()=>store.getSnapshot().document.walls[0]?.id??''),[precision,setPrecision]=useState<PrecisionPreview|null>(null),[precisionCancel,setPrecisionCancel]=useState(0);
   const [selectedFurniture,setSelectedFurniture]=useState(''),[activePick,setActivePick]=useState<Pick|undefined>(undefined);
   const [selectedOpening,setSelectedOpening]=useState(''),[openingCancel,setOpeningCancel]=useState(0);
@@ -104,8 +112,8 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
     };
     window.addEventListener('keydown', shortcut); return () => window.removeEventListener('keydown', shortcut);
   }, [store,drawing]);
-  const totalArea = snapshot.derived.faces.reduce((n, r) => n + r.clearAreaMm2, 0);
-  const totalLabel = areaDisplay(totalArea, snapshot.document.units);
+  const totalArea = house.derived.faces.reduce((n, r) => n + r.clearAreaMm2, 0);
+  const totalLabel = areaDisplay(totalArea, house.document.units);
   const unclosedWalls=snapshot.document.walls.some(w=>!snapshot.derived.faces.some(face=>face.boundary.some((id,i)=>
     id===w.a&&face.boundary[(i+1)%face.boundary.length]===w.b||id===w.b&&face.boundary[(i+1)%face.boundary.length]===w.a)));
   const scopedPrecision=precision?.projectId===snapshot.document.id&&precision.sessionId===snapshot.sessionId&&precision.generation===snapshot.localGeneration&&precision.result.ok?precision:null;
@@ -119,30 +127,31 @@ export function App({ session, navigation }: { session?: WorkspaceSession; navig
       {navigation}<div className="memory-status"><span aria-hidden="true" /> {session?.saving ? t('localDrawing') : t('demoMemory')}</div>
     </header>
     <section className="project-bar" aria-label={t('projectInfo')}>
-      <div><span className="eyebrow">{t('workspace')}</span><h2>{snapshot.document.name}<span className="project-label">{t('oneFloor')}</span></h2></div>
-      <div className="plan-summary"><span>{snapshot.document.rooms.length === 1 ? t('oneRoom') : t('roomsCount', { count: snapshot.document.rooms.length })}</span><strong data-testid="total-area">{totalLabel.value} <small>{totalLabel.unit} {t('clearArea')}</small></strong></div>
+      <div><span className="eyebrow">{t('workspace')}</span><h2>{house.document.name}<span className="project-label">{house.document.floors.length===1?t('oneFloor'):t('floorsCount',{count:house.document.floors.length})}</span></h2></div>
+      <div className="plan-summary"><span>{house.document.rooms.length === 1 ? t('oneRoom') : t('roomsCount', { count: house.document.rooms.length })}</span><strong data-testid="total-area">{totalLabel.value} <small>{totalLabel.unit} {t('clearArea')}</small></strong></div>
     </section>
     <div className="editor-layout">
       <section ref={drawingPanel} className="drawing-panel" aria-label={t('floorEditor')}>
+        <FloorControls store={baseStore} activeFloorId={activeFloor} onActivate={setActiveFloor} locale={ui.locale} onMessage={setMessage}/>
         <div className="editor-toolbar">
           <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => changeView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => changeView('3d')}>{t('view3d')}</button>{splitAvailable&&<button className={view==='split'?'active-tab':''} aria-pressed={view==='split'} onClick={()=>changeView('split')}>{t('splitView')}</button>}</div>
           <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{showPlan && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
         </div>
         <div className={view==='split'?'editor-views split-views':'editor-views'} data-testid="editor-views" data-layout={view}>
           {showPlan&&<section className="editor-pane" aria-label={t('plan2d')} key={`${view}:plan`}>{view==='split'&&<h3 className="pane-title">{t('plan2d')}</h3>}<PlanCanvas selectedPick={activePick??null} advisories={advisories} previewFurnitureId={ghost?.item.id} onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} /></section>}
-          {showThree&&<section className="editor-pane" aria-label={t('view3d')} key={`${view}:three`}>{view==='split'&&<h3 className="pane-title">{t('view3d')}</h3>}<Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} advisories={advisories} assetSource={assetSource} placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={store} onMessage={setMessage} fitRequest={fit} /></Suspense></section>}
+          {showThree&&<section className="editor-pane" aria-label={t('view3d')} key={`${view}:three`}>{view==='split'&&<h3 className="pane-title">{t('view3d')}</h3>}<Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} advisories={advisories} assetSource={assetSource} placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={baseStore} activeFloorId={activeFloor} onMessage={setMessage} fitRequest={fit} /></Suspense></section>}
         </div>
         {threeFallback&&<p role="status">{t('threeFallback')}</p>}
-        <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span>{t('groundFloor')} · {t('mm')}</span></footer>
+        <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span>{house.document.floors.find(f=>f.id===activeFloor)?.name??t('groundFloor')} · {t('mm')}</span></footer>
       </section>
       <aside className="inspector" aria-label={t('planControls')}>
-        <SaveControls store={store} {...(session ? { session } : {})} />
+        <SaveControls store={baseStore} {...(session ? { session } : {})} />
         <CatalogControls buttonRef={browseButton} locale={ui.locale} units={snapshot.document.units} onBrowse={()=>{drawing.setMode('select');cancelPrecision();}} onChoose={asset=>{drawing.setMode('select');cancelPrecision();try{const pose=view==='3d'?threeApi?.pose():undefined,centre:Point2=pose?[pose.target[0]*1000,pose.target[2]*1000]:viewCentre.current;setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
         {placement&&<FurniturePlacementControls advisories={advisories} key={placement.intent.id} store={store} intent={placement.intent} label={ui.locale==='hi'?placement.name_hi:placement.name_en} locale={ui.locale} onPreview={furniturePreview} onCancel={cancelPlacement} onAdded={id=>{cancelPlacement();selectEntities([{kind:'furniture',id}]);setMessage(t('placementAdded'));}}/>}
         <FurnitureControls onEditStart={startFurnitureEdit} advisories={advisories} cancelToken={furnitureCancel} onPreview={furnitureEditPreview} store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/>
         <SurfaceControls store={store} locale={ui.locale} view={view} picked={activePick} onSelect={choosePick} onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} onMessage={setMessage}/>
         <PlanImageControls store={store} locale={ui.locale}/>
-        {showThree&&<><CameraControls store={store} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={store} locale={ui.locale}/></>}
+        {showThree&&<><CameraControls store={baseStore} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={baseStore} locale={ui.locale}/></>}
         <label>{t('currentProjectUnits')}<select aria-label={t('currentProjectUnits')} value={snapshot.document.units} onChange={event=>{const result=store.execute({id:`units_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:snapshot.localGeneration,type:'SetUnits',units:event.target.value as 'metric'|'imperial'});setMessage(result.ok?t('unitDisplayChanged'):editError(ui.locale,result.errors[0]));}}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>
         <div className="inspector-title"><span className="eyebrow">{t('precision')}</span><h3>{t('shapeSpace')}</h3><p>{t('moveCornerHelp')}</p></div>
         <div className="history-buttons"><button disabled={!snapshot.canUndo} onClick={() => { store.undo(); setMessage(t('undone')); }} aria-label={t('undo')}>↶ &nbsp; {t('undo')}</button><button disabled={!snapshot.canRedo} onClick={() => { store.redo(); setMessage(t('redone')); }} aria-label={t('redo')}>↷ &nbsp; {t('redo')}</button></div>

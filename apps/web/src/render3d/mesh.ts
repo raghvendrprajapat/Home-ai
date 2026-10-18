@@ -93,7 +93,7 @@ function triangles(quads: Quad[], materialScales: Map<string, number>, cache: Me
 function buildGeometryScene(document: ProjectDoc, cache: MeshCache): SceneBundle {
   const derived = applyGeometry(document, { op: 'analyze' });
   if (!derived.accepted) throw derived.error;
-  const elevation=document.floors[0]!.elevation,walls=new Map(document.walls.map(w=>[w.id,w])),junctions=new Map(document.junctions.map(j=>[j.id,j]));
+  const floorElevation=new Map(document.floors.map(f=>[f.id,f.elevation])),elevationOf=(floorId:string)=>floorElevation.get(floorId)??document.floors[0]!.elevation,walls=new Map(document.walls.map(w=>[w.id,w])),junctions=new Map(document.junctions.map(j=>[j.id,j]));
   const {boxes,faces}=buildWallSolids(document),bindings=materialBindings(document);
   const quads:Quad[]=faces.map(face=>{
     const wall=walls.get(face.ownerId)!,a=junctions.get(wall.a)!,b=junctions.get(wall.b)!;
@@ -103,7 +103,7 @@ function buildGeometryScene(document: ProjectDoc, cache: MeshCache): SceneBundle
   const scales = new Map(document.materials.map(m => [m.id, m.uvScaleMm ?? 1000]));
   const compact = compactQuads(quads), result = triangles(compact, scales, cache,bindings), meshes = result.meshes; let meshesBuilt = result.built;
   // Floors/thresholds face up; ceilings face down at their independent room height.
-  const plane = (id: string, entityId: string, category: 'floor' | 'threshold' | 'ceiling', rects: readonly Rect[], materialId: string, height = elevation, down = false) => {
+  const plane = (id: string, entityId: string, category: 'floor' | 'threshold' | 'ceiling', rects: readonly Rect[], materialId: string, height: number, down = false) => {
     const scale = category==='ceiling'?1000:scales.get(materialId)??1000;
     const signature = JSON.stringify([category, entityId, rects, scale, height, down]), old = cache.get(id);
     if (old?.signature === signature) { meshes.push(bindMeshMaterials(old.mesh,bindings)); return; }
@@ -116,19 +116,19 @@ function buildGeometryScene(document: ProjectDoc, cache: MeshCache): SceneBundle
   };
   for (const face of derived.derived.faces) {
     const room = document.rooms.find(r => r.id === face.roomId)!;
-    plane(`floor:${room.id}`, room.id, 'floor', face.clearRects, room.floorMaterial);
-    plane(`ceiling:${room.id}`, room.id, 'ceiling', face.clearRects, '__ceiling', elevation + room.ceilingHeight, true);
+    plane(`floor:${room.id}`, room.id, 'floor', face.clearRects, room.floorMaterial, elevationOf(room.floorId));
+    plane(`ceiling:${room.id}`, room.id, 'ceiling', face.clearRects, '__ceiling', elevationOf(room.floorId) + room.ceilingHeight, true);
   }
   for (const opening of document.openings) if (opening.kind === 'door' && opening.sill === 0) {
     const wall = walls.get(opening.wallId)!, material = document.rooms.find(r => r.boundary.includes(wall.a) && r.boundary.includes(wall.b))?.floorMaterial ?? document.materials[0]!.id;
-    plane(`threshold:${opening.id}`, opening.id, 'threshold', [openingRect(document, wall, opening)], material);
+    plane(`threshold:${opening.id}`, opening.id, 'threshold', [openingRect(document, wall, opening)], material, elevationOf(wall.floorId));
   }
   let bounds: SceneBundle['bounds'] = null;
   for (const box of boxes) {
     if (!bounds) bounds = [box.lo[0] / 1000, box.lo[1] / 1000, box.lo[2] / 1000, box.hi[0] / 1000, box.hi[1] / 1000, box.hi[2] / 1000];
     else for (const axis of [0, 1, 2] as const) { bounds[axis] = Math.min(bounds[axis], box.lo[axis] / 1000); bounds[axis + 3] = Math.max(bounds[axis + 3]!, box.hi[axis] / 1000); }
   }
-  for(const room of document.rooms)if(bounds)bounds[4]=Math.max(bounds[4],(elevation+room.ceilingHeight)/1000);
+  for(const room of document.rooms)if(bounds)bounds[4]=Math.max(bounds[4],(elevationOf(room.floorId)+room.ceilingHeight)/1000);
   const warningMap=new Map<string,CeilingWarning>();
   for(const wall of document.walls){const adjacent=document.rooms.filter(room=>room.boundary.some((id,i)=>id===wall.a&&room.boundary[(i+1)%room.boundary.length]===wall.b||id===wall.b&&room.boundary[(i+1)%room.boundary.length]===wall.a)).sort((a,b)=>a.id<b.id?-1:a.id>b.id?1:0);if(adjacent.length===2&&adjacent[0]!.ceilingHeight!==adjacent[1]!.ceilingHeight){const a=adjacent[0]!,b=adjacent[1]!,key=JSON.stringify([a.id,b.id]);const warning:CeilingWarning=warningMap.get(key)??{roomIds:[a.id,b.id],wallIds:[],heightsMm:[a.ceilingHeight,b.ceilingHeight]};warning.wallIds.push(wall.id);warningMap.set(key,warning);}}
   const ceilingWarnings=[...warningMap.values()].map(w=>({...w,wallIds:[...w.wallIds].sort()})).sort((a,b)=>JSON.stringify(a.roomIds)<JSON.stringify(b.roomIds)?-1:1);
@@ -141,7 +141,7 @@ function buildGeometryScene(document: ProjectDoc, cache: MeshCache): SceneBundle
 
 function furnitureBounds(document:ProjectDoc,structural:SceneBundle['bounds']):SceneBundle['bounds'] {
  const result=structural?[...structural] as NonNullable<SceneBundle['bounds']>:null;let bounds=result;
- for(const f of document.furniture){const r=f.rotationDeg*Math.PI/180,hx=(Math.abs(Math.cos(r))*f.size.w+Math.abs(Math.sin(r))*f.size.d)/2000,hz=(Math.abs(Math.sin(r))*f.size.w+Math.abs(Math.cos(r))*f.size.d)/2000,x=f.position.x/1000,z=f.position.y/1000,y=(document.floors[0]!.elevation+f.elevation)/1000,box:[number,number,number,number,number,number]=[x-hx,y,z-hz,x+hx,y+f.size.h/1000,z+hz];if(!bounds)bounds=box;else for(const axis of [0,1,2] as const){bounds[axis]=Math.min(bounds[axis],box[axis]);bounds[axis+3]=Math.max(bounds[axis+3]!,box[axis+3]!);}}
+ for(const f of document.furniture){const r=f.rotationDeg*Math.PI/180,hx=(Math.abs(Math.cos(r))*f.size.w+Math.abs(Math.sin(r))*f.size.d)/2000,hz=(Math.abs(Math.sin(r))*f.size.w+Math.abs(Math.cos(r))*f.size.d)/2000,x=f.position.x/1000,z=f.position.y/1000,y=((document.floors.find(floor=>floor.id===f.floorId)??document.floors[0]!).elevation+f.elevation)/1000,box:[number,number,number,number,number,number]=[x-hx,y,z-hz,x+hx,y+f.size.h/1000,z+hz];if(!bounds)bounds=box;else for(const axis of [0,1,2] as const){bounds[axis]=Math.min(bounds[axis],box[axis]);bounds[axis+3]=Math.max(bounds[axis+3]!,box[axis+3]!);}}
  return bounds;
 }
 /** Pure canonical scene derivation with complete geometry/furniture framing bounds. */

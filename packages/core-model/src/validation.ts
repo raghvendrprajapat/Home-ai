@@ -40,7 +40,11 @@ export function validateProject(value: unknown): ValidationIssue[] {
     if (ids.has(entity.id)) errors.push(issue('duplicate-id', 'Every project entity must have a globally unique ID.', [entity.id])); ids.add(entity.id);
     if ('rev' in entity && !Number.isSafeInteger(entity.rev)) errors.push(issue('revision', 'Entity revision must be a safe integer.', [entity.id]));
   }
-  if (doc.floors.length !== 1) errors.push(issue('floors', 'L0 supports exactly one floor.'));
+  // FR-034 (D63): 1-6 floors with distinct integer levels; floor elevations strictly increase with level.
+  if (doc.floors.length < 1 || doc.floors.length > 6) errors.push(issue('floors', 'A project needs 1 to 6 floors.'));
+  const byLevel = [...doc.floors].sort((a, b) => a.level - b.level);
+  if (new Set(doc.floors.map(f => f.level)).size !== doc.floors.length || doc.floors.some(f => !Number.isSafeInteger(f.level))) errors.push(issue('floors', 'Every floor needs its own whole-number level.'));
+  else for (let i = 1; i < byLevel.length; i++) if (byLevel[i]!.elevation <= byLevel[i - 1]!.elevation) errors.push(issue('floors', 'A higher floor must start above the floor below it.', [byLevel[i]!.id]));
   const floors = new Set(doc.floors.map(f => f.id)), materials = new Set(doc.materials.map(m => m.id));
   if (!materials.size) errors.push(issue('materials', 'A project needs at least one material.'));
   for (const e of [...doc.junctions, ...doc.walls, ...doc.rooms, ...doc.furniture, ...doc.lights])
