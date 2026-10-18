@@ -70,6 +70,26 @@ Same profile and rules as the living-room set; see the [rendered designs](../ver
 | a_l0_wardrobe_3@2 | Three-door wardrobe with mirror / शीशे वाली तीन दरवाज़े की अलमारी | storage | 1500 × 600 × 2100 | 252 | [a_l0_wardrobe_3-v2.json](../../tools/asset-pipeline/sources/a_l0_wardrobe_3-v2.json) |
 | a_l0_wardrobe_sliding@1 | Sliding-door wardrobe / स्लाइडिंग दरवाज़े की अलमारी | storage | 1800 × 650 × 2100 | 180 | [a_l0_wardrobe_sliding-v1.json](../../tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v1.json) |
 
+
+## D72 modern dining and storage designs (2026-10-18)
+
+Same profile and rules; see the [rendered designs](../verification/images/d72-dining-storage-designs.png). The dining sets are single catalog items (table plus chairs facing it), like the sets sold online.
+
+| ID | English / Hindi | Category | W × D × H (mm) | Triangles | Source |
+|---|---|---|---|---:|---|
+| a_l0_dining_set_4@1 | Four-seat dining set / चार कुर्सियों वाला डाइनिंग सेट | tables | 1200 × 1540 × 860 | 1624 | [a_l0_dining_set_4-v1.json](../../tools/asset-pipeline/sources/a_l0_dining_set_4-v1.json) |
+| a_l0_dining_set_6@1 | Six-seat dining set / छह कुर्सियों वाला डाइनिंग सेट | tables | 2540 × 1640 × 860 | 2312 | [a_l0_dining_set_6-v1.json](../../tools/asset-pipeline/sources/a_l0_dining_set_6-v1.json) |
+| a_l0_dining_4@2 | Four-seat dining table / चार लोगों की भोजन मेज़ | tables | 1200 × 800 × 760 | 248 | [a_l0_dining_4-v2.json](../../tools/asset-pipeline/sources/a_l0_dining_4-v2.json) |
+| a_l0_dining_6@2 | Six-seat dining table / छह लोगों की भोजन मेज़ | tables | 1800 × 900 × 760 | 248 | [a_l0_dining_6-v2.json](../../tools/asset-pipeline/sources/a_l0_dining_6-v2.json) |
+| a_l0_dining_chair@2 | Upholstered dining chair / गद्दीदार खाने की कुर्सी | seating | 450 × 520 × 860 | 344 | [a_l0_dining_chair-v2.json](../../tools/asset-pipeline/sources/a_l0_dining_chair-v2.json) |
+| a_l0_console_table@2 | Console table / संकरी सजावटी मेज़ | tables | 1200 × 350 × 800 | 344 | [a_l0_console_table-v2.json](../../tools/asset-pipeline/sources/a_l0_console_table-v2.json) |
+| a_l0_shoe_rack@2 | Shoe cabinet / जूते रखने की अलमारी | storage | 800 × 350 × 900 | 324 | [a_l0_shoe_rack-v2.json](../../tools/asset-pipeline/sources/a_l0_shoe_rack-v2.json) |
+| a_l0_bench@2 | Upholstered bench / गद्दीदार बेंच | seating | 1200 × 400 × 450 | 440 | [a_l0_bench-v2.json](../../tools/asset-pipeline/sources/a_l0_bench-v2.json) |
+| a_l0_stool@2 | Round pouffe / गोल पूफ़ | seating | 450 × 450 × 420 | 192 | [a_l0_stool-v2.json](../../tools/asset-pipeline/sources/a_l0_stool-v2.json) |
+| a_l0_rug@2 | Bordered area rug / किनारी वाला गलीचा | rugs | 1600 × 1000 × 10 | 36 | [a_l0_rug-v2.json](../../tools/asset-pipeline/sources/a_l0_rug-v2.json) |
+| a_l0_planter@2 | Indoor plant in pot / गमले में पौधा | decor | 450 × 420 × 1100 | 1028 | [a_l0_planter-v2.json](../../tools/asset-pipeline/sources/a_l0_planter-v2.json) |
+| a_l0_low_cabinet@2 | Sideboard cabinet / साइडबोर्ड अलमारी | storage | 1500 × 420 × 800 | 368 | [a_l0_low_cabinet-v2.json](../../tools/asset-pipeline/sources/a_l0_low_cabinet-v2.json) |
+
 All LOD0/LOD1 pairs currently share the same already-small GLB; no simplification/compression claim. No downloaded/proprietary art, electrical fixtures, textures or entitlement/cloud-delivery adapter is added. Canonical furniture pins ID/version and nominal dimensions; user scaling/elevation/rotation remain the existing commands. Physical-device performance, aesthetic/accessibility review and all D36 gates remain pending.
 
 Change an existing asset by adding a new version, never by editing an accepted source/blob under the same ID/version. Rebuild via pnpm assets:build, then run assets:check and assets:versions. See the PH4-T05 verification and decision records for actual validator/hash/paging/placement/Undo evidence.

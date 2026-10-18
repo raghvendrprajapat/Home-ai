@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_stool",
+  "version": 2,
+  "name_en": "Round pouffe",
+  "name_hi": "गोल पूफ़",
+  "category": "seating",
+  "tags": [
+    "pouffe",
+    "ottoman",
+    "stool",
+    "round pouf",
+    "footstool",
+    "mustard",
+    "पूफ़"
+  ],
+  "dims": {
+    "w": 450,
+    "d": 450,
+    "h": 420
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_stool-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_stool-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "shape": "cylinder",
+      "center": [
+        0,
+        220,
+        0
+      ],
+      "size": [
+        450,
+        400,
+        450
+      ],
+      "color": "#c9a23f",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "base",
+      "shape": "cylinder",
+      "center": [
+        0,
+        10,
+        0
+      ],
+      "size": [
+        380,
+        20,
+        380
+      ],
+      "color": "#3b342e",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    }
+  ]
+}

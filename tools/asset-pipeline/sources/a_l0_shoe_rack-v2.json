@@ -1,0 +1,191 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_shoe_rack",
+  "version": 2,
+  "name_en": "Shoe cabinet",
+  "name_hi": "जूते रखने की अलमारी",
+  "category": "storage",
+  "tags": [
+    "shoe rack",
+    "shoe cabinet",
+    "shoe storage",
+    "2 doors",
+    "white",
+    "जूते की अलमारी"
+  ],
+  "dims": {
+    "w": 800,
+    "d": 350,
+    "h": 900
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_shoe_rack-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_shoe_rack-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "shape": "rounded",
+      "center": [
+        0,
+        480,
+        10
+      ],
+      "size": [
+        800,
+        840,
+        330
+      ],
+      "color": "#ecebe7",
+      "finish": "satin",
+      "radius": 8,
+      "segments": 1
+    },
+    {
+      "name": "door-left",
+      "shape": "box",
+      "center": [
+        -199,
+        480,
+        -159
+      ],
+      "size": [
+        394,
+        820,
+        8
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "door-right",
+      "shape": "box",
+      "center": [
+        199,
+        480,
+        -159
+      ],
+      "size": [
+        394,
+        820,
+        8
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "handle-left",
+      "shape": "cylinder",
+      "center": [
+        -40,
+        600,
+        -169
+      ],
+      "size": [
+        16,
+        160,
+        12
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "handle-right",
+      "shape": "cylinder",
+      "center": [
+        40,
+        600,
+        -169
+      ],
+      "size": [
+        16,
+        160,
+        12
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -370,
+        30,
+        -130
+      ],
+      "size": [
+        30,
+        60,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        370,
+        30,
+        -130
+      ],
+      "size": [
+        30,
+        60,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -370,
+        30,
+        150
+      ],
+      "size": [
+        30,
+        60,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        370,
+        30,
+        150
+      ],
+      "size": [
+        30,
+        60,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    }
+  ]
+}

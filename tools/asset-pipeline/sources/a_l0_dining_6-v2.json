@@ -1,0 +1,138 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_dining_6",
+  "version": 2,
+  "name_en": "Six-seat dining table",
+  "name_hi": "छह लोगों की भोजन मेज़",
+  "category": "tables",
+  "tags": [
+    "dining table",
+    "6 seater dining table",
+    "wooden",
+    "walnut",
+    "भोजन मेज़"
+  ],
+  "dims": {
+    "w": 1800,
+    "d": 900,
+    "h": 760
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_dining_6-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_6-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        740,
+        0
+      ],
+      "size": [
+        1800,
+        40,
+        900
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "apron",
+      "shape": "box",
+      "center": [
+        0,
+        680,
+        0
+      ],
+      "size": [
+        1680,
+        80,
+        780
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -840,
+        360,
+        -390
+      ],
+      "size": [
+        50,
+        720,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        840,
+        360,
+        -390
+      ],
+      "size": [
+        50,
+        720,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -840,
+        360,
+        390
+      ],
+      "size": [
+        50,
+        720,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        840,
+        360,
+        390
+      ],
+      "size": [
+        50,
+        720,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    }
+  ]
+}

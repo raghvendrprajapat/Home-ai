@@ -1,0 +1,82 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_rug",
+  "version": 2,
+  "name_en": "Bordered area rug",
+  "name_hi": "किनारी वाला गलीचा",
+  "category": "rugs",
+  "tags": [
+    "rug",
+    "carpet",
+    "area rug",
+    "living room carpet",
+    "terracotta",
+    "गलीचा",
+    "कालीन"
+  ],
+  "dims": {
+    "w": 1600,
+    "d": 1000,
+    "h": 10
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_rug-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_rug-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "base",
+      "shape": "box",
+      "center": [
+        0,
+        3,
+        0
+      ],
+      "size": [
+        1600,
+        6,
+        1000
+      ],
+      "color": "#b5653f",
+      "finish": "matte"
+    },
+    {
+      "name": "field",
+      "shape": "box",
+      "center": [
+        0,
+        7,
+        0
+      ],
+      "size": [
+        1400,
+        2,
+        800
+      ],
+      "color": "#efe6d2",
+      "finish": "matte"
+    },
+    {
+      "name": "centre",
+      "shape": "box",
+      "center": [
+        0,
+        9,
+        0
+      ],
+      "size": [
+        600,
+        2,
+        300
+      ],
+      "color": "#b5653f",
+      "finish": "matte"
+    }
+  ]
+}

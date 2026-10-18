@@ -1,0 +1,139 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_bench",
+  "version": 2,
+  "name_en": "Upholstered bench",
+  "name_hi": "गद्दीदार बेंच",
+  "category": "seating",
+  "tags": [
+    "bench",
+    "upholstered bench",
+    "entryway bench",
+    "seating bench",
+    "beige",
+    "बेंच"
+  ],
+  "dims": {
+    "w": 1200,
+    "d": 400,
+    "h": 450
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_bench-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bench-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "seat",
+      "shape": "rounded",
+      "center": [
+        0,
+        405,
+        0
+      ],
+      "size": [
+        1200,
+        90,
+        400
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 30,
+      "segments": 2
+    },
+    {
+      "name": "frame",
+      "shape": "box",
+      "center": [
+        0,
+        330,
+        0
+      ],
+      "size": [
+        1160,
+        60,
+        360
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -540,
+        150,
+        -140
+      ],
+      "size": [
+        40,
+        300,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        540,
+        150,
+        -140
+      ],
+      "size": [
+        40,
+        300,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -540,
+        150,
+        140
+      ],
+      "size": [
+        40,
+        300,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        540,
+        150,
+        140
+      ],
+      "size": [
+        40,
+        300,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    }
+  ]
+}
