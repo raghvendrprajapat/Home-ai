@@ -66,6 +66,20 @@ These are Claude-authored checks. They are not an aesthetic review by a designer
   - Lint and typecheck: passed.
   - Browser tests: catalog 5/5, starter catalog 3/3, modern furniture 2/2, and furniture advisories, finish, models and placement 21/21.
 
+## Dining and storage set (third PR, 2026-10-18, local)
+- **`modern-furniture.test.ts`:** 12 more decoded designs, 31 in total.
+  - In both dining sets a back chair's backrest is at +Z and a front chair's seat is at −Z (chairs face the table).
+  - The main colour is wood for tables and sets, fabric for the chair and bench, mustard for the pouffe, terracotta for the rug and leaf green for the plant.
+- **`catalog.test.ts`:** 61 published versions and 37 listed items (tables 10).
+- **`starter-catalog.spec.ts`:** 37 items (24 + 13 pages). All four placed items now pin version 2.
+- **`modern-furniture.spec.ts`:** a third test places the six-seat dining set, sideboard, shoe cabinet and plant, and loads them as real 3D models.
+- **Results:**
+  - `vitest run apps/web/src/catalog`: 44/44 passed.
+  - `assets:build`/`assets:check`: 61 assets, 0 validator errors.
+  - `assets:versions`: passed.
+  - Lint and typecheck: passed.
+  - Browser tests: modern furniture 3/3, starter catalog 3/3, catalog 5/5, furniture finish 3/3.
+
 ## CI memory check (REN-009) on the bedroom PR
 - **Failure:** CI failed `context-resources.spec.ts` REN-009 twice: main-frame heap growth over 50 3D view toggles was 10.84% and then 10.27%, against a 10% limit. `main` passed.
 - **Not the catalog size itself:** locally, growth did not scale with catalog size (38, 49 and 61 entries all about 7.5–8.2%).
@@ -85,6 +99,5 @@ These are Claude-authored checks. They are not an aesthetic review by a designer
   - The 10% limit is unchanged.
 
 ## Pending
-- Dining and storage redesigns.
 - Designer/aesthetic review.
 - Low/Mid phone tests (gated).

@@ -1,0 +1,124 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_planter",
+  "version": 2,
+  "name_en": "Indoor plant in pot",
+  "name_hi": "गमले में पौधा",
+  "category": "decor",
+  "tags": [
+    "plant",
+    "indoor plant",
+    "artificial plant",
+    "planter",
+    "pot",
+    "green",
+    "गमले में पौधा"
+  ],
+  "dims": {
+    "w": 450,
+    "d": 420,
+    "h": 1100
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_planter-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_planter-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "pot",
+      "shape": "cylinder",
+      "center": [
+        0,
+        160,
+        0
+      ],
+      "size": [
+        300,
+        320,
+        300
+      ],
+      "color": "#e4ddd2",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 16
+    },
+    {
+      "name": "soil",
+      "shape": "cylinder",
+      "center": [
+        0,
+        330,
+        0
+      ],
+      "size": [
+        260,
+        20,
+        260
+      ],
+      "color": "#4a3a2c",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 16
+    },
+    {
+      "name": "leaves-low",
+      "shape": "rounded",
+      "center": [
+        0,
+        520,
+        0
+      ],
+      "size": [
+        450,
+        360,
+        420
+      ],
+      "color": "#4f7d4a",
+      "finish": "matte",
+      "radius": 150,
+      "segments": 2
+    },
+    {
+      "name": "leaves-high",
+      "shape": "rounded",
+      "center": [
+        20,
+        800,
+        -10
+      ],
+      "size": [
+        340,
+        300,
+        320
+      ],
+      "color": "#5f9157",
+      "finish": "matte",
+      "radius": 120,
+      "segments": 2
+    },
+    {
+      "name": "leaves-top",
+      "shape": "rounded",
+      "center": [
+        -10,
+        1000,
+        10
+      ],
+      "size": [
+        220,
+        200,
+        220
+      ],
+      "color": "#4f7d4a",
+      "finish": "matte",
+      "radius": 90,
+      "segments": 2
+    }
+  ]
+}

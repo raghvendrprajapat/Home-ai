@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_dining_chair",
+  "version": 2,
+  "name_en": "Upholstered dining chair",
+  "name_hi": "गद्दीदार खाने की कुर्सी",
+  "category": "seating",
+  "tags": [
+    "dining chair",
+    "upholstered chair",
+    "cushioned chair",
+    "wooden legs",
+    "beige",
+    "खाने की कुर्सी"
+  ],
+  "dims": {
+    "w": 450,
+    "d": 520,
+    "h": 860
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_dining_chair-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_chair-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "leg-front-left",
+      "shape": "cylinder",
+      "center": [
+        -185,
+        215,
+        -220
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-front-right",
+      "shape": "cylinder",
+      "center": [
+        185,
+        215,
+        -220
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-back-left",
+      "shape": "cylinder",
+      "center": [
+        -185,
+        430,
+        230
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-back-right",
+      "shape": "cylinder",
+      "center": [
+        185,
+        430,
+        230
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "seat",
+      "shape": "rounded",
+      "center": [
+        0,
+        460,
+        -20
+      ],
+      "size": [
+        450,
+        60,
+        480
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "back",
+      "shape": "rounded",
+      "center": [
+        0,
+        680,
+        235
+      ],
+      "size": [
+        400,
+        360,
+        50
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    }
+  ]
+}

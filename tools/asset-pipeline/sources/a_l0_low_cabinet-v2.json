@@ -1,0 +1,226 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_low_cabinet",
+  "version": 2,
+  "name_en": "Sideboard cabinet",
+  "name_hi": "साइडबोर्ड अलमारी",
+  "category": "storage",
+  "tags": [
+    "sideboard",
+    "crockery cabinet",
+    "buffet cabinet",
+    "3 doors",
+    "wooden",
+    "walnut",
+    "साइडबोर्ड"
+  ],
+  "dims": {
+    "w": 1500,
+    "d": 420,
+    "h": 800
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_low_cabinet-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_low_cabinet-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-18"
+  },
+  "parts": [
+    {
+      "name": "body",
+      "shape": "rounded",
+      "center": [
+        0,
+        430,
+        10
+      ],
+      "size": [
+        1500,
+        740,
+        400
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 8,
+      "segments": 1
+    },
+    {
+      "name": "door-1",
+      "shape": "box",
+      "center": [
+        -500,
+        430,
+        -194
+      ],
+      "size": [
+        494,
+        720,
+        8
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "door-2",
+      "shape": "box",
+      "center": [
+        0,
+        430,
+        -194
+      ],
+      "size": [
+        494,
+        720,
+        8
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "door-3",
+      "shape": "box",
+      "center": [
+        500,
+        430,
+        -194
+      ],
+      "size": [
+        494,
+        720,
+        8
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "handle-1",
+      "shape": "cylinder",
+      "center": [
+        -290,
+        600,
+        -205
+      ],
+      "size": [
+        14,
+        120,
+        10
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "handle-2",
+      "shape": "cylinder",
+      "center": [
+        210,
+        600,
+        -205
+      ],
+      "size": [
+        14,
+        120,
+        10
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "handle-3",
+      "shape": "cylinder",
+      "center": [
+        290,
+        600,
+        -205
+      ],
+      "size": [
+        14,
+        120,
+        10
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -700,
+        30,
+        -150
+      ],
+      "size": [
+        35,
+        60,
+        35
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        700,
+        30,
+        -150
+      ],
+      "size": [
+        35,
+        60,
+        35
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -700,
+        30,
+        170
+      ],
+      "size": [
+        35,
+        60,
+        35
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        700,
+        30,
+        170
+      ],
+      "size": [
+        35,
+        60,
+        35
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    }
+  ]
+}

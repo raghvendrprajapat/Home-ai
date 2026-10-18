@@ -296,6 +296,82 @@
       }
     },
     {
+      "id": "a_l0_bench",
+      "version": 2,
+      "name_en": "Upholstered bench",
+      "name_hi": "गद्दीदार बेंच",
+      "category": "seating",
+      "tags": [
+        "bench",
+        "upholstered bench",
+        "entryway bench",
+        "seating bench",
+        "beige",
+        "बेंच"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 400,
+        "h": 450
+      },
+      "sourceSha256": "70a473a5381163e6a61679cbade465921ec1c2c19e21603cf94db616437d871d",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_bench-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_bench-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/d38dc3c18acfee4a59345af2076e5fa37d65758f407c1490df9def248cda9093.glb",
+          "sha256": "d38dc3c18acfee4a59345af2076e5fa37d65758f407c1490df9def248cda9093",
+          "bytes": 16188,
+          "triangles": 440
+        },
+        {
+          "level": 1,
+          "path": "blobs/d38dc3c18acfee4a59345af2076e5fa37d65758f407c1490df9def248cda9093.glb",
+          "sha256": "d38dc3c18acfee4a59345af2076e5fa37d65758f407c1490df9def248cda9093",
+          "bytes": 16188,
+          "triangles": 440
+        }
+      ],
+      "thumb": {
+        "path": "blobs/8968395087f4325e210946674135542a7953c570699662ea593edab69861c506.svg",
+        "sha256": "8968395087f4325e210946674135542a7953c570699662ea593edab69861c506",
+        "bytes": 10061,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 440,
+        "bounds": {
+          "min": [
+            -0.6000000238418579,
+            0,
+            -0.20000000298023224
+          ],
+          "max": [
+            0.6000000238418579,
+            0.44999998807907104,
+            0.20000000298023224
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_bookcase",
       "version": 1,
       "name_en": "Open bookcase",
@@ -742,6 +818,82 @@
       }
     },
     {
+      "id": "a_l0_console_table",
+      "version": 2,
+      "name_en": "Console table",
+      "name_hi": "संकरी सजावटी मेज़",
+      "category": "tables",
+      "tags": [
+        "console table",
+        "entryway table",
+        "hallway table",
+        "wooden",
+        "metal legs",
+        "संकरी मेज़"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 350,
+        "h": 800
+      },
+      "sourceSha256": "f76df7999f851ef1c5ee019bd4132b2505ce80617fb820a41ea088a7b19f8968",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_console_table-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_console_table-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/f840f1374330b8a30e690d98ca0689690a250dc3321a578520118a092546944a.glb",
+          "sha256": "f840f1374330b8a30e690d98ca0689690a250dc3321a578520118a092546944a",
+          "bytes": 14404,
+          "triangles": 344
+        },
+        {
+          "level": 1,
+          "path": "blobs/f840f1374330b8a30e690d98ca0689690a250dc3321a578520118a092546944a.glb",
+          "sha256": "f840f1374330b8a30e690d98ca0689690a250dc3321a578520118a092546944a",
+          "bytes": 14404,
+          "triangles": 344
+        }
+      ],
+      "thumb": {
+        "path": "blobs/64d01ce97408280aef4ebb510610380bb2d575792799a23bd4cfd918728849fd.svg",
+        "sha256": "64d01ce97408280aef4ebb510610380bb2d575792799a23bd4cfd918728849fd",
+        "bytes": 8975,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 344,
+        "bounds": {
+          "min": [
+            -0.6000000238418579,
+            0,
+            -0.17499999701976776
+          ],
+          "max": [
+            0.6000000238418579,
+            0.800000011920929,
+            0.17499999701976776
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_dining_4",
       "version": 1,
       "name_en": "Four-seat dining table",
@@ -803,6 +955,81 @@
             0.6,
             0.75,
             0.4
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_dining_4",
+      "version": 2,
+      "name_en": "Four-seat dining table",
+      "name_hi": "चार लोगों की भोजन मेज़",
+      "category": "tables",
+      "tags": [
+        "dining table",
+        "4 seater dining table",
+        "wooden",
+        "walnut",
+        "भोजन मेज़"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 800,
+        "h": 760
+      },
+      "sourceSha256": "9de5729df85de136b79af32667fe0b17865ab55210ac0abce6571a912af35246",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dining_4-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_4-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/12cb6a44e2694e4f0a06f393e0ed937416da72fed3e30907c7ea1b3bbbeec290.glb",
+          "sha256": "12cb6a44e2694e4f0a06f393e0ed937416da72fed3e30907c7ea1b3bbbeec290",
+          "bytes": 11960,
+          "triangles": 248
+        },
+        {
+          "level": 1,
+          "path": "blobs/12cb6a44e2694e4f0a06f393e0ed937416da72fed3e30907c7ea1b3bbbeec290.glb",
+          "sha256": "12cb6a44e2694e4f0a06f393e0ed937416da72fed3e30907c7ea1b3bbbeec290",
+          "bytes": 11960,
+          "triangles": 248
+        }
+      ],
+      "thumb": {
+        "path": "blobs/897997a6797acfad19291146e70f464f1cf1b59f510e0b0ba723e180c4f0f7af.svg",
+        "sha256": "897997a6797acfad19291146e70f464f1cf1b59f510e0b0ba723e180c4f0f7af",
+        "bytes": 6735,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 248,
+        "bounds": {
+          "min": [
+            -0.6000000238418579,
+            0,
+            -0.4000000059604645
+          ],
+          "max": [
+            0.6000000238418579,
+            0.7599999904632568,
+            0.4000000059604645
           ]
         },
         "validator": {
@@ -888,6 +1115,81 @@
       }
     },
     {
+      "id": "a_l0_dining_6",
+      "version": 2,
+      "name_en": "Six-seat dining table",
+      "name_hi": "छह लोगों की भोजन मेज़",
+      "category": "tables",
+      "tags": [
+        "dining table",
+        "6 seater dining table",
+        "wooden",
+        "walnut",
+        "भोजन मेज़"
+      ],
+      "dims": {
+        "w": 1800,
+        "d": 900,
+        "h": 760
+      },
+      "sourceSha256": "ccaef09f67ec9fa83e2ffbb454f738d3033b46d75020bbc1e8bdd5b1aa67d000",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dining_6-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_6-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/791366e87ec06b962015649c9b4dcd89f56855f097018f00ce575407feae7852.glb",
+          "sha256": "791366e87ec06b962015649c9b4dcd89f56855f097018f00ce575407feae7852",
+          "bytes": 11968,
+          "triangles": 248
+        },
+        {
+          "level": 1,
+          "path": "blobs/791366e87ec06b962015649c9b4dcd89f56855f097018f00ce575407feae7852.glb",
+          "sha256": "791366e87ec06b962015649c9b4dcd89f56855f097018f00ce575407feae7852",
+          "bytes": 11968,
+          "triangles": 248
+        }
+      ],
+      "thumb": {
+        "path": "blobs/594250957e71fd798828aa91a1525c877fc10c56a036fd67a058ad894310d5aa.svg",
+        "sha256": "594250957e71fd798828aa91a1525c877fc10c56a036fd67a058ad894310d5aa",
+        "bytes": 6770,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 248,
+        "bounds": {
+          "min": [
+            -0.8999999761581421,
+            0,
+            -0.44999998807907104
+          ],
+          "max": [
+            0.8999999761581421,
+            0.7599999904632568,
+            0.44999998807907104
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_dining_chair",
       "version": 1,
       "name_en": "Dining chair",
@@ -948,6 +1250,236 @@
             0.225,
             0.9,
             0.25
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_dining_chair",
+      "version": 2,
+      "name_en": "Upholstered dining chair",
+      "name_hi": "गद्दीदार खाने की कुर्सी",
+      "category": "seating",
+      "tags": [
+        "dining chair",
+        "upholstered chair",
+        "cushioned chair",
+        "wooden legs",
+        "beige",
+        "खाने की कुर्सी"
+      ],
+      "dims": {
+        "w": 450,
+        "d": 520,
+        "h": 860
+      },
+      "sourceSha256": "401e03f7d7725694b3710b88bf074b88f484a6e92dad44c36a6cbbb2f5da5867",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dining_chair-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_chair-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/f19dbfd2ace81f1695c73af70fda4f0521960aaa199eddb5d8c695c675ab5594.glb",
+          "sha256": "f19dbfd2ace81f1695c73af70fda4f0521960aaa199eddb5d8c695c675ab5594",
+          "bytes": 14616,
+          "triangles": 344
+        },
+        {
+          "level": 1,
+          "path": "blobs/f19dbfd2ace81f1695c73af70fda4f0521960aaa199eddb5d8c695c675ab5594.glb",
+          "sha256": "f19dbfd2ace81f1695c73af70fda4f0521960aaa199eddb5d8c695c675ab5594",
+          "bytes": 14616,
+          "triangles": 344
+        }
+      ],
+      "thumb": {
+        "path": "blobs/72828018dd2493da1f50b5363620b291aac01f59fe35a0f1c68f59d5d4402150.svg",
+        "sha256": "72828018dd2493da1f50b5363620b291aac01f59fe35a0f1c68f59d5d4402150",
+        "bytes": 8927,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 344,
+        "bounds": {
+          "min": [
+            -0.22499999403953552,
+            0,
+            -0.25999999046325684
+          ],
+          "max": [
+            0.22499999403953552,
+            0.8600000143051147,
+            0.25999999046325684
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_dining_set_4",
+      "version": 1,
+      "name_en": "Four-seat dining set",
+      "name_hi": "चार कुर्सियों वाला डाइनिंग सेट",
+      "category": "tables",
+      "tags": [
+        "dining set",
+        "dining table set",
+        "4 seater dining set",
+        "table with chairs",
+        "wooden",
+        "beige",
+        "डाइनिंग सेट"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 1540,
+        "h": 860
+      },
+      "sourceSha256": "037cb77a936c79e5fe9832546a7c67d8ee935d9d775f29d42508fa500422dd82",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dining_set_4-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_set_4-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/49e017fca1eada418568d0dd28e4cebe4c95b36b9ecec7b509184c02c1862e92.glb",
+          "sha256": "49e017fca1eada418568d0dd28e4cebe4c95b36b9ecec7b509184c02c1862e92",
+          "bytes": 69636,
+          "triangles": 1624
+        },
+        {
+          "level": 1,
+          "path": "blobs/49e017fca1eada418568d0dd28e4cebe4c95b36b9ecec7b509184c02c1862e92.glb",
+          "sha256": "49e017fca1eada418568d0dd28e4cebe4c95b36b9ecec7b509184c02c1862e92",
+          "bytes": 69636,
+          "triangles": 1624
+        }
+      ],
+      "thumb": {
+        "path": "blobs/83404e52e5e3a222815d0f6f6b3b90eac24a026837840a3c884d281e32f44e32.svg",
+        "sha256": "83404e52e5e3a222815d0f6f6b3b90eac24a026837840a3c884d281e32f44e32",
+        "bytes": 41886,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1624,
+        "bounds": {
+          "min": [
+            -0.6000000238418579,
+            0,
+            -0.7699999809265137
+          ],
+          "max": [
+            0.6000000238418579,
+            0.8600000143051147,
+            0.7699999809265137
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_dining_set_6",
+      "version": 1,
+      "name_en": "Six-seat dining set",
+      "name_hi": "छह कुर्सियों वाला डाइनिंग सेट",
+      "category": "tables",
+      "tags": [
+        "dining set",
+        "dining table set",
+        "6 seater dining set",
+        "table with chairs",
+        "wooden",
+        "beige",
+        "डाइनिंग सेट"
+      ],
+      "dims": {
+        "w": 2540,
+        "d": 1640,
+        "h": 860
+      },
+      "sourceSha256": "d0dbd8a8b21203ecb5a56a819a941e4fbe2f81660037e21842929d236b2a95b4",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_dining_set_6-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_set_6-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/5983da408cc5a5b8d03592a4616e40a28f91bb67fbfeb61fd2f3f450ae72316e.glb",
+          "sha256": "5983da408cc5a5b8d03592a4616e40a28f91bb67fbfeb61fd2f3f450ae72316e",
+          "bytes": 98628,
+          "triangles": 2312
+        },
+        {
+          "level": 1,
+          "path": "blobs/5983da408cc5a5b8d03592a4616e40a28f91bb67fbfeb61fd2f3f450ae72316e.glb",
+          "sha256": "5983da408cc5a5b8d03592a4616e40a28f91bb67fbfeb61fd2f3f450ae72316e",
+          "bytes": 98628,
+          "triangles": 2312
+        }
+      ],
+      "thumb": {
+        "path": "blobs/1adf6e2121f39452e35be80fe4e65706cc4903538f7e322d20b64f2493379b30.svg",
+        "sha256": "1adf6e2121f39452e35be80fe4e65706cc4903538f7e322d20b64f2493379b30",
+        "bytes": 58943,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 2312,
+        "bounds": {
+          "min": [
+            -1.2699999809265137,
+            0,
+            -0.8199999928474426
+          ],
+          "max": [
+            1.2699999809265137,
+            0.8600000143051147,
+            0.8199999928474426
           ]
         },
         "validator": {
@@ -1703,6 +2235,83 @@
       }
     },
     {
+      "id": "a_l0_low_cabinet",
+      "version": 2,
+      "name_en": "Sideboard cabinet",
+      "name_hi": "साइडबोर्ड अलमारी",
+      "category": "storage",
+      "tags": [
+        "sideboard",
+        "crockery cabinet",
+        "buffet cabinet",
+        "3 doors",
+        "wooden",
+        "walnut",
+        "साइडबोर्ड"
+      ],
+      "dims": {
+        "w": 1500,
+        "d": 420,
+        "h": 800
+      },
+      "sourceSha256": "232f32088bf1be77b1e3c3b786c02960af3868efb745c3a1e106850a29df2b02",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_low_cabinet-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_low_cabinet-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/102b859044af35de72604fd53a72f282d73bb29da516bf58f6535b801f471dfe.glb",
+          "sha256": "102b859044af35de72604fd53a72f282d73bb29da516bf58f6535b801f471dfe",
+          "bytes": 19956,
+          "triangles": 368
+        },
+        {
+          "level": 1,
+          "path": "blobs/102b859044af35de72604fd53a72f282d73bb29da516bf58f6535b801f471dfe.glb",
+          "sha256": "102b859044af35de72604fd53a72f282d73bb29da516bf58f6535b801f471dfe",
+          "bytes": 19956,
+          "triangles": 368
+        }
+      ],
+      "thumb": {
+        "path": "blobs/93ef65688ce5b8bd68039e24ccfb4b2bff53333a51a7b29cdc9daedcde5965f9.svg",
+        "sha256": "93ef65688ce5b8bd68039e24ccfb4b2bff53333a51a7b29cdc9daedcde5965f9",
+        "bytes": 10587,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 368,
+        "bounds": {
+          "min": [
+            -0.75,
+            0,
+            -0.20999999344348907
+          ],
+          "max": [
+            0.75,
+            0.800000011920929,
+            0.20999999344348907
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_nightstand",
       "version": 1,
       "name_en": "Bedside table",
@@ -1840,6 +2449,83 @@
             0.2,
             0.7000000000000001,
             0.2
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_planter",
+      "version": 2,
+      "name_en": "Indoor plant in pot",
+      "name_hi": "गमले में पौधा",
+      "category": "decor",
+      "tags": [
+        "plant",
+        "indoor plant",
+        "artificial plant",
+        "planter",
+        "pot",
+        "green",
+        "गमले में पौधा"
+      ],
+      "dims": {
+        "w": 450,
+        "d": 420,
+        "h": 1100
+      },
+      "sourceSha256": "5f1a205f8a6e9600405ed965e4caf860a74b90d9cbd00139724a0b8754311e4f",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_planter-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_planter-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/f0426a0cdf4fdbfe0e36f21c5c500ada9d042b4ad8cf42d024d33d075bb4dc19.glb",
+          "sha256": "f0426a0cdf4fdbfe0e36f21c5c500ada9d042b4ad8cf42d024d33d075bb4dc19",
+          "bytes": 29232,
+          "triangles": 1028
+        },
+        {
+          "level": 1,
+          "path": "blobs/f0426a0cdf4fdbfe0e36f21c5c500ada9d042b4ad8cf42d024d33d075bb4dc19.glb",
+          "sha256": "f0426a0cdf4fdbfe0e36f21c5c500ada9d042b4ad8cf42d024d33d075bb4dc19",
+          "bytes": 29232,
+          "triangles": 1028
+        }
+      ],
+      "thumb": {
+        "path": "blobs/6e14ecb08d2b0614caa90c09bdee5071bb15cc920259e75b0f9f246b779dae09.svg",
+        "sha256": "6e14ecb08d2b0614caa90c09bdee5071bb15cc920259e75b0f9f246b779dae09",
+        "bytes": 20355,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1028,
+        "bounds": {
+          "min": [
+            -0.22499999403953552,
+            0,
+            -0.20999999344348907
+          ],
+          "max": [
+            0.22499999403953552,
+            1.100000023841858,
+            0.20999999344348907
           ]
         },
         "validator": {
@@ -2076,6 +2762,83 @@
       }
     },
     {
+      "id": "a_l0_rug",
+      "version": 2,
+      "name_en": "Bordered area rug",
+      "name_hi": "किनारी वाला गलीचा",
+      "category": "rugs",
+      "tags": [
+        "rug",
+        "carpet",
+        "area rug",
+        "living room carpet",
+        "terracotta",
+        "गलीचा",
+        "कालीन"
+      ],
+      "dims": {
+        "w": 1600,
+        "d": 1000,
+        "h": 10
+      },
+      "sourceSha256": "aab60df831dbc297bb1c8c733746d7b5934512fbcc6d80625c73cf331bc8ede1",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_rug-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_rug-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/86aeb8ca423d8ecf03e292a2eb7c85c59eb4762d2284b5e273ca5534a8b88764.glb",
+          "sha256": "86aeb8ca423d8ecf03e292a2eb7c85c59eb4762d2284b5e273ca5534a8b88764",
+          "bytes": 4504,
+          "triangles": 36
+        },
+        {
+          "level": 1,
+          "path": "blobs/86aeb8ca423d8ecf03e292a2eb7c85c59eb4762d2284b5e273ca5534a8b88764.glb",
+          "sha256": "86aeb8ca423d8ecf03e292a2eb7c85c59eb4762d2284b5e273ca5534a8b88764",
+          "bytes": 4504,
+          "triangles": 36
+        }
+      ],
+      "thumb": {
+        "path": "blobs/d9d215421785b46fb262535e67e48e9e2bfe17f5be1bdde483d297c7ba9499ae.svg",
+        "sha256": "d9d215421785b46fb262535e67e48e9e2bfe17f5be1bdde483d297c7ba9499ae",
+        "bytes": 1535,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 36,
+        "bounds": {
+          "min": [
+            -0.800000011920929,
+            0,
+            -0.5
+          ],
+          "max": [
+            0.800000011920929,
+            0.009999999776482582,
+            0.5
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_shoe_rack",
       "version": 1,
       "name_en": "Shoe cabinet",
@@ -2137,6 +2900,82 @@
             0.4,
             0.8,
             0.175
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_shoe_rack",
+      "version": 2,
+      "name_en": "Shoe cabinet",
+      "name_hi": "जूते रखने की अलमारी",
+      "category": "storage",
+      "tags": [
+        "shoe rack",
+        "shoe cabinet",
+        "shoe storage",
+        "2 doors",
+        "white",
+        "जूते की अलमारी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 350,
+        "h": 900
+      },
+      "sourceSha256": "9784b36889debe46642ebcb59d0cf3e3f68a23933bef2e6d71da070b2990f222",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_shoe_rack-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_shoe_rack-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/48b782fbb9db7f958f297a58ac2faf2c1023ea2e4dbf15a1d3a0d672c6f41b7a.glb",
+          "sha256": "48b782fbb9db7f958f297a58ac2faf2c1023ea2e4dbf15a1d3a0d672c6f41b7a",
+          "bytes": 16920,
+          "triangles": 324
+        },
+        {
+          "level": 1,
+          "path": "blobs/48b782fbb9db7f958f297a58ac2faf2c1023ea2e4dbf15a1d3a0d672c6f41b7a.glb",
+          "sha256": "48b782fbb9db7f958f297a58ac2faf2c1023ea2e4dbf15a1d3a0d672c6f41b7a",
+          "bytes": 16920,
+          "triangles": 324
+        }
+      ],
+      "thumb": {
+        "path": "blobs/c73c7041ae30a39bef30dc4e01170ad6b974c1319573385ca6cecd5aa61c7f06.svg",
+        "sha256": "c73c7041ae30a39bef30dc4e01170ad6b974c1319573385ca6cecd5aa61c7f06",
+        "bytes": 9258,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 324,
+        "bounds": {
+          "min": [
+            -0.4000000059604645,
+            0,
+            -0.17499999701976776
+          ],
+          "max": [
+            0.4000000059604645,
+            0.8999999761581421,
+            0.17499999701976776
           ]
         },
         "validator": {
@@ -2885,6 +3724,83 @@
             0.2,
             0.45,
             0.2
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_stool",
+      "version": 2,
+      "name_en": "Round pouffe",
+      "name_hi": "गोल पूफ़",
+      "category": "seating",
+      "tags": [
+        "pouffe",
+        "ottoman",
+        "stool",
+        "round pouf",
+        "footstool",
+        "mustard",
+        "पूफ़"
+      ],
+      "dims": {
+        "w": 450,
+        "d": 450,
+        "h": 420
+      },
+      "sourceSha256": "dcdb5e47c52e76a2182f8938bc16b9589c1847d2b3b9ba8338c10310b6a5ef7a",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_stool-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_stool-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-18"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/b13fb7f574940bdbf0df1604ef2e36d9efabef7840c0000cca75bd2cae86731f.glb",
+          "sha256": "b13fb7f574940bdbf0df1604ef2e36d9efabef7840c0000cca75bd2cae86731f",
+          "bytes": 7800,
+          "triangles": 192
+        },
+        {
+          "level": 1,
+          "path": "blobs/b13fb7f574940bdbf0df1604ef2e36d9efabef7840c0000cca75bd2cae86731f.glb",
+          "sha256": "b13fb7f574940bdbf0df1604ef2e36d9efabef7840c0000cca75bd2cae86731f",
+          "bytes": 7800,
+          "triangles": 192
+        }
+      ],
+      "thumb": {
+        "path": "blobs/9a2e3f0ee843b39d8dbbed4e6a732b7fe802a366e8709e3dc85abf36ccfb71fb.svg",
+        "sha256": "9a2e3f0ee843b39d8dbbed4e6a732b7fe802a366e8709e3dc85abf36ccfb71fb",
+        "bytes": 4582,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 192,
+        "bounds": {
+          "min": [
+            -0.22499999403953552,
+            0,
+            -0.22499999403953552
+          ],
+          "max": [
+            0.22499999403953552,
+            0.41999998688697815,
+            0.22499999403953552
           ]
         },
         "validator": {

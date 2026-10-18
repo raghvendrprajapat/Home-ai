@@ -49,8 +49,16 @@ The owner chose original designs made by Claude Code (chat, 2026-10-18).
 - **Owner instruction (chat, 2026-10-18):** no fridge, toilet or other unnecessary models. Only furniture that people buy is added. Appliances and sanitaryware are not planned.
 - [Rendered designs](../verification/images/d72-bedroom-designs.png).
 
+## Dining and storage set (third PR)
+- **New versions:** dining chair (upholstered), four- and six-seat dining tables, console table, shoe cabinet, upholstered bench, round pouffe (formerly the stool), bordered area rug, indoor plant in a pot, and sideboard (formerly the low cabinet).
+- **New items:** four- and six-seat dining sets: one item each, with the table and chairs facing it.
+  - The generator rotates axis-aligned chair parts by whole quarter turns, so no rotated geometry is needed.
+  - Wood is the main colour, because the table and chair frames outweigh the cushions.
+- **Tags:** the bench drops a "bedroom bench" tag, so that searching "bed" finds only beds and the bedside table.
+- [Rendered designs](../verification/images/d72-dining-storage-designs.png).
+- **Remaining version-1 items:** the demo desk, bunk bed, kitchen base/wall cabinets, kitchen island and bathroom vanity. Per the owner, no appliances or sanitaryware are added.
+
 ## Not done
-- Dining and storage redesigns (dining sets, shoe rack, console table, rug): next.
 - Textures (wood grain, fabric weave): need real-phone performance checks, which are gated.
 - Affiliate links or any Amazon integration (gated monetization).
 - Aesthetic review by a designer, and phone tests.

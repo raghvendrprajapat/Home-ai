@@ -27,6 +27,19 @@ const designs:{id:string;version:number;main:string;back?:string;front?:string}[
  {id:'a_l0_dressing_table',version:1,main:'#ecebe7',back:'mirror-frame',front:'drawer-left'},
  {id:'a_l0_study_desk',version:2,main:'#ecebe7',front:'drawer-1'},
  {id:'a_l0_drawers',version:2,main:'#c49a6c',front:'drawer-1'},
+ // Dining and storage: sets recolour their wood (table and chair frames outweigh the cushions); chairs face the table.
+ {id:'a_l0_dining_chair',version:2,main:'#c8b9a3',back:'back',front:'seat'},
+ {id:'a_l0_dining_4',version:2,main:'#8a5a3a'},
+ {id:'a_l0_dining_6',version:2,main:'#8a5a3a'},
+ {id:'a_l0_dining_set_4',version:1,main:'#8a5a3a',back:'chair-back-1-back',front:'chair-front-1-seat'},
+ {id:'a_l0_dining_set_6',version:1,main:'#8a5a3a',back:'chair-back-1-back',front:'chair-front-1-seat'},
+ {id:'a_l0_console_table',version:2,main:'#8a5a3a'},
+ {id:'a_l0_shoe_rack',version:2,main:'#ecebe7',front:'door-left'},
+ {id:'a_l0_bench',version:2,main:'#c8b9a3'},
+ {id:'a_l0_stool',version:2,main:'#c9a23f'},
+ {id:'a_l0_rug',version:2,main:'#b5653f'},
+ {id:'a_l0_planter',version:2,main:'#4f7d4a'},
+ {id:'a_l0_low_cabinet',version:2,main:'#8a5a3a',front:'door-1'},
 ];
 const channels=(hex:string)=>[1,3,5].map(i=>parseInt(hex.slice(i,i+2),16));
 
