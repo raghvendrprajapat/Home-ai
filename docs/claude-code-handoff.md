@@ -50,7 +50,7 @@ Split-view verification also caught a real regression before commit: the first f
 
 Useful existing analytic reference: sample partitionw7+100mmX yields exact clear areas21119175/15395175mm²; original20642175/15872175mm². Rounded labels have separate tests. Existing junction drags and typed precision already cover related operations; inspect them rather than replacing them.
 
-FR-003 starter templates (1 BHK, 2 BHK, single-room presets) were added by D54, furniture alignment by D55, walk mode (issue #29, simulated collision proof only) by D56, furniture grouping by D57, turning furniture together by D58, furniture colour variants by D59 moving/turning a group in 3D by D60 and group overlap warnings by D61. Deferred/optional editor work includes material patterns/textures, per-part furniture colours, perspective automatic back-wall snapping/two-finger rotation, richer art, and group wall snapping. These are not claimed as completed capabilities or blanket permission to expand L0.
+FR-003 starter templates (1 BHK, 2 BHK, single-room presets) were added by D54, furniture alignment by D55, walk mode (issue #29, simulated collision proof only) by D56, furniture grouping by D57, turning furniture together by D58, furniture colour variants by D59 moving/turning a group in 3D by D60 group overlap warnings by D61 and group back-to-wall snapping by D62. Deferred/optional editor work includes material patterns/textures, per-part furniture colours, perspective automatic back-wall snapping/two-finger rotation, and richer art. These are not claimed as completed capabilities or blanket permission to expand L0.
 
 ### D36: explicit owner permission required BEFORE even preparatory implementation
 
