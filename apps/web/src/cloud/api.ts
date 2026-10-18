@@ -8,7 +8,7 @@ export interface CloudFailure { ok: false; code: CloudCode; details?: Record<str
 export type SaveReply = { ok: true; serverRevision: number; sha256: string; savedAt: string; replayed?: boolean } | CloudFailure;
 export type LoadReply = { ok: true; serverRevision: number; name: string; document: unknown } | CloudFailure;
 export interface SaveRequest { readonly projectId: string; readonly expectedServerRevision: number; readonly commandId: string; readonly document: ProjectDoc }
-export interface CloudUser { id: string; email: string | null; name: string | null }
+export interface CloudUser { id: string; email: string | null; name: string | null; lastSignInAt: string | null }
 export interface CloudProjectSummary { id: string; name: string; serverRevision: number; updatedAt: string }
 export interface CloudVersion { revision: number; createdAt: string }
 export interface CloudShare { id: string; createdAt: string }
@@ -19,7 +19,7 @@ export interface CloudApi {
   signOut(): Promise<void>;
   save(request: SaveRequest): Promise<SaveReply>;
   load(projectId: string): Promise<LoadReply>;
-  listProjects(): Promise<{ ok: true; projects: CloudProjectSummary[] } | CloudFailure>;
+  listProjects(includeTrashed?: boolean): Promise<{ ok: true; projects: CloudProjectSummary[] } | CloudFailure>;
   /** FR-032: the kept versions (newest 20), newest first. */
   listVersions(projectId: string): Promise<{ ok: true; versions: CloudVersion[] } | CloudFailure>;
   loadVersion(projectId: string, revision: number): Promise<{ ok: true; document: unknown } | CloudFailure>;
@@ -31,6 +31,8 @@ export interface CloudApi {
   revokeShare(shareId: string): Promise<{ ok: true } | CloudFailure>;
   /** FR-033: anyone holding a live link (signed in or not) reads the current cloud head. */
   getShared(token: string): Promise<LoadReply>;
+  /** FR-043: deletes the account and every cloud drawing, version and link at once (D65). */
+  deleteAccount(): Promise<{ ok: true } | CloudFailure>;
 }
 const KNOWN = new Set<CloudCode>(['NOT_SIGNED_IN', 'INVALID_REQUEST', 'INVALID_DOCUMENT', 'TOO_LARGE', 'NOT_FOUND', 'PROJECT_ID_TAKEN', 'PROJECT_LIMIT', 'PROJECT_TRASHED', 'REVISION_CONFLICT', 'IDEMPOTENCY_MISMATCH', 'VERSION_NOT_FOUND', 'SHARE_LIMIT', 'CONFIRMATION_REQUIRED']);
 type RpcResult = { data: unknown; error: { message?: string } | null; status: number };
@@ -41,8 +43,8 @@ export function rpcAnswer(result: RpcResult): Record<string, unknown> & ({ ok: t
   if (data.ok === true) return data as Record<string, unknown> & { ok: true };
   return { ok: false, code: KNOWN.has(data.code as CloudCode) ? data.code as CloudCode : 'UNEXPECTED', ...data.details && typeof data.details === 'object' ? { details: data.details as Record<string, unknown> } : {} };
 }
-const userOf = (user: { id: string; email?: string | undefined; user_metadata?: Record<string, unknown> } | null | undefined): CloudUser | null =>
-  user ? { id: user.id, email: user.email ?? null, name: typeof user.user_metadata?.full_name === 'string' ? user.user_metadata.full_name : typeof user.user_metadata?.name === 'string' ? user.user_metadata.name : null } : null;
+const userOf = (user: { id: string; email?: string | undefined; last_sign_in_at?: string | undefined; user_metadata?: Record<string, unknown> } | null | undefined): CloudUser | null =>
+  user ? { id: user.id, email: user.email ?? null, lastSignInAt: user.last_sign_in_at ?? null, name: typeof user.user_metadata?.full_name === 'string' ? user.user_metadata.full_name : typeof user.user_metadata?.name === 'string' ? user.user_metadata.name : null } : null;
 
 /** Supabase-backed API. The library is imported only here, lazily, so the offline editor never loads it. */
 export async function createSupabaseApi(config: CloudConfig): Promise<CloudApi> {
@@ -106,9 +108,10 @@ export async function createSupabaseApi(config: CloudConfig): Promise<CloudApi> 
       const answer = await rpc('get_shared_project', { p_token: token });
       return answer.ok ? { ok: true, serverRevision: Number(answer.serverRevision), name: String(answer.name), document: answer.document } : answer;
     },
-    async listProjects() {
+    async deleteAccount() { const answer = await rpc('delete_account', { p_confirm: 'DELETE' }); return answer.ok ? { ok: true } : answer; },
+    async listProjects(includeTrashed = false) {
       try {
-        const { data, error, status } = await client.from('projects').select('id,name,current_revision,updated_at').is('trashed_at', null).order('updated_at', { ascending: false }).limit(100);
+        const query = client.from('projects').select('id,name,current_revision,updated_at'), { data, error, status } = await (includeTrashed ? query : query.is('trashed_at', null)).order('updated_at', { ascending: false }).limit(200);
         if (error || !Array.isArray(data)) return { ok: false, code: status === 0 || status >= 500 ? 'NETWORK' : 'UNEXPECTED' };
         return { ok: true, projects: (data as Record<string, unknown>[]).map(row => ({ id: String(row.id), name: String(row.name), serverRevision: Number(row.current_revision), updatedAt: String(row.updated_at) })) };
       } catch { return { ok: false, code: 'NETWORK' }; }
