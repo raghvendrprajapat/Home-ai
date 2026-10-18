@@ -28,6 +28,11 @@ protection = declared[0].attrib.get(android + 'protectionLevel', '')
 assert protection == 'signature' or protection.startswith('0x') and int(protection, 16) == 2, 'Internal permission must be signature-only'
 assert permissions <= {'android.permission.INTERNET', 'android.permission.ACCESS_NETWORK_STATE', internal}, permissions
 assert 'android.permission.INTERNET' in permissions
+# FR-031 (D71): exactly one browsable deep link, com.gharplan.app://auth-callback, on the main activity.
+links = [(a.attrib.get(android + 'name'), d.attrib.get(android + 'scheme'), d.attrib.get(android + 'host'))
+         for a in application.findall('activity') for f in a.findall('intent-filter')
+         if any(c.attrib.get(android + 'name') == 'android.intent.category.BROWSABLE' for c in f.findall('category')) for d in f.findall('data')]
+assert links == [('com.gharplan.app.MainActivity', 'com.gharplan.app', 'auth-callback')], links
 with zipfile.ZipFile(apk) as archive:
     config = json.loads(archive.read('assets/capacitor.config.json'))
     server = config['server']
@@ -39,6 +44,9 @@ with zipfile.ZipFile(apk) as archive:
     assert any(p.get('pkg') == '@capacitor/filesystem' and p.get('classpath') == 'com.capacitorjs.plugins.filesystem.FilesystemPlugin' for p in plugins), 'Filesystem native plugin is not registered'
     assert any(b'com/capacitorjs/plugins/filesystem/FilesystemPlugin' in archive.read(n) for n in archive.namelist() if n.startswith('classes') and n.endswith('.dex')), 'Filesystem class is not packaged'
     dex = [archive.read(n) for n in archive.namelist() if n.startswith('classes') and n.endswith('.dex')]
+    for pkg, classpath in [('@capacitor/app', 'com.capacitorjs.plugins.app.AppPlugin'), ('@capacitor/browser', 'com.capacitorjs.plugins.browser.BrowserPlugin')]:
+        assert any(p.get('pkg') == pkg and p.get('classpath') == classpath for p in plugins), pkg + ' native plugin is not registered'
+        assert any(classpath.replace('.', '/').encode() in data for data in dex), pkg + ' class is not packaged'
     for class_name in ['ProjectFilesPlugin', 'ProjectFileStreams', 'ProjectFileSource']:
         assert any(('com/gharplan/app/' + class_name).encode() in data for data in dex), 'App-owned file export class missing: ' + class_name
     assert application.attrib.get(android + 'dataExtractionRules') and application.attrib.get(android + 'fullBackupContent'), 'Explicit private-data backup/transfer policy is missing'
@@ -48,7 +56,7 @@ with zipfile.ZipFile(apk) as archive:
         assert any(n.startswith('assets/public/assets/' + prefix) and n.endswith('.js') and archive.getinfo(n).file_size > 0 for n in names), prefix
 result = {'applicationId': root.attrib['package'], 'bytes': apk.stat().st_size,
           'sha256': hashlib.sha256(apk.read_bytes()).hexdigest(), 'permissions': sorted(permissions),
-          'verified': ['decoded debug manifest flags and backup policy references', 'private local HTTPS configuration', 'packaged editor/import-worker/3D/performance assets', 'registered and packaged native Filesystem plugin', 'packaged app-owned native file export classes'],
+          'verified': ['decoded debug manifest flags and backup policy references', 'private local HTTPS configuration', 'packaged editor/import-worker/3D/performance assets', 'registered and packaged native Filesystem plugin', 'registered and packaged App/Browser plugins and the single sign-in deep link', 'packaged app-owned native file export classes'],
           'limitations': ['Compilation and packaging only; no emulator or phone run', 'Debug APK size is not Play AAB download size']}
 if registration_checked: result['verified'].append('compiled MainActivity invokes app-owned ProjectFiles plugin registration')
 else: result['limitations'].append('Compiled registration invocation not inspected; supply fresh apkanalyzer class disassembly as third argument')

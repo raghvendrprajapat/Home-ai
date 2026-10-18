@@ -1,5 +1,17 @@
 # PH0-T01 dependency register
 
+## FR-031 Android Google sign-in (2026-10-18, recorded before installation)
+
+| Dependency | Exact version | License / primary evidence | Purpose |
+|---|---|---|---|
+| @capacitor/browser | 8.0.4 | MIT; [official metadata](https://registry.npmjs.org/@capacitor%2fbrowser/8.0.4) | Opens Google sign-in in the system browser (Custom Tab); Google blocks sign-in inside an app's web view |
+| @capacitor/app | 8.1.1 | MIT; [official metadata](https://registry.npmjs.org/@capacitor%2fapp/8.1.1) | Receives the `com.gharplan.app://auth-callback` deep link (also at cold start) |
+| androidx.browser:browser | 1.9.0 | Apache-2.0; [official Google Maven POM](https://dl.google.com/android/maven2/androidx/browser/browser/1.9.0/browser-1.9.0.pom) | Native Custom Tabs used by @capacitor/browser (the plugin's default version) |
+
+Both plugins have no npm dependencies; their only peer is `@capacitor/core >=8` (8.5.3 here). Versions from July 2026
+were chosen over the 2026-10-02 releases. Native transitive libraries are recorded by CI's
+`native-dependencies.txt` artifact; androidx.appcompat is already used by Capacitor. No new permission is needed.
+
 ## FR-031 cloud sign-in and saving (2026-10-18, recorded before installation)
 
 | Dependency | Exact version | License / primary evidence | Purpose |

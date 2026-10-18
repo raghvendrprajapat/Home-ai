@@ -13,6 +13,7 @@ export interface SupabaseClient {
     onAuthStateChange(callback: (event: string, session: SupabaseSession | null) => void): unknown;
     signInWithOAuth(credentials: { provider: 'google'; options?: { redirectTo?: string; skipBrowserRedirect?: boolean } }): Promise<{ data: { url: string | null }; error: { message: string } | null }>;
     signOut(options?: { scope?: 'global' | 'local' | 'others' }): Promise<{ error: unknown }>;
+    exchangeCodeForSession(authCode: string): Promise<{ error: { message: string } | null }>;
   };
   rpc(name: string, args: Record<string, unknown>): PromiseLike<PostgrestResult>;
   from(table: string): Query;

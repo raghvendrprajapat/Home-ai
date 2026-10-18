@@ -26,7 +26,7 @@ Status: accepted by Claude Code under D52 + the owner's D63 permission (2026-10-
 ## Choices
 - **Library types.** supabase-js 2.117.2's own type files do not compile under this project's `exactOptionalPropertyTypes`. `apps/web/tsconfig.json` therefore maps the import to `cloud/supabase-types.d.ts`, which types only the calls used. Vite, Vitest and the browser tests run the real package.
 - **Browser tests use a stand-in.** The tests answer every request to `https://gharplan-e2e.supabase.co`, including the Google authorize redirect, the PKCE token exchange and the D65 functions, using the same save rules. Only the e2e build sets that address.
-- **Android sign-in is not done yet.** Google blocks sign-in inside an app's web view. Android needs the system browser plus a deep link back (`@capacitor/browser` and `@capacitor/app`), which comes as a separate change with its own native checks. Until then the cloud panel works in the web app.
+- **Android sign-in** is added by D71 (system browser + deep link). Before D71: Google blocks sign-in inside an app's web view. Android needs the system browser plus a deep link back (`@capacitor/browser` and `@capacitor/app`), which comes as a separate change with its own native checks. Until then the cloud panel works in the web app.
 
 ## Owner setup (when you want the cloud live; no keys in chat)
 Screen names in Supabase and Google can change slightly over time.
