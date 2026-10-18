@@ -16,8 +16,10 @@ export function proposeRoomRepair(text: string): ProjectDoc | null {
     document.rooms = derived.faces.map((face, i) => {
       const matching = old.filter(r => r.boundary.length === face.boundary.length && r.boundary.some((_, start) => face.boundary.every((id, n) => id === r.boundary[(start + n) % r.boundary.length])));
       if (matching.length === 1 && !used.has(matching[0]!.id)) { used.add(matching[0]!.id); return { ...matching[0]!, boundary: [...face.boundary] }; }
-      return { id: freshId('room', used), floorId: document.floors[0]!.id, boundary: [...face.boundary], name: `Recovered room ${i + 1}`, type: 'other' as const,
-        ceilingHeight: document.floors[0]!.defaultWallHeight, floorMaterial: document.materials[0]!.id, rev: 0 };
+      // FR-034: a recovered room belongs to the floor of its own corners.
+      const floor = document.floors.find(f => f.id === document.junctions.find(j => j.id === face.boundary[0])?.floorId) ?? document.floors[0]!;
+      return { id: freshId('room', used), floorId: floor.id, boundary: [...face.boundary], name: `Recovered room ${i + 1}`, type: 'other' as const,
+        ceilingHeight: floor.defaultWallHeight, floorMaterial: document.materials[0]!.id, rev: 0 };
     });
     return validateProject(document).length ? null : document;
   } catch { return null; }

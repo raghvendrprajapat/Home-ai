@@ -65,7 +65,20 @@ export function detectFaces(plan: Plan): { boundary: string[]; corners: Point[];
   return faces;
 }
 
+/** FR-034: each floor is its own planar graph. Walls on different floors never share footprints, faces or
+ * nesting checks, even when they sit exactly above each other. A one-floor plan derives exactly as before. */
 export function derivePlan(plan: Plan): DerivedPlan {
+  const floorIds = [...new Set(plan.junctions.map(j => j.floorId))].sort();
+  if (floorIds.length <= 1) return deriveFloor(plan);
+  validateTopology(plan);
+  const parts = floorIds.map(id => deriveFloor({ junctions: plan.junctions.filter(j => j.floorId === id),
+    walls: plan.walls.filter(w => w.floorId === id), rooms: plan.rooms.filter(r => r.floorId === id) }));
+  const footprints = parts.flatMap(p => p.footprints), rects = parts.flatMap(p => p.outerBoundaryRect ? [p.outerBoundaryRect] : []);
+  return { faces: parts.flatMap(p => p.faces), footprints, footprintUnionAreaMm2: parts.reduce((sum, p) => sum + p.footprintUnionAreaMm2, 0),
+    outerBoundaryRect: rects.length ? bounds(rects.flatMap(r => [[r[0], r[1]], [r[2], r[3]]] as Point[])) : null };
+}
+
+function deriveFloor(plan: Plan): DerivedPlan {
   validateTopology(plan);
   const strips = wallStrips(plan), footprints = partitionRectangles(strips);
   const cycles = detectFaces(plan);

@@ -1,12 +1,14 @@
-import { assignRooms, bounds, candidatePairs, derivePlan, endpoints, freshId, GeometryError, normalizePlan, wallLength } from '@gharplan/geometry';
+import { assignRooms, bounds, candidatePairs, derivePlan, detectFaces, endpoints, freshId, GeometryError, normalizePlan, wallLength } from '@gharplan/geometry';
 import type { Draft } from 'immer';
-import type { FurnitureItem, MaterialDef, Opening, ProjectDoc, Room, RoomType, Wall } from './types';
+import type { Floor, FurnitureItem, MaterialDef, Opening, ProjectDoc, Room, RoomType, Wall } from './types';
 import {canonicalStringify} from './serialization';
 import type { RoomIdentityChoice } from '@gharplan/geometry';
 
 interface CommandBase { id: string; baseGeneration: number; roomChoices?: readonly RoomIdentityChoice[] }
 export type FurnitureAlignMode = 'left' | 'right' | 'top' | 'bottom' | 'centreX' | 'centreY';
 export const FURNITURE_ALIGN_MODES: readonly FurnitureAlignMode[] = ['left', 'right', 'top', 'bottom', 'centreX', 'centreY'];
+/** FR-034: at most this many floors (ground + 5). */
+export const MAX_FLOORS = 6;
 /** Pivot used by RotateFurniture: the integer-rounded centre of the items' combined axis-aligned footprint box. */
 export function furnitureTurnPivot(items: readonly Pick<FurnitureItem, 'position' | 'size' | 'rotationDeg'>[]): [number, number] {
   if (!items.length) throw new GeometryError('selection', 'Choose furniture to turn.');
@@ -20,8 +22,11 @@ export function furnitureTurnPivot(items: readonly Pick<FurnitureItem, 'position
 export const FURNITURE_FINISH_SLOT = 'main';
 export type SurfaceMaterialTarget={kind:'wall';id:string;side:'left'|'right'}|{kind:'floor';id:string};
 export type Command = CommandBase & (
-  | { type: 'AddWall'; from: readonly [number, number]; to: readonly [number, number]; thickness: number; height: number }
-  | { type: 'AddRectangle'; x: number; y: number; width: number; depth: number; thickness: number; height: number }
+  | { type: 'AddWall'; from: readonly [number, number]; to: readonly [number, number]; thickness: number; height: number; floorId?: string }
+  | { type: 'AddRectangle'; x: number; y: number; width: number; depth: number; thickness: number; height: number; floorId?: string }
+  | { type: 'AddFloor'; name: string; copyOutlineFrom?: string }
+  | { type: 'UpdateFloor'; floorId: string; properties: Partial<Pick<Floor, 'name' | 'elevation' | 'defaultWallHeight'>> }
+  | { type: 'DeleteFloor'; floorId: string }
   | { type: 'MoveJunctions'; moves: { junction: string; to: readonly [number, number] }[]; openingPlacement?: 'a' | 'b' | 'centre' }
   | { type: 'MoveWall'; wallId: string; dx: number; dy: number }
   | { type: 'DeleteWall'; wallId: string; deleteDependents: boolean }
@@ -76,15 +81,17 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       (command.type !== 'MoveJunctions' || !['a', 'b', 'centre'].includes(command.openingPlacement)))
     throw new GeometryError('opening-placement', 'Opening placement must be A, B or centre on a junction movement.');
   const wall = (id: string) => requireEntity(draft.walls, id);
+  // FR-034: wall tools draw on the requested floor (default: the first floor, as before multi-floor projects).
+  const floorId = (command.type === 'AddWall' || command.type === 'AddRectangle') && command.floorId !== undefined ? requireEntity(draft.floors, command.floorId).id : draft.floors[0]!.id;
   const addWall = (from: readonly [number, number], to: readonly [number, number], thickness: number, height: number, materials?: Pick<Wall, 'leftMaterial' | 'rightMaterial'>) => {
     const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)]);
     const endpoint = ([x, y]: readonly [number, number]) => {
-      const existing = draft.junctions.find(j => j.x === x && j.y === y && j.floorId === draft.floors[0]!.id);
+      const existing = draft.junctions.find(j => j.x === x && j.y === y && j.floorId === floorId);
       if (existing) return existing.id;
-      const id = freshId('junction', used); draft.junctions.push({ id, floorId: draft.floors[0]!.id, x, y }); return id;
+      const id = freshId('junction', used); draft.junctions.push({ id, floorId, x, y }); return id;
     };
     const a = endpoint(from), b = endpoint(to);
-    draft.walls.push({ id: freshId('wall', used), floorId: draft.floors[0]!.id, a, b, thickness, height,
+    draft.walls.push({ id: freshId('wall', used), floorId, a, b, thickness, height,
       leftMaterial: materials?.leftMaterial ?? draft.materials[0]!.id, rightMaterial: materials?.rightMaterial ?? draft.materials[0]!.id, rev: 0 }); geometryChanged = true;
   };
   switch (command.type) {
@@ -98,7 +105,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       const side = (from: readonly [number, number], to: readonly [number, number]) => {
         const horizontal = from[1] === to[1], axis = horizontal ? 0 : 1, other = horizontal ? 1 : 0;
         const lo = Math.min(from[axis], to[axis]), hi = Math.max(from[axis], to[axis]), forward = to[axis] > from[axis];
-        const shared = previous.walls.flatMap(wall => {
+        const shared = previous.walls.filter(wall => wall.floorId === floorId).flatMap(wall => {
           const [a, b] = endpoints(previous, wall), pa = [a.x, a.y] as const, pb = [b.x, b.y] as const;
           if (pa[other] !== from[other] || pb[other] !== from[other]) return [];
           const start = Math.max(lo, Math.min(pa[axis], pb[axis])), end = Math.min(hi, Math.max(pa[axis], pb[axis]));
@@ -117,6 +124,40 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       };
       side([x, y], [x + w, y]); side([x + w, y], [x + w, y + d]);
       side([x + w, y + d], [x, y + d]); side([x, y + d], [x, y]); break;
+    }
+    case 'AddFloor': {
+      if (typeof command.name !== 'string' || !command.name.trim() || command.name.trim().length > 60) throw new GeometryError('floor-name', 'Give the floor a name of 1-60 characters.');
+      if (draft.floors.length >= MAX_FLOORS) throw new GeometryError('floor-limit', `A project can have at most ${MAX_FLOORS} floors.`);
+      const top = [...draft.floors].sort((a, b) => b.level - a.level)[0]!;
+      const used = new Set([draft.id, ...[draft.floors, draft.junctions, draft.walls, draft.openings, draft.rooms, draft.furniture, draft.materials, draft.lights, draft.cameras].flat().map(e => e.id)]);
+      // The new floor sits on top: its floor level is the top floor's level plus that floor's wall height.
+      const floor = { id: freshId('floor', used), name: command.name.trim(), level: top.level + 1, elevation: top.elevation + top.defaultWallHeight, defaultWallHeight: top.defaultWallHeight };
+      draft.floors.push(floor); used.add(floor.id);
+      if (command.copyOutlineFrom !== undefined) {
+        const source = requireEntity(draft.floors, command.copyOutlineFrom);
+        // The outline is every wall that borders at most one room: the outer walls, plus any open wall chains.
+        const sourcePlan = { junctions: draft.junctions.filter(j => j.floorId === source.id), walls: draft.walls.filter(w => w.floorId === source.id), rooms: [] };
+        const faceEdges = new Map<string, number>();
+        for (const face of detectFaces(sourcePlan)) face.boundary.forEach((id, i) => { const key = [id, face.boundary[(i + 1) % face.boundary.length]!].sort().join('|'); faceEdges.set(key, (faceEdges.get(key) ?? 0) + 1); });
+        const outline = sourcePlan.walls.filter(w => (faceEdges.get([w.a, w.b].sort().join('|')) ?? 0) < 2);
+        const copies = new Map<string, string>();
+        const copy = (id: string) => { let next = copies.get(id); if (!next) { const j = requireEntity(draft.junctions, id); next = freshId('junction', used); used.add(next); copies.set(id, next); draft.junctions.push({ id: next, floorId: floor.id, x: j.x, y: j.y }); } return next; };
+        for (const w of outline) { const id = freshId('wall', used); used.add(id); draft.walls.push({ ...w, id, floorId: floor.id, a: copy(w.a), b: copy(w.b), height: floor.defaultWallHeight, rev: 0 }); }
+        geometryChanged = outline.length > 0;
+      }
+      break;
+    }
+    case 'UpdateFloor': assignProperties(requireEntity(draft.floors, command.floorId), command.properties, ['name', 'elevation', 'defaultWallHeight']); break;
+    case 'DeleteFloor': {
+      requireEntity(draft.floors, command.floorId);
+      if (draft.floors.length < 2) throw new GeometryError('floor-last', 'A project needs at least one floor.');
+      // Everything on the floor goes with it in one atomic, undoable step.
+      const walls = new Set(draft.walls.filter(w => w.floorId === command.floorId).map(w => w.id));
+      draft.openings = draft.openings.filter(o => !walls.has(o.wallId));
+      const keep = <T extends { floorId: string }>(list: T[]) => list.filter(e => e.floorId !== command.floorId);
+      draft.junctions = keep(draft.junctions); draft.walls = keep(draft.walls); draft.rooms = keep(draft.rooms); draft.furniture = keep(draft.furniture); draft.lights = keep(draft.lights);
+      draft.floors = draft.floors.filter(f => f.id !== command.floorId);
+      geometryChanged = true; break;
     }
     case 'MoveJunctions': {
       const seen = new Set<string>();
