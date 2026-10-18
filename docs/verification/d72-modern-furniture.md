@@ -79,6 +79,7 @@ These are Claude-authored checks. They are not an aesthetic review by a designer
   - `assets:versions`: passed.
   - Lint and typecheck: passed.
   - Browser tests: modern furniture 3/3, starter catalog 3/3, catalog 5/5, furniture finish 3/3.
+
 ## CI memory check (REN-009) on the bedroom PR
 - **Failure:** CI failed `context-resources.spec.ts` REN-009 twice: main-frame heap growth over 50 3D view toggles was 10.84% and then 10.27%, against a 10% limit. `main` passed.
 - **Not the catalog size itself:** locally, growth did not scale with catalog size (38, 49 and 61 entries all about 7.5–8.2%).
