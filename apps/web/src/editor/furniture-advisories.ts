@@ -14,6 +14,14 @@ export class FurnitureAdvisories {
  check(document:Document,item:Item):FurnitureAdvisory {
   try{const flags=furnitureCollisions(document,item,this.cache.get(document));return {...flags,available:true,overlap:!!(flags.wallIds.length||flags.furnitureIds.length)};}catch{return {available:false,overlap:false};}
  }
+ /** FR-019 groups: walls and non-member furniture touching any member. Members may overlap each other on purpose. */
+ checkGroup(document:Document,ids:readonly string[]):FurnitureAdvisory {
+  try{
+   const solids=this.cache.get(document),walls=new Set<string>(),objects=new Set<string>();
+   for(const id of ids){const item=document.furniture.find(f=>f.id===id);if(!item)throw Error('furniture-group');const flags=furnitureCollisions(document,item,solids);flags.wallIds.forEach(w=>walls.add(w));flags.furnitureIds.filter(f=>!ids.includes(f)).forEach(f=>objects.add(f));}
+   const wallIds=[...walls].sort(),furnitureIds=[...objects].sort();return {wallIds,furnitureIds,available:true,overlap:!!(wallIds.length||furnitureIds.length)};
+  }catch{return {available:false,overlap:false};}
+ }
  align(document:Document,item:Item,maxDistanceMm=200,previousKey?:string):{available:boolean;alignment:BackAlignment|null}{
   try{return {available:true,alignment:alignFurnitureBack(document,item,this.cache.get(document),maxDistanceMm,previousKey)};}catch{return {available:false,alignment:null};}
  }
