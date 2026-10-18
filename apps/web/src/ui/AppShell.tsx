@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { createBlankProject, createTemplateProject, ProjectStore, recoveryCopy, serializeProject, TEMPLATE_IDS } from '@gharplan/core-model';
+import { createBlankProject, createTemplateProject, parseProject, ProjectStore, recoveryCopy, serializeProject, TEMPLATE_IDS } from '@gharplan/core-model';
 import type { ProjectDoc, RoomType, TemplateId } from '@gharplan/core-model';
 import { recover, sameHead } from '@gharplan/persistence';
 import type { ProjectMeta, Recovered } from '@gharplan/persistence';
@@ -12,6 +12,10 @@ import type { StartupInspection, WorkspaceSession } from '../storage/workspace';
 import { Dialog } from './Dialog';
 import { readProjectUpload } from '../storage/read-file';
 import { useUi } from './state';
+import { CloudProjects } from '../cloud/CloudProjects';
+import { cloud } from '../cloud/session';
+import { cloudCopy, markInSync, setLinked } from '../cloud/linked';
+import type { CloudProjectSummary } from '../cloud/api';
 
 const nextId = () => `cp_${crypto.randomUUID().replaceAll('-', '')}`;
 const cloneDocument = (document: ReturnType<ProjectStore['getSnapshot']>['document']) => JSON.parse(serializeProject(document)) as ProjectDoc;
@@ -19,8 +23,8 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
   const ui = useUi(), t = <K extends MessageKey>(key: K, ...args: MessageArgs<K>) => message(ui.locale, key, ...args);
   const screen = !session && ui.screen === 'editor' ? 'projects' : ui.screen;
   const [projects, setProjects] = useState<ProjectMeta[]>([]), [listWarnings, setListWarnings] = useState(false), [loading, setLoading] = useState(false);
-  const [error, setError] = useState<'operationFailed' | 'nameRequired' | 'leaveBlocked' | 'projectListFailed' | 'importInvalid' | 'importSize' | 'importEncoding' | 'importFuture' | 'importRead' | null>(null), [busy, setBusy] = useState(false), [showTrash, setShowTrash] = useState(false);
-  const [modal, setModal] = useState<'create' | 'rename' | 'trash' | 'recover' | 'import' | null>(null), [target, setTarget] = useState<ProjectMeta | null>(null);
+  const [error, setError] = useState<'operationFailed' | 'nameRequired' | 'leaveBlocked' | 'projectListFailed' | 'importInvalid' | 'importSize' | 'importEncoding' | 'importFuture' | 'importRead' | 'cloudLoadFailed' | null>(null), [busy, setBusy] = useState(false), [showTrash, setShowTrash] = useState(false);
+  const [modal, setModal] = useState<'create' | 'rename' | 'trash' | 'recover' | 'import' | 'cloud' | null>(null), [cloudChoice, setCloudChoice] = useState<ProjectDoc | null>(null), [target, setTarget] = useState<ProjectMeta | null>(null);
   const [imported, setImported] = useState<ProjectDoc | null>(null), [importCopyOnly, setImportCopyOnly] = useState(true);
   const fileInput = useRef<HTMLInputElement>(null), reading = useRef<AbortController | null>(null);
   useEffect(() => () => { reading.current?.abort(); }, []);
@@ -99,6 +103,20 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
     if (loaded.complete && !loaded.warning && active?.store.getSnapshot().document.id === meta.projectId && active.saving && sameHead(active.saving.getMeta(), loaded.head)) { await inspection.storage!.activate(loaded.bundle.meta); ui.setScreen('editor'); return; }
     const opened = await load(meta, loaded); if (opened) switchTo(opened);
   });
+  // FR-031 (D67): a cloud drawing opens as a device project; if this device already has that project, the person
+  // chooses this device's version or a separate copy of the cloud one. Nothing local is ever overwritten.
+  const openCloud = (summary: CloudProjectSummary) => perform(async () => {
+    const api = await cloud?.ensure(); if (!api) { setError('cloudLoadFailed'); return; }
+    const loaded = await api.load(summary.id), parsed = loaded.ok ? parseProject(JSON.stringify(loaded.document)) : null;
+    if (!loaded.ok || !parsed?.ok || parsed.document.id !== summary.id || parsed.document.revision !== loaded.serverRevision) { setError('cloudLoadFailed'); return; }
+    if (!await canLeave()) return;
+    if (await inspection.storage?.readProject(summary.id)) { setCloudChoice(parsed.document); setModal('cloud'); return; }
+    markInSync(summary.id); setLinked(summary.id, true); switchTo(await createWorkspace(inspection, parsed.document));
+  });
+  const openDocument = (document: ProjectDoc, linkToCloud: boolean) => { void perform(async () => {
+    if (!await canLeave()) return;
+    switchTo(await createWorkspace(inspection, document)); if (linkToCloud) setLinked(document.id, true);
+  }); };
   const duplicate = (meta: ProjectMeta) => perform(async () => {
     if (!await canLeave()) return;
     const bundle = await inspection.storage?.readProject(meta.projectId); if (!bundle) throw new Error('Saved project is unavailable.');
@@ -133,7 +151,7 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
   const navigation = <nav className="shell-nav" aria-label={t('workspace')}><button onClick={() => ui.setScreen('projects')}>{t('projects')}</button><button onClick={() => ui.setScreen('settings')}>{t('settings')}</button>{session && screen !== 'editor' && <button onClick={() => ui.setScreen('editor')}>{t('backEditor')}</button>}</nav>;
   const language = <label className="field-label">{t('language')}<select aria-label={t('language')} value={ui.locale} onChange={e => ui.setLocale(e.target.value as 'en' | 'hi')}><option value="en">{t('english')}</option><option value="hi">{t('hindi')}</option></select></label>;
   if (!ui.onboardingSeen) return <main className="workspace shell-page"><header className="app-header"><h1>GharPlan</h1>{language}</header><section className="welcome-card"><span className="brand-mark" aria-hidden="true">⌂</span><h2>{t('welcome')}</h2><p>{t('welcomeText')}</p><p>{t('welcomeTip')}</p><button className="primary-button" onClick={() => ui.dismissWelcome()}>{t('getStarted')}</button><button onClick={() => ui.dismissWelcome()}>{t('skipWelcome')}</button></section></main>;
-  if (screen === 'editor' && session) return <><App key={session.store.getSnapshot().sessionId} session={session} navigation={navigation} />{error && <p className="shell-alert" role="alert">{message(ui.locale, error)}</p>}</>;
+  if (screen === 'editor' && session) return <><App key={session.store.getSnapshot().sessionId} session={session} navigation={navigation} onOpenDocument={openDocument} />{error && <p className="shell-alert" role="alert">{message(ui.locale, error)}</p>}</>;
   return <main className="workspace shell-page"><header className="app-header"><h1>GharPlan</h1>{navigation}</header>
     {error && <p role="alert">{message(ui.locale, error)}</p>}
     {screen === 'settings' ? <section className="settings-card"><h2>{t('settings')}</h2><p>{t('settingsText')}</p>{language}<label className="field-label">{t('defaultUnits')}<select aria-label={t('defaultUnits')} value={ui.units} onChange={e => ui.setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label><DiagnosticSettings />{!ui.preferencesRemembered && <p role="alert">{t('preferenceWarning')}</p>}<button onClick={() => ui.setScreen(ui.returnTo)}>{t('back')}</button></section> : <section>
@@ -143,10 +161,14 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
       {loading && <p role="status">{t('loadingProjects')}</p>}{listWarnings && <p role="alert">{t('damagedProjects')}</p>}
       <div className="project-cards" role="list">{projects.filter(p => !!p.trashedAt === showTrash).map(meta => <article className="project-card" key={meta.projectId} role="listitem" data-project-id={meta.projectId}><div className="project-thumb" aria-hidden="true">⌂</div><h3>{meta.name}</h3><p>{t('onDevice')}</p><div className="project-card-actions">{meta.trashedAt ? <button disabled={busy} onClick={() => { void perform(async () => { await inspection.storage!.setTrashed(meta, false); await refresh(); }); }}>{t('restore')}</button> : <><button disabled={busy} aria-label={t('openNamed', { name: meta.name })} onClick={() => { void open(meta); }}>{t('open')}</button><button disabled={busy} onClick={() => { setTarget(meta); setName(meta.name); setModal('rename'); setError(null); }}>{t('rename')}</button><button disabled={busy} onClick={() => { void duplicate(meta); }}>{t('duplicate')}</button><button disabled={busy} onClick={() => { setTarget(meta); setModal('trash'); setError(null); }}>{t('moveTrash')}</button></>}</div></article>)}</div>
       {!loading && !projects.some(p => !!p.trashedAt === showTrash) && <p>{showTrash ? t('emptyTrash') : t('noProjects')}</p>}
+      {!showTrash && <CloudProjects locale={ui.locale} busy={busy} onOpen={summary => { void openCloud(summary); }} />}
     </section>}
-    {modal && <Dialog title={modal === 'create' ? t('newProject') : modal === 'rename' ? t('rename') : modal === 'trash' ? t('trash') : modal === 'import' ? t('importTitle') : t('recoveryTitle')} busy={busy} onCancel={() => { setModal(null); setError(null); }}>
+    {modal && <Dialog title={modal === 'create' ? t('newProject') : modal === 'rename' ? t('rename') : modal === 'trash' ? t('trash') : modal === 'import' ? t('importTitle') : modal === 'cloud' ? t('cloudProjects') : t('recoveryTitle')} busy={busy} onCancel={() => { setModal(null); setError(null); }}>
       {modal === 'import' && imported && <><p>{t('importPreview', { name: imported.name, count: imported.rooms.length, units: imported.units === 'metric' ? t('metric') : t('imperial') })}</p>{importCopyOnly ? <p>{t('importConflict')}</p> : <button disabled={busy} onClick={() => { void acceptImport(false); }}>{t('importExact')}</button>}<button disabled={busy} onClick={() => { void acceptImport(true); }}>{t('importCopy')}</button></>}
       {(modal === 'create' || modal === 'rename') && <form onSubmit={e => { e.preventDefault(); void submit(); }}><label className="field-label">{t('projectName')}<input value={name} maxLength={120} required onChange={e => setName(e.target.value)} /></label>{modal === 'create' && <label className="field-label">{t('templateLabel')}<select aria-label={t('templateLabel')} value={template} onChange={e => setTemplate(e.target.value as 'blank' | TemplateId)}><option value="blank">{t('template_blank')}</option>{TEMPLATE_IDS.map(id => <option key={id} value={id}>{t(`template_${id}` as const)}</option>)}</select></label>}{modal === 'create' && <p>{t('templateHint')}</p>}{modal === 'create' && <label className="field-label">{t('units')}<select aria-label={t('units')} value={units} onChange={e => setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>}<button className="primary-button" disabled={busy} type="submit">{busy ? t('working') : modal === 'create' ? t('create') : t('saveName')}</button></form>}
+      {modal === 'cloud' && cloudChoice && <><p>{t('cloudLocalExists', { name: cloudChoice.name })}</p>
+        <button disabled={busy} onClick={() => { const meta = projects.find(p => p.projectId === cloudChoice.id); setModal(null); if (meta) void open(meta); }}>{t('cloudOpenLocal')}</button>
+        <button disabled={busy} onClick={() => { void perform(async () => { switchTo(await createWorkspace(inspection, cloudCopy(cloudChoice))); setModal(null); setCloudChoice(null); }); }}>{t('cloudOpenCopy')}</button></>}
       {modal === 'trash' && target && <><p>{t('trashConfirm', { name: target.name })}</p><p>{t('trashText')}</p><button disabled={busy} onClick={() => { void submit(); }}>{t('moveTrash')}</button></>}
       {modal === 'recover' && proposal && <><p>{t('recoveryHelp')}</p>{proposal.roomRepair && <p>{t('repairedSource')}</p>}<button disabled={busy} onClick={() => { void perform(async () => { if (!await canLeave()) return; switchTo(await createWorkspace(inspection, copied(proposal.document, t('copiedName', { name: proposal.document.name })))); setModal(null); }); }}>{t('recoverCopy')}</button></>}
       {error && <p role="alert">{message(ui.locale, error)}</p>}<button disabled={busy} onClick={() => { setModal(null); setError(null); }}>{t('cancel')}</button>

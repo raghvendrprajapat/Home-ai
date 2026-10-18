@@ -1,6 +1,7 @@
 import react from '@vitejs/plugin-react';
 import { defineConfig, loadEnv } from 'vite';
 import { publicDsn } from './src/diagnostics/config.ts';
+import { secretCloudKey } from './src/cloud/config.ts';
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
@@ -21,6 +22,7 @@ const buildId = process.env.GITHUB_SHA ?? `${localBaseSha()}-working-tree-unveri
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), 'VITE_');
   if (env.VITE_SENTRY_DSN && !publicDsn(env.VITE_SENTRY_DSN)) throw new Error('Use a supported hosted public Sentry DSN; private or invalid values are rejected.');
+  if (env.VITE_SUPABASE_ANON_KEY && secretCloudKey(env.VITE_SUPABASE_ANON_KEY)) throw new Error('VITE_SUPABASE_ANON_KEY must be the public anon/publishable key; a secret or service-role key is never built into the app.');
   return {
   plugins: [react()],
   build: { outDir: mode === 'e2e' ? 'dist-e2e' : 'dist' },

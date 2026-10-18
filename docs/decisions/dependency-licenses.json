@@ -1,9 +1,9 @@
 {
-  "checkedOn": "2026-10-15",
-  "method": "Official exact-version npm metadata.324 prior package records retained verbatim;3 PH4-T01 static asset-tool additions checked before frozen install; zero unknown/GPL/AGPL candidates. Metadata is not a complete distributed notice or legal review.",
-  "packageCount": 327,
+  "checkedOn": "2026-10-18",
+  "method": "Official exact-version npm metadata.324 prior package records retained verbatim;3 PH4-T01 static asset-tool additions checked before frozen install; zero unknown/GPL/AGPL candidates. Metadata is not a complete distributed notice or legal review. FR-031 appended 8 Supabase client packages (MIT, official exact-version metadata, checked in a throwaway install before adding).",
+  "packageCount": 335,
   "licenseCounts": {
-    "MIT": 244,
+    "MIT": 252,
     "ISC": 16,
     "MIT-0": 2,
     "Apache-2.0": 26,
@@ -1979,6 +1979,54 @@
       "version": "4.1.0",
       "license": "MIT",
       "source": "https://registry.npmjs.org/property-graph/4.1.0"
+    },
+    {
+      "name": "@supabase/auth-js",
+      "version": "2.117.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40supabase%2Fauth-js/2.117.2"
+    },
+    {
+      "name": "@supabase/functions-js",
+      "version": "2.117.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40supabase%2Ffunctions-js/2.117.2"
+    },
+    {
+      "name": "@supabase/phoenix",
+      "version": "0.4.5",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40supabase%2Fphoenix/0.4.5"
+    },
+    {
+      "name": "@supabase/postgrest-js",
+      "version": "2.117.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40supabase%2Fpostgrest-js/2.117.2"
+    },
+    {
+      "name": "@supabase/realtime-js",
+      "version": "2.117.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40supabase%2Frealtime-js/2.117.2"
+    },
+    {
+      "name": "@supabase/storage-js",
+      "version": "2.117.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40supabase%2Fstorage-js/2.117.2"
+    },
+    {
+      "name": "@supabase/supabase-js",
+      "version": "2.117.2",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/%40supabase%2Fsupabase-js/2.117.2"
+    },
+    {
+      "name": "iceberg-js",
+      "version": "0.8.1",
+      "license": "MIT",
+      "source": "https://registry.npmjs.org/iceberg-js/0.8.1"
     }
   ]
 }
