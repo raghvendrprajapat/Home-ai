@@ -318,6 +318,25 @@ The test picture is the same two-room PNG, built in the test.
    - 20.79 m² clear each: 3850 × 5400.
 5. A picture with no closed room says so and changes nothing. A text file is refused with a clear message.
 
+### Scale and picture memory (Part A)
+- **`sketch.test.ts`, scale from two marks** (worked out by hand):
+  - Marks 160 px apart with 8000 mm gives 8000 × 200 / 160 = 10000.
+  - A 50 px diagonal with 1000 mm on a 600 px picture gives 12000.
+  - 3333.33 is rounded to 3333.
+  - Refused:
+    - marks 7.07 px apart;
+    - lengths of 499 and 30,001 mm;
+    - a resulting width of 1000 mm or 600 m;
+    - a length that is not a number.
+- **Browser, first test:**
+  - With the picture hidden, "Create a new drawing" opens the new project with the picture still shown under it: `-500,0,10000,7500,0.3`, with its thumbnail and width.
+  - Mutation check: without the "show it under the new drawing" step, this test fails.
+- **Browser, third test:**
+  1. "Set scale by marking a wall" asks for the first end, then the second.
+  2. Taps at x 21 and 181 (the outer walls' ink) on the 200 px picture are marked at 21,75 and 181,75.
+  3. 100 mm is refused.
+  4. 4000 mm sets the width to 4000 × 200 / 160 = 5000. The underlay becomes 5000 × 3750, and the status says so.
+
 ![Trace-over picture under the sample plan](images/d73-ai-photo-underlay.png)
 ![Rooms read from the test sketch](images/d73-ai-photo-rooms.png)
 

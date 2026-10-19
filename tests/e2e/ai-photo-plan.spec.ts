@@ -49,6 +49,9 @@ test('D73 AI-3 a two-room sketch shows under the plan, reads as two rooms and op
  expect(await sketch.locator('circle[data-door]').evaluateAll(cs=>cs.map(c=>c.getAttribute('data-door')))).toEqual(['4550,2400,800']);
  expect(await backup(page)).toEqual(before);
 
+ // Even with the picture hidden here, it is shown under the new drawing.
+ await photo.getByRole('checkbox',{name:'Show under the plan',exact:true}).uncheck();
+ await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-underlay','');
  await sketch.getByRole('button',{name:'Create a new drawing from these rooms',exact:true}).click();
  await expect(page.getByRole('heading',{level:2})).toContainText('Plan from photo');await saved(page);
  const made=await backup(page);
@@ -62,6 +65,11 @@ test('D73 AI-3 a two-room sketch shows under the plan, reads as two rooms and op
  // Each clear area: (4050 - 200) x (5600 - 200) = 3850 x 5400 = 20.79 m².
  const areas=page.getByRole('region',{name:'Room areas',exact:true});
  await expect(areas).toContainText('Living room');await expect(areas).toContainText('20.79 m²');
+ // The picture stays for this session and is shown under the new drawing where it was, so the rooms line up with it.
+ const again=page.getByRole('region',{name:'Photo or sketch to plan',exact:true});
+ await expect(again.locator('img.ai-photo-thumb')).toBeVisible();
+ await expect(again.getByLabel('Real width of the whole picture (mm)',{exact:true})).toHaveValue('10000');
+ await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-underlay','-500,0,10000,7500,0.3');
 });
 
 test('D73 AI-3 a picture with no closed room says so and changes nothing',async({page})=>{
@@ -73,4 +81,28 @@ test('D73 AI-3 a picture with no closed room says so and changes nothing',async(
  expect(await backup(page)).toEqual(before);
  await photo.getByLabel('Choose a photo or sketch',{exact:true}).setInputFiles({name:'notes.txt',mimeType:'text/plain',buffer:Buffer.from('not a picture')});
  await expect(photo.getByRole('alert')).toHaveText('This picture could not be opened. Choose a JPG or PNG under 15 MB.');
+});
+
+test('D73 scale by marking a wall: two taps on the outer walls and their real length set the picture width',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
+ const photo=page.getByRole('region',{name:'Photo or sketch to plan',exact:true});
+ await photo.getByLabel('Choose a photo or sketch',{exact:true}).setInputFiles({name:'sketch.png',mimeType:'image/png',buffer:twoRooms});
+ await photo.getByRole('checkbox',{name:'Show under the plan',exact:true}).check();
+ await photo.getByRole('button',{name:'Set scale by marking a wall',exact:true}).click();
+ const scale=photo.getByRole('group',{name:'Set scale by marking a wall',exact:true}),picture=photo.getByRole('img',{name:'Picture: tap to mark',exact:true});
+ await expect(scale.getByRole('status')).toHaveText('Tap one end of a wall on the picture.');
+ // The 200 x 150 px picture is shown at its own size: the outer walls' ink is at x 20-21 and 180-181.
+ await expect.poll(()=>picture.evaluate(img=>(img as HTMLImageElement).clientWidth)).toBe(200);
+ await picture.click({position:{x:21,y:75}});
+ await expect(scale.getByRole('status')).toHaveText('Now tap the other end of the same wall.');
+ await picture.click({position:{x:181,y:75}});
+ expect(await photo.locator('[data-mark]').evaluateAll(ms=>ms.map(m=>m.getAttribute('data-mark')))).toEqual(['21,75','181,75']);
+ const length=scale.getByLabel('Real length between the marks (mm)',{exact:true});
+ await length.fill('100');await scale.getByRole('button',{name:'Use this scale',exact:true}).click();
+ await expect(photo.getByRole('alert')).toHaveText('This scale cannot be used: mark two points further apart and enter 500 to 30,000 mm.');
+ // 160 px apart and 4000 mm: the whole 200 px picture is 4000 x 200 / 160 = 5000 mm wide (and 3750 tall).
+ await length.fill('4000');await scale.getByRole('button',{name:'Use this scale',exact:true}).click();
+ await expect(photo.getByRole('status')).toHaveText('Scale set: the whole picture is 5000 mm wide.');
+ await expect(photo.getByLabel('Real width of the whole picture (mm)',{exact:true})).toHaveValue('5000');
+ await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-underlay','0,0,5000,3750,0.5');
 });

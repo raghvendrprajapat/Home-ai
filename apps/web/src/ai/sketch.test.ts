@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import fc from 'fast-check';
 import {createRoomsProject} from '@gharplan/core-model';
-import {acceptSketch,readSketch} from './sketch';
+import {acceptSketch,readSketch,scaleFromMarks} from './sketch';
 
 // D73 AI-3 Claude-authored checks; expected rectangles are worked out by hand in docs/verification/d73-ai-furniture.md.
 const build=(rooms:Parameters<typeof createRoomsProject>[0]['rooms'],doors:Parameters<typeof createRoomsProject>[0]['doors']=[])=>{let n=0;return createRoomsProject({rooms,doors,name:'Sketch',units:'metric',now:'2026-10-18T00:00:00Z',nextId:()=>`sk_${n++}`,roomName:t=>t});};
@@ -97,5 +97,21 @@ describe('D73 offline sketch reader',()=>{
   const rooms=readSketch(picture(200,150,[...outline,[150,20,151,131],[150,70,181,71]]),10000);
   expect(rooms.doors).toEqual([]);
   expect(rooms.rooms.map(r=>[r.x,r.y,r.width,r.depth,r.type])).toEqual([[1000,1000,6600,5600,'living'],[7500,1000,1600,2600,'bathroom'],[7500,3500,1600,3100,'bedroom']]);
+ });
+});
+
+describe('D73 scale from two marks',()=>{
+ it('real width = real length x picture width / marked distance, rounded to whole mm',()=>{
+  expect(scaleFromMarks([21,75],[181,75],8000,200)).toBe(10000); // 160 px apart: 8000 x 200 / 160
+  expect(scaleFromMarks([0,0],[30,40],1000,600)).toBe(12000); // 50 px along a diagonal
+  expect(scaleFromMarks([0,0],[30,0],1000,100)).toBe(3333); // 3333.33 rounded
+ });
+ it('refuses marks too close, lengths outside 500-30,000 mm and widths outside 2-60 m',()=>{
+  expect(scaleFromMarks([0,0],[5,5],1000,200)).toBeUndefined(); // 7.07 px
+  expect(scaleFromMarks([21,75],[181,75],499,200)).toBeUndefined();
+  expect(scaleFromMarks([21,75],[181,75],30001,200)).toBeUndefined();
+  expect(scaleFromMarks([0,0],[100,0],500,200)).toBeUndefined(); // 1000 mm wide
+  expect(scaleFromMarks([0,0],[10,0],30000,200)).toBeUndefined(); // 600 m wide
+  expect(scaleFromMarks([0,0],[100,0],Number.NaN,200)).toBeUndefined();
  });
 });
