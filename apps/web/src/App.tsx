@@ -105,6 +105,8 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
   const [view, setView] = useState<'2d' | '3d' | 'split'>('2d');
   // D76 M2: one tool panel at a time beside the canvas (a bottom sheet on phones); none open at first.
   const [tool,setTool]=useState<ToolId|null>(null),closeTool=useCallback(()=>setTool(null),[]),narrow=useNarrow();
+  // Escape also closes the open panel when focus is on the tool rail or nowhere in particular (inside a panel, the panel handles it).
+  useEffect(()=>{if(!tool)return;const close=(event:KeyboardEvent)=>{if(event.key==='Escape'&&(event.target===document.body||event.target instanceof Element&&event.target.closest('.tool-rail')))closeTool();};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close);},[tool,closeTool]);
   const drawingPanel=useRef<HTMLElement>(null),[splitAvailable,setSplitAvailable]=useState(false);
   useLayoutEffect(()=>{const panel=drawingPanel.current!;const measure=()=>setSplitAvailable(panel.clientWidth>=760);measure();if(typeof ResizeObserver==='undefined'){window.addEventListener('resize',measure);return()=>window.removeEventListener('resize',measure);}const observer=new ResizeObserver(measure);observer.observe(panel);return()=>observer.disconnect();},[]);
   useEffect(()=>{if(view==='split'&&!splitAvailable){drawing.clear();setView('2d');}},[view,splitAvailable,drawing]);
