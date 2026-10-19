@@ -144,10 +144,21 @@ Status: accepted by Claude Code on the owner's instruction, 2026-10-18. This ove
   5. Guesses room types: the largest room is the living room, rooms under 4.5 m² are bathrooms, and the rest are bedrooms. The person can change the types later.
   6. Reports a door wherever a 600–1000 mm stretch of a room's side has no ink in the 3 pixels just outside it. Smaller pen breaks are ignored, and wider gaps are not closed by the thickening, so those rooms already read as one.
 
+## AI-3 choices (owner request "Part A", 2026-10-19)
+- **The picture stays for the session.**
+  - The chosen picture and its width, position, strength and "show" setting are kept in memory for this app session only. They are never saved, backed up or uploaded.
+  - So after "Create a new drawing" the new project opens with the picture still under the plan, at the same place. Its rooms line up with it, even if the picture was hidden before.
+  - "Remove photo" or choosing another picture forgets it and releases the old picture.
+- **Scale by marking a wall** (`scaleFromMarks`):
+  - Tap both ends of a wall on the picture, then enter their real length.
+  - The picture's real width becomes the length × the picture's width in pixels ÷ the marked distance, rounded to whole mm.
+  - The marks must be at least 10 px apart, the length 500–30,000 mm and the result 2–60 m. Otherwise the scale is refused with a message and the width is unchanged.
+  - Marks are measured inside the picture's border, in the picture's own pixels.
+
 ## Not done
 - Any server provider, and cost or usage limits.
 - Photo reading in test mode works only on clean line drawings. It reads door gaps, but not windows, door swing directions, text or measurements written on the paper.
-- The trace-over picture is not kept when another drawing opens, and is positioned by numbers rather than by dragging.
+- The trace-over picture is kept only for the app session (not after a restart), and is positioned by numbers rather than by dragging.
 - The layout uses quarter turns and box shapes only. It does not plan circulation paths between rooms, and it does not move existing furniture.
 - The stand-in has plans for bedroom, living, hall, dining, study, balcony, kitchen (island, base cabinet), bathroom (vanity) and utility (shoe cabinet, sideboard). Per the owner, it never suggests appliances or sanitaryware. Pooja and "other" rooms get "no ideas".
 - The ideas list (AI-1) does not look at doors, windows or existing furniture positions; the layout step (AI-2) does.

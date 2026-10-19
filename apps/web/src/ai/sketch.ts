@@ -136,3 +136,15 @@ export function readSketch(image:SketchPixels,realWidthMm:number):{rooms:RoomRec
  }
  return {rooms:out.map(({area,...rect},i)=>({...rect,type:i===largest?'living':area<4_500_000?'bathroom':'bedroom'})),doors};
 }
+
+/**
+ * D73 Part A #7: the picture's real width from two points marked on it (in the picture's own pixels) and the real
+ * length between them. The points must be at least 10 px apart, the length 500-30,000 mm and the resulting width
+ * 2-60 m; otherwise undefined.
+ */
+export function scaleFromMarks(a:readonly [number,number],b:readonly [number,number],realMm:number,naturalWidth:number):number|undefined{
+ const d=Math.hypot(b[0]-a[0],b[1]-a[1]);
+ if(!(d>=10)||!(realMm>=500&&realMm<=30000)||!(naturalWidth>0))return undefined;
+ const width=Math.round(realMm*naturalWidth/d);
+ return width>=2000&&width<=60000?width:undefined;
+}

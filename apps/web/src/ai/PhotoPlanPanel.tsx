@@ -1,16 +1,22 @@
 import {useEffect,useRef,useState} from 'react';
+import type {MouseEvent} from 'react';
 import {createRoomsProject} from '@gharplan/core-model';
 import type {ProjectDoc,RoomType} from '@gharplan/core-model';
 import {message} from '../i18n/messages';
 import type {Locale} from '../i18n/messages';
 import type {PlanUnderlay} from '../editor/view2d';
 import type {AiProvider} from './furniture-suggest';
-import {acceptSketch} from './sketch';
+import {acceptSketch,scaleFromMarks} from './sketch';
 import type {SketchPixels,SketchResult} from './sketch';
 
 interface Picture {readonly url:string;readonly image:HTMLImageElement;readonly pixels:SketchPixels}
 type Reading=Readonly<{phase:'reading'}|{phase:'failed'}|{phase:'ready';sketch:SketchResult;document:ProjectDoc|undefined;skipped:number;skippedDoors:number}>;
 const MAX_BYTES=15*1024*1024,READ_PX=480;
+/**
+ * The chosen picture and its settings for this app session only (never saved), so it is still under the plan after
+ * "Create a new drawing" opens the new project.
+ */
+let remembered:Readonly<{picture:Picture;widthMm:number;left:number;top:number;shown:boolean;strength:number}>|null=null;
 
 async function openPicture(file:File):Promise<Picture>{
  if(!file.type.startsWith('image/')||file.size<1||file.size>MAX_BYTES)throw Error('photo-file');
@@ -32,17 +38,30 @@ async function openPicture(file:File):Promise<Picture>{
  * drawing with the real commands and previewed; the person then opens it as a new project.
  */
 export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale:Locale;provider:AiProvider;units:ProjectDoc['units'];onUnderlay(underlay:PlanUnderlay|null):void;onOpen(document:ProjectDoc):void}){
- const [picture,setPicture]=useState<Picture|null>(null),[failed,setFailed]=useState(false),[widthMm,setWidthMm]=useState(10000),[shown,setShown]=useState(false),[strength,setStrength]=useState(50),[left,setLeft]=useState(0),[top,setTop]=useState(0);
+ const [picture,setPicture]=useState<Picture|null>(()=>remembered?.picture??null),[failed,setFailed]=useState(false),[widthMm,setWidthMm]=useState(()=>remembered?.widthMm??10000),[shown,setShown]=useState(()=>remembered?.shown??false),[strength,setStrength]=useState(()=>remembered?.strength??50),[left,setLeft]=useState(()=>remembered?.left??0),[top,setTop]=useState(()=>remembered?.top??0);
  const [reading,setReading]=useState<Reading|null>(null),input=useRef<HTMLInputElement>(null);
+ const [marks,setMarks]=useState<readonly (readonly [number,number])[]|null>(null),[markMm,setMarkMm]=useState(''),[scaleNote,setScaleNote]=useState<'set'|'bad'|null>(null);
  const validWidth=Number.isInteger(widthMm)&&widthMm>=2000&&widthMm<=60000,validPlace=[left,top].every(v=>Number.isInteger(v)&&Math.abs(v)<=40000);
- useEffect(()=>()=>{if(picture)URL.revokeObjectURL(picture.url);},[picture]);
+ useEffect(()=>{remembered=picture?{picture,widthMm,left,top,shown,strength}:null;},[picture,widthMm,left,top,shown,strength]);
  useEffect(()=>{
   onUnderlay(picture&&shown&&validWidth&&validPlace?{image:picture.image,x:left,y:top,widthMm,heightMm:Math.round(widthMm*picture.pixels.height/picture.pixels.width),opacity:strength/100}:null);
  },[picture,shown,widthMm,strength,left,top,validWidth,validPlace,onUnderlay]);
  useEffect(()=>()=>onUnderlay(null),[onUnderlay]);
+ const forget=()=>{if(picture)URL.revokeObjectURL(picture.url);setMarks(null);setScaleNote(null);};
  const choose=async(file:File|undefined)=>{
-  setReading(null);setFailed(false);if(!file)return;
+  setReading(null);setFailed(false);forget();if(!file){setPicture(null);return;}
   try{setPicture(await openPicture(file));}catch{setPicture(null);setFailed(true);}
+ };
+ // Marking: a tap on the picture adds a point in the picture's own pixels (border excluded).
+ const mark=(event:MouseEvent<HTMLImageElement>)=>{
+  if(!marks||marks.length>=2||!picture)return;
+  const img=event.currentTarget,x=event.nativeEvent.offsetX/img.clientWidth*picture.image.naturalWidth,y=event.nativeEvent.offsetY/img.clientHeight*picture.image.naturalHeight;
+  setMarks([...marks,[x,y]]);
+ };
+ const applyScale=()=>{
+  const width=marks?.length===2&&picture?scaleFromMarks(marks[0]!,marks[1]!,Number(markMm),picture.image.naturalWidth):undefined;
+  if(width===undefined){setScaleNote('bad');return;}
+  setWidthMm(width);setReading(null);setMarks(null);setMarkMm('');setScaleNote('set');
  };
  const read=async()=>{
   if(!picture||!validWidth||!validPlace)return;
@@ -55,14 +74,30 @@ export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale
    setReading({phase:'ready',sketch,document:built&&built.skipped.length<sketch.rooms.length?built.document:undefined,skipped:built?.skipped.length??0,skippedDoors:built?.skippedDoors.length??0});
   }catch{setReading({phase:'failed'});}
  };
- const remove=()=>{setPicture(null);setShown(false);setReading(null);if(input.current)input.current.value='';};
+ const remove=()=>{forget();setPicture(null);setShown(false);setReading(null);if(input.current)input.current.value='';};
+ // The new drawing's rooms sit where the picture is, so keep showing it there.
+ const open=(document:ProjectDoc)=>{if(picture)remembered={picture,widthMm,left,top,shown:true,strength};onOpen(document);};
  return <section className="drawing-controls ai-panel" aria-label={message(locale,'aiPhotoTitle')}>
   <h3>{message(locale,'aiPhotoTitle')}</h3>
   <p className="structure-note">{message(locale,'aiPhotoPrivacy')}</p>
   <label>{message(locale,'aiPhotoChoose')}<input ref={input} type="file" accept="image/*" aria-label={message(locale,'aiPhotoChoose')} onChange={event=>{void choose(event.target.files?.[0]);}}/></label>
   {failed&&<p role="alert">{message(locale,'aiPhotoFailed')}</p>}
   {picture&&<>
-   <img className="ai-photo-thumb" src={picture.url} alt=""/>
+   <div className="ai-photo-frame">
+    <img className={marks?'ai-photo-thumb ai-photo-marking':'ai-photo-thumb'} src={picture.url} alt={marks?message(locale,'aiScalePicture'):''} onClick={mark}/>
+    {marks?.map(([x,y],i)=><span key={i} className="ai-mark" data-mark={`${Math.round(x)},${Math.round(y)}`} style={{left:`${x/picture.image.naturalWidth*100}%`,top:`${y/picture.image.naturalHeight*100}%`}}/>)}
+   </div>
+   {marks?<div className="ai-scale" role="group" aria-label={message(locale,'aiScaleStart')}>
+    <p role="status">{message(locale,marks.length===0?'aiScaleFirst':marks.length===1?'aiScaleSecond':'aiScaleLength')}</p>
+    {marks.length===2&&<label>{message(locale,'aiScaleMm')}<input type="number" inputMode="numeric" min={500} max={30000} step={10} aria-label={message(locale,'aiScaleMm')} value={markMm} onChange={event=>{setMarkMm(event.target.value);setScaleNote(null);}}/></label>}
+    <div className="ai-layout-actions">
+     {marks.length===2&&<button className="primary-button" onClick={applyScale}>{message(locale,'aiScaleApply')}</button>}
+     <button onClick={()=>{setMarks([]);setScaleNote(null);}}>{message(locale,'aiScaleAgain')}</button>
+     <button onClick={()=>{setMarks(null);setScaleNote(null);}}>{message(locale,'aiScaleCancel')}</button>
+    </div>
+   </div>:<button onClick={()=>{setMarks([]);setMarkMm('');setScaleNote(null);}}>{message(locale,'aiScaleStart')}</button>}
+   {scaleNote==='bad'&&<p role="alert">{message(locale,'aiScaleBad')}</p>}
+   {scaleNote==='set'&&<p role="status">{message(locale,'aiScaleSet',{w:widthMm})}</p>}
    <label>{message(locale,'aiPhotoWidth')}<input type="number" inputMode="numeric" min={2000} max={60000} step={100} aria-label={message(locale,'aiPhotoWidth')} value={widthMm} onChange={event=>{setWidthMm(Number(event.target.value));setReading(null);}}/></label>
    <label>{message(locale,'aiPhotoLeft')}<input type="number" inputMode="numeric" min={-40000} max={40000} step={50} aria-label={message(locale,'aiPhotoLeft')} value={left} onChange={event=>{setLeft(Number(event.target.value));setReading(null);}}/></label>
    <label>{message(locale,'aiPhotoTop')}<input type="number" inputMode="numeric" min={-40000} max={40000} step={50} aria-label={message(locale,'aiPhotoTop')} value={top} onChange={event=>{setTop(Number(event.target.value));setReading(null);}}/></label>
@@ -76,7 +111,7 @@ export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale
   </>}
   {reading?.phase==='reading'&&<p role="status">{message(locale,'aiThinking')}</p>}
   {reading?.phase==='failed'&&<p role="alert">{message(locale,'aiFailed')}</p>}
-  {reading?.phase==='ready'&&<SketchPreview reading={reading} locale={locale} onOpen={onOpen}/>}
+  {reading?.phase==='ready'&&<SketchPreview reading={reading} locale={locale} onOpen={open}/>}
  </section>;
 }
 
