@@ -4,7 +4,7 @@ import type { CloudConfig } from './config';
 
 /** Answers of the D65 database functions, plus NETWORK (no answer: retry the same request) and UNEXPECTED. */
 export type CloudCode = 'NOT_SIGNED_IN' | 'INVALID_REQUEST' | 'INVALID_DOCUMENT' | 'TOO_LARGE' | 'NOT_FOUND' | 'PROJECT_ID_TAKEN' | 'PROJECT_LIMIT'
-  | 'PROJECT_TRASHED' | 'REVISION_CONFLICT' | 'IDEMPOTENCY_MISMATCH' | 'VERSION_NOT_FOUND' | 'SHARE_LIMIT' | 'CONFIRMATION_REQUIRED' | 'NETWORK' | 'UNEXPECTED';
+  | 'PROJECT_TRASHED' | 'REVISION_CONFLICT' | 'IDEMPOTENCY_MISMATCH' | 'VERSION_NOT_FOUND' | 'SHARE_LIMIT' | 'CONFIRMATION_REQUIRED' | 'REAUTH_REQUIRED' | 'NETWORK' | 'UNEXPECTED';
 export interface CloudFailure { ok: false; code: CloudCode; details?: Record<string, unknown> }
 export type SaveReply = { ok: true; serverRevision: number; sha256: string; savedAt: string; replayed?: boolean } | CloudFailure;
 export type LoadReply = { ok: true; serverRevision: number; name: string; document: unknown } | CloudFailure;
@@ -16,6 +16,8 @@ export interface CloudShare { id: string; createdAt: string }
 export interface CloudApi {
   user(): CloudUser | null;
   onUser(listener: (user: CloudUser | null) => void): () => void;
+  /** Android: a sign-in that came back through the deep link but failed (refused, or the code was not accepted). */
+  onSignInFailed(listener: () => void): () => void;
   signInWithGoogle(returnTo: string): Promise<CloudFailure | null>;
   signOut(): Promise<void>;
   save(request: SaveRequest): Promise<SaveReply>;
@@ -40,12 +42,14 @@ export interface CloudApi {
  * browser and Google/Supabase send the person back through this deep link (declared in AndroidManifest.xml).
  */
 export const NATIVE_AUTH_REDIRECT = 'com.gharplan.app://auth-callback';
+/** Our own sign-in deep link (with a code or an error), as opposed to any other link that opens the app. */
+export const isNativeAuthReturn = (url: string): boolean => url.startsWith(`${NATIVE_AUTH_REDIRECT}?`) || url.startsWith(`${NATIVE_AUTH_REDIRECT}/?`) || url.startsWith(`${NATIVE_AUTH_REDIRECT}#`);
 /** The PKCE code from our own deep link only; anything else (other links, errors) gives null. */
 export function nativeAuthCode(url: string): string | null {
-  if (!url.startsWith(`${NATIVE_AUTH_REDIRECT}?`) && !url.startsWith(`${NATIVE_AUTH_REDIRECT}/?`)) return null;
+  if (!isNativeAuthReturn(url) || url.startsWith(`${NATIVE_AUTH_REDIRECT}#`)) return null;
   try { const code = new URL(url).searchParams.get('code'); return code && /^[A-Za-z0-9._~-]{6,512}$/.test(code) ? code : null; } catch { return null; }
 }
-const KNOWN = new Set<CloudCode>(['NOT_SIGNED_IN', 'INVALID_REQUEST', 'INVALID_DOCUMENT', 'TOO_LARGE', 'NOT_FOUND', 'PROJECT_ID_TAKEN', 'PROJECT_LIMIT', 'PROJECT_TRASHED', 'REVISION_CONFLICT', 'IDEMPOTENCY_MISMATCH', 'VERSION_NOT_FOUND', 'SHARE_LIMIT', 'CONFIRMATION_REQUIRED']);
+const KNOWN = new Set<CloudCode>(['NOT_SIGNED_IN', 'INVALID_REQUEST', 'INVALID_DOCUMENT', 'TOO_LARGE', 'NOT_FOUND', 'PROJECT_ID_TAKEN', 'PROJECT_LIMIT', 'PROJECT_TRASHED', 'REVISION_CONFLICT', 'IDEMPOTENCY_MISMATCH', 'VERSION_NOT_FOUND', 'SHARE_LIMIT', 'CONFIRMATION_REQUIRED', 'REAUTH_REQUIRED']);
 type RpcResult = { data: unknown; error: { message?: string } | null; status: number };
 /** Maps a PostgREST answer onto the function's own JSON; transport failures are NETWORK so the caller retries. */
 export function rpcAnswer(result: RpcResult): Record<string, unknown> & ({ ok: true } | CloudFailure) {
@@ -62,15 +66,21 @@ export async function createSupabaseApi(config: CloudConfig): Promise<CloudApi> 
   const { createClient } = await import('@supabase/supabase-js');
   const client = createClient(config.url, config.anonKey, { auth: { flowType: 'pkce', persistSession: true, autoRefreshToken: true, detectSessionInUrl: true } });
   let current: CloudUser | null = userOf((await client.auth.getSession()).data.session?.user);
-  const listeners = new Set<(user: CloudUser | null) => void>();
+  const listeners = new Set<(user: CloudUser | null) => void>(), failures = new Set<() => void>();
+  // A failure during start-up (cold-start deep link) is kept until the first listener asks.
+  let failedEarly = false;
+  const failed = () => { if (failures.size) for (const listener of [...failures]) listener(); else failedEarly = true; };
   client.auth.onAuthStateChange((_event, session) => { current = userOf(session?.user); for (const listener of [...listeners]) listener(current); });
   if (Capacitor.isNativePlatform()) {
     // The deep link can arrive while the app runs, or start it after Android closed it during sign-in.
     const { App } = await import('@capacitor/app'), finish = async (url: string | undefined) => {
-      const code = url ? nativeAuthCode(url) : null;
-      if (!code) return;
-      await client.auth.exchangeCodeForSession(code);
+      if (!url || !isNativeAuthReturn(url)) return;
+      // A refused sign-in (?error=…) or a code the server does not accept is reported instead of failing silently.
+      const code = nativeAuthCode(url);
+      let ok = false;
+      if (code) try { ok = !(await client.auth.exchangeCodeForSession(code)).error; } catch { ok = false; }
       try { const { Browser } = await import('@capacitor/browser'); await Browser.close(); } catch { /* the tab may already be gone */ }
+      if (!ok) failed();
     };
     await App.addListener('appUrlOpen', event => { void finish(event.url); });
     try { await finish((await App.getLaunchUrl())?.url); } catch { /* no launch link */ }
@@ -82,6 +92,7 @@ export async function createSupabaseApi(config: CloudConfig): Promise<CloudApi> 
   return {
     user: () => current,
     onUser(listener) { listeners.add(listener); return () => listeners.delete(listener); },
+    onSignInFailed(listener) { failures.add(listener); if (failedEarly) { failedEarly = false; listener(); } return () => failures.delete(listener); },
     async signInWithGoogle(returnTo) {
       if (Capacitor.isNativePlatform()) {
         const { data, error } = await client.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: NATIVE_AUTH_REDIRECT, skipBrowserRedirect: true } });

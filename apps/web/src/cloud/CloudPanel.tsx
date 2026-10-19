@@ -99,7 +99,7 @@ export function CloudPanel({ store, locale, flush, onOpenDocument, cloud = defau
     </> : <>
       <p data-testid="cloud-status" data-phase={session.status === 'loading' ? 'connecting' : 'signed-out'}>{session.status === 'loading' ? message(locale, 'cloudConnecting') : message(locale, 'cloudSignInHelp')}</p>
       <button className="primary-button" disabled={busy || session.status === 'loading'} onClick={() => { void signIn(); }}>{message(locale, 'cloudSignIn')}</button>
-      {(failed || session.status === 'failed') && <p role="alert">{message(locale, 'cloudConnectFailed')}</p>}
+      {(failed || session.status === 'failed' || session.signInFailed) && <p role="alert">{message(locale, 'cloudConnectFailed')}</p>}
     </>}
   </section>;
 }

@@ -35,6 +35,15 @@ test('FR-043 an old sign-in must sign in again before deleting',async({page})=>{
  expect(cloud.deleted).toBe(false);await expect(status(page)).toHaveAttribute('data-phase','unlinked');
 });
 
+test('FR-043 audit: when the database refuses an old sign-in (§D.8), nothing is deleted and the person is asked to sign in again',async({page})=>{
+ const cloud=new FakeCloud();cloud.reauthRequired=true;await signedInWithNewCloudProject(page,cloud);
+ const account=page.locator('.account-panel');await account.locator('summary').click();
+ await account.getByRole('button',{name:'Delete my account…',exact:true}).click();
+ await account.getByLabel('Type DELETE to confirm',{exact:true}).fill('DELETE');await account.getByRole('button',{name:'Delete my account forever',exact:true}).click();
+ await expect(account.getByRole('status')).toHaveText('For your safety, sign in again before deleting.');
+ expect(cloud.deleted).toBe(false);expect(cloud.heads.size).toBe(1);await expect(page.getByText('Signed in as Raghvendr Test',{exact:true})).toBeVisible();
+});
+
 test('FR-043 the public account-deletion page explains the steps in English and Hindi',async({page})=>{
  await page.goto('/delete-account.html');
  await expect(page.getByRole('heading',{level:1})).toHaveText('Delete your GharPlan account');

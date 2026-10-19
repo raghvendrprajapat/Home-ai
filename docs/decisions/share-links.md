@@ -12,7 +12,7 @@ Status: accepted by Claude Code under D52 + the owner's D63 permission (2026-10-
   - Live links are listed with the time they were made.
   - "Stop sharing" revokes a link immediately.
   - At most 10 live links per drawing.
-  - Moving the drawing to the trash or deleting the account also stops its links (D65).
+  - Moving the drawing to the trash or deleting the account also stops its links (D65), for good: taking it out of the trash does not bring them back (audit 2026-10-19).
 
 ## Visitor side (`SharedView`)
 - **No sign-in needed.** The page loads only the Supabase client, without a session, and calls `get_shared_project` — the one database function signed-out visitors may call.

@@ -8,7 +8,7 @@ import type { CloudConfig } from './config';
  * previous sign-in (stored session or an OAuth return) is present, so local-only use never touches the network.
  */
 export type CloudStatus = 'off' | 'idle' | 'loading' | 'signed-out' | 'signed-in' | 'failed';
-export interface CloudSessionState { readonly status: CloudStatus; readonly user: CloudUser | null }
+export interface CloudSessionState { readonly status: CloudStatus; readonly user: CloudUser | null; readonly signInFailed?: true }
 /** Snapshot and subscription used when the build has no cloud configuration; constant so React sees no change. */
 export const CLOUD_OFF: CloudSessionState = { status: 'off', user: null };
 export const noSubscription = (): (() => void) => () => undefined;
@@ -25,7 +25,8 @@ export class CloudSession {
       try {
         const api = await this.factory(this.config), user = api.user();
         api.onUser(next => this.#set({ status: next ? 'signed-in' : 'signed-out', user: next }));
-        this.#set({ status: user ? 'signed-in' : 'signed-out', user }); return api;
+        this.#set({ status: user ? 'signed-in' : 'signed-out', user });
+        api.onSignInFailed(() => this.#set({ ...this.#state, signInFailed: true })); return api;
       } catch { this.#api = null; this.#set({ status: 'failed', user: null }); return null; }
     })();
     return this.#api;

@@ -49,3 +49,14 @@ test('FR-031 a cloud project opens from the Projects screen without uploading it
  await page.waitForTimeout(2500);expect(cloud.saves).toEqual([]);
  const opened=await backup(page);expect(opened).toMatchObject({id:'prj_cloud_e2e',revision:3,name:'Cloud house'});
 });
+test('FR-031 audit: reopening an unchanged cloud drawing uploads nothing, so its version history is kept',async({page})=>{
+ const cloud=new FakeCloud(),id=await signedInWithNewCloudProject(page,cloud),before=cloud.saves.length;
+ for(let i=0;i<3;i++){
+  // A reload can land on the recovery screen (unflushed session journal); restoring keeps the same drawing.
+  await page.reload();const restore=page.getByRole('button',{name:'Restore saved changes',exact:true});
+  await expect(restore.or(status(page))).toBeVisible();if(await restore.isVisible())await restore.click();await saved(page);
+  await expect(status(page)).toHaveText('Saved in cloud (version 1)');
+  expect((await backup(page)).id).toBe(id);
+ }
+ expect(cloud.saves.length).toBe(before);expect(cloud.heads.get(id)!.revision).toBe(1);expect(cloud.versions.get(id)!.size).toBe(1);
+});

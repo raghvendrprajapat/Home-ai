@@ -42,7 +42,8 @@ export function AccountPanel({ cloud, user, locale, onDeleted }: { cloud: CloudS
     setBusy(true); setNote(null);
     try {
       const api = await cloud.ensure(), result = api ? await api.deleteAccount() : null;
-      if (!result?.ok) { setNote(message(locale, 'accountDeleteFailed')); return; }
+      // The database checks the sign-in time itself (§D.8); an old sign-in asks for a new one, nothing is deleted.
+      if (!result?.ok) { setNote(message(locale, result?.code === 'REAUTH_REQUIRED' ? 'accountSignInAgain' : 'accountDeleteFailed')); return; }
       // Signing out closes this section, so the confirmation is shown by the cloud panel itself.
       forgetLinked(); onDeleted(message(locale, 'accountDeleted')); await api!.signOut();
     } finally { setBusy(false); }
