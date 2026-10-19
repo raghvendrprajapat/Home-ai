@@ -3,6 +3,7 @@ import { ResourcePool,releaseOnce } from './resources';
 import type { Lease,Disposable } from './resources';
 import { materialBatches,batchMaterialGroups } from './batches';
 import type {QualityTier} from './quality';
+import {SurfaceTextures} from './surface-textures';
 import * as THREE from 'three';
 import type { ProjectStore } from '@gharplan/core-model';
 import type { MeshData, SceneBundle } from './types';
@@ -63,9 +64,10 @@ export class SceneAdapter {
   #ceiling:THREE.MeshStandardMaterial;
   #showCeilings=false;#tier:QualityTier='mid';#batches:THREE.Mesh[]=[];#hidden=new Set<string>();
   #instances:THREE.InstancedMesh|null=null;#instanceCount=0;
-  #unitBox:THREE.BufferGeometry;
-  constructor(tier:QualityTier='mid',private onShader:(uniforms:Record<string,{value:unknown}>)=>void=()=>{}){
-    this.#tier=tier;
+  #unitBox:THREE.BufferGeometry;#textures:SurfaceTextures|null=null;
+  /** `textures` (D76): where the CC0 surface textures live and what to call when one arrives; never used on Low. */
+  constructor(tier:QualityTier='mid',private onShader:(uniforms:Record<string,{value:unknown}>)=>void=()=>{},textures?:{baseUrl:URL;onReady:()=>void;load?:ConstructorParameters<typeof SurfaceTextures>[2]}){
+    this.#tier=tier;if(tier!=='low'&&textures)this.#textures=new SurfaceTextures(textures.baseUrl,textures.onReady,textures.load);
     try{
       this.#placeholder=this.#pool.acquire('placeholder',()=>new THREE.MeshStandardMaterial({color:'#778d76',roughness:0.8})).value;
       this.#ceiling=this.#pool.acquire('ceiling',()=>new THREE.MeshStandardMaterial({color:'#f8f8f2',roughness:1,metalness:0,side:THREE.DoubleSide})).value;
@@ -74,6 +76,8 @@ export class SceneAdapter {
     }catch(error){this.#closed=true;this.#pool.close();throw error;}
   }
   get resourceStats(){return this.#pool.stats;}
+  /** D76: textured materials in the scene and the GPU bytes of their images (0 on Low). */
+  get textureStats():{texturedMaterials:number;textureBytes:number}{return this.#textures?.stats??{texturedMaterials:0,textureBytes:0};}
   /** Floors cut away above the active floor (D64): hidden, so neither drawn nor picked. */
   get hiddenFloors():ReadonlySet<string>{return this.#hidden;}
   #shown(category:string,floorId:unknown):boolean{return this.#tier!=='low'&&(category!=='ceiling'||this.#showCeilings)&&!this.#hidden.has(floorId as string);}
@@ -102,7 +106,7 @@ export class SceneAdapter {
     for (const m of document.materials) {
       let root=this.#materialRoots.get(m.id);if(!root){root=this.#pool.acquire(`material:${m.id}`,()=>{const material=new THREE.MeshStandardMaterial();material.onBeforeCompile=shader=>this.onShader(shader.uniforms);return material;});this.#materialRoots.set(m.id,root);}
       const material=root.value;
-      material.color.set(m.baseColor); material.roughness = m.roughness; material.metalness = m.metalness;
+      material.color.set(m.baseColor); material.roughness = m.roughness; material.metalness = m.metalness;this.#textures?.apply(material,m);
       this.#materials.set(m.id, material);
     }
     const wanted = new Set(bundle.meshes.map(m => m.id)),floorOf=entityFloors(document);let structuralChange=false;
@@ -128,7 +132,7 @@ export class SceneAdapter {
     }else if(this.#tier==='low'&&this.lastChanges.replaced.length){
       for(const batch of this.#batches)this.#rebind(batch,batchMaterialGroups(batch.userData.entityRanges,bundle.meshes),batch.userData.ceiling===true);
     }
-    for(const [id]of this.#materials)if(!wantedMaterials.has(id)){this.#materialRoots.get(id)?.release();this.#materialRoots.delete(id);this.#materials.delete(id);}
+    for(const [id,material]of this.#materials)if(!wantedMaterials.has(id)){this.#textures?.forget(material);this.#materialRoots.get(id)?.release();this.#materialRoots.delete(id);this.#materials.delete(id);}
     this.refreshFurniture(document);
   }
   refreshFurniture(document:ReturnType<ProjectStore['getSnapshot']>['document']):void{
@@ -159,6 +163,6 @@ export class SceneAdapter {
   mesh(id: string): THREE.Mesh | undefined { return this.#meshes.get(id)?.mesh; }
   dispose(): void {
     if(this.#closed)return;this.#closed=true;this.group.visible=false;
-    try{this.#pool.close();}finally{this.#owners.clear();this.#materialRoots.clear();this.#batches=[];this.#instances=null;this.#meshes.clear();this.#materials.clear();this.#furniture.clear();this.group.clear();}
+    try{this.#textures?.dispose();this.#pool.close();}finally{this.#owners.clear();this.#materialRoots.clear();this.#batches=[];this.#instances=null;this.#meshes.clear();this.#materials.clear();this.#furniture.clear();this.group.clear();}
   }
 }

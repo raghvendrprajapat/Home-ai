@@ -24,8 +24,9 @@ export function stablePose(pose:CameraPose):CameraPose{
 export function fitPose(bounds:Bounds3,aspect:number,fovDeg=45):{pose:CameraPose;capped:boolean}{
  if(!bounds.every(Number.isFinite)||!Number.isFinite(aspect)||aspect<=0)throw new Error('camera-bounds');
  const target:Vec3=[(bounds[0]+bounds[3])/2,(bounds[1]+bounds[4])/2,(bounds[2]+bounds[5])/2],radius=Math.hypot(bounds[3]-bounds[0],bounds[4]-bounds[1],bounds[5]-bounds[2])/2;
- const vertical=fovDeg*Math.PI/360,horizontal=Math.atan(Math.tan(vertical)*aspect),distance=Math.max(2,radius/Math.sin(Math.min(vertical,horizontal))*1.15);
- const norm=Math.hypot(.45,.65,.65),pose=clampOrbit({target,position:[target[0]+distance*.45/norm,target[1]+distance*.65/norm,target[2]+distance*.65/norm]},bounds,bounds[1]);return {pose,capped:distance>MAX_DISTANCE};
+ const vertical=fovDeg*Math.PI/360,horizontal=Math.atan(Math.tan(vertical)*aspect),distance=Math.max(2,radius/Math.sin(Math.min(vertical,horizontal))*1.02);
+ // D76: a dollhouse view from about 57° above the horizon (south-east), so furniture shows over the walls.
+ const norm=Math.hypot(.35,1,.55),pose=clampOrbit({target,position:[target[0]+distance*.35/norm,target[1]+distance/norm,target[2]+distance*.55/norm]},bounds,bounds[1]);return {pose,capped:distance>MAX_DISTANCE};
 }
 export function bookmarkPose(bookmark:Readonly<Omit<CameraPreset,'position'|'target'>>&{position:readonly number[];target:readonly number[]}):CameraPose{
  if(bookmark.mode!=='orbit'||!finite(bookmark.position)||!finite(bookmark.target))throw new Error('camera-bookmark');
