@@ -26,8 +26,8 @@ export interface AiProvider {
  /** 'stand-in' runs offline rules on the device; 'server' will call a hosted model through the app's server. */
  readonly kind:'stand-in'|'server';
  suggestFurniture(brief:RoomBrief,candidates:readonly CatalogAsset[],signal:AbortSignal):Promise<unknown>;
- /** D73 AI-2: where each chosen item should stand; the answer is checked by acceptLayout. */
- suggestLayout(room:LayoutRoom,assets:readonly CatalogAsset[],signal:AbortSignal):Promise<unknown>;
+ /** D73 AI-2: where each chosen item (or a smaller option of it) should stand, one or more layouts; checked by acceptLayouts. */
+ suggestLayout(room:LayoutRoom,assets:readonly CatalogAsset[],signal:AbortSignal,options?:ReadonlyMap<string,readonly CatalogAsset[]>):Promise<unknown>;
  /** D73 AI-3: room rectangles read from a picture whose full width is realWidthMm; checked by acceptSketch. */
  planFromImage(image:SketchPixels,realWidthMm:number,signal:AbortSignal):Promise<unknown>;
 }

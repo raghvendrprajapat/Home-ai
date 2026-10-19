@@ -87,6 +87,26 @@ Status: accepted by Claude Code on the owner's instruction, 2026-10-18. This ove
   - Nothing is added until "Add this layout".
   - If the drawing changed after the preview, the person is asked to arrange again.
 
+## AI-2 choices (owner request "Part A", 2026-10-19)
+- **Several layouts.**
+  - `suggestLayout` may answer `{layouts:[…]}`.
+  - `acceptLayouts` checks each one (at most `MAX_LAYOUTS` = 3) with `acceptLayout`, and drops empty and repeated layouts.
+  - The stand-in's `planLayouts` returns up to three layouts:
+    1. as planned;
+    2. with the bed or sofa on a wall across from the first one's;
+    3. with it on the wall opposite the first.
+  - A wall is avoided with a large score penalty, so if no other wall is free the layout repeats and is dropped.
+  - The preview has "Layout 1/2/3" buttons.
+- **Smaller option instead of nothing.**
+  - The ideas' options go with the request.
+  - A layout entry may name one of an idea's options with `for: <idea id>`. `acceptLayout` admits only that idea's own options, and each idea at most once.
+  - The stand-in tries the idea first, then its smaller options in order.
+  - The preview lists any smaller pieces used.
+- **Adjusting a piece.**
+  - Pick a piece (from a list, or by tapping it in the preview). "Turn 90°" turns it about its centre; the arrow buttons move it 100 mm (`NUDGE_MM`).
+  - `adjustPlacement` checks the new spot with `placementProblem` against the room and every other piece. A refusal leaves the layout unchanged and names the reason: outside, overlap, door, window or walkway.
+  - "Add this layout" adds the chosen, adjusted layout as one undoable step, as before.
+
 ## AI-3 photo or sketch to plan
 - **Privacy.** The picture stays on the device.
   - It is read from the file into memory and never stored in the drawing, the local backup or the cloud.

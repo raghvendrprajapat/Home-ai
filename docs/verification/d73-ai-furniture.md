@@ -190,6 +190,51 @@ Each of these rules was removed separately, and at least one test then failed. T
 - the "on the floor" check.
 - the 150 mm "beside" limit for bedside and side tables (in the stand-in).
 
+### Layout choices (Part A)
+These checks are in `layout.test.ts`, 17 tests. Every expected position was worked out by hand.
+
+- **Options.**
+  - A queen bed may stand for the king-bed idea.
+  - The king-bed idea is then already placed.
+  - A piece that is not among an idea's options is refused, and so is the queen bed on its own.
+  - The bedside table is reported as skipped.
+- **acceptLayouts.**
+  - Empty and repeated layouts are dropped.
+  - Three layouts are kept.
+  - A plain list counts as one layout.
+  - A malformed answer gives none.
+- **adjustPlacement** (3000 × 4000 room):
+  - Bed moved right 100: (1600, 1075).
+  - Bed moved up: refused as "outside".
+  - Bedside table moved 300 right: refused as "overlap" (x 400–850 meets the bed at 550).
+  - Bed turned, with the bedside table there: refused as "overlap" (the turned bed spans x 425–2575, y 125–2025).
+  - Bed turned, alone: refused as "walkway" (its walkway x −175..425 leaves the room).
+  - Bedside table at (1500, 2000) turned: becomes 90°.
+  - The original list never changes.
+- **Smaller option.** In an 1800 × 3000 room the king bed fits on no wall (1900 > 1800; turned, 2150 + 600 > 1800). The queen bed stands in for it at (900, 1075, 180°). Without options, nothing is placed.
+- **planLayouts** (3000 × 4000):
+  - First layout: king bed (1500, 1075, 180°).
+  - Second: west wall (1075, 2000, 90°).
+  - Third: south wall (1500, 2925, 0°).
+  - A dining room without a bed or sofa gets one layout.
+- **Property test** (40 runs): every stand-in layout, smaller options included, passes `acceptLayouts` unchanged. There are at most 3 layouts.
+- **Mutation check.** Each of these, broken separately, made a test fail:
+  - the options-only rule;
+  - once per idea;
+  - the empty/repeat drop;
+  - the 3-layout limit;
+  - the adjust refusal;
+  - the smaller-option fallback;
+  - the wall-avoid penalty;
+  - the third layout.
+
+**Browser test** (fifth test). In the sample living room (balanced), the existing sofa and TV leave only the west and east walls:
+1. Two layout buttons appear. Layout 1 puts the three-seat sofa at x 545, turned 90°. Layout 2 puts it at x 4012, turned 270°.
+2. "Move right 100 mm" is refused with "Not moved: that spot goes outside the room." "Move left 100 mm" moves it to x 3912.
+3. The preview does not change the drawing.
+4. "Add this layout" saves the sofa at (3912, 2500), turned 270°.
+5. One Undo gives back the exact drawing.
+
 ## Browser test: AI-2 (`tests/e2e/ai-furniture.spec.ts`, third test)
 The test uses the sample bedroom, which already has a bed and a wardrobe.
 1. Suggest the five ideas, then press "Arrange these in the room".
