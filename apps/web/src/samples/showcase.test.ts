@@ -1,4 +1,4 @@
-import {readFileSync} from 'node:fs';
+import {readFile} from 'node:fs/promises';
 import {describe,expect,it} from 'vitest';
 import {parseProject} from '@gharplan/core-model';
 import fixture from '../../../../docs/examples/sample-project.json';
@@ -6,7 +6,7 @@ import {showcaseSample} from './showcase';
 
 // D76 R3 furnished first-run sample. Claude-authored; room interiors and door spans are hand-derived from the
 // fixture: walls 230 mm on the 0/4500/8000 x 0/5000 grid, main door x 2500–3500 (south), bedroom door y 550–1450.
-const catalog=JSON.parse(readFileSync(new URL('../../public/catalog/catalog.json',import.meta.url),'utf8')) as {assets:{id:string;version:number;dims:{w:number;d:number;h:number}}[]};
+const catalog=JSON.parse(await readFile(new URL('../../public/catalog/catalog.json',import.meta.url),'utf8')) as {assets:{id:string;version:number;dims:{w:number;d:number;h:number}}[]};
 const latest=(id:string)=>Math.max(...catalog.assets.filter(a=>a.id===id).map(a=>a.version));
 const parsed=parseProject(JSON.stringify(showcaseSample()));if(!parsed.ok)throw new Error('showcase invalid');
 const doc=parsed.document;
