@@ -1,0 +1,572 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_dining_set_4",
+  "version": 2,
+  "name_en": "Four-seat dining set",
+  "name_hi": "चार कुर्सियों वाला डाइनिंग सेट",
+  "category": "tables",
+  "tags": [
+    "dining set",
+    "dining table set",
+    "4 seater dining set",
+    "table with chairs",
+    "wooden",
+    "beige",
+    "डाइनिंग सेट"
+  ],
+  "dims": {
+    "w": 1200,
+    "d": 1540,
+    "h": 860
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_dining_set_4-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_dining_set_4-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-19"
+  },
+  "parts": [
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        740,
+        0
+      ],
+      "size": [
+        1200,
+        40,
+        800
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "apron",
+      "shape": "box",
+      "center": [
+        0,
+        680,
+        0
+      ],
+      "size": [
+        1080,
+        80,
+        680
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -540,
+        360,
+        -340
+      ],
+      "size": [
+        50,
+        720,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        540,
+        360,
+        -340
+      ],
+      "size": [
+        50,
+        720,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -540,
+        360,
+        340
+      ],
+      "size": [
+        50,
+        720,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        540,
+        360,
+        340
+      ],
+      "size": [
+        50,
+        720,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-1-leg-front-left",
+      "shape": "cylinder",
+      "center": [
+        -470,
+        215,
+        290
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-1-leg-front-right",
+      "shape": "cylinder",
+      "center": [
+        -100,
+        215,
+        290
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-1-leg-back-left",
+      "shape": "cylinder",
+      "center": [
+        -470,
+        430,
+        740
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-1-leg-back-right",
+      "shape": "cylinder",
+      "center": [
+        -100,
+        430,
+        740
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-1-seat",
+      "shape": "rounded",
+      "center": [
+        -285,
+        460,
+        490
+      ],
+      "size": [
+        450,
+        60,
+        480
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "chair-back-1-back",
+      "shape": "rounded",
+      "center": [
+        -285,
+        680,
+        745
+      ],
+      "size": [
+        400,
+        360,
+        50
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "chair-front-1-leg-front-left",
+      "shape": "cylinder",
+      "center": [
+        -100,
+        215,
+        -290
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-front-1-leg-front-right",
+      "shape": "cylinder",
+      "center": [
+        -470,
+        215,
+        -290
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-front-1-leg-back-left",
+      "shape": "cylinder",
+      "center": [
+        -100,
+        430,
+        -740
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-front-1-leg-back-right",
+      "shape": "cylinder",
+      "center": [
+        -470,
+        430,
+        -740
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-front-1-seat",
+      "shape": "rounded",
+      "center": [
+        -285,
+        460,
+        -490
+      ],
+      "size": [
+        450,
+        60,
+        480
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "chair-front-1-back",
+      "shape": "rounded",
+      "center": [
+        -285,
+        680,
+        -745
+      ],
+      "size": [
+        400,
+        360,
+        50
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "chair-back-2-leg-front-left",
+      "shape": "cylinder",
+      "center": [
+        100,
+        215,
+        290
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-2-leg-front-right",
+      "shape": "cylinder",
+      "center": [
+        470,
+        215,
+        290
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-2-leg-back-left",
+      "shape": "cylinder",
+      "center": [
+        100,
+        430,
+        740
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-2-leg-back-right",
+      "shape": "cylinder",
+      "center": [
+        470,
+        430,
+        740
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-back-2-seat",
+      "shape": "rounded",
+      "center": [
+        285,
+        460,
+        490
+      ],
+      "size": [
+        450,
+        60,
+        480
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "chair-back-2-back",
+      "shape": "rounded",
+      "center": [
+        285,
+        680,
+        745
+      ],
+      "size": [
+        400,
+        360,
+        50
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "chair-front-2-leg-front-left",
+      "shape": "cylinder",
+      "center": [
+        470,
+        215,
+        -290
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-front-2-leg-front-right",
+      "shape": "cylinder",
+      "center": [
+        100,
+        215,
+        -290
+      ],
+      "size": [
+        35,
+        430,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-front-2-leg-back-left",
+      "shape": "cylinder",
+      "center": [
+        470,
+        430,
+        -740
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-front-2-leg-back-right",
+      "shape": "cylinder",
+      "center": [
+        100,
+        430,
+        -740
+      ],
+      "size": [
+        35,
+        860,
+        35
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "chair-front-2-seat",
+      "shape": "rounded",
+      "center": [
+        285,
+        460,
+        -490
+      ],
+      "size": [
+        450,
+        60,
+        480
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "chair-front-2-back",
+      "shape": "rounded",
+      "center": [
+        285,
+        680,
+        -745
+      ],
+      "size": [
+        400,
+        360,
+        50
+      ],
+      "color": "#c8b9a3",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    }
+  ]
+}

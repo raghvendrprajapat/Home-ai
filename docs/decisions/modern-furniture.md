@@ -58,6 +58,9 @@ The owner chose original designs made by Claude Code (chat, 2026-10-18).
 - [Rendered designs](../verification/images/d72-dining-storage-designs.png).
 - **Remaining version-1 items:** the demo desk, bunk bed, kitchen base/wall cabinets, kitchen island and bathroom vanity. Per the owner, no appliances or sanitaryware are added.
 
+## Audit corrections (2026-10-19)
+- New versions: six-seat dining set v2 (end chairs face the table), four-seat dining set v2 (chairs clear the table legs), dressing table v2 (mirror stands on the table), console and coffee table v3 (shelf reaches the legs), sideboard and study table v3 (handles touch). Sizes are unchanged; older versions stay for existing drawings. See the [verification](../verification/d72-modern-furniture.md).
+
 ## Not done
 - Textures (wood grain, fabric weave): need real-phone performance checks, which are gated.
 - Affiliate links or any Amazon integration (gated monetization).

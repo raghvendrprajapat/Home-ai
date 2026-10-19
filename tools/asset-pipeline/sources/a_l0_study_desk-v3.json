@@ -1,0 +1,218 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_study_desk",
+  "version": 3,
+  "name_en": "Study table with drawers",
+  "name_hi": "दराज़ वाली पढ़ने की मेज़",
+  "category": "tables",
+  "tags": [
+    "study table",
+    "computer table",
+    "office desk",
+    "work from home table",
+    "drawers",
+    "oak",
+    "पढ़ने की मेज़"
+  ],
+  "dims": {
+    "w": 1200,
+    "d": 600,
+    "h": 750
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_study_desk-v3.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_study_desk-v3.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-19"
+  },
+  "parts": [
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        735,
+        0
+      ],
+      "size": [
+        1200,
+        30,
+        600
+      ],
+      "color": "#c49a6c",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "drawer-unit",
+      "shape": "rounded",
+      "center": [
+        380,
+        380,
+        10
+      ],
+      "size": [
+        400,
+        680,
+        560
+      ],
+      "color": "#ecebe7",
+      "finish": "satin",
+      "radius": 8,
+      "segments": 1
+    },
+    {
+      "name": "drawer-1",
+      "shape": "box",
+      "center": [
+        380,
+        160,
+        -273
+      ],
+      "size": [
+        380,
+        210,
+        6
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "drawer-2",
+      "shape": "box",
+      "center": [
+        380,
+        380,
+        -273
+      ],
+      "size": [
+        380,
+        210,
+        6
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "drawer-3",
+      "shape": "box",
+      "center": [
+        380,
+        600,
+        -273
+      ],
+      "size": [
+        380,
+        210,
+        6
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "handle-1",
+      "shape": "box",
+      "center": [
+        380,
+        240,
+        -288
+      ],
+      "size": [
+        160,
+        12,
+        24
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "handle-2",
+      "shape": "box",
+      "center": [
+        380,
+        460,
+        -288
+      ],
+      "size": [
+        160,
+        12,
+        24
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "handle-3",
+      "shape": "box",
+      "center": [
+        380,
+        680,
+        -288
+      ],
+      "size": [
+        160,
+        12,
+        24
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -560,
+        360,
+        -260
+      ],
+      "size": [
+        30,
+        720,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        -560,
+        360,
+        260
+      ],
+      "size": [
+        30,
+        720,
+        30
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-bar",
+      "shape": "box",
+      "center": [
+        -560,
+        30,
+        0
+      ],
+      "size": [
+        30,
+        30,
+        550
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    }
+  ]
+}

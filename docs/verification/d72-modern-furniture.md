@@ -98,6 +98,25 @@ These are Claude-authored checks. They are not an aesthetic review by a designer
   - `main`: 7.97% and 7.89% (mean 7.93%).
   - The 10% limit is unchanged.
 
+## Audit (2026-10-19): geometry corrections
+A separate review agent read every D72 source and the shipped GLB files (accessor min/max per node). Sizes, version immutability, licence records, orientation, finish recolouring and the shared catalog request were sound. It confirmed three geometry defects, all fixed by new versions (the old versions stay published, so existing drawings do not change):
+
+| Item | Problem (from the source boxes) | New version |
+|---|---|---|
+| Six-seat dining set | Both end chairs faced away from the table; their backrests (x ±750…800, up to 860 mm) went through the tabletop (x ±900, top at 760 mm) | `a_l0_dining_set_6@2`: each end chair mirrored about its own centre (x = ±1010); backrests now at ±1220…1270 |
+| Four-seat dining set | Table legs (x ±515…565) passed through the outer chair seats (x ±75…525) by 10 mm | `a_l0_dining_set_4@2`: chairs moved 15 mm towards the middle (seats ±60…510) |
+| Dressing table | Mirror frame started at 780 mm, 20 mm above the table top (760) | `a_l0_dressing_table@2`: frame 760…1600 |
+| Console table, coffee table | Shelf stopped 12.5 / 2.5 mm short of the legs | `@3`: shelf reaches the leg centres |
+| Sideboard, study table | Handles 2 / 4 mm in front of the doors/drawers | `@3`: handles touch them; the outer depth is unchanged |
+
+- **New tests (`modern-furniture.test.ts`):**
+  - Every part of every latest modern design rests on the floor through touching parts (box contact within 0.5 mm).
+  - In both dining sets, every backrest is outside the tabletop and no table leg overlaps a seat.
+  - The decoded-model checks now use the corrected versions.
+  - Mutation: pointing the checks at the old versions fails all seven (five floating, two dining-set checks).
+- **Not changed:** the plant's middle leaves keep their second green (intended two-tone foliage, as the decision doc says).
+- [Before/after drawing from the source boxes](images/d72-audit-corrections.png). The earlier rendered images show the old versions.
+
 ## Pending
 - Designer/aesthetic review.
 - Low/Mid phone tests (gated).

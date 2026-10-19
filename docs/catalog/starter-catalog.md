@@ -90,6 +90,19 @@ Same profile and rules; see the [rendered designs](../verification/images/d72-di
 | a_l0_planter@2 | Indoor plant in pot / गमले में पौधा | decor | 450 × 420 × 1100 | 1028 | [a_l0_planter-v2.json](../../tools/asset-pipeline/sources/a_l0_planter-v2.json) |
 | a_l0_low_cabinet@2 | Sideboard cabinet / साइडबोर्ड अलमारी | storage | 1500 × 420 × 800 | 368 | [a_l0_low_cabinet-v2.json](../../tools/asset-pipeline/sources/a_l0_low_cabinet-v2.json) |
 
+### Audit corrections (2026-10-19)
+New versions fix geometry found in the audit; the earlier versions stay published for existing drawings.
+
+| ID | English / Hindi | Category | W × D × H (mm) | Triangles | Source and change |
+|---|---|---|---|---:|---|
+| a_l0_dining_set_6@2 | Six-seat dining set / छह कुर्सियों वाला डाइनिंग सेट | tables | 2540 × 1640 × 860 | 2312 | [a_l0_dining_set_6-v2.json](../../tools/asset-pipeline/sources/a_l0_dining_set_6-v2.json) — end chairs turned to face the table |
+| a_l0_dining_set_4@2 | Four-seat dining set / चार कुर्सियों वाला डाइनिंग सेट | tables | 1200 × 1540 × 860 | 1624 | [a_l0_dining_set_4-v2.json](../../tools/asset-pipeline/sources/a_l0_dining_set_4-v2.json) — chairs moved 15 mm in, clear of the table legs |
+| a_l0_dressing_table@2 | Dressing table with mirror / शीशे वाली ड्रेसिंग टेबल | storage | 1000 × 450 × 1600 | 420 | [a_l0_dressing_table-v2.json](../../tools/asset-pipeline/sources/a_l0_dressing_table-v2.json) — mirror frame stands on the table |
+| a_l0_console_table@3 | Console table / संकरी सजावटी मेज़ | tables | 1200 × 350 × 800 | 344 | [a_l0_console_table-v3.json](../../tools/asset-pipeline/sources/a_l0_console_table-v3.json) — shelf reaches the legs |
+| a_l0_coffee_table@3 | Coffee table with shelf / शेल्फ़ वाली छोटी बैठक मेज़ | tables | 1100 × 600 × 450 | 344 | [a_l0_coffee_table-v3.json](../../tools/asset-pipeline/sources/a_l0_coffee_table-v3.json) — shelf reaches the legs |
+| a_l0_low_cabinet@3 | Sideboard cabinet / साइडबोर्ड अलमारी | storage | 1500 × 420 × 800 | 368 | [a_l0_low_cabinet-v3.json](../../tools/asset-pipeline/sources/a_l0_low_cabinet-v3.json) — handles touch the doors |
+| a_l0_study_desk@3 | Study table with drawers / दराज़ वाली पढ़ने की मेज़ | tables | 1200 × 600 × 750 | 364 | [a_l0_study_desk-v3.json](../../tools/asset-pipeline/sources/a_l0_study_desk-v3.json) — handles touch the drawers |
+
 All LOD0/LOD1 pairs currently share the same already-small GLB; no simplification/compression claim. No downloaded/proprietary art, electrical fixtures, textures or entitlement/cloud-delivery adapter is added. Canonical furniture pins ID/version and nominal dimensions; user scaling/elevation/rotation remain the existing commands. Physical-device performance, aesthetic/accessibility review and all D36 gates remain pending.
 
 Change an existing asset by adding a new version, never by editing an accepted source/blob under the same ID/version. Rebuild via pnpm assets:build, then run assets:check and assets:versions. See the PH4-T05 verification and decision records for actual validator/hash/paging/placement/Undo evidence.
