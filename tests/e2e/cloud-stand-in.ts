@@ -25,8 +25,8 @@ export class FakeCloud {
  createShare(projectId:string){if(!this.heads.has(projectId))return {ok:false,code:'NOT_FOUND'};const token=[...crypto.getRandomValues(new Uint8Array(32))].map(b=>b.toString(16).padStart(2,'0')).join(''),id=crypto.randomUUID();this.shares.set(token,{id,projectId,revoked:false,createdAt:new Date().toISOString()});return {ok:true,shareId:id,token};}
  revokeShare(id:string){const share=[...this.shares.values()].find(s=>s.id===id&&!s.revoked);if(!share)return {ok:false,code:'NOT_FOUND'};share.revoked=true;return {ok:true};}
  getShared(token:string){const share=this.shares.get(token),head=share&&!share.revoked?this.heads.get(share.projectId):undefined;return head?{ok:true,serverRevision:head.revision,name:head.name,document:head.document}:{ok:false,code:'NOT_FOUND'};}
- deleted=false;
- deleteAccount(confirm:string){if(confirm!=='DELETE')return {ok:false,code:'CONFIRMATION_REQUIRED'};this.heads.clear();this.versions.clear();this.shares.clear();this.deleted=true;return {ok:true};}
+ deleted=false;reauthRequired=false;
+ deleteAccount(confirm:string){if(confirm!=='DELETE')return {ok:false,code:'CONFIRMATION_REQUIRED'};if(this.reauthRequired)return {ok:false,code:'REAUTH_REQUIRED'};this.heads.clear();this.versions.clear();this.shares.clear();this.deleted=true;return {ok:true};}
  restores:{p_project_id:string;p_from_revision:number;p_expected_revision:number;p_command_id:string}[]=[];
  restore(a:{p_project_id:string;p_from_revision:number;p_expected_revision:number;p_command_id:string}){
   this.restores.push(a);const key=`${a.p_project_id}/${a.p_command_id}`,digest=JSON.stringify(['restore',a.p_from_revision,a.p_expected_revision]),receipt=this.receipts.get(key);

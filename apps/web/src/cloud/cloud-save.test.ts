@@ -2,8 +2,9 @@ import { describe, expect, it } from 'vitest';
 import { ProjectStore, serializeProject } from '@gharplan/core-model';
 import type { Command, ProjectDoc } from '@gharplan/core-model';
 import sample from '../../../../docs/examples/sample-project.json';
-import type { CloudApi, SaveReply, SaveRequest } from './api';
+import type { CloudApi, LoadReply, SaveReply, SaveRequest } from './api';
 import { CloudSaver } from './cloud-save';
+import type { CloudSyncMemory, CloudSyncRecord } from './linked';
 
 // FR-031 (D67) §H.5 client rules against an in-memory stand-in for the D65 save function. Claude-authored tests.
 /** Mirrors save_snapshot: receipts are checked before the head; a stale base conflicts; success makes head + 1. */
@@ -22,19 +23,26 @@ class FakeServer {
     this.head.set(request.projectId, { revision, document: serializeProject({ ...request.document, revision }) }); this.receipts.set(key, { digest, revision });
     return { ok: true, serverRevision: revision, sha256: 'x', savedAt: `t${revision}` };
   }
+  load(projectId: string): LoadReply {
+    const head = this.head.get(projectId);
+    return head ? { ok: true, serverRevision: head.revision, name: 'x', document: JSON.parse(head.document) as unknown } : { ok: false, code: 'NOT_FOUND' };
+  }
 }
+/** This device's per-drawing sync memory (localStorage in the app). */
+const memoryOf = (records = new Map<string, CloudSyncRecord>()): CloudSyncMemory & { records: Map<string, CloudSyncRecord> } =>
+  ({ records, get: id => records.get(id), set: (id, record) => { if (record) records.set(id, record); else records.delete(id); } });
 type Reply = (request: SaveRequest) => Promise<SaveReply>;
-function harness(revision = 0) {
-  const server = new FakeServer(), timers: { run: () => void; ms: number }[] = [];
+function harness(revision = 0, { server = new FakeServer(), memory = memoryOf(), document, keys = 'k' }: { server?: FakeServer; memory?: ReturnType<typeof memoryOf>; document?: ProjectDoc; keys?: string } = {}) {
+  const timers: { run: () => void; ms: number }[] = [];
   let reply: Reply = request => Promise.resolve(server.save(request));
-  const api = { save: (request: SaveRequest) => reply(request) } as unknown as CloudApi;
-  const doc = structuredClone(sample) as ProjectDoc; doc.revision = revision;
+  const api = { save: (request: SaveRequest) => reply(request), load: (projectId: string) => Promise.resolve(server.load(projectId)) } as unknown as CloudApi;
+  const doc = structuredClone(document ?? sample) as ProjectDoc; doc.revision = revision;
   const store = new ProjectStore(doc, 'cloud_session'); let key = 0;
-  const saver = new CloudSaver(store, api, { delayMs: 2000, newKey: () => `k${++key}`, setTimer: (run, ms) => { const t = { run, ms }; timers.push(t); return t; }, clearTimer: t => { const i = timers.indexOf(t as never); if (i >= 0) timers.splice(i, 1); } });
+  const saver = new CloudSaver(store, api, { memory, delayMs: 2000, newKey: () => `${keys}${++key}`, setTimer: (run, ms) => { const t = { run, ms }; timers.push(t); return t; }, clearTimer: t => { const i = timers.indexOf(t as never); if (i >= 0) timers.splice(i, 1); } });
   const tick = async () => { const t = timers.shift(); if (!t) throw new Error('no timer'); t.run(); await new Promise(r => setTimeout(r, 0)); return t.ms; };
   let n = 0;
   const edit = (x: number) => { const r = store.execute({ id: `e${++n}`, baseGeneration: store.getSnapshot().localGeneration, type: 'MoveJunctions', moves: [{ junction: 'j2', to: [x, 0] }, { junction: 'j5', to: [x, 5000] }] } as Command); if (!r.ok) throw new Error('edit'); };
-  return { server, store, saver, timers, tick, edit, setReply: (next: Reply) => { reply = next; } };
+  return { server, memory, store, saver, timers, tick, edit, setReply: (next: Reply) => { reply = next; } };
 }
 const deferred = () => { let resolve!: (reply: SaveReply) => void; const promise = new Promise<SaveReply>(r => { resolve = r; }); return { promise, resolve }; };
 
@@ -161,5 +169,68 @@ describe('FR-031 cloud save queue (§H.5 client rules)', () => {
     h.saver.markConflict(9);
     expect(h.saver.getSnapshot()).toMatchObject({ phase: 'conflict', cloudRevision: 9 });
     h.edit(4700); expect(h.timers).toEqual([]);
+  });
+
+  // Audit 2026-10-19 (§H.5 local recovery). Each "relaunch" is a new store and saver over the same server and memory.
+  it('reopening an unchanged drawing uploads nothing and keeps the version history; a changed one still saves', async () => {
+    const first = harness(0); first.saver.start(); await first.tick(); first.saver.close();
+    const saved = first.store.getSnapshot().document as ProjectDoc;
+    for (let launch = 0; launch < 3; launch++) {
+      const again = harness(1, { server: first.server, memory: first.memory, document: saved, keys: 'launch1-' });
+      again.saver.start();
+      expect(again.timers).toEqual([]); expect(again.saver.getSnapshot()).toMatchObject({ phase: 'saved', serverRevision: 1 });
+      again.saver.close();
+    }
+    expect(first.server.requests).toHaveLength(1); expect(first.server.head.get('prj_sample_2room')!.revision).toBe(1);
+    const edited = harness(1, { server: first.server, memory: first.memory, document: saved, keys: 'launch2-' });
+    edited.edit(4600); edited.saver.start(); await edited.tick();
+    expect(first.server.requests.at(-1)).toMatchObject({ expectedServerRevision: 1 });
+    expect(edited.saver.getSnapshot()).toMatchObject({ phase: 'saved', serverRevision: 2 });
+  });
+
+  it('the app closed after the cloud acknowledged a save but before this device stored the new revision: no false conflict', async () => {
+    const first = harness(0); first.saver.start(); await first.tick(); first.saver.close();
+    const again = harness(0, { server: first.server, memory: first.memory, keys: 'launch0-' }); // the device copy still says revision 0
+    again.saver.start();
+    expect(again.timers).toEqual([]); expect(again.store.getSnapshot().document.revision).toBe(1);
+    expect(again.saver.getSnapshot()).toMatchObject({ phase: 'saved', serverRevision: 1 }); expect(first.server.requests).toHaveLength(1);
+  });
+
+  it('a save that reached the cloud but whose answer was lost before the app closed is recognised, not a conflict', async () => {
+    const first = harness(0);
+    first.setReply(request => { first.server.save(request); return Promise.resolve({ ok: false, code: 'NETWORK' }); });
+    first.saver.start(); await first.tick(); first.saver.close();
+    expect(first.server.head.get('prj_sample_2room')!.revision).toBe(1); expect(first.store.getSnapshot().document.revision).toBe(0);
+    const again = harness(0, { server: first.server, memory: first.memory, keys: 'launch3-' });
+    again.saver.start(); await again.tick();
+    expect(again.store.getSnapshot().document.revision).toBe(1);
+    expect(again.saver.getSnapshot()).toMatchObject({ phase: 'saved', serverRevision: 1 });
+    expect(first.server.head.get('prj_sample_2room')!.revision).toBe(1); // no second version
+    expect(again.memory.get('prj_sample_2room')?.pending).toBeUndefined();
+  });
+
+  it('after a lost answer, edits made after the relaunch go on top of the recognised save', async () => {
+    const first = harness(0);
+    first.setReply(request => { first.server.save(request); return Promise.resolve({ ok: false, code: 'NETWORK' }); });
+    first.saver.start(); await first.tick(); first.saver.close();
+    const again = harness(0, { server: first.server, memory: first.memory, keys: 'launch4-' });
+    again.edit(4600); again.saver.start(); await again.tick();
+    expect(again.store.getSnapshot().document.revision).toBe(1); expect(again.saver.getSnapshot().phase).toBe('waiting');
+    expect(await again.tick()).toBe(0);
+    expect(first.server.requests.at(-1)).toMatchObject({ expectedServerRevision: 1 });
+    expect(again.saver.getSnapshot()).toMatchObject({ phase: 'saved', serverRevision: 2 });
+    expect(JSON.parse(first.server.head.get('prj_sample_2room')!.document).junctions.find((j: { id: string }) => j.id === 'j2').x).toBe(4600);
+  });
+
+  it('a cloud head with other content after a lost answer is still a real conflict', async () => {
+    const first = harness(0);
+    first.setReply(request => { first.server.save(request); return Promise.resolve({ ok: false, code: 'NETWORK' }); });
+    first.saver.start(); await first.tick(); first.saver.close();
+    const other = harness(1, { server: first.server, memory: memoryOf(), document: JSON.parse(first.server.head.get('prj_sample_2room')!.document) as ProjectDoc, keys: 'launch5-' });
+    other.edit(4800); other.saver.start(); await other.tick(); other.saver.close(); // another device saved r2
+    const again = harness(0, { server: first.server, memory: first.memory, keys: 'launch6-' });
+    again.saver.start(); await again.tick();
+    expect(again.saver.getSnapshot()).toMatchObject({ phase: 'conflict', cloudRevision: 2 });
+    expect(again.store.getSnapshot().document.revision).toBe(0);
   });
 });

@@ -44,13 +44,16 @@ Codes: `NOT_SIGNED_IN`, `INVALID_REQUEST`, `INVALID_DOCUMENT`, `TOO_LARGE`, `NOT
    `gen_random_uuid()`, so no extension is needed. Only `sha256(token)` is stored, and the owner cannot even read
    the hash column. The app will put the token after `#` in the link, so it never reaches server logs or
    referrers. Up to 10 live links per project; a link shows the current head; trash, revoke or account deletion
-   stops it at once. There is no SQL rate limit on link guessing; 244 bits makes guessing hopeless, and
+   stops it at once, and for good: taking a drawing out of the trash does not bring its old links back (audit). There is no SQL rate limit on link guessing; 244 bits makes guessing hopeless, and
    Supabase's API gateway limits apply.
 5. **Account deletion is immediate.** `delete_account('DELETE')` deletes the `auth.users` row, which cascades to the
    profile, projects, versions, receipts and links, and removes the user's audit rows (a single anonymous
    `account_delete` row remains). This is stricter than §FR-043's "≤ 30 days". Supabase's own backups expire on
    their schedule (to be disclosed as ≤ 90 days in the privacy policy). §D.8's "recent sign-in" check is done in
-   the app by asking the user to sign in again just before deleting; SQL cannot see when the sign-in happened.
+   the app by asking the user to sign in again just before deleting, and (audit 2026-10-19, migration
+   `20261019000000_audit_fixes.sql`) again by the database: the token's `amr` sign-in time must be within the last
+   10 minutes, else `REAUTH_REQUIRED` and nothing is deleted. (The earlier note that SQL cannot see the sign-in
+   time was wrong.)
    **Not yet proven on real Supabase:** that the migration owner may delete from `auth.users` (the common
    Supabase pattern; the stand-in allows it).
 6. **Anti-abuse limit:** 200 projects per account (not a paid-plan limit; billing stays gated).

@@ -3,7 +3,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // FR-031 Android (D71) sign-in through the system browser and the app's deep link. Claude-authored tests with the
 // Capacitor plugins and the Supabase client replaced by recorders; no phone or real Google sign-in is involved.
 const calls: string[] = [];
-let native = true, launchUrl: string | undefined, urlListener: ((event: { url: string }) => void) | undefined;
+let native = true, refuseCode = false, launchUrl: string | undefined, urlListener: ((event: { url: string }) => void) | undefined;
 vi.mock('@capacitor/core', () => ({ Capacitor: { isNativePlatform: () => native } }));
 vi.mock('@capacitor/app', () => ({ App: {
   addListener: (name: string, listener: (event: { url: string }) => void) => { calls.push(`listen:${name}`); urlListener = listener; return Promise.resolve({ remove: () => Promise.resolve() }); },
@@ -17,15 +17,15 @@ vi.mock('@supabase/supabase-js', () => ({ createClient: () => ({ auth: {
   getSession: () => Promise.resolve({ data: { session: null } }),
   onAuthStateChange: () => undefined,
   signInWithOAuth: (credentials: { options: { redirectTo: string; skipBrowserRedirect?: boolean } }) => { calls.push(`oauth:${credentials.options.redirectTo}:${credentials.options.skipBrowserRedirect === true}`); return Promise.resolve({ data: { url: 'https://abcdefghij.supabase.co/auth/v1/authorize?provider=google' }, error: null }); },
-  exchangeCodeForSession: (code: string) => { calls.push(`exchange:${code}`); return Promise.resolve({ error: null }); },
+  exchangeCodeForSession: (code: string) => { calls.push(`exchange:${code}`); return Promise.resolve({ error: refuseCode ? { message: 'invalid grant' } : null }); },
   signOut: () => Promise.resolve({ error: null }),
 } }) }));
 
 const { createSupabaseApi, NATIVE_AUTH_REDIRECT, nativeAuthCode } = await import('./api');
-const { cloudWasUsed } = await import('./session');
+const { CloudSession, cloudWasUsed } = await import('./session');
 const config = { url: 'https://abcdefghij.supabase.co', anonKey: 'sb_publishable_x' };
 const settle = () => new Promise(resolve => setTimeout(resolve, 0));
-beforeEach(() => { calls.length = 0; native = true; launchUrl = undefined; urlListener = undefined; });
+beforeEach(() => { calls.length = 0; native = true; refuseCode = false; launchUrl = undefined; urlListener = undefined; });
 
 describe('FR-031 Android sign-in', () => {
   it('reads the code only from our own deep link', () => {
@@ -63,5 +63,27 @@ describe('FR-031 Android sign-in', () => {
     const api = await createSupabaseApi(config);
     await api.signInWithGoogle('https://app.example.in/');
     expect(calls).toEqual(['oauth:https://app.example.in/:false']);
+  });
+
+  // Audit 2026-10-19: a failed sign-in used to leave the app silently signed out.
+  it('a refused sign-in or a code the server does not accept is reported once; other links and a good code report nothing', async () => {
+    const api = await createSupabaseApi(config); let failures = 0;
+    api.onSignInFailed(() => failures++);
+    urlListener!({ url: 'https://example.com/?error=x' }); await settle();
+    urlListener!({ url: 'com.gharplan.app://auth-callback?code=good-code-1' }); await settle(); await settle();
+    expect(failures).toBe(0);
+    urlListener!({ url: 'com.gharplan.app://auth-callback?error=access_denied&error_description=refused' }); await settle(); await settle();
+    expect(failures).toBe(1); expect(calls.filter(c => c.startsWith('exchange:'))).toEqual(['exchange:good-code-1']); expect(calls.at(-1)).toBe('close');
+    refuseCode = true;
+    urlListener!({ url: 'com.gharplan.app://auth-callback?code=stale-code-2' }); await settle(); await settle();
+    expect(failures).toBe(2);
+  });
+
+  it('a failed cold-start sign-in is shown by the cloud session as soon as it connects', async () => {
+    launchUrl = 'com.gharplan.app://auth-callback?error=access_denied';
+    const session = new CloudSession(config, createSupabaseApi);
+    await session.ensure();
+    expect(session.getSnapshot()).toEqual({ status: 'signed-out', user: null, signInFailed: true });
+    expect(calls).toEqual(['listen:appUrlOpen', 'close']);
   });
 });

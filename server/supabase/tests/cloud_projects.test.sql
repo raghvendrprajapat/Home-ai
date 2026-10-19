@@ -75,6 +75,8 @@ select t.eq('document revision must match the base', public.save_snapshot('prj_s
 select t.eq('schemaVersion must be 1', public.save_snapshot('prj_sample_2room', 2, 'bad-3', jsonb_set(t.doc(2), '{schemaVersion}', '2')) ->> 'code', 'INVALID_DOCUMENT');
 select t.eq('walls must be an array', public.save_snapshot('prj_sample_2room', 2, 'bad-4', jsonb_set(t.doc(2), '{walls}', '{}')) ->> 'code', 'INVALID_DOCUMENT');
 select t.eq('empty name refused', public.save_snapshot('prj_sample_2room', 2, 'bad-5', t.doc(2, '')) ->> 'code', 'INVALID_DOCUMENT');
+select t.eq('a missing name is INVALID_DOCUMENT, not a database error', public.save_snapshot('prj_sample_2room', 2, 'bad-5b', t.doc(2) - 'name') ->> 'code', 'INVALID_DOCUMENT');
+select t.eq('a missing revision is INVALID_DOCUMENT', public.save_snapshot('prj_sample_2room', 2, 'bad-5c', t.doc(2) - 'revision') ->> 'code', 'INVALID_DOCUMENT');
 select t.eq('121-character name refused', public.save_snapshot('prj_sample_2room', 2, 'bad-6', t.doc(2, repeat('x', 121))) ->> 'code', 'INVALID_DOCUMENT');
 select t.eq('a document over 10 MiB is refused', public.save_snapshot('prj_sample_2room', 2, 'bad-7', jsonb_set(t.doc(2), '{cameras}', jsonb_build_array(repeat('x', 10485760)))) ->> 'code', 'TOO_LARGE');
 select t.eq('bad command id refused', public.save_snapshot('prj_sample_2room', 2, 'has space', t.doc(2)) ->> 'code', 'INVALID_REQUEST');
@@ -153,8 +155,16 @@ select t.eq('trashed project not visible by link', public.get_shared_project(:'s
 select t.eq('a trashed project refuses saves', public.save_snapshot('prj_sample_2room', 26, 'save-a-trashed', t.doc(26)) ->> 'code', 'PROJECT_TRASHED');
 select t.eq('trashing twice is not found', public.trash_project('prj_sample_2room', true) ->> 'code', 'NOT_FOUND');
 select t.eq('untrash', public.trash_project('prj_sample_2room', false), '{"ok":true}'::jsonb);
-select t.eq('revoke the link', public.revoke_share((select id from public.project_shares limit 1)), '{"ok":true}'::jsonb);
-select t.eq('revoking twice is not found', public.revoke_share((select id from public.project_shares limit 1)) ->> 'code', 'NOT_FOUND');
+select t.eq('trash ended the link for good: no live share rows after untrash', (select count(*) from public.project_shares where revoked_at is null), 0::bigint);
+:as_anon
+select t.eq('the old link stays dead after untrash', public.get_shared_project(:'share_token') ->> 'code', 'NOT_FOUND');
+:as_a
+select public.create_share('prj_sample_2room') ->> 'token' as token \gset share_
+:as_anon
+select t.eq('a new link works after untrash', public.get_shared_project(:'share_token') ->> 'serverRevision', '26');
+:as_a
+select t.eq('revoke the link', public.revoke_share((select id from public.project_shares where revoked_at is null)), '{"ok":true}'::jsonb);
+select t.eq('revoking twice is not found', public.revoke_share((select id from public.project_shares order by created_at desc limit 1)) ->> 'code', 'NOT_FOUND');
 :as_anon
 select t.eq('a revoked link finds nothing', public.get_shared_project(:'share_token') ->> 'code', 'NOT_FOUND');
 :as_b
@@ -188,7 +198,14 @@ select t.eq('then the next project saves', public.save_snapshot('prj_q201', 0, '
 :as_a
 select public.create_share('prj_sample_2room') ->> 'token' as token \gset live_
 select t.eq('deletion needs the confirmation word', public.delete_account('yes'), '{"ok":false,"code":"CONFIRMATION_REQUIRED"}'::jsonb);
-select t.eq('delete A''s account', public.delete_account('DELETE'), '{"ok":true}'::jsonb);
+select t.eq('§D.8 a token without a sign-in time cannot delete', public.delete_account('DELETE'), '{"ok":false,"code":"REAUTH_REQUIRED"}'::jsonb);
+select set_config('request.jwt.claims', jsonb_build_object('sub', '00000000-0000-4000-8000-00000000000a', 'role', 'authenticated',
+  'amr', jsonb_build_array(jsonb_build_object('method', 'oauth', 'timestamp', floor(extract(epoch from now())) - 660)))::text, false) is not null as stale \gset
+select t.eq('§D.8 a sign-in 11 minutes ago cannot delete', public.delete_account('DELETE'), '{"ok":false,"code":"REAUTH_REQUIRED"}'::jsonb);
+select t.eq('refused deletions removed nothing', (select count(*) from public.projects where id = 'prj_sample_2room'), 1::bigint);
+select set_config('request.jwt.claims', jsonb_build_object('sub', '00000000-0000-4000-8000-00000000000a', 'role', 'authenticated',
+  'amr', jsonb_build_array(jsonb_build_object('method', 'oauth', 'timestamp', floor(extract(epoch from now())) - 120)))::text, false) is not null as fresh \gset
+select t.eq('delete A''s account (signed in 2 minutes ago)', public.delete_account('DELETE'), '{"ok":true}'::jsonb);
 :as_anon
 select t.eq('A''s live link stops working at once', public.get_shared_project(:'live_token') ->> 'code', 'NOT_FOUND');
 :as_admin
