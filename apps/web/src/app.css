@@ -807,3 +807,19 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .tool-panel-body select, .tool-panel-body input:not([type=checkbox]):not([type=radio]):not([type=range]):not([type=color]) { display:block; width:100%; min-height:44px; margin-top:4px; padding:8px 10px; border:1px solid #d5ddd6; border-radius:8px; background:#fbfcf9; }
 .tool-panel-body button { margin:4px 6px 4px 0; }
 .tool-panel-body .local-saving, .tool-panel-body section + section { margin-top:12px; }
+/* D76 M3 Copilot chat: note, starter chips, the conversation (newest last) and the ask box. */
+.copilot { display:flex; flex-direction:column; gap:10px; padding-bottom:12px; margin-bottom:16px; border-bottom:1px solid #e5ebe1; }
+.copilot-note { font-size:12px; color:#5f6f64; background:#f4f1ea; border-radius:8px; padding:8px 10px; }
+.copilot-chips { display:flex; flex-wrap:wrap; gap:6px; }
+.tool-panel-body .copilot-chips button, .copilot-chips button { margin:0; min-height:40px; padding:6px 12px; border-radius:20px; font-size:13px; background:#eef5f0; border-color:#cfe0d4; color:#24513a; }
+.copilot-log { list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; max-height:min(46vh,420px); overflow-y:auto; overscroll-behavior:contain; }
+.copilot-log:empty { display:none; }
+.copilot-line { max-width:92%; padding:8px 12px; border-radius:14px; font-size:13px; line-height:1.5; background:#f2f4f1; align-self:flex-start; }
+.copilot-line.from-me { align-self:flex-end; background:#2f5a40; color:#fff; border-bottom-right-radius:4px; }
+.copilot-line.from-copilot { border-bottom-left-radius:4px; }
+.copilot-who { display:block; font-size:10px; font-weight:600; letter-spacing:.4px; text-transform:uppercase; opacity:.7; }
+.copilot-line p { margin:0; font-size:13px; }
+.copilot-line .ai-layout { margin-top:8px; }
+.copilot-ask { display:flex; gap:8px; align-items:center; }
+.tool-panel-body .copilot-ask input, .copilot-ask input { flex:1 1 auto; margin:0; min-height:44px; border-radius:22px; padding:0 14px; }
+.tool-panel-body .copilot-ask button, .copilot-ask button { width:auto; margin:0; min-height:44px; border-radius:22px; padding:0 18px; }

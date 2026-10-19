@@ -11,6 +11,8 @@ export const FURNITURE_ALIGN_MODES: readonly FurnitureAlignMode[] = ['left', 'ri
 export const MAX_FLOORS = 6;
 /** D73: most furniture items one AddFurnitureBatch command may add. */
 export const MAX_FURNITURE_BATCH = 20;
+/** D76: most surfaces one ApplySurfaceMaterials command may paint. */
+export const MAX_SURFACE_BATCH = 1000;
 /** Pivot used by RotateFurniture: the integer-rounded centre of the items' combined axis-aligned footprint box. */
 export function furnitureTurnPivot(items: readonly Pick<FurnitureItem, 'position' | 'size' | 'rotationDeg'>[]): [number, number] {
   if (!items.length) throw new GeometryError('selection', 'Choose furniture to turn.');
@@ -35,6 +37,7 @@ export type Command = CommandBase & (
   | { type: 'ReverseWall'; wallId: string }
   | { type: 'UpdateWall'; wallId: string; properties: Partial<Pick<Wall, 'thickness' | 'height' | 'leftMaterial' | 'rightMaterial'>> }
   | { type:'ApplySurfaceMaterial';target:SurfaceMaterialTarget;material:MaterialDef }
+  | { type:'ApplySurfaceMaterials';targets:readonly SurfaceMaterialTarget[];material:MaterialDef }
   | { type: 'SetFurnitureFinish'; furnitureIds: readonly string[]; material: MaterialDef | null }
   | { type: 'AddOpening'; opening: Omit<Opening, 'rev'> }
   | { type: 'UpdateOpening'; openingId: string; properties: Partial<Pick<Opening, 'offset' | 'width' | 'height' | 'sill' | 'flipX' | 'flipY'>> }
@@ -236,16 +239,22 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       for (const item of items) if (canonicalStringify(item.materialOverrides) !== canonicalStringify(next)) item.materialOverrides = { ...next };
       break;
     }
-    case 'ApplySurfaceMaterial': {
-      const {target,material}=command;
-      if(!target||typeof target!=='object'||!['wall','floor'].includes(target.kind)||typeof target.id!=='string'||target.kind==='wall'&&!['left','right'].includes(target.side)||!material||typeof material!=='object'||Array.isArray(material))throw new GeometryError('command-properties','Choose a valid wall side or room floor and material.');
+    case 'ApplySurfaceMaterial':
+    case 'ApplySurfaceMaterials': {
+      // D76 M3: the batch form paints many surfaces as one Undo step; it is all-or-nothing like every command.
+      const {material}=command,targets=command.type==='ApplySurfaceMaterial'?[command.target]:command.targets;
+      if(!Array.isArray(targets)||targets.length<1||targets.length>MAX_SURFACE_BATCH)throw new GeometryError('selection',`Choose 1 to ${MAX_SURFACE_BATCH} surfaces.`);
+      if(targets.some(target=>!target||typeof target!=='object'||!['wall','floor'].includes(target.kind)||typeof target.id!=='string'||target.kind==='wall'&&!['left','right'].includes(target.side))||!material||typeof material!=='object'||Array.isArray(material))throw new GeometryError('command-properties','Choose a valid wall side or room floor and material.');
+      if(new Set(targets.map(t=>t.kind==='wall'?`w:${t.id}:${t.side}`:`f:${t.id}`)).size!==targets.length)throw new GeometryError('selection','Each surface may be chosen once.');
       const existing=draft.materials.find(m=>m.id===material.id);
       if(existing&&canonicalStringify(existing)!==canonicalStringify(material))throw new GeometryError('material-conflict','This material ID already has a different definition.',[material.id]);
       // One atomic paint transaction also installs a new local-library definition.
       // Existing definitions are never overwritten or silently recoloured elsewhere.
       if(!existing)draft.materials.push({...material});
-      if(target.kind==='wall'){const w=wall(target.id);if(target.side==='left')w.leftMaterial=material.id;else w.rightMaterial=material.id;}
-      else requireEntity(draft.rooms,target.id).floorMaterial=material.id;
+      for(const target of targets){
+        if(target.kind==='wall'){const w=wall(target.id);if(target.side==='left')w.leftMaterial=material.id;else w.rightMaterial=material.id;}
+        else requireEntity(draft.rooms,target.id).floorMaterial=material.id;
+      }
       break;
     }
     case 'AddOpening': draft.openings.push({ ...command.opening, rev: 0 }); break;
@@ -470,7 +479,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       const oldEntity = old.get(e.id), ownChange = JSON.stringify(e) !== JSON.stringify(oldEntity);
       // Surface paint changes one binding, not hosted geometry or room boundaries.
       // Scene material dependencies are derived separately from canonical IDs.
-      const geometryDependency = command.type!=='ApplySurfaceMaterial'&&(group === 'walls' && (dirtyWalls.has(e.id) || changed.has((e as Wall).a) || changed.has((e as Wall).b)) ||
+      const geometryDependency = command.type!=='ApplySurfaceMaterial'&&command.type!=='ApplySurfaceMaterials'&&(group === 'walls' && (dirtyWalls.has(e.id) || changed.has((e as Wall).a) || changed.has((e as Wall).b)) ||
         group === 'rooms' && ((e as Room).boundary.some(id => changed.has(id)) || draft.walls.some(w => changed.has(w.id) && (e as Room).boundary.includes(w.a) && (e as Room).boundary.includes(w.b))) ||
         group === 'openings' && changed.has((e as Opening).wallId));
       if (ownChange || geometryDependency) {
