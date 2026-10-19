@@ -1,7 +1,7 @@
 import {describe,expect,it} from 'vitest';
 import fc from 'fast-check';
 import type {CatalogAsset} from '../catalog/catalog';
-import {acceptSuggestions,fitsRoom,MAX_SUGGESTIONS,roomBrief,swapSuggestion} from './furniture-suggest';
+import {acceptSuggestions,fitsRoom,largestRect,MAX_SUGGESTIONS,roomBrief,swapSuggestion} from './furniture-suggest';
 import type {RoomBrief,SizePreference} from './furniture-suggest';
 import {standInAi} from './stand-in';
 
@@ -137,6 +137,20 @@ describe('D73 offline stand-in',()=>{
   expect(out.map(s=>aids(s.options))).toEqual([['a_a','a_c','a_d'],['a_b']]);
   const narrow=acceptSuggestions([{assetId:'a_d',options:['a_d',asset('a_f',3100,500).id]}],brief(3000,2000),[D,asset('a_f',3100,500)]);
   expect(aids(narrow[0]!.options)).toEqual(['a_d']); // a_f does not fit either way
+ });
+ it('an option listed for two ideas belongs to the first only (audit fix)',()=>{
+  const A=asset('a_a',1000,500),B=asset('a_b',1000,500),Q=asset('a_q',900,500);
+  const out=acceptSuggestions([{assetId:'a_a',options:['a_a','a_q']},{assetId:'a_b',options:['a_b','a_q']}],brief(4000,4000),[A,B,Q]);
+  expect(out.map(s=>aids(s.options))).toEqual([['a_a','a_q'],['a_b']]);
+ });
+ it('an L-shaped room is judged by its biggest clear rectangle, not its bounding box (audit fix)',async()=>{
+  // Arms 5800 x 1800 and 1800 x 4000; bounding box 5800 x 5800.
+  const arm=largestRect([[0,0,5800,1800],[0,1800,1800,5800]])!;
+  expect(arm).toEqual([0,0,5800,1800]);
+  // Spacious bedroom in the 5800 x 1800 arm, budget 5,220,000: the king fits neither way (1900 > 1800; 2150 + 600 > 1800);
+  // the queen only turned (1620 <= 1800, 2750 <= 5800), 3,483,000; sliding wardrobe 1,170,000; bedside 180,000;
+  // then 387,000 is left, less than the dressing table's 450,000.
+  expect(ids(await ask(roomBrief('bedroom',arm,[])))).toEqual(['a_l0_queen_bed','a_l0_wardrobe_sliding','a_l0_nightstand']);
  });
  it('swapSuggestion moves to the next option that keeps all ideas within half the floor, wrapping round',async()=>{
   // Balanced bedroom: the other ideas use 900,000 + 180,000 + 450,000 + 720,000 = 2,250,000 of 7,934,895.

@@ -708,6 +708,7 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .ai-layout .ai-piece-active{stroke:#b6723f;stroke-width:40}
 .ai-adjust{margin:8px 0}.ai-adjust .ai-layout-actions button{min-width:48px}
 .ai-layout-actions button[aria-pressed=true]{background:#2e7d5a;color:#fff}
-.ai-photo-frame{position:relative;display:inline-block;max-width:100%}.ai-photo-frame .ai-photo-thumb{display:block}
+/* The frame carries the border and margin so marks, placed in % of the frame, sit exactly where the picture was tapped. */
+.ai-photo-frame{position:relative;display:inline-block;max-width:100%;margin:8px 0;border:1px solid #d7ddd9;border-radius:8px}.ai-photo-frame .ai-photo-thumb{display:block;margin:0;border:0;border-radius:0}
 .ai-photo-marking{cursor:crosshair;outline:3px solid #b6723f}
 .ai-mark{position:absolute;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#b6723f;border:2px solid #fff;pointer-events:none}

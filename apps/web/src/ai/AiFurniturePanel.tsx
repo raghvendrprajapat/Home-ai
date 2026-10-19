@@ -1,11 +1,11 @@
-import {useEffect,useState,useSyncExternalStore} from 'react';
+import {useEffect,useRef,useState,useSyncExternalStore} from 'react';
 import type {ProjectStore,RoomType} from '@gharplan/core-model';
 import {assetName,latestAssets} from '../catalog/catalog';
 import type {Catalog,CatalogAsset} from '../catalog/catalog';
 import {message} from '../i18n/messages';
 import type {Locale} from '../i18n/messages';
 import type {Point2} from '../editor/view2d';
-import {acceptSuggestions,roomBrief,SIZE_PREFERENCES,swapSuggestion,WALKWAY_MM} from './furniture-suggest';
+import {acceptSuggestions,largestRect,roomBrief,SIZE_PREFERENCES,swapSuggestion,WALKWAY_MM} from './furniture-suggest';
 import type {AiProvider,FurnitureSuggestion,RoomBrief,SizePreference} from './furniture-suggest';
 import {acceptLayouts,adjustPlacement,footprint,layoutRoom,NUDGE_MM} from './layout';
 import type {LayoutResult,LayoutRoom,PlacementProblem} from './layout';
@@ -23,29 +23,34 @@ export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,o
  const [chosen,setChosen]=useState(''),[state,setState]=useState<State>({phase:'idle'}),[size,setSize]=useState<SizePreference>('balanced');
  const roomId=rooms.some(r=>r.id===chosen)?chosen:selectedRoomId&&rooms.some(r=>r.id===selectedRoomId)?selectedRoomId:rooms[0]?.id??'';
  useEffect(()=>{if(selectedRoomId)setChosen(selectedRoomId);},[selectedRoomId]);
- useEffect(()=>{setState({phase:'idle'});},[roomId]);
- const room=rooms.find(r=>r.id===roomId),face=snapshot.derived.faces.find(f=>f.roomId===roomId);
+ // Every new request, room or size makes older answers stale; they are dropped when they arrive.
+ const request=useRef(0);
+ useEffect(()=>{request.current++;setState({phase:'idle'});},[roomId]);
+ const room=rooms.find(r=>r.id===roomId),face=snapshot.derived.faces.find(f=>f.roomId===roomId),floor=face&&largestRect(face.clearRects);
  const suggest=async()=>{
-  if(!room||!face)return;
+  if(!room||!face||!floor)return;
+  const ticket=++request.current;
   setState({phase:'loading'});const controller=new AbortController();
   try{
-   const candidates=latestAssets(await catalog(controller.signal)),existing=snapshot.document.furniture.filter(f=>{const [x0,y0,x1,y1]=face.clearRect;return f.position.x>=x0&&f.position.x<=x1&&f.position.y>=y0&&f.position.y<=y1;}).map(f=>f.assetId);
+   const candidates=latestAssets(await catalog(controller.signal)),existing=snapshot.document.furniture.filter(f=>face.clearRects.some(([x0,y0,x1,y1])=>f.position.x>=x0&&f.position.x<=x1&&f.position.y>=y0&&f.position.y<=y1)).map(f=>f.assetId);
    // The model validator only admits known room types.
-   const brief={...roomBrief(room.type as RoomType,face.clearRect,existing),size};
-   setState({phase:'ready',roomId:room.id,brief,items:acceptSuggestions(await provider.suggestFurniture(brief,candidates,controller.signal),brief,candidates)});
-  }catch{setState({phase:'failed'});}
+   const brief={...roomBrief(room.type as RoomType,floor,existing),size},answer=await provider.suggestFurniture(brief,candidates,controller.signal);
+   if(ticket===request.current)setState({phase:'ready',roomId:room.id,brief,items:acceptSuggestions(answer,brief,candidates)});
+  }catch{if(ticket===request.current)setState({phase:'failed'});}
  };
  const arrange=async()=>{
   if(state.phase!=='ready'||!room||!face)return;
   const items=state.items.map(s=>s.asset),floorId=snapshot.document.floors[0]!.id,generation=snapshot.localGeneration;
   const facts=layoutRoom(snapshot.document,face,room.type as RoomType,floorId);
+  const ideas=state.items;
   setState({...state,layout:'loading',note:undefined});
   try{
    // Each idea may be replaced by one of its smaller options when it has no safe spot.
    const options=new Map(state.items.map(s=>[s.asset.id,s.options])),found=acceptLayouts(await provider.suggestLayout(facts,items,new AbortController().signal,options),facts,items,options);
    const results=found.length?found:[{placed:[],skipped:items}];
-   setState(s=>s.phase==='ready'&&s.roomId===state.roomId?{...s,layout:{generation,floorId,room:facts,results,chosen:0,piece:0}}:s);
-  }catch{setState(s=>s.phase==='ready'?{...s,layout:'failed'}:s);}
+   // Only for the same ideas: a swap or a new request while waiting makes this answer stale.
+   setState(s=>s.phase==='ready'&&s.items===ideas?{...s,layout:{generation,floorId,room:facts,results,chosen:0,piece:0}}:s);
+  }catch{setState(s=>s.phase==='ready'&&s.items===ideas?{...s,layout:'failed'}:s);}
  };
  const apply=()=>{
   if(state.phase!=='ready'||!state.layout||typeof state.layout==='string')return;
@@ -57,14 +62,14 @@ export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,o
   setState({...state,layout:undefined,note:outcome.ok?'added':'rejected',added:furniture.length});
  };
  const reason=(s:FurnitureSuggestion)=>s.reason.kind==='text'?s.reason[locale]:message(locale,s.reason.kind==='largest'?'aiReasonLargest':'aiReasonFits',{walk:WALKWAY_MM});
- const centre=():Point2=>{const [x0,y0,x1,y1]=face!.clearRect;return [Math.round((x0+x1)/2),Math.round((y0+y1)/2)];};
+ const centre=():Point2=>{const [x0,y0,x1,y1]=floor!;return [Math.round((x0+x1)/2),Math.round((y0+y1)/2)];};
  const layout=state.phase==='ready'?state.layout:undefined;
  return <section className="drawing-controls ai-panel" aria-label={message(locale,'aiTitle')}>
   <h3>{message(locale,'aiTitle')}</h3>
   <p className="structure-note">{message(locale,provider.kind==='stand-in'?'aiTestMode':'aiServerMode')}</p>
   {!rooms.length?<p>{message(locale,'aiNoRooms')}</p>:<>
    <label>{message(locale,'aiRoom')}<select aria-label={message(locale,'aiRoom')} value={roomId} onChange={event=>setChosen(event.target.value)}>{rooms.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label>
-   <label>{message(locale,'aiSizeChoice')}<select aria-label={message(locale,'aiSizeChoice')} value={size} onChange={event=>{setSize(event.target.value as SizePreference);setState({phase:'idle'});}}>{SIZE_PREFERENCES.map(p=><option key={p} value={p}>{message(locale,`aiSize_${p}` as const)}</option>)}</select></label>
+   <label>{message(locale,'aiSizeChoice')}<select aria-label={message(locale,'aiSizeChoice')} value={size} onChange={event=>{setSize(event.target.value as SizePreference);request.current++;setState({phase:'idle'});}}>{SIZE_PREFERENCES.map(p=><option key={p} value={p}>{message(locale,`aiSize_${p}` as const)}</option>)}</select></label>
    <p className="structure-note">{message(locale,'aiTip')}</p>
    <button className="primary-button" disabled={state.phase==='loading'} onClick={()=>{void suggest();}}>{message(locale,'aiSuggest')}</button>
   </>}
@@ -79,10 +84,10 @@ export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,o
    </li>;})}</ul>
    <button disabled={layout==='loading'} onClick={()=>{void arrange();}}>{message(locale,'aiArrange')}</button>
   </>:<p role="status">{message(locale,'aiNone')}</p>)}
-  {layout==='loading'&&<p role="status">{message(locale,'aiThinking')}</p>}
-  {layout==='failed'&&<p role="alert">{message(locale,'aiFailed')}</p>}
+  {layout==='loading'&&<p role="status">{message(locale,'aiArranging')}</p>}
+  {layout==='failed'&&<p role="alert">{message(locale,'aiLayoutFailed')}</p>}
   {layout&&typeof layout==='object'&&<LayoutPreview layout={layout} locale={locale} onApply={apply} onCancel={()=>{if(state.phase==='ready')setState({...state,layout:undefined});}} onChange={next=>{if(state.phase==='ready')setState({...state,layout:next});}}/>}
-  {state.phase==='ready'&&state.note&&<p role={state.note==='added'?'status':'alert'}>{state.note==='added'?message(locale,'aiLayoutAdded',{count:state.added??0}):message(locale,state.note==='stale'?'aiLayoutStale':'aiFailed')}</p>}
+  {state.phase==='ready'&&state.note&&<p role={state.note==='added'?'status':'alert'}>{state.note==='added'?message(locale,'aiLayoutAdded',{count:state.added??0}):message(locale,state.note==='stale'?'aiLayoutStale':'aiLayoutRejected')}</p>}
  </section>;
 }
 

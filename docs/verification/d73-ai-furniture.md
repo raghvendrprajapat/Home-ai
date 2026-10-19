@@ -340,5 +340,28 @@ The test picture is the same two-room PNG, built in the test.
 ![Trace-over picture under the sample plan](images/d73-ai-photo-underlay.png)
 ![Rooms read from the test sketch](images/d73-ai-photo-rooms.png)
 
+## Audit (2026-10-19): independent review and comparison with Planner 5D
+A separate review agent read the AI code. It confirmed four findings by running probes and four by reading the code. All eight are fixed here:
+
+| # | Finding | Fix | Test (fails without the fix) |
+|---|---|---|---|
+| 1 | Ideas that arrived after the room or size changed were shown for the new room. | A request ticket; an older answer is dropped. | `ai-panel-ui.test.tsx`: room changed and size changed while waiting. |
+| 2 | L-shaped rooms were judged by their bounding box: a king bed was suggested where it cannot fit, and "Place" could land in the notch. | Brief, "Place" centre and "already in the room" use the biggest clear rectangle (`largestRect`) and the real clear rectangles. | `furniture-suggest.test.ts`: 5800 × 1800 arm gives queen (turned), sliding wardrobe, bedside table. |
+| 3 | Sketch edges merged in chains: edges 1000 mm apart ended up on one line. | A group spans at most 300 mm from its smallest edge. | `sketch.test.ts`: widths 3150, 3150, 3650, 3650, 4000 (was 3500 each). |
+| 4 | Two ideas could share an option, so swapping both showed the same piece twice. | An option belongs to the first idea that lists it. | `furniture-suggest.test.ts`. |
+| 5 | A slow layout answer could attach to ideas that had since been swapped. | It is kept only for the same ideas. | `ai-panel-ui.test.tsx`. |
+| 6 | Wrong texts: photo reading showed "Finding furniture…" and the ideas error; a rejected layout showed the ideas error; "touches" where only overlapping is refused. | Own English and Hindi texts for reading the photo, arranging, a failed or rejected layout, and the server photo mode; "would overlap". | `ai-panel-ui.test.tsx` (failed layout text); the rest by reading. |
+| 7 | Scale-mark dots were drawn off the tapped point (border and margin). | The frame carries the border and margin. | `ai-photo-plan.spec.ts`: each dot centre is within 1 px of the tap (the old CSS gave 1.8 px). |
+| 8 | Choosing a second picture while the first was still opening could keep the first in memory or show it. | A ticket: the last choice wins, and a late picture is released. | By reading only. The race cannot be timed reliably in a browser test. |
+
+The review also checked these and found them sound: one-step undo of `AddFurnitureBatch`, the layout boundary's checks, facing directions against the 3D renderer, layouts on the active floor, and corner-touching sketch rooms.
+
+The comparison with Planner 5D is from its public help and product pages and from review sites; planner5d.com itself could not be reached from this environment. Planner 5D:
+- uses computer vision for plan recognition (walls, doors, windows; Premium; dimensions needed);
+- has an AI Designer that furnishes, restyles and rearranges, with endless shuffle, across several styles;
+- has a Smart Wizard and AI image tools.
+
+Our offline stand-in covers the same three tasks only in simpler, rule-based form. Real photo recognition, styles and endless variety need a hosted model, which stays gated, and new style catalogues.
+
 ## Not covered
 - Real phones, a hosted model, cost limits, and how good the ideas look to a designer.

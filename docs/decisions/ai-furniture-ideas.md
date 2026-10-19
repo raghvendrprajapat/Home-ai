@@ -123,7 +123,7 @@ Status: accepted by Claude Code on the owner's instruction, 2026-10-18. This ove
   - Each room must be 1.2–15 m along each side, inside ±50 m.
   - Unknown room types become "other".
   - Shapes of the wrong size are dropped *before* edges are merged, so they cannot pull good edges.
-  - Edges within 300 mm of each other are merged onto their mean, on a 50 mm grid.
+  - Edges within 300 mm of the smallest edge of their group are merged onto the group's mean, on a 50 mm grid. A chain of close edges cannot grow into one wide group (audit fix).
   - Overlapping rooms are dropped.
   - Four-way crossings are not allowed in L0. Where one would appear, the line east of the crossing moves 150 mm south for the rooms touching it, which leaves two T junctions.
   - Doors (at most 40):

@@ -41,6 +41,11 @@ describe('D73 acceptSketch',()=>{
   expect(out.doors).toEqual([{x:4000,y:1500,width:900},{x:2000,y:3000,width:1000}]);
   expect(out.dropped).toBe(5);
  });
+ it('a chain of close edges is not merged into one wide group (audit fix)',()=>{
+  // East edges 3000 | 3250 | 3500 | 3750 | 4000: groups {3000,3250} -> 3125 -> 3150, {3500,3750} -> 3625 -> 3650, {4000}.
+  const stacked=[3000,3250,3500,3750,4000].map((east,i)=>({x:0,y:i*2000,width:east,depth:2000}));
+  expect(acceptSketch(stacked).rooms.map(r=>r.width)).toEqual([3150,3150,3650,3650,4000]);
+ });
  it('staggers the four-way crossing of an exact 2 x 2 grid by 150 mm so every room can be built',()=>{
   const grid=[[0,0],[3000,0],[0,3000],[3000,3000]].map(([x,y])=>({x:x!,y:y!,width:3000,depth:3000,type:'bedroom' as const}));
   const out=acceptSketch(grid);
