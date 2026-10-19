@@ -26,10 +26,12 @@ export function showcaseSample():unknown{
  return document;
 }
 /**
- * Browser tests built in e2e mode may ask for the unfurnished fixture (`?sample=fixture`): tests written against its
- * exact furniture keep their hand-derived assertions. Production builds ignore the parameter.
+ * Browser tests built in e2e mode may ask for the unfurnished fixture by setting the storage key `gharplan-e2e-sample`
+ * before the page loads: tests written against its exact furniture keep their hand-derived assertions. Production
+ * builds ignore the key.
  */
+function e2eFixture():boolean{try{return localStorage.getItem('gharplan-e2e-sample')==='fixture';}catch{return false;}}
 export function firstRunSample():unknown{
- if(import.meta.env.MODE==='e2e'&&new URLSearchParams(globalThis.location?.search??'').get('sample')==='fixture')return structuredClone(fixture);
+ if(import.meta.env.MODE==='e2e'&&e2eFixture())return structuredClone(fixture);
  return showcaseSample();
 }

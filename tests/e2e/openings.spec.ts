@@ -25,3 +25,8 @@ test('GEO-015 explicit wall anchor choices work; unsafe shrink and half-mm centr
  await wall.getByLabel('Openings when wall length changes',{exact:true}).selectOption('centre');await wall.getByLabel('Centreline length',{exact:true}).fill('4001');await wall.getByRole('button',{name:'Preview length change',exact:true}).click();await expect(wall.getByRole('alert')).toContainText('fractional-mm');expect(await backup(page)).toEqual(doc);
  await panel.getByRole('button',{name:'Preview door/window',exact:true}).click();await expect(page.getByTestId('wall-preview')).toHaveCount(0);await expect(page.getByTestId('opening-preview')).toBeVisible();await page.keyboard.press('Escape');await expect(page.getByTestId('opening-preview')).toHaveCount(0);expect(await backup(page)).toEqual(doc);await panel.getByRole('button',{name:'Preview door/window',exact:true}).click();await page.evaluate(()=>window.dispatchEvent(new Event('blur')));await expect(page.getByTestId('opening-preview')).toHaveCount(0);expect(await backup(page)).toEqual(doc);
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

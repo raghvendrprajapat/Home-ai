@@ -66,3 +66,8 @@ test('FR-035 stairs and roof belong to their floor: a roof set upstairs is not s
  await page.getByRole('group',{name:'Floors',exact:true}).getByRole('button',{name:'Ground floor',exact:true}).click();
  await expect(panel).toHaveAttribute('data-roof-kind','none');
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

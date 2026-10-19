@@ -54,3 +54,8 @@ test('FR-022 a finished catalog model still draws as the real 3D model (not the 
   await expect(view.locator(`[data-model-id="${id}"]`)).toHaveAttribute('data-model-phase','ready');
   await expect.poll(async()=>JSON.parse((await view.getAttribute('data-model-scene'))!)).toEqual({meshes:6,instances:6,triangles:72,ids:[id]});
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

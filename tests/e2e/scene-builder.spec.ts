@@ -17,3 +17,8 @@ test('UX-005 ceiling warnings stay keyboard-scrollable at narrow width without m
  for(const id of ['r_living','r_bed']){await room.getByLabel('Choose room',{exact:true}).selectOption(id);await room.getByLabel('Room name',{exact:true}).fill(('Long room name with several words '+id+' ').repeat(2).slice(0,60));await room.getByLabel('Ceiling height (mm)',{exact:true}).fill(id==='r_living'?'3500':'3000');await room.getByRole('button',{name:'Apply room properties',exact:true}).click();await saved(page);}
  const doc=await backup(page);await page.getByRole('button',{name:'3D view',exact:true}).click();const warning=page.getByRole('status',{name:'Ceiling height differences',exact:true});await expect(warning).toBeVisible();expect(await warning.evaluate(e=>e.scrollHeight>e.clientHeight)).toBe(true);await warning.focus();await expect(warning).toBeFocused();await page.keyboard.press('ArrowDown');await expect.poll(()=>warning.evaluate(e=>e.scrollTop)).toBeGreaterThan(0);expect(await backup(page)).toEqual(doc);
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});
