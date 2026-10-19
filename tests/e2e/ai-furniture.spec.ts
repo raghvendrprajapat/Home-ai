@@ -13,6 +13,7 @@ test('D73 stand-in suggests bedroom furniture that fits, and Place opens the nor
  const before=await backup(page),ai=panel(page);
  await expect(ai.getByText('Test mode: offline rules stand in for the AI',{exact:false})).toBeVisible();
  await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Bedroom'});
+ await ai.getByLabel('Furniture size',{exact:true}).selectOption('spacious');
  await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
  const ideas=ai.locator('ul.ai-ideas > li');
  await expect(ideas).toHaveCount(5);
@@ -52,6 +53,7 @@ test('D73 AI-2 arranges the bedroom ideas around the existing bed and wardrobe, 
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  const before=await backup(page),ai=panel(page);
  await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Bedroom'});
+ await ai.getByLabel('Furniture size',{exact:true}).selectOption('spacious');
  await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
  await expect(ai.locator('ul.ai-ideas > li')).toHaveCount(5);
  await ai.getByRole('button',{name:'Arrange these in the room',exact:true}).click();
@@ -79,4 +81,30 @@ test('D73 AI-2 arranges the bedroom ideas around the existing bed and wardrobe, 
  expect(after.furniture.slice(-pieces.length).map((f:{assetId:string;position:{x:number;y:number};rotationDeg:number})=>({id:f.assetId,x:f.position.x,y:f.position.y,r:f.rotationDeg}))).toEqual(pieces);
  await page.getByRole('button',{name:'Undo',exact:true}).click();await saved(page);
  expect(await backup(page)).toEqual(before);
+});
+
+test('D73 size choice: balanced by default, compact on request, and "Show another option" swaps within the floor budget',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
+ const before=await backup(page),ai=panel(page),ideas=ai.locator('ul.ai-ideas > li'),list=()=>ideas.evaluateAll(items=>items.map(i=>i.getAttribute('data-asset-id')));
+ await expect(ai.getByLabel('Furniture size',{exact:true})).toHaveValue('balanced');
+ await expect(ai.getByText('Tip: choose the room and a size, then ask.',{exact:false})).toBeVisible();
+ await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Bedroom'});
+ await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
+ // Balanced: one size down, 45% budget (worked out in furniture-suggest.test.ts).
+ await expect(ideas).toHaveCount(5);
+ expect(await list()).toEqual(['a_l0_queen_bed','a_l0_wardrobe_3','a_l0_nightstand','a_l0_dressing_table','a_l0_study_desk']);
+ await expect(ideas.first()).toContainText('1620 × 2150 mm');await expect(ideas.first()).toContainText('Fits with 600 mm walking space in front.');
+ // The bed has other sizes; the bedside table has none.
+ await expect(ideas.nth(2).getByRole('button',{name:'Show another option',exact:true})).toHaveCount(0);
+ await ideas.first().getByRole('button',{name:'Show another option',exact:true}).click();
+ await expect(ideas.first()).toHaveAttribute('data-asset-id','a_l0_double_bed');await expect(ideas.first()).toContainText('1460 × 2150 mm');
+ await ideas.first().getByRole('button',{name:'Show another option',exact:true}).click();
+ await expect(ideas.first()).toHaveAttribute('data-asset-id','a_l0_single_bed');
+ expect(await backup(page)).toEqual(before);
+ // Compact: two sizes down, and changing the size clears the old list.
+ await ai.getByLabel('Furniture size',{exact:true}).selectOption('compact');
+ await expect(ideas).toHaveCount(0);
+ await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
+ await expect(ideas).toHaveCount(5);
+ expect(await list()).toEqual(['a_l0_double_bed','a_l0_wardrobe_2','a_l0_nightstand','a_l0_dressing_table','a_l0_study_desk']);
 });

@@ -1,7 +1,7 @@
 import type {RoomType} from '@gharplan/core-model';
 import type {CatalogAsset} from '../catalog/catalog';
 import {FLOOR_SHARE,fitsRoom} from './furniture-suggest';
-import type {AiProvider,RoomBrief} from './furniture-suggest';
+import type {AiProvider,RoomBrief,SizePreference} from './furniture-suggest';
 import {footprint,placementProblem} from './layout';
 import {readSketch} from './sketch';
 import type {SketchPixels} from './sketch';
@@ -16,26 +16,33 @@ import type {LayoutPlacement,LayoutRoom,Rect,Turn} from './layout';
 export const ROOM_PLANS:Readonly<Partial<Record<RoomType,readonly (readonly string[])[]>>>={
  bedroom:[['a_l0_king_bed','a_l0_queen_bed','a_l0_double_bed','a_l0_single_bed'],['a_l0_wardrobe_sliding','a_l0_wardrobe_3','a_l0_wardrobe_2'],['a_l0_nightstand'],['a_l0_dressing_table'],['a_l0_study_desk']],
  living:[['a_l0_sofa_l','a_l0_sofa_3','a_l0_sofa_2'],['a_l0_tv_unit'],['a_l0_coffee_table'],['a_l0_armchair'],['a_l0_side_table'],['a_l0_rug'],['a_l0_planter']],
- hall:[['a_l0_sofa_3','a_l0_sofa_2'],['a_l0_tv_unit'],['a_l0_coffee_table'],['a_l0_console_table'],['a_l0_planter']],
- dining:[['a_l0_dining_set_6','a_l0_dining_set_4'],['a_l0_low_cabinet'],['a_l0_planter']],
- study:[['a_l0_study_desk'],['a_l0_bookcase'],['a_l0_armchair']],
+ hall:[['a_l0_sofa_3','a_l0_sofa_2'],['a_l0_tv_unit'],['a_l0_coffee_table'],['a_l0_console_table','a_l0_shoe_rack'],['a_l0_planter']],
+ dining:[['a_l0_dining_set_6','a_l0_dining_set_4','a_l0_dining_6','a_l0_dining_4'],['a_l0_low_cabinet','a_l0_shoe_rack'],['a_l0_planter']],
+ study:[['a_l0_study_desk'],['a_l0_bookcase','a_l0_drawers'],['a_l0_armchair']],
  balcony:[['a_l0_planter'],['a_l0_stool']],
  kitchen:[['a_l0_island'],['a_l0_kitchen_base']],
  bathroom:[['a_l0_vanity']],
  utility:[['a_l0_shoe_rack'],['a_l0_low_cabinet']],
 };
 
+/**
+ * Size preference: where each slot's search starts (never bigger than that, smaller if it does not fit) and how much of
+ * the clear floor the stand-in fills. Spacious is the earlier behaviour.
+ */
+export const SIZE_PLAN:Readonly<Record<SizePreference,{start:number;share:number}>>={compact:{start:2,share:.35},balanced:{start:1,share:.45},spacious:{start:0,share:FLOOR_SHARE}};
+
 export const standInAi:AiProvider={
  kind:'stand-in',
  async suggestFurniture(brief:RoomBrief,candidates:readonly CatalogAsset[],signal:AbortSignal):Promise<unknown>{
   if(signal.aborted)throw new DOMException('aborted','AbortError');
-  const known=new Map(candidates.map(a=>[a.id,a])),answer:{assetId:string;reason:{kind:'largest'|'fits'}}[]=[];
-  let budget=brief.widthMm*brief.depthMm*FLOOR_SHARE;
+  const known=new Map(candidates.map(a=>[a.id,a])),plan=SIZE_PLAN[brief.size??'spacious'],answer:{assetId:string;reason:{kind:'largest'|'fits'};options:string[]}[]=[];
+  let budget=brief.widthMm*brief.depthMm*plan.share;
   for(const slot of ROOM_PLANS[brief.roomType]??[]){
-   const pick=slot.find(id=>{const a=known.get(id);return a&&!brief.existingAssetIds.includes(id)&&fitsRoom(a.dims,brief.widthMm,brief.depthMm)&&a.dims.w*a.dims.d<=budget;});
+   const usable=slot.filter(id=>{const a=known.get(id);return !!a&&!brief.existingAssetIds.includes(id)&&fitsRoom(a.dims,brief.widthMm,brief.depthMm);});
+   const pick=slot.slice(Math.min(plan.start,slot.length-1)).find(id=>usable.includes(id)&&known.get(id)!.dims.w*known.get(id)!.dims.d<=budget);
    if(!pick)continue;
    budget-=known.get(pick)!.dims.w*known.get(pick)!.dims.d;
-   answer.push({assetId:pick,reason:{kind:slot.length>1&&pick!==slot.at(-1)?'largest':'fits'}});
+   answer.push({assetId:pick,reason:{kind:usable.length>1&&pick===usable[0]?'largest':'fits'},options:usable});
   }
   return answer;
  },

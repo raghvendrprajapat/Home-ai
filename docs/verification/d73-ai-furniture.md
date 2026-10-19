@@ -50,12 +50,41 @@ Furniture sizes are copied by hand from the catalog.
   - Utility 1800 × 1500: shoe cabinet, then sideboard.
 - A request that was already cancelled is rejected.
 
+### Size preference, options and swapping (Part A)
+**Size preference.** Every list below was worked out by hand.
+
+| Room | Size | Budget (mm²) | Ideas |
+|---|---|---|---|
+| Bedroom 3327 × 4770 | balanced | 7,141,405.5 | queen bed (3,483,000), three-door wardrobe, bedside table, dressing table, study table |
+| Bedroom 3327 × 4770 | compact | 5,554,426.5 | double bed, two-door wardrobe, then the same three |
+| Living room 4327 × 4770 | compact | 7,223,926.5 | the two-seat sofa first; six of the seven that fit |
+| Bedroom 2400 × 3000 | balanced | 3,240,000 | the double bed only; the queen bed is over the budget |
+
+- Spacious gives the same list as before.
+
+**Options.**
+- The balanced bedroom's bed options are king, queen, double, single. The queen bed's reason is "fits", not "biggest".
+- An unknown option is dropped, and so are a repeated one and a number.
+- These are dropped too:
+  - an option already in the room;
+  - an option that is shown as the next idea;
+  - an option that does not fit either way.
+- The shown piece is put first when it is not listed.
+
+**Swapping.**
+- Balanced bedroom: the other ideas use 2,250,000 of 7,934,895, so the bed cycles double → single → king → queen.
+- In the 2400 × 3000 room (budget 3,600,000), the king bed (4,085,000) is skipped, so single → queen.
+- The bedside table has no other option.
+
 ### Mutation check
 Each of these code changes was made separately and made at least one test fail; the file was then restored:
 - floor share changed to 1;
 - walkway changed to 500 mm;
 - the "already in the room or repeated" check removed;
 - the limit raised to 7;
+- the swap budget check, the "shown as another idea" and the room-fit/new-to-room option filters, and putting the shown piece among the options;
+- compact starting one size down instead of two, and balanced using a 50% budget instead of 45%;
+- the "biggest choice" reason.
 - rounding changed from down to nearest;
 - the 50-entry read limit removed.
 
@@ -66,6 +95,14 @@ Each of these code changes was made separately and made at least one test fail; 
 - **Placing an idea:** "Place in this room" opens the normal form at the bedroom's clear centre, (6221, 2500) mm. Adding saves king bed version 2 at that position.
 - **Living room:** switching to the living room clears the old list. Asking again gives the six living-room ideas.
 - **Hindi:** the panel, its button and "इस कमरे में रखें" work in Hindi.
+- **Size choice:**
+  - "Balanced" is the default, and a tip line is shown.
+  - The balanced bedroom gives the queen bed first, at 1620 × 2150 mm with the "fits" reason.
+  - "Show another option" changes it to the double bed (1460 × 2150 mm), then the single bed.
+  - The bedside table has no such button.
+  - The drawing is unchanged.
+  - Choosing "Compact" clears the list; asking again gives the double bed and the two-door wardrobe first.
+- The two earlier tests pick "Spacious" explicitly, so their expected lists are unchanged.
 
 ## AI-2 layout: `apps/web/src/ai/layout.test.ts` (12 tests), `packages/core-model/src/furniture-batch.test.ts` (3 tests)
 These checks are Claude-authored. Every expected position below was worked out by hand. In the stated geometry, 0° faces north (−Y), 90° east, 180° south and 270° west, matching the app's furniture footprint (`back = (−sin θ, cos θ)`).

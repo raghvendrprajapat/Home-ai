@@ -5,13 +5,13 @@ import type {Catalog,CatalogAsset} from '../catalog/catalog';
 import {message} from '../i18n/messages';
 import type {Locale} from '../i18n/messages';
 import type {Point2} from '../editor/view2d';
-import {acceptSuggestions,roomBrief,WALKWAY_MM} from './furniture-suggest';
-import type {AiProvider,FurnitureSuggestion} from './furniture-suggest';
+import {acceptSuggestions,roomBrief,SIZE_PREFERENCES,swapSuggestion,WALKWAY_MM} from './furniture-suggest';
+import type {AiProvider,FurnitureSuggestion,RoomBrief,SizePreference} from './furniture-suggest';
 import {acceptLayout,footprint,layoutRoom} from './layout';
 import type {LayoutResult,LayoutRoom} from './layout';
 
 type Layout=Readonly<{generation:number;floorId:string;room:LayoutRoom;result:LayoutResult}>;
-type State=Readonly<{phase:'idle'}|{phase:'loading'}|{phase:'failed'}|{phase:'ready';roomId:string;items:readonly FurnitureSuggestion[];layout?:Layout|'loading'|'failed'|undefined;note?:'added'|'stale'|'rejected'|undefined;added?:number}>;
+type State=Readonly<{phase:'idle'}|{phase:'loading'}|{phase:'failed'}|{phase:'ready';roomId:string;brief:RoomBrief;items:readonly FurnitureSuggestion[];layout?:Layout|'loading'|'failed'|undefined;note?:'added'|'stale'|'rejected'|undefined;added?:number}>;
 
 /**
  * D73 "AI furniture ideas" for one room. The provider proposes, acceptSuggestions filters, and Place opens the normal
@@ -20,7 +20,7 @@ type State=Readonly<{phase:'idle'}|{phase:'loading'}|{phase:'failed'}|{phase:'re
  */
 export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,onPlace}:{store:ProjectStore;locale:Locale;selectedRoomId:string|undefined;provider:AiProvider;catalog:(signal:AbortSignal)=>Promise<Catalog>;onPlace(asset:CatalogAsset,centre:Point2):void}){
  const snapshot=useSyncExternalStore(store.subscribe,store.getSnapshot),rooms=snapshot.document.rooms.filter(r=>snapshot.derived.faces.some(f=>f.roomId===r.id));
- const [chosen,setChosen]=useState(''),[state,setState]=useState<State>({phase:'idle'});
+ const [chosen,setChosen]=useState(''),[state,setState]=useState<State>({phase:'idle'}),[size,setSize]=useState<SizePreference>('balanced');
  const roomId=rooms.some(r=>r.id===chosen)?chosen:selectedRoomId&&rooms.some(r=>r.id===selectedRoomId)?selectedRoomId:rooms[0]?.id??'';
  useEffect(()=>{if(selectedRoomId)setChosen(selectedRoomId);},[selectedRoomId]);
  useEffect(()=>{setState({phase:'idle'});},[roomId]);
@@ -31,8 +31,8 @@ export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,o
   try{
    const candidates=latestAssets(await catalog(controller.signal)),existing=snapshot.document.furniture.filter(f=>{const [x0,y0,x1,y1]=face.clearRect;return f.position.x>=x0&&f.position.x<=x1&&f.position.y>=y0&&f.position.y<=y1;}).map(f=>f.assetId);
    // The model validator only admits known room types.
-   const brief=roomBrief(room.type as RoomType,face.clearRect,existing);
-   setState({phase:'ready',roomId:room.id,items:acceptSuggestions(await provider.suggestFurniture(brief,candidates,controller.signal),brief,candidates)});
+   const brief={...roomBrief(room.type as RoomType,face.clearRect,existing),size};
+   setState({phase:'ready',roomId:room.id,brief,items:acceptSuggestions(await provider.suggestFurniture(brief,candidates,controller.signal),brief,candidates)});
   }catch{setState({phase:'failed'});}
  };
  const arrange=async()=>{
@@ -62,16 +62,19 @@ export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,o
   <p className="structure-note">{message(locale,provider.kind==='stand-in'?'aiTestMode':'aiServerMode')}</p>
   {!rooms.length?<p>{message(locale,'aiNoRooms')}</p>:<>
    <label>{message(locale,'aiRoom')}<select aria-label={message(locale,'aiRoom')} value={roomId} onChange={event=>setChosen(event.target.value)}>{rooms.map(r=><option key={r.id} value={r.id}>{r.name}</option>)}</select></label>
+   <label>{message(locale,'aiSizeChoice')}<select aria-label={message(locale,'aiSizeChoice')} value={size} onChange={event=>{setSize(event.target.value as SizePreference);setState({phase:'idle'});}}>{SIZE_PREFERENCES.map(p=><option key={p} value={p}>{message(locale,`aiSize_${p}` as const)}</option>)}</select></label>
+   <p className="structure-note">{message(locale,'aiTip')}</p>
    <button className="primary-button" disabled={state.phase==='loading'} onClick={()=>{void suggest();}}>{message(locale,'aiSuggest')}</button>
   </>}
   {state.phase==='loading'&&<p role="status">{message(locale,'aiThinking')}</p>}
   {state.phase==='failed'&&<p role="alert">{message(locale,'aiFailed')}</p>}
   {state.phase==='ready'&&(state.items.length?<>
-   <ul className="ai-ideas">{state.items.map(s=><li key={s.asset.id} data-asset-id={s.asset.id}>
+   <ul className="ai-ideas">{state.items.map((s,i)=>{const swapped=swapSuggestion(state.items,i,state.brief);return <li key={s.asset.id} data-asset-id={s.asset.id}>
     <strong>{assetName(s.asset,locale)}</strong> <span>{message(locale,'aiSize',{w:s.asset.dims.w,d:s.asset.dims.d})}</span>
     <p className="structure-note">{reason(s)}</p>
-    <button onClick={()=>onPlace(s.asset,centre())}>{message(locale,'aiPlace')}</button>
-   </li>)}</ul>
+    <div className="ai-layout-actions"><button onClick={()=>onPlace(s.asset,centre())}>{message(locale,'aiPlace')}</button>
+    {s.options.length>1&&<button disabled={!swapped} onClick={()=>{if(swapped)setState({...state,items:swapped,layout:undefined,note:undefined});}}>{message(locale,'aiOther')}</button>}</div>
+   </li>;})}</ul>
    <button disabled={layout==='loading'} onClick={()=>{void arrange();}}>{message(locale,'aiArrange')}</button>
   </>:<p role="status">{message(locale,'aiNone')}</p>)}
   {layout==='loading'&&<p role="status">{message(locale,'aiThinking')}</p>}
