@@ -46,9 +46,9 @@ export const standInAi:AiProvider={
   }
   return answer;
  },
- async suggestLayout(room:LayoutRoom,assets:readonly CatalogAsset[],signal:AbortSignal):Promise<unknown>{
+ async suggestLayout(room:LayoutRoom,assets:readonly CatalogAsset[],signal:AbortSignal,options?:ReadonlyMap<string,readonly CatalogAsset[]>):Promise<unknown>{
   if(signal.aborted)throw new DOMException('aborted','AbortError');
-  return planLayout(room,assets).map(p=>({assetId:p.asset.id,x:p.x,y:p.y,rotationDeg:p.rotationDeg}));
+  return {layouts:planLayouts(room,assets,options).map(l=>l.map(p=>({assetId:p.asset.id,for:p.ideaId??p.asset.id,x:p.x,y:p.y,rotationDeg:p.rotationDeg})))};
  },
  async planFromImage(image:SketchPixels,realWidthMm:number,signal:AbortSignal):Promise<unknown>{
   if(signal.aborted)throw new DOMException('aborted','AbortError');
@@ -102,43 +102,65 @@ function gridSpots(room:LayoutRoom):{x:number;y:number;turn:Turn}[]{
  * corner, then rugs under the seating group. Each spot is checked with the same placementProblem rule that
  * acceptLayout applies, so the stand-in never proposes something the boundary would refuse.
  */
-export function planLayout(room:LayoutRoom,assets:readonly CatalogAsset[]):LayoutPlacement[]{
- const placed:LayoutPlacement[]=[];
+export function planLayout(room:LayoutRoom,assets:readonly CatalogAsset[],plan:Readonly<{options?:ReadonlyMap<string,readonly CatalogAsset[]>;avoid?:readonly Turn[]}>={}):LayoutPlacement[]{
+ const placed:LayoutPlacement[]=[];let ideaId='';
  const best=<S extends {x:number;y:number;turn:Turn}>(a:CatalogAsset,spots:readonly S[],score:(p:LayoutPlacement,spot:S)=>number)=>{
   let pick:LayoutPlacement|undefined,top=-Infinity;
-  for(const spot of spots){const p:LayoutPlacement={asset:a,x:spot.x,y:spot.y,rotationDeg:spot.turn};if(placementProblem(room,placed,p))continue;const s=score(p,spot);if(s>top){top=s;pick=p;}}
+  for(const spot of spots){const p:LayoutPlacement={asset:a,x:spot.x,y:spot.y,rotationDeg:spot.turn,ideaId};if(placementProblem(room,placed,p))continue;const s=score(p,spot);if(s>top){top=s;pick=p;}}
   if(pick)placed.push(pick);
+  return !!pick;
  };
  const ordered=[...assets.filter(a=>roleOf(a)!=='rug'),...assets.filter(a=>roleOf(a)==='rug')];
- const roomCentre=centreOf(room.bounds);
- for(const a of ordered){
+ const roomCentre=centreOf(room.bounds),avoid=plan.avoid??[];
+ for(const idea of ordered){
+  ideaId=idea.id;
+  // The idea first, then its smaller options (listed after it, biggest first) until one finds a safe spot.
+  const options=plan.options?.get(idea.id)??[],after=options.indexOf(idea);
+  for(const a of [idea,...(after>=0?options.slice(after+1):[])])if(placeOne(a))break;
+ }
+ return placed;
+ function placeOne(a:CatalogAsset):boolean{
   const role=roleOf(a),anchor=placed.find(p=>roleOf(p.asset)==='anchor'),seat=placed.find(p=>/sofa/.test(p.asset.id))??anchor;
-  if(role==='anchor')best(a,wallSpots(room,a),(_,s)=>-Math.abs(s.along));
+  // Other layouts put the bed or sofa on a different wall when one is free.
+  if(role==='anchor')return best(a,wallSpots(room,a),(_,s)=>-Math.abs(s.along)-(avoid.includes(s.turn)?1e6:0));
   // A bedside or side table is only useful right next to its bed or sofa: no spot within BESIDE_MM means no table.
-  else if(role==='beside')best(a,wallSpots(room,a),p=>{if(!anchor)return 0;const g=gap(box(p),box(anchor));return g>BESIDE_MM?-Infinity:-g*10-(p.rotationDeg===anchor.rotationDeg?0:1000);});
-  else if(role==='facing')best(a,wallSpots(room,a),p=>{
+  if(role==='beside')return best(a,wallSpots(room,a),p=>{if(!anchor)return 0;const g=gap(box(p),box(anchor));return g>BESIDE_MM?-Infinity:-g*10-(p.rotationDeg===anchor.rotationDeg?0:1000);});
+  if(role==='facing')return best(a,wallSpots(room,a),p=>{
    if(!seat)return 0;const [sx,sy]=[seat.x,seat.y];
    return (p.rotationDeg===(seat.rotationDeg+180)%360?0:-100000)-(seat.rotationDeg%180===0?Math.abs(p.x-sx):Math.abs(p.y-sy));
   });
-  else if(role==='front'&&seat){
+  if(role==='front'&&seat){
    const s=box(seat),turn=seat.rotationDeg,spots:{x:number;y:number;turn:Turn}[]=[];
    for(let g=350;g<=700;g+=50){
     const half=a.dims.d/2; // same turn as the seat, so the table's depth runs the same way
     spots.push(turn===0?{x:seat.x,y:Math.round(s[1]-g-half),turn}:turn===180?{x:seat.x,y:Math.round(s[3]+g+half),turn}:turn===90?{x:Math.round(s[2]+g+half),y:seat.y,turn}:{x:Math.round(s[0]-g-half),y:seat.y,turn});
    }
-   best(a,spots,p=>-Math.abs(gap(box(p),s)-400));
+   return best(a,spots,p=>-Math.abs(gap(box(p),s)-400));
   }
-  else if(role==='centre'||role==='front'){
+  if(role==='centre'||role==='front'){
    // Near the middle, long side along the room's long side.
    const wideRoom=room.bounds[2]-room.bounds[0]>=room.bounds[3]-room.bounds[1];
-   best(a,gridSpots(room),p=>{const box0=footprint(a.dims,0,0,p.rotationDeg),wideItem=box0[2]-box0[0]>=box0[3]-box0[1];return -Math.hypot(p.x-roomCentre[0],p.y-roomCentre[1])+(wideItem===wideRoom?1:0);});
+   return best(a,gridSpots(room),p=>{const box0=footprint(a.dims,0,0,p.rotationDeg),wideItem=box0[2]-box0[0]>=box0[3]-box0[1];return -Math.hypot(p.x-roomCentre[0],p.y-roomCentre[1])+(wideItem===wideRoom?1:0);});
   }
-  else if(role==='rug'){
+  if(role==='rug'){
    const under=placed.find(p=>/coffee_table/.test(p.asset.id))??seat,[tx,ty]=under?centreOf(box(under)):roomCentre;
-   best(a,gridSpots(room),p=>-Math.hypot(p.x-tx,p.y-ty)+(under&&p.rotationDeg%180===under.rotationDeg%180?1:0));
+   return best(a,gridSpots(room),p=>-Math.hypot(p.x-tx,p.y-ty)+(under&&p.rotationDeg%180===under.rotationDeg%180?1:0));
   }
   // Against a wall as close to a corner as possible: the item's width runs along the wall.
-  else best(a,wallSpots(room,a),(_,s)=>-(s.length/2-a.dims.w/2-Math.abs(s.along)));
+  return best(a,wallSpots(room,a),(_,s)=>-(s.length/2-a.dims.w/2-Math.abs(s.along)));
  }
- return placed;
+}
+
+/**
+ * Up to three different layouts: the first as planned, the second with the bed or sofa on a wall across from the
+ * first one's, the third on the wall opposite the first. Repeats (no other wall free) are dropped.
+ */
+export function planLayouts(room:LayoutRoom,assets:readonly CatalogAsset[],options?:ReadonlyMap<string,readonly CatalogAsset[]>):LayoutPlacement[][]{
+ const out:LayoutPlacement[][]=[],key=(l:readonly LayoutPlacement[])=>JSON.stringify(l.map(p=>[p.asset.id,p.x,p.y,p.rotationDeg]));
+ const add=(avoid:readonly Turn[])=>{const l=planLayout(room,assets,{...options?{options}:{},avoid});if(l.length&&!out.some(o=>key(o)===key(l)))out.push(l);return l.find(p=>roleOf(p.asset)==='anchor')?.rotationDeg;};
+ const opposite=(t:Turn)=>(t+180)%360 as Turn;
+ const t1=add([]);if(t1===undefined)return out;
+ const t2=add([t1,opposite(t1)]);
+ add(t2===undefined||t2===t1||t2===opposite(t1)?[t1]:[t1,t2,opposite(t2)]);
+ return out;
 }

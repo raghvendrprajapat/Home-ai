@@ -4,9 +4,9 @@ import sample from '../../../../docs/examples/sample-project.json';
 import {ProjectStore} from '@gharplan/core-model';
 import type {ProjectDoc} from '@gharplan/core-model';
 import type {CatalogAsset} from '../catalog/catalog';
-import {acceptLayout,footprint,frontZone,insideFloor,layoutRoom,overlaps,placementProblem} from './layout';
+import {acceptLayout,acceptLayouts,adjustPlacement,footprint,frontZone,insideFloor,layoutRoom,overlaps,placementProblem} from './layout';
 import type {LayoutPlacement,LayoutRoom,Rect} from './layout';
-import {planLayout,standInAi} from './stand-in';
+import {planLayout,planLayouts,standInAi} from './stand-in';
 
 // D73 AI-2 Claude-authored checks. Expected positions are worked out by hand from the stated rules; see
 // docs/verification/d73-ai-furniture.md for the arithmetic.
@@ -52,6 +52,39 @@ describe('D73 placementProblem and acceptLayout (the trust boundary)',()=>{
   expect(placementProblem(r,[bed],at(nightstand,1500,2400,180))).toBe('walkway');
   expect(placementProblem(r,[bed],at(nightstand,1500,1000,180))).toBe('overlap');
  });
+ it('an entry may stand for an idea with one of its options, once per idea',()=>{
+  const queen=asset('a_l0_queen_bed',1620,2150,1100,'beds'),other=asset('a_other',800,400,700);
+  const options=new Map([[king.id,[king,queen]]]);
+  const out=acceptLayout([
+   {assetId:queen.id,for:king.id,x:1500,y:1075,rotationDeg:180}, // the queen stands for the king idea
+   {assetId:king.id,x:1500,y:2925,rotationDeg:0}, // the king idea is already placed
+   {assetId:other.id,for:nightstand.id,x:225,y:200,rotationDeg:180}, // not an option of the bedside table
+   {assetId:queen.id,x:1500,y:2925,rotationDeg:0}, // the queen alone is not an idea
+  ],room(3000,4000),[king,nightstand],options);
+  expect(out.placed.map(p=>[p.asset.id,p.ideaId])).toEqual([[queen.id,king.id]]);
+  expect(out.skipped.map(a=>a.id)).toEqual([nightstand.id]);
+ });
+ it('acceptLayouts takes up to three layouts and drops empty and repeated ones',()=>{
+  const a={assetId:king.id,x:1500,y:1075,rotationDeg:180},b={assetId:king.id,x:1500,y:2925,rotationDeg:0},c={assetId:king.id,x:1075,y:2000,rotationDeg:90};
+  expect(acceptLayouts({layouts:[[a],[a],[{assetId:'a_x',x:0,y:0,rotationDeg:0}],[b]]},room(3000,4000),[king]).map(l=>plain(l.placed))).toEqual([[[king.id,1500,1075,180]]]);
+  expect(acceptLayouts({layouts:[[a],[b],[c]]},room(3000,4000),[king])).toHaveLength(3);
+  expect(acceptLayouts([b],room(3000,4000),[king]).map(l=>plain(l.placed))).toEqual([[[king.id,1500,2925,0]]]);
+  expect(acceptLayouts({layouts:'x'},room(3000,4000),[king])).toEqual([]);
+ });
+ it('adjustPlacement turns or moves one piece only to a safe spot and never changes the list on a refusal',()=>{
+  const r=room(3000,4000),placed:LayoutPlacement[]=[{asset:king,x:1500,y:1075,rotationDeg:180},{asset:nightstand,x:325,y:200,rotationDeg:180}];
+  const right=adjustPlacement(r,placed,0,{dx:100});
+  expect(right.ok&&plain(right.placed)).toEqual([[king.id,1600,1075,180],[nightstand.id,325,200,180]]);
+  expect(adjustPlacement(r,placed,0,{dy:-100})).toEqual({ok:false,problem:'outside'}); // the headboard would leave the room
+  expect(adjustPlacement(r,placed,1,{dx:300})).toEqual({ok:false,problem:'overlap'}); // x 400-850 meets the bed at 550
+  // Turned about its centre, the bed is 2150 across x (425..2575) and 1900 along y (125..2025), facing west. It then
+  // meets the bedside table (x 100..550, y 0..400); alone, its walkway x -175..425 leaves the room.
+  expect(adjustPlacement(r,placed,0,{turn:true})).toEqual({ok:false,problem:'overlap'});
+  expect(adjustPlacement(r,[placed[0]!],0,{turn:true})).toEqual({ok:false,problem:'walkway'});
+  const turned=adjustPlacement(r,[{asset:nightstand,x:1500,y:2000,rotationDeg:0}],0,{turn:true});
+  expect(turned.ok&&plain(turned.placed)).toEqual([[nightstand.id,1500,2000,90]]);
+  expect(placed.map(p=>p.x)).toEqual([1500,325]);
+ });
  it('drops unknown, repeated, malformed and refused answers; keeps the order of the rest',()=>{
   const out=acceptLayout([
    {assetId:'a_unknown',x:100,y:100,rotationDeg:0},
@@ -93,14 +126,32 @@ describe('D73 offline layout stand-in',()=>{
   // 2400×2000: the 2150 mm deep king bed plus a 600 mm walkway fits neither way round.
   expect(plain(planLayout(room(2400,2000),[king,nightstand]))).toEqual([[nightstand.id,225,200,180]]);
  });
- it('property: whatever the room, every stand-in answer passes acceptLayout unchanged',async()=>{
+ it('property: whatever the room, every stand-in layout passes acceptLayouts unchanged, smaller options included',async()=>{
+  const queen=asset('a_l0_queen_bed',1620,2150,1100,'beds'),single=asset('a_l0_single_bed',1000,2150,950,'beds'),sofa2=asset('a_l0_sofa_2',1500,860,820,'seating');
+  const options=new Map([[king.id,[king,queen,single]],[sofa.id,[sofa,sofa2]]]);
   const pool=[king,nightstand,wardrobe,sofa,tv,coffee,rug,asset('a_l0_dining_set_4',1200,1540,860,'tables'),asset('a_l0_bookcase',800,300,1800,'storage')];
   await fc.assert(fc.asyncProperty(fc.integer({min:1500,max:6000}),fc.integer({min:1500,max:6000}),fc.subarray(pool,{minLength:1}),fc.integer({min:0,max:2}),async(w,d,items,doors)=>{
    const r=room(w,d,{doors:([[0,0,900,900],[w-900,d-900,w,d]] as Rect[]).slice(0,doors)});
-   const raw=await standInAi.suggestLayout(r,items,new AbortController().signal),out=acceptLayout(raw,r,items);
-   expect(out.placed.length).toBe((raw as unknown[]).length);
+   const raw=await standInAi.suggestLayout(r,items,new AbortController().signal,options) as {layouts:unknown[][]},out=acceptLayouts(raw,r,items,options);
+   expect(raw.layouts.length).toBeLessThanOrEqual(3);
+   expect(out.map(l=>l.placed.length)).toEqual(raw.layouts.map(l=>l.length));
   }),{seed:20261018,numRuns:40});
  });
+ it('a smaller option stands in when the idea itself has no safe spot',()=>{
+  // 1800 x 3000: the king bed (1900 wide) fits on no wall; turned, 2150 + 600 > 1800. The queen (1620) fits on the
+  // north wall, centred: x 900, y 2150/2 = 1075.
+  const queen=asset('a_l0_queen_bed',1620,2150,1100,'beds'),double=asset('a_l0_double_bed',1460,2150,1050,'beds');
+  const out=planLayout(room(1800,3000),[king],{options:new Map([[king.id,[king,queen,double]]])});
+  expect(out.map(p=>[p.asset.id,p.ideaId,p.x,p.y,p.rotationDeg])).toEqual([[queen.id,king.id,900,1075,180]]);
+  expect(planLayout(room(1800,3000),[king])).toEqual([]); // without options nothing fits
+ });
+ it('up to three layouts: the bed on the first wall, then a wall across, then the opposite wall',()=>{
+  // 3000 x 4000. Second: the west wall, x 2150/2 = 1075, centred on y 2000. Third: the south wall, y 4000 - 1075 = 2925.
+  expect(planLayouts(room(3000,4000),[king]).map(plain)).toEqual([[[king.id,1500,1075,180]],[[king.id,1075,2000,90]],[[king.id,1500,2925,0]]]);
+  // No bed or sofa: one layout.
+  expect(planLayouts(room(4000,3500,{roomType:'dining'}),[asset('a_l0_dining_set_6',2540,1640,860,'tables')])).toHaveLength(1);
+ });
+
 });
 
 describe('D73 layoutRoom reads the saved drawing',()=>{

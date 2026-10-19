@@ -108,3 +108,34 @@ test('D73 size choice: balanced by default, compact on request, and "Show anothe
  await expect(ideas).toHaveCount(5);
  expect(await list()).toEqual(['a_l0_double_bed','a_l0_wardrobe_2','a_l0_nightstand','a_l0_dressing_table','a_l0_study_desk']);
 });
+
+test('D73 layout choices: two layouts for the sample living room, a refused and an accepted move, then one Undo',async({page})=>{
+ await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
+ const before=await backup(page),ai=panel(page);
+ await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Living'});
+ await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
+ await expect(ai.locator('ul.ai-ideas > li')).toHaveCount(6);
+ await ai.getByRole('button',{name:'Arrange these in the room',exact:true}).click();
+ const preview=ai.getByTestId('ai-layout'),choices=preview.getByRole('group',{name:'Layout choices',exact:true});
+ const sofa=preview.locator('g[data-asset-id="a_l0_sofa_3"]');
+ // The existing sofa and TV leave only the west and east walls for the three-seat sofa.
+ await expect(choices.getByRole('button')).toHaveCount(2);
+ await expect(choices.getByRole('button',{name:'Layout 1',exact:true})).toHaveAttribute('aria-pressed','true');
+ await expect(sofa).toHaveAttribute('data-x','545');await expect(sofa).toHaveAttribute('data-rotation','90');
+ await choices.getByRole('button',{name:'Layout 2',exact:true}).click();
+ await expect(sofa).toHaveAttribute('data-x','4012');await expect(sofa).toHaveAttribute('data-rotation','270');
+ // The sofa is against the east wall: moving it right would leave the room; moving it left is safe.
+ await expect(preview.getByLabel('Piece to adjust',{exact:true})).toHaveValue('0');
+ await preview.getByRole('button',{name:'Move right 100 mm',exact:true}).click();
+ await expect(preview.getByRole('alert')).toHaveText('Not moved: that spot goes outside the room.');
+ await expect(sofa).toHaveAttribute('data-x','4012');
+ await preview.getByRole('button',{name:'Move left 100 mm',exact:true}).click();
+ await expect(sofa).toHaveAttribute('data-x','3912');await expect(preview.getByRole('alert')).toHaveCount(0);
+ expect(await backup(page)).toEqual(before);
+ const count=await preview.locator('g[data-asset-id]').count();
+ await preview.getByRole('button',{name:`Add this layout (${count} items)`,exact:true}).click();await saved(page);
+ const after=await backup(page);
+ expect(after.furniture.slice(-count).find((f:{assetId:string})=>f.assetId==='a_l0_sofa_3')).toMatchObject({position:{x:3912,y:2500},rotationDeg:270});
+ await page.getByRole('button',{name:'Undo',exact:true}).click();await saved(page);
+ expect(await backup(page)).toEqual(before);
+});

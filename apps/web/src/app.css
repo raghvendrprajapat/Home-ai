@@ -705,3 +705,6 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .ai-panel label{display:flex;flex-direction:column;gap:4px;margin:6px 0}.ai-panel label.ai-check{flex-direction:row;align-items:center;gap:8px;min-height:48px}
 .ai-panel input[type=number]{min-height:40px;max-width:180px}
 .ai-layout .ai-door-mark{fill:rgba(214,120,40,.3);stroke:#d67828;stroke-width:20}
+.ai-layout .ai-piece-active{stroke:#b6723f;stroke-width:40}
+.ai-adjust{margin:8px 0}.ai-adjust .ai-layout-actions button{min-width:48px}
+.ai-layout-actions button[aria-pressed=true]{background:#2e7d5a;color:#fff}
