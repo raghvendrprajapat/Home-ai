@@ -1,18 +1,19 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {backup,FakeCloud,signedInWithNewCloudProject,status} from './cloud-stand-in';
+import {openTool} from './helpers/tools';
 // FR-032 (D68) conflict choices and version history against the Supabase stand-in. Claude-authored browser tests.
 const addFloor=(page:Page)=>page.getByRole('group',{name:'Floors',exact:true}).getByRole('button',{name:'+ Add floor',exact:true}).click();
 const choices=(page:Page)=>page.getByRole('group',{name:'What to do with the newer cloud version',exact:true});
 async function conflicted(page:Page,cloud:FakeCloud){
  const id=await signedInWithNewCloudProject(page,cloud);cloud.otherDevice(id,2);
- await addFloor(page);await expect(status(page)).toHaveAttribute('data-phase','conflict');
+ await openTool(page,'Draw');await addFloor(page);await expect(status(page)).toHaveAttribute('data-phase','conflict');
  return id;
 }
 
 test('FR-032 conflict: inspect the cloud version as a separate copy without touching either drawing',async({page})=>{
  const cloud=new FakeCloud(),id=await conflicted(page,cloud);
- await choices(page).getByRole('button',{name:'Open the cloud version as a separate copy',exact:true}).click();
+ await openTool(page,'Project');await choices(page).getByRole('button',{name:'Open the cloud version as a separate copy',exact:true}).click();
  await expect(status(page)).toHaveAttribute('data-phase','unlinked'); // the copy is a new device drawing
  const copy=await backup(page);
  expect(copy.id).not.toBe(id);expect(copy.revision).toBe(0);expect(copy.floors).toHaveLength(1); // the cloud head (1 floor)
@@ -21,7 +22,7 @@ test('FR-032 conflict: inspect the cloud version as a separate copy without touc
 
 test('FR-032 conflict: save mine as a new cloud project; the other device\'s version stays',async({page})=>{
  const cloud=new FakeCloud(),id=await conflicted(page,cloud);
- await choices(page).getByRole('button',{name:'Save my version as a new cloud project',exact:true}).click();
+ await openTool(page,'Project');await choices(page).getByRole('button',{name:'Save my version as a new cloud project',exact:true}).click();
  await expect(status(page)).toHaveText('Saved in cloud (version 1)');
  const mine=await backup(page);expect(mine.id).not.toBe(id);expect(mine.floors).toHaveLength(2);
  expect(cloud.heads.get(mine.id)!.document.floors).toHaveLength(2);
@@ -30,7 +31,7 @@ test('FR-032 conflict: save mine as a new cloud project; the other device\'s ver
 
 test('FR-032 conflict: replace the cloud version only after confirming; it lands on top as version 4',async({page})=>{
  const cloud=new FakeCloud(),id=await conflicted(page,cloud);
- await choices(page).getByRole('button',{name:'Replace the cloud version with mine…',exact:true}).click();
+ await openTool(page,'Project');await choices(page).getByRole('button',{name:'Replace the cloud version with mine…',exact:true}).click();
  await expect(choices(page).getByRole('alert')).toContainText('replaces cloud version 3 on every device');
  await choices(page).getByRole('button',{name:'Yes, replace the cloud version',exact:true}).click();
  await expect(status(page)).toHaveText('Saved in cloud (version 4)');
@@ -42,9 +43,9 @@ test('FR-032 conflict: replace the cloud version only after confirming; it lands
 
 test('FR-032 version history: restore an old version as the newest one, and open another as a copy',async({page})=>{
  const cloud=new FakeCloud(),id=await signedInWithNewCloudProject(page,cloud);
- await addFloor(page);await expect(status(page)).toHaveText('Saved in cloud (version 2)');
+ await openTool(page,'Draw');await addFloor(page);await expect(status(page)).toHaveText('Saved in cloud (version 2)');
  await addFloor(page);await expect(status(page)).toHaveText('Saved in cloud (version 3)');
- const history=page.locator('.version-history');await history.locator('summary').click();
+ const history=page.locator('.version-history');await openTool(page,'Project');await history.locator('summary').click();
  await expect(history.locator('li')).toHaveCount(3);
  await expect(history.locator('li[data-revision="3"]')).toContainText('(current)');
  await history.locator('li[data-revision="1"]').getByRole('button',{name:'Restore',exact:true}).click();

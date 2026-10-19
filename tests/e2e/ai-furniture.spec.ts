@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 
 // D73 AI furniture ideas with the offline stand-in. Expected lists are worked out by hand in
 // apps/web/src/ai/furniture-suggest.test.ts for the sample plan's clear rooms (Living 4327×4770, Bedroom 3327×4770).
@@ -11,7 +12,7 @@ const panel=(page:Page)=>page.getByRole('region',{name:'AI furniture ideas',exac
 test('D73 stand-in suggests bedroom furniture that fits, and Place opens the normal form centred in the room',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  const before=await backup(page),ai=panel(page);
- await expect(ai.getByText('Test mode: offline rules stand in for the AI',{exact:false})).toBeVisible();
+ await openTool(page,'Copilot');await expect(ai.getByText('Test mode: offline rules stand in for the AI',{exact:false})).toBeVisible();
  await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Bedroom'});
  await ai.getByLabel('Furniture size',{exact:true}).selectOption('spacious');
  await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
@@ -34,7 +35,7 @@ test('D73 stand-in suggests bedroom furniture that fits, and Place opens the nor
  expect(after.furniture.at(-1)).toMatchObject({assetId:'a_l0_king_bed',assetVersion:2,size:{w:1900,d:2150,h:1100},position:{x:6221,y:2500}});
 
  // The living room gets its own list; the sample's older demo pieces are not catalog IDs, so they do not count.
- await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Living'});
+ await openTool(page,'Copilot');await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Living'});
  await expect(ideas).toHaveCount(0);
  await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
  await expect(ideas).toHaveCount(6);
@@ -45,14 +46,14 @@ test('D73 the AI panel works in Hindi',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  await page.getByRole('button',{name:'Settings',exact:true}).click();await page.getByLabel('Language',{exact:true}).selectOption('hi');await page.getByRole('button',{name:'ड्रॉइंग पर वापस',exact:true}).click();
  const ai=page.getByRole('region',{name:'AI फर्नीचर सुझाव',exact:true});
- await ai.getByRole('button',{name:'इस कमरे के लिए फर्नीचर सुझाएँ',exact:true}).click();
+ await openTool(page,'कोपायलट');await ai.getByRole('button',{name:'इस कमरे के लिए फर्नीचर सुझाएँ',exact:true}).click();
  await expect(ai.locator('ul.ai-ideas > li').first().getByRole('button',{name:'इस कमरे में रखें',exact:true})).toBeVisible();
 });
 
 test('D73 AI-2 arranges the bedroom ideas around the existing bed and wardrobe, adds them in one step, and one Undo removes them',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  const before=await backup(page),ai=panel(page);
- await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Bedroom'});
+ await openTool(page,'Copilot');await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Bedroom'});
  await ai.getByLabel('Furniture size',{exact:true}).selectOption('spacious');
  await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
  await expect(ai.locator('ul.ai-ideas > li')).toHaveCount(5);
@@ -86,7 +87,7 @@ test('D73 AI-2 arranges the bedroom ideas around the existing bed and wardrobe, 
 test('D73 size choice: balanced by default, compact on request, and "Show another option" swaps within the floor budget',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  const before=await backup(page),ai=panel(page),ideas=ai.locator('ul.ai-ideas > li'),list=()=>ideas.evaluateAll(items=>items.map(i=>i.getAttribute('data-asset-id')));
- await expect(ai.getByLabel('Furniture size',{exact:true})).toHaveValue('balanced');
+ await openTool(page,'Copilot');await expect(ai.getByLabel('Furniture size',{exact:true})).toHaveValue('balanced');
  await expect(ai.getByText('Tip: choose the room and a size, then ask.',{exact:false})).toBeVisible();
  await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Bedroom'});
  await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
@@ -112,7 +113,7 @@ test('D73 size choice: balanced by default, compact on request, and "Show anothe
 test('D73 layout choices: two layouts for the sample living room, a refused and an accepted move, then one Undo',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  const before=await backup(page),ai=panel(page);
- await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Living'});
+ await openTool(page,'Copilot');await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Living'});
  await ai.getByRole('button',{name:'Suggest furniture for this room',exact:true}).click();
  await expect(ai.locator('ul.ai-ideas > li')).toHaveCount(6);
  await ai.getByRole('button',{name:'Arrange these in the room',exact:true}).click();

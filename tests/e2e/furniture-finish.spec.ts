@@ -1,10 +1,11 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 // FR-022 furniture colour variants in the real selection panel. Claude-authored (D52 continuation); not an independent fixture.
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
 async function backup(page:Page){const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export drawing',exact:true}).click();return JSON.parse(await readFile((await(await download).path())!,'utf8'));}
-async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await panel.locator('summary').click();return panel;}
+async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await openTool(page,'Draw');await panel.locator('summary').click();return panel;}
 type Doc={furniture:{id:string;materialOverrides:Record<string,string>}[];materials:{id:string;baseColor:string}[]};
 const overrides=(doc:Doc,id:string)=>doc.furniture.find(f=>f.id===id)!.materialOverrides;
 const swatches=(page:Page)=>page.getByRole('group',{name:'Furniture colour',exact:true});
@@ -45,10 +46,10 @@ test('FR-022 a selection that includes a wall cannot be coloured',async({page})=
 });
 test('FR-022 a finished catalog model still draws as the real 3D model (not the fallback box) with the same parts',async({page})=>{
   const panel=await start(page);
-  await page.getByRole('button',{name:'Browse furniture',exact:true}).click();await page.getByRole('article',{name:'Original demo desk',exact:true}).getByRole('button',{name:'Place in drawing',exact:true}).click();
+  await openTool(page,'Furniture');await page.getByRole('button',{name:'Browse furniture',exact:true}).click();await page.getByRole('article',{name:'Original demo desk',exact:true}).getByRole('button',{name:'Place in drawing',exact:true}).click();
   const place=page.getByRole('region',{name:'Place furniture',exact:true});await place.getByLabel('Furniture X position',{exact:true}).fill('1200 mm');await place.getByLabel('Furniture Y position',{exact:true}).fill('1500 mm');await place.getByRole('button',{name:'Add furniture',exact:true}).click();await saved(page);
   const id=(await backup(page) as Doc).furniture.at(-1)!.id;
-  await panel.getByLabel(`Select furniture ${id}`,{exact:true}).check();await swatches(page).getByRole('button',{name:'Colour: Finish - teak',exact:true}).click();await saved(page);
+  await openTool(page,'Draw');await panel.getByLabel(`Select furniture ${id}`,{exact:true}).check();await swatches(page).getByRole('button',{name:'Colour: Finish - teak',exact:true}).click();await saved(page);
   expect(overrides(await backup(page) as Doc,id)).toEqual({main:'m_fin_teak'});
   await page.getByRole('button',{name:'3D view',exact:true}).click();const view=page.getByTestId('three-view');
   await expect(view.locator(`[data-model-id="${id}"]`)).toHaveAttribute('data-model-phase','ready');

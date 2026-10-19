@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 
 // D72 modern original living-room designs placed through the real catalog dialog and drawn by the real 3D view.
 const manifest=JSON.parse(await readFile('apps/web/public/catalog/catalog.json','utf8')) as {assets:{id:string;version:number;name_en:string;dims:{w:number;d:number;h:number};lods:{triangles:number}[]}[]};
@@ -16,7 +17,7 @@ async function placeAndRender(page:Page,chosen:Choice[],shot:string){
   const asset=manifest.assets.find(a=>a.id===id&&a.version===version)!;expect(asset).toBeDefined();
   // Exactly this version is the newest one published for the ID.
   expect(Math.max(...manifest.assets.filter(a=>a.id===id).map(a=>a.version))).toBe(version);
-  await page.getByRole('button',{name:'Browse furniture',exact:true}).click();await expect(dialog(page)).toBeVisible();
+  await openTool(page,'Furniture');await page.getByRole('button',{name:'Browse furniture',exact:true}).click();await expect(dialog(page)).toBeVisible();
   await dialog(page).getByLabel('Search furniture',{exact:true}).fill(asset.name_en);
   await dialog(page).getByRole('article',{name:asset.name_en,exact:true}).getByRole('button',{name:'Place in drawing',exact:true}).click();
   const form=page.getByRole('region',{name:'Place furniture',exact:true});

@@ -1,10 +1,11 @@
 import {test,expect} from '@playwright/test';
 import {backup,FakeCloud,install,signedInWithNewCloudProject} from './cloud-stand-in';
+import {openTool} from './helpers/tools';
 // FR-033 (D69) view-only links against the Supabase stand-in. Claude-authored browser tests.
 
 test('FR-033 a view-only link shows the newest cloud version, saves a copy on another device, and stops working when stopped',async({page,browser})=>{
  const cloud=new FakeCloud(),id=await signedInWithNewCloudProject(page,cloud);
- const panel=page.locator('.share-panel');await panel.locator('summary').click();
+ const panel=page.locator('.share-panel');await openTool(page,'Project');await panel.locator('summary').click();
  await panel.getByRole('button',{name:'Create a view-only link',exact:true}).click();
  const link=await panel.getByLabel('View-only link',{exact:true}).inputValue();
  expect(link).toMatch(/^http:\/\/127\.0\.0\.1:4185\/#\/share\/[0-9a-f]{64}$/); // the token sits after '#'
