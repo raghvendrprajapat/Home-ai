@@ -43,6 +43,7 @@ export function validateProject(value: unknown): ValidationIssue[] {
   }
   // FR-034 (D63): 1-6 floors with distinct integer levels; floor elevations strictly increase with level.
   if (doc.floors.length < 1 || doc.floors.length > 6) errors.push(issue('floors', 'A project needs 1 to 6 floors.'));
+  for (const f of doc.floors) if (!f.name.trim() || f.name.trim().length > 60) errors.push(issue('floor-name', 'A floor name needs 1-60 characters.', [f.id])); // the AddFloor/UpdateFloor rule
   const byLevel = [...doc.floors].sort((a, b) => a.level - b.level);
   if (new Set(doc.floors.map(f => f.level)).size !== doc.floors.length || doc.floors.some(f => !Number.isSafeInteger(f.level))) errors.push(issue('floors', 'Every floor needs its own whole-number level.'));
   else for (let i = 1; i < byLevel.length; i++) if (byLevel[i]!.elevation <= byLevel[i - 1]!.elevation) errors.push(issue('floors', 'A higher floor must start above the floor below it.', [byLevel[i]!.id]));
