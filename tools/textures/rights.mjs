@@ -3,7 +3,7 @@ import { existsSync, readdirSync, readFileSync, statSync, writeFileSync } from '
 import { join, relative, sep } from 'node:path';
 import console from 'node:console';
 import process from 'node:process';
-import { fileURLToPath } from 'node:url';
+import { URL, fileURLToPath } from 'node:url';
 
 /**
  * D76 R5: every texture/HDRI file the app ships has a rights record (CC0 source, author, licence, check date, hash).

@@ -41,6 +41,9 @@ import type { WorkspaceSession } from './storage/workspace';
 import { areaDisplay, editError, message } from './i18n/messages';
 import type { MessageArgs, MessageKey } from './i18n/messages';
 import { useUi } from './ui/state';
+import { Icon } from './ui/Icon';
+import { useNarrow } from './ui/useNarrow';
+type ToolId='draw'|'openings'|'furniture'|'materials'|'copilot'|'project';
 import './app.css';
 function EngineLoadError() {
   const { locale } = useUi();
@@ -98,6 +101,8 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
   const [selected, setSelected] = useState(() => store.getSnapshot().document.junctions[1]?.id ?? ''), [notice, setMessage] = useState(() => t('chooseCorner'));
   const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0), [underlay, setUnderlay] = useState<PlanUnderlay | null>(null);
   const [view, setView] = useState<'2d' | '3d' | 'split'>('2d');
+  // D76 M2: one tool panel at a time beside the canvas (a bottom sheet on phones); none open at first.
+  const [tool,setTool]=useState<ToolId|null>(null),closeTool=useCallback(()=>setTool(null),[]),narrow=useNarrow();
   const drawingPanel=useRef<HTMLElement>(null),[splitAvailable,setSplitAvailable]=useState(false);
   useLayoutEffect(()=>{const panel=drawingPanel.current!;const measure=()=>setSplitAvailable(panel.clientWidth>=760);measure();if(typeof ResizeObserver==='undefined'){window.addEventListener('resize',measure);return()=>window.removeEventListener('resize',measure);}const observer=new ResizeObserver(measure);observer.observe(panel);return()=>observer.disconnect();},[]);
   useEffect(()=>{if(view==='split'&&!splitAvailable){drawing.clear();setView('2d');}},[view,splitAvailable,drawing]);
@@ -127,52 +132,37 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
   const ghostItem=scopedPrecision?.result.ok?scopedPrecision.result.document.furniture.find(item=>item.id===ghostId):undefined;
   const ghostAdvisory=ghostItem&&scopedPrecision?.result.ok?advisories.check(scopedPrecision.result.document,ghostItem):undefined;
   const ghost:FurnitureGhost|undefined=ghostItem&&scopedPrecision?.result.ok&&ghostAdvisory?{tag:placement&&scopedPrecision.owner==='furniture'?placement.intent.tag:store.asyncTag(),item:ghostItem,warning:ghostAdvisory.overlap,advisory:ghostAdvisory}:undefined;
-  return <main className="workspace">
-    <header className="app-header">
-      <div className="brand"><span className="brand-mark" aria-hidden="true">⌂</span><h1>GharPlan</h1><span className="brand-tag">{t('brandTag')}</span></div>
-      {navigation}<div className="memory-status"><span aria-hidden="true" /> {session?.saving ? t('localDrawing') : t('demoMemory')}</div>
+  const tools:readonly {id:ToolId;label:string}[]=[{id:'draw',label:t('toolDraw')},{id:'openings',label:t('toolOpenings')},{id:'furniture',label:t('toolFurniture')},{id:'materials',label:t('toolMaterials')},{id:'copilot',label:t('toolCopilot')},{id:'project',label:t('toolProject')}];
+  // D76 S3: every panel stays mounted (cloud saving, drafts and AI answers keep running); only the chosen one shows.
+  const panel=(id:ToolId,children:ReactNode)=><section key={id} id={`panel-${id}`} className="tool-panel" role="region" aria-label={tools.find(x=>x.id===id)!.label} hidden={tool!==id} data-tool={id} onKeyDown={event=>{if(event.key==='Escape'&&!(event.target instanceof HTMLSelectElement)){event.stopPropagation();closeTool();}}}>
+    <header className="tool-panel-head"><h2>{tools.find(x=>x.id===id)!.label}</h2><button className="icon-button" aria-label={t('closePanel')} onClick={closeTool}><Icon name="close"/></button></header>
+    <div className="tool-panel-body">{children}</div>
+  </section>;
+  return <main className="workspace editor-app" data-tool={tool??'none'}>
+    <header className="topbar" role="banner">
+      <div className="topbar-start"><span className="brand-mark" aria-hidden="true">⌂</span><div className="topbar-title"><h1 className="project-name" title={house.document.name}>{house.document.name}</h1><span className="topbar-sub">{t('brandName')} · {house.document.floors.length===1?t('oneFloor'):t('floorsCount',{count:house.document.floors.length})}</span></div></div>
+      <div className="topbar-center"><div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => changeView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => changeView('3d')}>{t('view3d')}</button>{splitAvailable&&<button className={view==='split'?'active-tab':''} aria-pressed={view==='split'} onClick={()=>changeView('split')}>{t('splitView')}</button>}</div></div>
+      <div className="topbar-end">
+        <div className="history-buttons topbar-history"><button className="icon-button" disabled={!snapshot.canUndo} onClick={() => { store.undo(); setMessage(t('undone')); }} aria-label={t('undo')} title={t('undo')}><Icon name="undo"/></button><button className="icon-button" disabled={!snapshot.canRedo} onClick={() => { store.redo(); setMessage(t('redone')); }} aria-label={t('redo')} title={t('redo')}><Icon name="redo"/></button></div>
+        <SaveControls compact store={baseStore} {...(session ? { session } : {})} />
+        {!narrow&&navigation}
+      </div>
     </header>
-    <section className="project-bar" aria-label={t('projectInfo')}>
-      <div><span className="eyebrow">{t('workspace')}</span><h2>{house.document.name}<span className="project-label">{house.document.floors.length===1?t('oneFloor'):t('floorsCount',{count:house.document.floors.length})}</span></h2></div>
-      <div className="plan-summary"><span>{house.document.rooms.length === 1 ? t('oneRoom') : t('roomsCount', { count: house.document.rooms.length })}</span><strong data-testid="total-area">{totalLabel.value} <small>{totalLabel.unit} {t('clearArea')}</small></strong></div>
-    </section>
-    <div className="editor-layout">
-      <section ref={drawingPanel} className="drawing-panel" aria-label={t('floorEditor')}>
-        <FloorControls store={baseStore} activeFloorId={activeFloor} onActivate={setActiveFloor} locale={ui.locale} onMessage={setMessage}/>
-        <StructureControls store={baseStore} activeFloorId={activeFloor} locale={ui.locale} onMessage={setMessage}/>
-        <div className="editor-toolbar">
-          <div className="view-tabs" role="group" aria-label={t('drawingView')}><button className={view === '2d' ? 'active-tab' : ''} aria-label={t('plan2d')} aria-pressed={view === '2d'} onClick={() => changeView('2d')}>▧ &nbsp; {t('plan2d')}</button><button className={view === '3d' ? 'active-tab' : ''} aria-pressed={view === '3d'} onClick={() => changeView('3d')}>{t('view3d')}</button>{splitAvailable&&<button className={view==='split'?'active-tab':''} aria-pressed={view==='split'} onClick={()=>changeView('split')}>{t('splitView')}</button>}</div>
-          <div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{showPlan && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div>
-        </div>
-        <div className={view==='split'?'editor-views split-views':'editor-views'} data-testid="editor-views" data-layout={view}>
-          {showPlan&&<section className="editor-pane" aria-label={t('plan2d')} key={`${view}:plan`}>{view==='split'&&<h3 className="pane-title">{t('plan2d')}</h3>}<PlanCanvas selectedPick={activePick??null} advisories={advisories} previewFurnitureId={ghost?.item.id} onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} underlay={underlay} /></section>}
-          {showThree&&<section className="editor-pane" aria-label={t('view3d')} key={`${view}:three`}>{view==='split'&&<h3 className="pane-title">{t('view3d')}</h3>}<Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} advisories={advisories} assetSource={assetSource} placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={baseStore} activeFloorId={activeFloor} onMessage={setMessage} fitRequest={fit} /></Suspense></section>}
-        </div>
-        {threeFallback&&<p role="status">{t('threeFallback')}</p>}
-        <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span>{house.document.floors.find(f=>f.id===activeFloor)?.name??t('groundFloor')} · {t('mm')}</span></footer>
-      </section>
-      <aside className="inspector" aria-label={t('planControls')}>
-        <SaveControls store={baseStore} {...(session ? { session } : {})} />
-        <CloudPanel store={baseStore} locale={ui.locale} flush={() => session?.saving?.flush() ?? Promise.resolve()} onOpenDocument={(document, link) => onOpenDocument?.(document, link)} />
-        <CatalogControls buttonRef={browseButton} locale={ui.locale} units={snapshot.document.units} onBrowse={()=>{drawing.setMode('select');cancelPrecision();}} onChoose={asset=>{drawing.setMode('select');cancelPrecision();try{const pose=view==='3d'?threeApi?.pose():undefined,centre:Point2=pose?[pose.target[0]*1000,pose.target[2]*1000]:viewCentre.current;setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
-        {placement&&<FurniturePlacementControls advisories={advisories} key={placement.intent.id} store={store} intent={placement.intent} label={ui.locale==='hi'?placement.name_hi:placement.name_en} locale={ui.locale} onPreview={furniturePreview} onCancel={cancelPlacement} onAdded={id=>{cancelPlacement();selectEntities([{kind:'furniture',id}]);setMessage(t('placementAdded'));}}/>}
-        <FurnitureControls onEditStart={startFurnitureEdit} advisories={advisories} cancelToken={furnitureCancel} onPreview={furnitureEditPreview} store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/>
-        <SurfaceControls store={store} locale={ui.locale} view={view} picked={activePick} onSelect={choosePick} onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} onMessage={setMessage}/>
-        <PlanImageControls store={store} locale={ui.locale}/>
-        {showThree&&<><CameraControls store={baseStore} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={baseStore} locale={ui.locale}/></>}
-        <label>{t('currentProjectUnits')}<select aria-label={t('currentProjectUnits')} value={snapshot.document.units} onChange={event=>{const result=store.execute({id:`units_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:snapshot.localGeneration,type:'SetUnits',units:event.target.value as 'metric'|'imperial'});setMessage(result.ok?t('unitDisplayChanged'):editError(ui.locale,result.errors[0]));}}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>
-        <div className="inspector-title"><span className="eyebrow">{t('precision')}</span><h3>{t('shapeSpace')}</h3><p>{t('moveCornerHelp')}</p></div>
-        <div className="history-buttons"><button disabled={!snapshot.canUndo} onClick={() => { store.undo(); setMessage(t('undone')); }} aria-label={t('undo')}>↶ &nbsp; {t('undo')}</button><button disabled={!snapshot.canRedo} onClick={() => { store.redo(); setMessage(t('redone')); }} aria-label={t('redo')}>↷ &nbsp; {t('redo')}</button></div>
-        {showPlan&&<DrawingControls tool={drawing} store={store} locale={ui.locale} onMessage={setMessage}/>}
-        {showPlan&&<WallPrecision store={store} drawing={drawing} selected={selectedWall} onSelect={id=>{setSelectedWall(id);setSelectedOpening('');}} onPreview={wallPreview} cancelToken={precisionCancel} locale={ui.locale} onMessage={setMessage}/>}
-        {showPlan&&<OpeningControls store={store} wallId={selectedWall} selected={selectedOpening} onSelect={setSelectedOpening} onPreview={openingPreview} cancelToken={openingCancel} locale={ui.locale} onMessage={setMessage}/>}
-        {showPlan&&<SelectionControls store={store} drawing={drawing} selected={selection} onSelect={selectEntities} multiple={multiple} onMultiple={setMultiple} onPreview={selectionPreview} cancelToken={selectionCancel} locale={ui.locale} onMessage={setMessage}/>}
-        {!snapshot.document.walls.length && <div className="blank-plan"><p>{t('blankPlan')}</p><button className="primary-button" onClick={() => {
+    <div className="editor-body">
+      <nav className="tool-rail" aria-label={t('toolsNav')}>{tools.map(x=><button key={x.id} className={tool===x.id?'tool-button active-tool':'tool-button'} aria-pressed={tool===x.id} aria-controls={`panel-${x.id}`} onClick={()=>setTool(old=>old===x.id?null:x.id)}><Icon name={x.id}/><span>{x.label}</span></button>)}</nav>
+      <div className="tool-panels">
+        {panel('draw',<><FloorControls store={baseStore} activeFloorId={activeFloor} onActivate={setActiveFloor} locale={ui.locale} onMessage={setMessage}/>
+          <StructureControls store={baseStore} activeFloorId={activeFloor} locale={ui.locale} onMessage={setMessage}/>
+          <div className="inspector-title"><span className="eyebrow">{t('precision')}</span><h3>{t('shapeSpace')}</h3><p>{t('moveCornerHelp')}</p></div>
+          {showPlan&&<DrawingControls tool={drawing} store={store} locale={ui.locale} onMessage={setMessage}/>}
+          {showPlan&&<WallPrecision store={store} drawing={drawing} selected={selectedWall} onSelect={id=>{setSelectedWall(id);setSelectedOpening('');}} onPreview={wallPreview} cancelToken={precisionCancel} locale={ui.locale} onMessage={setMessage}/>}
+          {showPlan&&<SelectionControls store={store} drawing={drawing} selected={selection} onSelect={selectEntities} multiple={multiple} onMultiple={setMultiple} onPreview={selectionPreview} cancelToken={selectionCancel} locale={ui.locale} onMessage={setMessage}/>}
+          {!snapshot.document.walls.length && <div className="blank-plan"><p>{t('blankPlan')}</p><button className="primary-button" onClick={() => {
           const result = store.execute({ type: 'AddRectangle', id: `starter_${snapshot.localGeneration}`, baseGeneration: snapshot.localGeneration, x: 0, y: 0, width: 4000, depth: 4000, thickness: 200, height: 2700 });
           if (result.ok) setFit(n => n + 1);
           setMessage(result.ok ? t('starterAdded') : editError(ui.locale, result.errors[0]));
         }}>{t('starterRoom')}</button></div>}
-        {corner && <form onSubmit={event => {
+          {corner && <form onSubmit={event => {
           event.preventDefault(); const point: [number, number] = [Number(x), Number(y)];
           if (!x.trim() || !y.trim() || !point.every(Number.isSafeInteger)) { setMessage(t('wholeCoordinates')); return; }
           const result = store.execute({ id: `coordinate_${snapshot.localGeneration}`, baseGeneration: snapshot.localGeneration, type: 'MoveJunctions', moves: junctionMoves(snapshot.document, selected, point) });
@@ -183,16 +173,35 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
           <div className="coordinate-fields"><label>{t('xPosition')} <span>{t('mm')}</span><input aria-label={t('cornerX')} type="number" step="1" min="-100000" max="100000" value={x} onChange={e => setX(e.target.value)} required /></label><label>{t('yPosition')} <span>{t('mm')}</span><input aria-label={t('cornerY')} type="number" step="1" min="-100000" max="100000" value={y} onChange={e => setY(e.target.value)} required /></label></div>
           <button className="primary-button" type="submit">{t('applyCoordinates')} <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M3 13 13 3M3 3h10v10" fill="none" stroke="currentColor" strokeWidth="1.5" /></svg></button>
         </form>}
-        <section className="room-list" aria-label={t('roomAreas')}><div className="section-heading"><h3>{t('insidePlan')}</h3><span>{t('roomsCount', { count: snapshot.document.rooms.length })}</span></div>
+          <section className="room-list" aria-label={t('roomAreas')}><div className="section-heading"><h3>{t('insidePlan')}</h3><span>{t('roomsCount', { count: snapshot.document.rooms.length })}</span></div>
           {snapshot.derived.faces.map(face => { const label = areaDisplay(face.clearAreaMm2, snapshot.document.units); return <div className="room-row" key={face.roomId}><span className="room-swatch" data-material-id={snapshot.document.rooms.find(r=>r.id===face.roomId)!.floorMaterial} style={{backgroundColor:materialColor(snapshot.document,snapshot.document.rooms.find(r=>r.id===face.roomId)!.floorMaterial)}} aria-hidden="true" /><div><strong>{snapshot.document.rooms.find(r => r.id === face.roomId)?.name}</strong><small>{face.smallSpaceWarning ? t('smallSpace') : t('insideArea')}</small></div><span data-testid={`area-${face.roomId}`}>{label.value} <small>{label.unit}</small></span></div>; })}
         </section>
-        {unclosedWalls&&<p role="status">{t('incompletePlan')}</p>}
-        <RoomControls selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} store={store} locale={ui.locale} onMessage={setMessage}/>
-        <AiFurniturePanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInAi} catalog={signal=>assetSource.catalog(signal)} onPlace={(asset,centre)=>{drawing.setMode('select');cancelPrecision();try{setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
-        <PhotoPlanPanel locale={ui.locale} provider={standInAi} units={snapshot.document.units} onUnderlay={setUnderlay} onOpen={document=>onOpenDocument?.(document,false)}/>
-        <div className="tip"><span aria-hidden="true">✦</span><p><strong>{t('measured')}</strong><br />{t('measuredHelp')}</p></div>
-      </aside>
+          {unclosedWalls&&<p role="status">{t('incompletePlan')}</p>}
+          <RoomControls selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} store={store} locale={ui.locale} onMessage={setMessage}/></>)}
+        {panel('openings',<>{showPlan&&<OpeningControls store={store} wallId={selectedWall} selected={selectedOpening} onSelect={setSelectedOpening} onPreview={openingPreview} cancelToken={openingCancel} locale={ui.locale} onMessage={setMessage}/>}{!showPlan&&<p className="structure-note">{t('openingsIn2d')}</p>}</>)}
+        {panel('furniture',<><CatalogControls buttonRef={browseButton} locale={ui.locale} units={snapshot.document.units} onBrowse={()=>{drawing.setMode('select');cancelPrecision();}} onChoose={asset=>{drawing.setMode('select');cancelPrecision();try{const pose=view==='3d'?threeApi?.pose():undefined,centre:Point2=pose?[pose.target[0]*1000,pose.target[2]*1000]:viewCentre.current;setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
+          {placement&&<FurniturePlacementControls advisories={advisories} key={placement.intent.id} store={store} intent={placement.intent} label={ui.locale==='hi'?placement.name_hi:placement.name_en} locale={ui.locale} onPreview={furniturePreview} onCancel={cancelPlacement} onAdded={id=>{cancelPlacement();selectEntities([{kind:'furniture',id}]);setMessage(t('placementAdded'));}}/>}
+          <FurnitureControls onEditStart={startFurnitureEdit} advisories={advisories} cancelToken={furnitureCancel} onPreview={furnitureEditPreview} store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/></>)}
+        {panel('materials',<SurfaceControls store={store} locale={ui.locale} view={view} picked={activePick} onSelect={choosePick} onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} onMessage={setMessage}/>)}
+        {panel('copilot',<><AiFurniturePanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInAi} catalog={signal=>assetSource.catalog(signal)} onPlace={(asset,centre)=>{drawing.setMode('select');cancelPrecision();setTool('furniture');try{setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
+          <PhotoPlanPanel locale={ui.locale} provider={standInAi} units={snapshot.document.units} onUnderlay={setUnderlay} onOpen={document=>onOpenDocument?.(document,false)}/></>)}
+        {panel('project',<>{narrow&&navigation}
+          <CloudPanel store={baseStore} locale={ui.locale} flush={() => session?.saving?.flush() ?? Promise.resolve()} onOpenDocument={(document, link) => onOpenDocument?.(document, link)} />
+          <PlanImageControls store={store} locale={ui.locale}/>
+          {showThree&&<><CameraControls store={baseStore} api={threeApi} quality={quality} onQuality={setQuality} lighting={lighting} onLighting={setLighting} locale={ui.locale}/><ThreeImageControls api={threeApi} store={baseStore} locale={ui.locale}/></>}
+          <label>{t('currentProjectUnits')}<select aria-label={t('currentProjectUnits')} value={snapshot.document.units} onChange={event=>{const result=store.execute({id:`units_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:snapshot.localGeneration,type:'SetUnits',units:event.target.value as 'metric'|'imperial'});setMessage(result.ok?t('unitDisplayChanged'):editError(ui.locale,result.errors[0]));}}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>
+          <div className="tip"><span aria-hidden="true">✦</span><p><strong>{t('measured')}</strong><br />{t('measuredHelp')}</p></div>
+          <p className="workbench-note">{session ? t('keepBackups') : t('memoryHelp')}</p></>)}
+      </div>
+      <section ref={drawingPanel} className="drawing-panel canvas-area" aria-label={t('floorEditor')}>
+        <div className="canvas-overlay canvas-actions-bar"><div className="canvas-actions"><button onClick={() => setFit(n => n + 1)} aria-label={t('fitPlanAria')}>{t('fitPlan')}</button>{showPlan && <label><input type="checkbox" checked={showGrid} onChange={e => setShowGrid(e.target.checked)} /> {t('grid')}</label>}</div></div>
+        <div className={view==='split'?'editor-views split-views':'editor-views'} data-testid="editor-views" data-layout={view}>
+          {showPlan&&<section className="editor-pane" aria-label={t('plan2d')} key={`${view}:plan`}>{view==='split'&&<h3 className="pane-title">{t('plan2d')}</h3>}<PlanCanvas selectedPick={activePick??null} advisories={advisories} previewFurnitureId={ghost?.item.id} onViewCentre={receiveCentre} drawing={drawing} precisionPreview={precision} onEditStart={cancelPrecision} onPick={choosePick} selection={selection} multiple={multiple} onBoxSelect={choosePicks} locale={ui.locale} store={store} snapshot={snapshot} selected={selected} onSelect={setSelected} onMessage={setMessage} zoomRequest={fit} showGrid={showGrid} underlay={underlay} /></section>}
+          {showThree&&<section className="editor-pane" aria-label={t('view3d')} key={`${view}:three`}>{view==='split'&&<h3 className="pane-title">{t('view3d')}</h3>}<Suspense fallback={<div className="plan-canvas"><div className="three-status" role="status">{t('loading3d')}</div></div>}><ThreeView onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} advisories={advisories} assetSource={assetSource} placementPreview={ghost} selectedPick={activePick} onPick={choosePick} onFallback2d={()=>{setThreeFallback(true);setView('2d');}} quality={quality} lighting={lighting} onControlsReady={setThreeApi} locale={ui.locale} store={baseStore} activeFloorId={activeFloor} onMessage={setMessage} fitRequest={fit} /></Suspense></section>}
+        </div>
+        {threeFallback&&<p role="status">{t('threeFallback')}</p>}
+        <footer className="editor-footer"><span role="status" aria-live="polite">{notice}</span><span className="footer-summary"><span>{house.document.rooms.length === 1 ? t('oneRoom') : t('roomsCount', { count: house.document.rooms.length })}</span> · <strong data-testid="total-area">{totalLabel.value} <small>{totalLabel.unit} {t('clearArea')}</small></strong> · <span>{house.document.floors.find(f=>f.id===activeFloor)?.name??t('groundFloor')} · {t('mm')}</span></span></footer>
+      </section>
     </div>
-    <div className="workbench-note">{session ? t('keepBackups') : t('memoryHelp')}</div>
   </main>;
 }

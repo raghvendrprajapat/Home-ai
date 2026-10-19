@@ -10,7 +10,8 @@ import { exportNativeProject } from './native-export';
 
 const memory: SaveStatus = { phase: 'memory', message: 'In memory only — export before closing.', pending: 0, diskSequence: 0 };
 const nothing = () => () => undefined;
-export function SaveControls({ store, session }: { store: ProjectStore; session?: WorkspaceSession }) {
+/** `compact` (D76 M2): the top-bar form — a status pill and an Export button whose text hides on phones. */
+export function SaveControls({ store, session, compact = false }: { store: ProjectStore; session?: WorkspaceSession; compact?: boolean }) {
   const { locale } = useUi();
   const saving = session?.saving;
   const status = useSyncExternalStore(saving?.subscribe ?? nothing, saving?.getSnapshot ?? (() => memory));
@@ -31,10 +32,10 @@ export function SaveControls({ store, session }: { store: ProjectStore; session?
     const url = URL.createObjectURL(new Blob([text], { type: 'application/json' })), link = document.createElement('a');
     link.href = url; link.download = 'gharplan-project.json'; link.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   };
-  return <section className="local-saving" aria-label={message(locale, 'saveSection')}>
-    <p data-testid="save-status" data-phase={status.phase} aria-live="polite">{locale === 'en' ? status.message : message(locale, phases[status.phase])}</p>
+  return <section className={compact ? 'local-saving save-compact' : 'local-saving'} aria-label={message(locale, 'saveSection')}>
+    <p data-testid="save-status" data-phase={status.phase} aria-live="polite" title={locale === 'en' ? status.message : message(locale, phases[status.phase])}><span className="save-dot" aria-hidden="true" /><span className="save-text">{locale === 'en' ? status.message : message(locale, phases[status.phase])}</span></p>
     {session?.warning && <p role="alert">{locale === 'en' ? session.warning : message(locale, 'recoveryWarning')}</p>}
-    <div className="history-buttons"><button disabled={exporting} onClick={() => { void exportDrawing(); }}>{message(locale, 'exportDrawing')}</button>{saving && status.phase !== 'saved' && <button onClick={() => { void saving.retry(); }}>{message(locale, 'retrySave')}</button>}</div>
+    <div className="history-buttons"><button className="export-button" disabled={exporting} aria-label={message(locale, 'exportDrawing')} onClick={() => { void exportDrawing(); }}><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 3v12M7 10l5 5 5-5M5 21h14"/></svg><span className="button-text">{message(locale, 'exportDrawing')}</span></button>{saving && status.phase !== 'saved' && !(compact && status.phase === 'saving') && <button onClick={() => { void saving.retry(); }}>{message(locale, 'retrySave')}</button>}</div>
     {backup !== null && <div className="backup-copy" role="dialog" aria-labelledby="backup-copy-title"><h3 id="backup-copy-title">{message(locale, 'backupTitle')}</h3><p aria-live="polite">{message(locale, copyKey)}</p><p>{message(locale, 'exportSnapshot')}</p>
       <textarea aria-label={message(locale, 'backupJson')} readOnly value={backup} rows={6} onFocus={event => event.currentTarget.select()} />
       <button onClick={() => {
