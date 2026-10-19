@@ -47,3 +47,12 @@ it('transient pose stabilization is idempotent and preserves canonical millimetr
  fc.assert(fc.property(fc.array(fc.double({min:-1000,max:1000,noNaN:true,noDefaultInfinity:true}),{minLength:6,maxLength:6}),values=>{const pose={position:values.slice(0,3) as [number,number,number],target:values.slice(3) as [number,number,number]},stable=stablePose(pose);expect(stablePose(stable)).toEqual(stable);for(const [i,n]of [...stable.position,...stable.target].entries())expect(Math.abs(n-values[i]!)).toBeLessThanOrEqual(1e-12);}),{numRuns:100,seed:304});
  const p={position:[6.972544223883958,8.279924905896157,9.279925021380155] as [number,number,number],target:[2.27875005826354,1.4999999999999998,2.500000115483999] as [number,number,number]};expect(encodeBookmark(stablePose(p),'camera')).toEqual(encodeBookmark(p,'camera'));
 });
+
+it('D76 property: the fitted view is tight; the house reaches near an edge of the picture on the limiting side',()=>{
+ // Claude-authored: a corner must project within 15% of the picture edge (|ndc| ≥ 0.85), and none outside it.
+ fc.assert(fc.property(fc.integer({min:2,max:30}),fc.integer({min:1,max:6}),fc.integer({min:2,max:30}),fc.double({min:.4,max:2.5,noNaN:true}),(w,h,d,aspect)=>{
+  const fit=fitPose([0,0,0,w,h,d],aspect),c=new THREE.PerspectiveCamera(45,aspect,.01,1000);c.position.fromArray(fit.pose.position);c.lookAt(new THREE.Vector3(...fit.pose.target));c.updateMatrixWorld();
+  let edge=0;for(const x of [0,w])for(const y of [0,h])for(const z of [0,d]){const p=new THREE.Vector3(x,y,z).project(c);expect(Math.max(Math.abs(p.x),Math.abs(p.y))).toBeLessThanOrEqual(1+1e-9);edge=Math.max(edge,Math.abs(p.x),Math.abs(p.y));}
+  expect(edge).toBeGreaterThanOrEqual(.85);
+ }),{numRuns:100,seed:7601});
+});

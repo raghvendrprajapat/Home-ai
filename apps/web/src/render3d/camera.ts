@@ -23,11 +23,22 @@ export function stablePose(pose:CameraPose):CameraPose{
 }
 export function fitPose(bounds:Bounds3,aspect:number,fovDeg=45):{pose:CameraPose;capped:boolean}{
  if(!bounds.every(Number.isFinite)||!Number.isFinite(aspect)||aspect<=0)throw new Error('camera-bounds');
- const target:Vec3=[(bounds[0]+bounds[3])/2,(bounds[1]+bounds[4])/2,(bounds[2]+bounds[5])/2],radius=Math.hypot(bounds[3]-bounds[0],bounds[4]-bounds[1],bounds[5]-bounds[2])/2;
- const vertical=fovDeg*Math.PI/360,horizontal=Math.atan(Math.tan(vertical)*aspect),distance=Math.max(2,radius/Math.sin(Math.min(vertical,horizontal))*1.02);
- // D76: a dollhouse view from about 57° above the horizon (south-east), so furniture shows over the walls.
- const norm=Math.hypot(.35,1,.55),pose=clampOrbit({target,position:[target[0]+distance*.35/norm,target[1]+distance/norm,target[2]+distance*.55/norm]},bounds,bounds[1]);return {pose,capped:distance>MAX_DISTANCE};
+ // D76: a dollhouse view from about 57° above the horizon (south-east), so furniture shows over the walls. The distance
+ // fits the eight box corners as the camera really sees them (not a bounding sphere), so the house fills the view.
+ const norm=Math.hypot(.35,1,.55),d:Vec3=[.35/norm,1/norm,.55/norm],right=normalized([d[2],0,-d[0]]),up=cross(right,d.map(v=>-v) as Vec3);
+ const tanV=Math.tan(fovDeg*Math.PI/360),tanH=tanV*aspect,corners:Vec3[]=[];
+ for(const x of [bounds[0],bounds[3]])for(const y of [bounds[1],bounds[4]])for(const z of [bounds[2],bounds[5]])corners.push([x,y,z]);
+ const along=(v:Vec3,axis:Vec3)=>v[0]*axis[0]+v[1]*axis[1]+v[2]*axis[2];
+ let target:Vec3=[(bounds[0]+bounds[3])/2,(bounds[1]+bounds[4])/2,(bounds[2]+bounds[5])/2];
+ // Centre the box in the picture: move the target to the middle of the corners' sideways and up/down spread.
+ const rel=(c:Vec3):Vec3=>[c[0]-target[0],c[1]-target[1],c[2]-target[2]],xs=corners.map(c=>along(rel(c),right)),ys=corners.map(c=>along(rel(c),up));
+ const cx=(Math.min(...xs)+Math.max(...xs))/2,cy=(Math.min(...ys)+Math.max(...ys))/2;target=[0,1,2].map(i=>target[i]!+right[i]!*cx+up[i]!*cy) as Vec3;
+ const needed=Math.max(...corners.map(c=>{const r=rel(c);return along(r,d)+Math.max(Math.abs(along(r,right))/tanH,Math.abs(along(r,up))/tanV);}));
+ const distance=Math.max(2,needed*1.04);
+ const pose=clampOrbit({target,position:[target[0]+distance*d[0],target[1]+distance*d[1],target[2]+distance*d[2]]},bounds,bounds[1]);return {pose,capped:distance>MAX_DISTANCE};
 }
+const cross=(a:Vec3,b:Vec3):Vec3=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const normalized=(v:Vec3):Vec3=>{const n=Math.hypot(...v);return [v[0]/n,v[1]/n,v[2]/n];};
 export function bookmarkPose(bookmark:Readonly<Omit<CameraPreset,'position'|'target'>>&{position:readonly number[];target:readonly number[]}):CameraPose{
  if(bookmark.mode!=='orbit'||!finite(bookmark.position)||!finite(bookmark.target))throw new Error('camera-bookmark');
  const convert=(v:readonly number[]):Vec3=>[v[0]!/1000,v[2]!/1000,v[1]!/1000];const pose={position:convert(bookmark.position),target:convert(bookmark.target)},distance=Math.hypot(...pose.position.map((v,i)=>v-pose.target[i]!));
