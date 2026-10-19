@@ -48,9 +48,13 @@ export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale
  },[picture,shown,widthMm,strength,left,top,validWidth,validPlace,onUnderlay]);
  useEffect(()=>()=>onUnderlay(null),[onUnderlay]);
  const forget=()=>{if(picture)URL.revokeObjectURL(picture.url);setMarks(null);setScaleNote(null);};
+ // The last picture chosen wins: one that finishes opening after a newer choice is released and ignored.
+ const choosing=useRef(0);
  const choose=async(file:File|undefined)=>{
-  setReading(null);setFailed(false);forget();if(!file){setPicture(null);return;}
-  try{setPicture(await openPicture(file));}catch{setPicture(null);setFailed(true);}
+  const ticket=++choosing.current;
+  setReading(null);setFailed(false);forget();setPicture(null);if(!file)return;
+  try{const opened=await openPicture(file);if(ticket===choosing.current)setPicture(opened);else URL.revokeObjectURL(opened.url);}
+  catch{if(ticket===choosing.current)setFailed(true);}
  };
  // Marking: a tap on the picture adds a point in the picture's own pixels (border excluded).
  const mark=(event:MouseEvent<HTMLImageElement>)=>{
@@ -103,14 +107,14 @@ export function PhotoPlanPanel({locale,provider,units,onUnderlay,onOpen}:{locale
    <label>{message(locale,'aiPhotoTop')}<input type="number" inputMode="numeric" min={-40000} max={40000} step={50} aria-label={message(locale,'aiPhotoTop')} value={top} onChange={event=>{setTop(Number(event.target.value));setReading(null);}}/></label>
    <label className="ai-check"><input type="checkbox" checked={shown} onChange={event=>setShown(event.target.checked)}/>{message(locale,'aiPhotoShow')}</label>
    <label>{message(locale,'aiPhotoStrength')}<input type="range" min={20} max={80} step={10} aria-label={message(locale,'aiPhotoStrength')} value={strength} onChange={event=>setStrength(Number(event.target.value))}/></label>
-   <p className="structure-note">{message(locale,provider.kind==='stand-in'?'aiPhotoTestNote':'aiServerMode')}</p>
+   <p className="structure-note">{message(locale,provider.kind==='stand-in'?'aiPhotoTestNote':'aiPhotoServerMode')}</p>
    <div className="ai-layout-actions">
     <button className="primary-button" disabled={!validWidth||!validPlace||reading?.phase==='reading'} onClick={()=>{void read();}}>{message(locale,'aiPhotoRead')}</button>
     <button onClick={remove}>{message(locale,'aiPhotoRemove')}</button>
    </div>
   </>}
-  {reading?.phase==='reading'&&<p role="status">{message(locale,'aiThinking')}</p>}
-  {reading?.phase==='failed'&&<p role="alert">{message(locale,'aiFailed')}</p>}
+  {reading?.phase==='reading'&&<p role="status">{message(locale,'aiPhotoReading')}</p>}
+  {reading?.phase==='failed'&&<p role="alert">{message(locale,'aiPhotoReadFailed')}</p>}
   {reading?.phase==='ready'&&<SketchPreview reading={reading} locale={locale} onOpen={open}/>}
  </section>;
 }

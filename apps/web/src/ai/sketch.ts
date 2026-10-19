@@ -20,11 +20,14 @@ export interface SketchDoor {readonly x:number;readonly y:number;readonly width:
 export interface SketchPixels {readonly width:number;readonly height:number;readonly data:Uint8ClampedArray}
 
 const overlap=(a:Box,b:Box)=>a[0]<b[2]&&b[0]<a[2]&&a[1]<b[3]&&b[1]<a[3];
-/** Groups values that lie within SKETCH_MERGE_MM of their neighbour and moves each group onto its mean, on a 50 mm grid. */
+/**
+ * Groups values that all lie within SKETCH_MERGE_MM of the group's smallest value (so a chain of close edges cannot
+ * grow into one wide group) and moves each group onto its mean, on a 50 mm grid.
+ */
 function snapper(values:readonly number[]):(v:number)=>number{
  const sorted=[...new Set(values)].sort((a,b)=>a-b),map=new Map<number,number>();
  for(let i=0;i<sorted.length;){
-  let j=i;while(j+1<sorted.length&&sorted[j+1]!-sorted[j]!<=SKETCH_MERGE_MM)j++;
+  let j=i;while(j+1<sorted.length&&sorted[j+1]!-sorted[i]!<=SKETCH_MERGE_MM)j++;
   const group=sorted.slice(i,j+1),mean=group.reduce((s,v)=>s+v,0)/group.length,snapped=Math.round(mean/SKETCH_GRID_MM)*SKETCH_GRID_MM;
   for(const v of group)map.set(v,snapped);i=j+1;
  }

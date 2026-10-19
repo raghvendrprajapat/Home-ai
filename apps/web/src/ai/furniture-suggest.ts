@@ -58,12 +58,14 @@ export function acceptSuggestions(raw:unknown,brief:RoomBrief,candidates:readonl
  }
  // Options: known, fitting, not already in the room and not shown as another idea; kept in the provider's order
  // (biggest first), with the shown asset always included.
- const shown=new Set(out.map(s=>s.asset.id));
+ // An option belongs to the first idea that lists it, so two ideas can never swap to the same piece.
+ const shown=new Set(out.map(s=>s.asset.id)),claimed=new Set<string>();
  return out.map(s=>{
   const listed=(raw as unknown[]).find(e=>e&&typeof e==='object'&&(e as Record<string,unknown>).assetId===s.asset.id) as Record<string,unknown>|undefined,ids=Array.isArray(listed?.options)?listed.options.slice(0,10):[];
   const options:CatalogAsset[]=[];
-  for(const id of ids){const a=typeof id==='string'?byId.get(id):undefined;if(a&&!options.includes(a)&&(a===s.asset||!shown.has(a.id)&&!brief.existingAssetIds.includes(a.id)&&fitsRoom(a.dims,brief.widthMm,brief.depthMm)))options.push(a);}
+  for(const id of ids){const a=typeof id==='string'?byId.get(id):undefined;if(a&&!options.includes(a)&&(a===s.asset||!shown.has(a.id)&&!claimed.has(a.id)&&!brief.existingAssetIds.includes(a.id)&&fitsRoom(a.dims,brief.widthMm,brief.depthMm)))options.push(a);}
   if(!options.includes(s.asset))options.unshift(s.asset);
+  for(const a of options)claimed.add(a.id);
   return {...s,options};
  });
 }
@@ -80,6 +82,14 @@ export function swapSuggestion(list:readonly FurnitureSuggestion[],index:number,
   if(others+area(next)<=budget)return list.map((x,i)=>i===index?{...x,asset:next,reason:{kind:'fits'}}:x);
  }
  return undefined;
+}
+
+/**
+ * The biggest single rectangle of a room's clear floor. For an L-shaped or notched room the bounding box would count
+ * floor that is not there, so ideas, the "already in the room" check and Place use this rectangle instead.
+ */
+export function largestRect(rects:readonly (readonly [number,number,number,number])[]):readonly [number,number,number,number]|undefined{
+ return [...rects].sort((a,b)=>(b[2]-b[0])*(b[3]-b[1])-(a[2]-a[0])*(a[3]-a[1]))[0];
 }
 
 /** The room's clear rectangle as integer mm, the floor area that furniture can actually use. */

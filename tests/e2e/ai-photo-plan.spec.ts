@@ -97,6 +97,10 @@ test('D73 scale by marking a wall: two taps on the outer walls and their real le
  await expect(scale.getByRole('status')).toHaveText('Now tap the other end of the same wall.');
  await picture.click({position:{x:181,y:75}});
  expect(await photo.locator('[data-mark]').evaluateAll(ms=>ms.map(m=>m.getAttribute('data-mark')))).toEqual(['21,75','181,75']);
+ // Each dot is drawn where it was tapped (audit fix: it was up to 9 px off).
+ const img=(await picture.boundingBox())!,dots=await photo.locator('[data-mark]').evaluateAll(ms=>ms.map(m=>{const r=m.getBoundingClientRect();return [r.x+r.width/2,r.y+r.height/2];}));
+ const taps=[[21,75],[181,75]] as const;
+ for(const [i,[x,y]] of dots.entries()){const [tx,ty]=taps[i]!;expect(Math.abs(x!-(img.x+tx))).toBeLessThanOrEqual(1);expect(Math.abs(y!-(img.y+ty))).toBeLessThanOrEqual(1);}
  const length=scale.getByLabel('Real length between the marks (mm)',{exact:true});
  await length.fill('100');await scale.getByRole('button',{name:'Use this scale',exact:true}).click();
  await expect(photo.getByRole('alert')).toHaveText('This scale cannot be used: mark two points further apart and enter 500 to 30,000 mm.');
