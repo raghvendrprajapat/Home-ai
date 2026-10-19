@@ -18,12 +18,13 @@ const nextId=()=>`cp_${crypto.randomUUID().replaceAll('-','')}`;
 /**
  * D76 M3 Copilot chat. The provider only names an Intent (acceptIntent checks it); every change is made here through
  * the normal core-model commands, one command per request, so Undo/Redo behave exactly as for manual edits.
- * A new plan from a template opens as a new project; the drawing that was open is not touched.
+ * A new plan from a template opens as a new project; the drawing that was open is not touched. A starter chip only fills
+ * the ask box, so nothing happens until the person presses Send.
  */
 export function CopilotPanel({store,locale,selectedRoomId,provider,ai,catalog,onOpenDocument}:{store:ProjectStore;locale:Locale;selectedRoomId:string|undefined;provider:CopilotProvider;ai:AiProvider;catalog:(signal:AbortSignal)=>Promise<Catalog>;onOpenDocument?:((document:ProjectDoc)=>void)|undefined}){
  const t=<K extends MessageKey>(key:K,...args:MessageArgs<K>)=>message(locale,key,...args);
  const [lines,setLines]=useState<readonly Line[]>([]),[text,setText]=useState(''),[busy,setBusy]=useState(false);
- const counter=useRef(0),log=useRef<HTMLOListElement>(null),alive=useRef<AbortController|null>(null);
+ const counter=useRef(0),input=useRef<HTMLInputElement>(null),log=useRef<HTMLOListElement>(null),alive=useRef<AbortController|null>(null);
  useEffect(()=>()=>alive.current?.abort(),[]);
  useEffect(()=>{const el=log.current;if(el)el.scrollTop=el.scrollHeight;},[lines]);
  const say=(from:Line['from'],said:string,layout?:Layout)=>setLines(old=>[...old,{id:++counter.current,from,text:said,layout}]);
@@ -96,7 +97,7 @@ export function CopilotPanel({store,locale,selectedRoomId,provider,ai,catalog,on
  const chips=[t('copilotChip2bhk'),t('copilotChipFurnish'),t('copilotChipPaint')];
  return <div className="copilot">
   <p className="copilot-note">{t('copilotNote')}</p>
-  <div className="copilot-chips" role="group" aria-label={t('copilotStarters')}>{chips.map(chip=><button key={chip} type="button" disabled={busy} onClick={()=>{void send(chip);}}>{chip}</button>)}</div>
+  <div className="copilot-chips" role="group" aria-label={t('copilotStarters')}>{chips.map(chip=><button key={chip} type="button" onClick={()=>{setText(chip);input.current?.focus();}}>{chip}</button>)}</div>
   <ol className="copilot-log" ref={log} role="log" aria-label={t('copilotConversation')} aria-live="polite">
    {lines.map(line=><li key={line.id} className={`copilot-line from-${line.from}`} data-from={line.from}>
     <span className="copilot-who">{line.from==='me'?t('copilotYou'):t('copilotName')}</span>
@@ -106,7 +107,7 @@ export function CopilotPanel({store,locale,selectedRoomId,provider,ai,catalog,on
    {busy&&<li className="copilot-line from-copilot" role="status">{t('copilotThinking')}</li>}
   </ol>
   <form className="copilot-ask" onSubmit={event=>{event.preventDefault();void send(text);}}>
-   <input type="text" aria-label={t('copilotAsk')} placeholder={t('copilotAsk')} value={text} maxLength={300} onChange={event=>setText(event.target.value)} enterKeyHint="send"/>
+   <input ref={input} type="text" aria-label={t('copilotAsk')} placeholder={t('copilotAsk')} value={text} maxLength={300} onChange={event=>setText(event.target.value)} enterKeyHint="send"/>
    <button type="submit" className="primary-button" disabled={busy||!text.trim()}>{t('copilotSend')}</button>
   </form>
  </div>;
