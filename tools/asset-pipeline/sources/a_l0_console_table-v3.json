@@ -1,0 +1,141 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_console_table",
+  "version": 3,
+  "name_en": "Console table",
+  "name_hi": "संकरी सजावटी मेज़",
+  "category": "tables",
+  "tags": [
+    "console table",
+    "entryway table",
+    "hallway table",
+    "wooden",
+    "metal legs",
+    "संकरी मेज़"
+  ],
+  "dims": {
+    "w": 1200,
+    "d": 350,
+    "h": 800
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_console_table-v3.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_console_table-v3.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-19"
+  },
+  "parts": [
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        785,
+        0
+      ],
+      "size": [
+        1200,
+        30,
+        350
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 8,
+      "segments": 1
+    },
+    {
+      "name": "shelf",
+      "shape": "rounded",
+      "center": [
+        0,
+        150,
+        0
+      ],
+      "size": [
+        1150,
+        20,
+        300
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 6,
+      "segments": 1
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -575,
+        385,
+        -150
+      ],
+      "size": [
+        25,
+        770,
+        25
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        575,
+        385,
+        -150
+      ],
+      "size": [
+        25,
+        770,
+        25
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -575,
+        385,
+        150
+      ],
+      "size": [
+        25,
+        770,
+        25
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        575,
+        385,
+        150
+      ],
+      "size": [
+        25,
+        770,
+        25
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 8
+    }
+  ]
+}
