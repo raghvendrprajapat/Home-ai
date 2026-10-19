@@ -39,6 +39,9 @@ import type { RenderReading } from '../perf/metrics';
 import { editError,message } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 
+/** D76: the "Low walls" view choice is remembered on this device (on by default); it is a view setting, never saved in the drawing. */
+const LOW_WALLS_KEY='gharplan-low-walls';
+function readLowWalls():boolean{try{return localStorage.getItem(LOW_WALLS_KEY)!=='0';}catch{return true;}}
 export default function ThreeView({ activeFloorId,advisories:providedAdvisories,store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d,onPick,selectedPick,placementPreview,assetSource,onEditStart }: {
   activeFloorId?:string;onEditStart?:()=>void;advisories?:FurnitureAdvisories;store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;assetSource?:FurnitureAssetSource;
 }) {
@@ -59,7 +62,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
   const floorCount=useSyncExternalStore(store.subscribe,()=>store.getSnapshot().document.floors.length);
   const walkControl=useRef<{enter():'ok'|'empty'|'unavailable';exit():void;axes(forward:number,strafe:number):void;eye(step:-1|1):void}|null>(null);
   // D76: the overview starts with low walls (furniture by the near walls stays visible); walking always uses full walls.
-  const [lowWalls,setLowWalls]=useState(true),lowWallsRef=useRef(lowWalls),pipelineRef=useRef<ScenePipeline|null>(null);lowWallsRef.current=lowWalls;
+  const [lowWalls,setLowWalls]=useState(readLowWalls),lowWallsRef=useRef(lowWalls),pipelineRef=useRef<ScenePipeline|null>(null);lowWallsRef.current=lowWalls;
   const [ceilings,setCeilings]=useState(false),[ceilingWarnings,setCeilingWarnings]=useState<CeilingWarning[]>([]);
   const poseRef=useRef<CameraPose|null>(null),apiCallback=useRef(onControlsReady);apiCallback.current=onControlsReady;
   const adapterRef=useRef<SceneAdapter|null>(null),invalidateRef=useRef<()=>void>(()=>{});
@@ -311,6 +314,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
   useEffect(()=>{walkControl.current?.exit();},[activeFloorId]); // walking always starts again on the floor being edited
   useEffect(()=>{transformRef.current?.setMode(furnitureMode,freeTransform);},[furnitureMode,freeTransform]);
   useEffect(()=>{ghostUpdate.current();},[placementPreview]);
+  useEffect(()=>{try{localStorage.setItem(LOW_WALLS_KEY,lowWalls?'1':'0');}catch{/* the choice lasts for this view only */}},[lowWalls]);
   useEffect(()=>{if(host.current)host.current.dataset.lowWalls=String(lowWalls);if(!walking)pipelineRef.current?.setLowWalls(lowWalls?LOW_WALL_MM:undefined);},[lowWalls,walking]);
   useEffect(()=>{adapterRef.current?.setCeilingsVisible(ceilings);if(host.current)host.current.dataset.ceilingsVisible=String(ceilings);invalidateRef.current();},[ceilings]);
   useEffect(() => { fit.current(); }, [fitRequest]);
@@ -340,7 +344,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
       </div>
       <p className="walk-hint" role="status">{message(locale,'walkHint')}</p>
     </div>}
-    <label className="low-walls-toggle snap-toggle"><input type="checkbox" checked={lowWalls} onChange={e=>setLowWalls(e.target.checked)}/>{message(locale,'lowWalls')}</label><label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>{floorCount>1&&<label className="upper-floors-toggle snap-toggle"><input type="checkbox" checked={showAbove} onChange={e=>setShowAbove(e.target.checked)}/>{message(locale,'showUpperFloors')}</label>}
+    <div className="three-toggles"><label className="low-walls-toggle snap-toggle"><input type="checkbox" checked={lowWalls} onChange={e=>setLowWalls(e.target.checked)}/>{message(locale,'lowWalls')}</label><label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>{floorCount>1&&<label className="upper-floors-toggle snap-toggle"><input type="checkbox" checked={showAbove} onChange={e=>setShowAbove(e.target.checked)}/>{message(locale,'showUpperFloors')}</label>}</div>
     {ceilingWarnings.length>0&&<div className="ceiling-warnings" role="status" tabIndex={0} aria-label={message(locale,'ceilingWarningDetails')}>{ceilingWarnings.map(w=><p key={w.roomIds.join(':')}>{message(locale,'ceilingHeightsDiffer',{a:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[0])?.name??w.roomIds[0],b:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[1])?.name??w.roomIds[1],ha:w.heightsMm[0],hb:w.heightsMm[1]})}</p>)}</div>}
     {modelStatus.length>0&&<details className="furniture-models"><summary>{message(locale,'furnitureModels')}</summary><ul>{modelStatus.slice(currentModelPage*20,(currentModelPage+1)*20).map((m,i)=><li key={m.id} data-model-id={m.id} data-model-phase={m.phase}>{message(locale,'furnitureModelNumber',{n:currentModelPage*20+i+1})}: {message(locale,m.sizeMismatch?'furnitureModelSize':m.unsupportedFinish?'furnitureModelFinish':m.phase==='ready'?'furnitureModelReady':m.phase==='error'?'furnitureModelFailed':'furnitureModelLoading')}{m.phase==='loading'&&m.total?` ${Math.min(100,Math.floor(m.received/m.total*100))}%`:''}{m.retryable&&<button onClick={()=>retryModel.current(m.id)}>{message(locale,'furnitureModelRetry')}</button>}</li>)}</ul>{modelPages>1&&<nav aria-label={message(locale,'furnitureModelPages')}><button disabled={currentModelPage===0} onClick={()=>setModelPage(currentModelPage-1)}>{message(locale,'catalogPrevious')}</button><span>{message(locale,'catalogPage',{page:currentModelPage+1,pages:modelPages})}</span><button disabled={currentModelPage===modelPages-1} onClick={()=>setModelPage(currentModelPage+1)}>{message(locale,'catalogNext')}</button></nav>}</details>}
     <div className="canvas-hint">{message(locale, 'threeHint')}<br />{message(locale, 'dimensionsFurniture')}</div>

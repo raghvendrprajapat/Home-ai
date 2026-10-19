@@ -41,3 +41,8 @@ test('FR-019 a selection that includes a wall cannot be aligned',async({page})=>
   await panel.getByLabel(/^Select wall /).first().check();
   await expect(group(page).getByRole('button',{name:'Align left edges',exact:true})).toBeDisabled();
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

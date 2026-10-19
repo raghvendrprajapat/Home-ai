@@ -42,3 +42,8 @@ test('D72 king bed, sliding wardrobe, bedside table and dressing table place the
 test('D72 six-seat dining set, sideboard, shoe cabinet and plant place their newest versions and load as real 3D models',async({page})=>{
  await placeAndRender(page,[['a_l0_dining_set_6',2,2250,2500,0],['a_l0_low_cabinet',3,2250,350,180],['a_l0_shoe_rack',2,600,4600,0],['a_l0_planter',2,4000,4600,0]],'modern-dining-3d.png');
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});
