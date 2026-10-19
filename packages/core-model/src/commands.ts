@@ -69,6 +69,10 @@ function requireEntity<T extends { id: string }>(entities: T[], id: string): T {
   const entity = entities.find(e => e.id === id);
   if (!entity) throw new GeometryError('entity', 'The selected entity no longer exists.', [id]); return entity;
 }
+function floorName(name: unknown): string {
+  if (typeof name !== 'string' || !name.trim() || name.trim().length > 60) throw new GeometryError('floor-name', 'Give the floor a name of 1-60 characters.');
+  return name.trim();
+}
 function assignProperties<T extends object>(entity: T, properties: object, allowed: readonly string[]): void {
   if (Object.keys(properties).some(key => !allowed.includes(key))) throw new GeometryError('command-properties', 'This command contains unsupported property changes.');
   Object.assign(entity, properties);
@@ -143,7 +147,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       side([x + w, y + d], [x, y + d]); side([x, y + d], [x, y]); break;
     }
     case 'AddFloor': {
-      if (typeof command.name !== 'string' || !command.name.trim() || command.name.trim().length > 60) throw new GeometryError('floor-name', 'Give the floor a name of 1-60 characters.');
+      floorName(command.name);
       if (draft.floors.length >= MAX_FLOORS) throw new GeometryError('floor-limit', `A project can have at most ${MAX_FLOORS} floors.`);
       const top = [...draft.floors].sort((a, b) => b.level - a.level)[0]!;
       const used = new Set([...entityIds(draft)]);
@@ -164,7 +168,11 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
       }
       break;
     }
-    case 'UpdateFloor': assignProperties(requireEntity(draft.floors, command.floorId), command.properties, ['name', 'elevation', 'defaultWallHeight']); break;
+    case 'UpdateFloor': {
+      const floor = requireEntity(draft.floors, command.floorId), properties = { ...command.properties };
+      if ('name' in properties) properties.name = floorName(properties.name); // the same trimmed 1-60 rule as AddFloor
+      assignProperties(floor, properties, ['name', 'elevation', 'defaultWallHeight']); break;
+    }
     case 'DeleteFloor': {
       requireEntity(draft.floors, command.floorId);
       if (draft.floors.length < 2) throw new GeometryError('floor-last', 'A project needs at least one floor.');
@@ -455,7 +463,7 @@ export function applyCommand(draft: Draft<ProjectDoc>, previous: ProjectDoc, com
   const oldJunctions = new Map(previous.junctions.map(j => [j.id, j]));
   for (const j of draft.junctions) if (JSON.stringify(j) !== JSON.stringify(oldJunctions.get(j.id))) changed.add(j.id);
   for (const j of previous.junctions) if (!draft.junctions.some(n => n.id === j.id)) changed.add(j.id);
-  const groups = ['walls', 'openings', 'rooms', 'furniture', 'lights', 'materials', 'cameras', 'stairs', 'roofs'] as const;
+  const groups = ['floors', 'walls', 'openings', 'rooms', 'furniture', 'lights', 'materials', 'cameras', 'stairs', 'roofs'] as const;
   for (const group of groups) {
     const old = new Map<string, { id: string }>((previous[group] ?? []).map(e => [e.id, e]));
     for (const e of draft[group] ?? []) {

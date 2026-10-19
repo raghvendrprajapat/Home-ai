@@ -6,6 +6,8 @@ import {readFile} from 'node:fs/promises';
 async function begin(page:Page){await page.goto('/');await page.getByRole('button',{name:'Get started',exact:true}).click();await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');await page.getByTestId('plan-canvas').scrollIntoViewIfNeeded();}
 async function backup(page:Page){const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export drawing',exact:true}).click();return JSON.parse(await readFile((await(await download).path())!,'utf8'));}
 async function frame(page:Page){const canvas=page.getByTestId('plan-canvas'),box=await canvas.boundingBox();expect(box).toBeTruthy();const view=await canvas.evaluate(el=>({x:Number((el as HTMLElement).dataset.viewX),y:Number((el as HTMLElement).dataset.viewY),scale:Number((el as HTMLElement).dataset.viewScale)}));return {box:box!,view};}
+// Fit is applied by a render after the click: wait for the fitted view before aiming at the plan again (as in wall-drag).
+async function fit(page:Page,fitted:{x:number;y:number;scale:number}){await page.getByRole('button',{name:'Fit floor plan',exact:true}).click();await expect.poll(async()=>(await frame(page)).view).toEqual(fitted);}
 async function touch(cdp:CDPSession,type:'touchStart'|'touchMove'|'touchEnd'|'touchCancel',points:{id:number;x:number;y:number}[]){await cdp.send('Input.dispatchTouchEvent',{type,touchPoints:points.map(p=>({...p,radiusX:2,radiusY:2,force:1}))});}
 test('GEO-008 actual two-finger pinch follows its midpoint with≤2px anchor drift and never edits a drawing',async({page})=>{
  await begin(page);const original=await backup(page),{box,view}=await frame(page),cdp=await page.context().newCDPSession(page);
@@ -22,23 +24,23 @@ test('GEO-008 actual two-finger pinch follows its midpoint with≤2px anchor dri
  expect(await backup(page)).toEqual(original);await expect(page.getByTestId('touch-loupe')).toHaveCount(0);
 });
 test('UX-004 touch hold/loupe commits once; early pan, second finger and pointer cancel leave canonical data unchanged',async({page})=>{
- await begin(page);const original=await backup(page),cdp=await page.context().newCDPSession(page);let {box,view}=await frame(page);
+ await begin(page);const original=await backup(page),cdp=await page.context().newCDPSession(page);let {box,view}=await frame(page);const fitted=view;
  let a={id:1,x:box.x+view.x+4500*view.scale,y:box.y+view.y};
  await touch(cdp,'touchStart',[a]);await touch(cdp,'touchMove',[{...a,x:a.x+30}]);await touch(cdp,'touchEnd',[]);expect(await backup(page)).toEqual(original);
- await page.getByRole('button',{name:'Fit floor plan',exact:true}).click();({box,view}=await frame(page));a={id:1,x:box.x+view.x+4500*view.scale,y:box.y+view.y};
+ await fit(page,fitted);({box,view}=await frame(page));a={id:1,x:box.x+view.x+4500*view.scale,y:box.y+view.y};
  await touch(cdp,'touchStart',[a]);await expect(page.getByTestId('touch-loupe')).toBeVisible();await touch(cdp,'touchMove',[{...a,x:a.x+100*view.scale}]);
  await expect(page.getByTestId('touch-loupe')).toContainText('4600');await expect(page.getByLabel('Corner X coordinate',{exact:true})).toHaveValue('4500');
  const b={id:2,x:a.x+90,y:a.y+50};await touch(cdp,'touchStart',[{...a,x:a.x+100*view.scale},b]);await expect(page.getByTestId('touch-loupe')).toHaveCount(0);await touch(cdp,'touchCancel',[]);expect(await backup(page)).toEqual(original);
- await page.getByRole('button',{name:'Fit floor plan',exact:true}).click();({box,view}=await frame(page));a={id:1,x:box.x+view.x+4500*view.scale,y:box.y+view.y};
+ await fit(page,fitted);({box,view}=await frame(page));a={id:1,x:box.x+view.x+4500*view.scale,y:box.y+view.y};
  await touch(cdp,'touchStart',[a]);await expect(page.getByTestId('touch-loupe')).toBeVisible();await touch(cdp,'touchMove',[{...a,x:a.x+100*view.scale}]);await touch(cdp,'touchEnd',[]);await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');
  const changed=await backup(page);expect(changed.junctions.find((j:{id:string})=>j.id==='j2').x).toBe(4600);expect(changed.junctions.every((j:{x:number;y:number})=>Number.isInteger(j.x)&&Number.isInteger(j.y))).toBe(true);
  await page.getByRole('button',{name:'Undo',exact:true}).click();await expect(page.getByRole('button',{name:'Undo',exact:true})).toBeDisabled();expect(await backup(page)).toEqual(original);
 });
 test('GEO-008 wheel anchor, GEO-012 cycling, Escape and stale-generation drag never add extra history',async({page})=>{
- await begin(page);const original=await backup(page);let {box,view}=await frame(page);const screen={x:box.x+view.x+4500*view.scale,y:box.y+view.y};
+ await begin(page);const original=await backup(page);let {box,view}=await frame(page);const fitted=view,screen={x:box.x+view.x+4500*view.scale,y:box.y+view.y};
  await page.mouse.move(screen.x,screen.y);await page.mouse.wheel(0,-150);await expect.poll(async()=> (await frame(page)).view.scale).toBeGreaterThan(view.scale);
  const zoomed=(await frame(page)).view;expect(Math.abs(4500*zoomed.scale+zoomed.x-(screen.x-box.x))).toBeLessThanOrEqual(1);expect(Math.abs(zoomed.y-(screen.y-box.y))).toBeLessThanOrEqual(1);
- await page.getByRole('button',{name:'Fit floor plan',exact:true}).click();({box,view}=await frame(page));const corner={x:box.x+view.x,y:box.y+view.y};
+ await fit(page,fitted);({box,view}=await frame(page));const corner={x:box.x+view.x,y:box.y+view.y};
  await page.mouse.click(corner.x,corner.y);await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-picked-kind','junction');await page.mouse.click(corner.x,corner.y);await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-picked-kind','wall');expect(await backup(page)).toEqual(original);
  const partition={x:box.x+view.x+4500*view.scale,y:box.y+view.y};await page.mouse.move(partition.x,partition.y);await page.mouse.down();await page.mouse.move(partition.x+100*view.scale,partition.y);await page.keyboard.press('Escape');await page.mouse.up();expect(await backup(page)).toEqual(original);
  await page.getByLabel('Corner X coordinate',{exact:true}).fill('4600');await page.getByRole('button',{name:'Apply coordinates',exact:false}).click();const committed=await backup(page);

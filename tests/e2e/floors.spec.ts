@@ -44,10 +44,10 @@ test('FR-034 3D cuts away floors above the one being edited, can show them, and 
  await start(page);await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
  await floors(page).getByRole('button',{name:'Ground floor',exact:true}).click();
  await page.getByRole('button',{name:'3D view',exact:true}).click();const view=page.getByTestId('three-view');
- await expect(view).toHaveAttribute('data-clip-height','3000');
- await view.getByLabel('Show floors above',{exact:true}).check();await expect(view).toHaveAttribute('data-clip-height','');
+ await expect(view).toHaveAttribute('data-clip-height','3000');await expect(view).toHaveAttribute('data-hidden-floors','1'); // audit 2026-10-19: upper floor hidden, not only clipped
+ await view.getByLabel('Show floors above',{exact:true}).check();await expect(view).toHaveAttribute('data-clip-height','');await expect(view).toHaveAttribute('data-hidden-floors','0');
  await view.getByLabel('Show floors above',{exact:true}).uncheck();await expect(view).toHaveAttribute('data-clip-height','3000');
- await floors(page).getByRole('button',{name:'Floor 1',exact:true}).click();await expect(view).toHaveAttribute('data-clip-height',''); // top floor: nothing above
+ await floors(page).getByRole('button',{name:'Floor 1',exact:true}).click();await expect(view).toHaveAttribute('data-clip-height','');await expect(view).toHaveAttribute('data-hidden-floors','0'); // top floor: nothing above
  await view.getByTestId('walk-enter').click();await expect(view).toHaveAttribute('data-walk-active','true');
  expect(JSON.parse((await view.getAttribute('data-walk-pose'))!)).toMatchObject({eye:1600,floorElevation:3000}); // eye 1.6 m above the upper floor at 3000 mm
 });

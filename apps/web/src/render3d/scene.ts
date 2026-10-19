@@ -42,6 +42,12 @@ export function unitBoxGeometry():THREE.BufferGeometry{
     geometry.setAttribute('position',new THREE.Float32BufferAttribute(positions,3));geometry.setAttribute('normal',new THREE.Float32BufferAttribute(normals,3));geometry.setAttribute('uv',new THREE.Float32BufferAttribute(uv,2));geometry.computeBoundingBox();geometry.computeBoundingSphere();return geometry;
   }catch(error){geometry.dispose();throw error;}
 }
+type SceneDocument=ReturnType<ProjectStore['getSnapshot']>['document'];
+/** FR-034: the floor that owns a scene mesh or furniture item (openings follow their host wall). */
+export function entityFloors(document:SceneDocument):(category:string,entityId:string)=>string|undefined{
+  const walls=new Map(document.walls.map(w=>[w.id,w.floorId])),rooms=new Map(document.rooms.map(r=>[r.id,r.floorId])),openings=new Map(document.openings.map(o=>[o.id,walls.get(o.wallId)])),stairs=new Map((document.stairs??[]).map(s=>[s.id,s.floorId])),roofs=new Map((document.roofs??[]).map(r=>[r.id,r.floorId])),furniture=new Map(document.furniture.map(f=>[f.id,f.floorId]));
+  return (category,id)=>(category==='wall'?walls:category==='floor'||category==='ceiling'?rooms:category==='threshold'?openings:category==='stair'?stairs:category==='roof'?roofs:furniture).get(id);
+}
 /** GPU adapter: reuses identical meshes/materials, disposes replaced/removed resources. */
 export class SceneAdapter {
   group = new THREE.Group();
@@ -55,7 +61,7 @@ export class SceneAdapter {
   #serial=0;#closed=false;
   #placeholder:THREE.MeshStandardMaterial;
   #ceiling:THREE.MeshStandardMaterial;
-  #showCeilings=false;#tier:QualityTier='mid';#batches:THREE.Mesh[]=[];
+  #showCeilings=false;#tier:QualityTier='mid';#batches:THREE.Mesh[]=[];#hidden=new Set<string>();
   #instances:THREE.InstancedMesh|null=null;#instanceCount=0;
   #unitBox:THREE.BufferGeometry;
   constructor(tier:QualityTier='mid',private onShader:(uniforms:Record<string,{value:unknown}>)=>void=()=>{}){
@@ -68,6 +74,10 @@ export class SceneAdapter {
     }catch(error){this.#closed=true;this.#pool.close();throw error;}
   }
   get resourceStats(){return this.#pool.stats;}
+  /** Floors cut away above the active floor (D64): hidden, so neither drawn nor picked. */
+  get hiddenFloors():ReadonlySet<string>{return this.#hidden;}
+  #shown(category:string,floorId:unknown):boolean{return this.#tier!=='low'&&(category!=='ceiling'||this.#showCeilings)&&!this.#hidden.has(floorId as string);}
+  #batchShown(batch:THREE.Mesh):boolean{return (!batch.userData.ceiling||this.#showCeilings)&&!this.#hidden.has(batch.userData.floorId as string);}
   #shared<T extends Disposable>(key:string,value:T):Lease<T>{return this.#pool.acquire(key,()=>value);}
   #geometry(geometry:THREE.BufferGeometry):Lease<THREE.BufferGeometry>{return this.#shared(`geometry:${++this.#serial}`,geometry);}
   #material(id:string,ceiling:boolean):Lease<THREE.MeshStandardMaterial>{const value=ceiling?this.#ceiling:this.#materials.get(id);if(!value)throw new Error('scene-material');return this.#shared(ceiling?'ceiling':`material:${id}`,value);}
@@ -95,7 +105,7 @@ export class SceneAdapter {
       material.color.set(m.baseColor); material.roughness = m.roughness; material.metalness = m.metalness;
       this.#materials.set(m.id, material);
     }
-    const wanted = new Set(bundle.meshes.map(m => m.id));let structuralChange=false;
+    const wanted = new Set(bundle.meshes.map(m => m.id)),floorOf=entityFloors(document);let structuralChange=false;
     for (const [id, entry] of this.#meshes) if (!wanted.has(id)) {structuralChange=true; this.group.remove(entry.mesh); this.#release(entry.mesh); this.#meshes.delete(id); this.lastChanges.removed.push(id); }
     for (const data of bundle.meshes) {
       const previous = this.#meshes.get(data.id);
@@ -106,13 +116,14 @@ export class SceneAdapter {
       const geometryLease=this.#geometry(bufferGeometry(data)),materialLeases=data.groups.map(g=>this.#material(g.materialId,data.category==='ceiling')),geometry=geometryLease.value,materials=materialLeases.map(l=>l.value);
       const mesh=previous?.mesh??new THREE.Mesh(geometry,materials);
       this.#own(mesh,[geometryLease,...materialLeases]);if(!previous)this.group.add(mesh);
-      mesh.geometry = geometry; mesh.material = materials;mesh.visible=this.#tier!=='low'&&(data.category!=='ceiling'||this.#showCeilings);mesh.castShadow=true;mesh.receiveShadow=true; mesh.userData = { entityId: data.entityId, category: data.category };
+      mesh.geometry = geometry; mesh.material = materials;mesh.castShadow=true;mesh.receiveShadow=true; mesh.userData = { entityId: data.entityId, category: data.category };
       this.#meshes.set(data.id, { data, mesh }); this.lastChanges.replaced.push(data.id);
     }
+    for(const {data,mesh}of this.#meshes.values()){mesh.userData.floorId=floorOf(data.category,data.entityId);mesh.visible=this.#shown(data.category,mesh.userData.floorId);}
     if(this.#tier==='low'&&(structuralChange||!this.#batches.length)){
       for(const batch of this.#batches){this.group.remove(batch);this.#release(batch);}this.#batches=[];
-      const batches=materialBatches(bundle.meshes),claimed=new Set<THREE.BufferGeometry>();
-      try{for(const b of batches){const g=this.#geometry(b.geometry);claimed.add(b.geometry);const m=this.#material(b.materialId,b.ceiling),mesh=new THREE.Mesh(g.value,m.value);this.#own(mesh,[g,m]);mesh.visible=!b.ceiling||this.#showCeilings;mesh.userData={category:'structural-batch',ceiling:b.ceiling,entityRanges:b.ranges};this.group.add(mesh);this.#batches.push(mesh);}}
+      const batches=materialBatches(bundle.meshes,m=>floorOf(m.category,m.entityId)),claimed=new Set<THREE.BufferGeometry>();
+      try{for(const b of batches){const g=this.#geometry(b.geometry);claimed.add(b.geometry);const m=this.#material(b.materialId,b.ceiling),mesh=new THREE.Mesh(g.value,m.value);this.#own(mesh,[g,m]);mesh.userData={category:'structural-batch',ceiling:b.ceiling,floorId:b.floorId,entityRanges:b.ranges};mesh.visible=this.#batchShown(mesh);this.group.add(mesh);this.#batches.push(mesh);}}
       finally{releaseOnce(batches.filter(b=>!claimed.has(b.geometry)).map(b=>()=>b.geometry.dispose()))();}
     }else if(this.#tier==='low'&&this.lastChanges.replaced.length){
       for(const batch of this.#batches)this.#rebind(batch,batchMaterialGroups(batch.userData.entityRanges,bundle.meshes),batch.userData.ceiling===true);
@@ -121,7 +132,8 @@ export class SceneAdapter {
     this.refreshFurniture(document);
   }
   refreshFurniture(document:ReturnType<ProjectStore['getSnapshot']>['document']):void{
-    const loaded=this.furnitureAssets?.present(document)??new Set<string>(),fallback=document.furniture.filter(f=>!loaded.has(f.id));
+    const shown=this.#hidden.size?{...document,furniture:document.furniture.filter(f=>!this.#hidden.has(f.floorId))}:document;
+    const loaded=this.furnitureAssets?.present(shown)??new Set<string>(),fallback=shown.furniture.filter(f=>!loaded.has(f.id));
     const instanced=this.#tier==='low'&&fallback.length>=3;
     if(this.#instances&&(!instanced||this.#instanceCount!==fallback.length)){this.group.remove(this.#instances);this.#release(this.#instances);this.#instances=null;}
     if(instanced&&!this.#instances){this.#instances=new THREE.InstancedMesh(this.#unitBox,this.#placeholder,fallback.length);this.#instanceCount=fallback.length;const instance=this.#instances;this.#own(instance,[this.#shared('unit-box',this.#unitBox),this.#shared('placeholder',this.#placeholder),this.#pool.acquire(`instances:${++this.#serial}`,()=>instance)]);this.group.add(instance);}
@@ -132,12 +144,18 @@ export class SceneAdapter {
       if (!this.#furniture.has(item.id)) { this.#furniture.set(item.id, mesh);this.#own(mesh,[this.#shared('unit-box',this.#unitBox),this.#shared('placeholder',this.#placeholder)]); this.group.add(mesh); }
       mesh.scale.set(item.size.w / 1000, item.size.h / 1000, item.size.d / 1000);
       mesh.position.set(item.position.x / 1000, ((document.floors.find(f => f.id === item.floorId) ?? document.floors[0]!).elevation + item.elevation + item.size.h / 2) / 1000, item.position.y / 1000);
-      mesh.visible=!instanced&&!loaded.has(item.id);mesh.castShadow=true;mesh.receiveShadow=true;
+      mesh.visible=!instanced&&!loaded.has(item.id)&&!this.#hidden.has(item.floorId);mesh.castShadow=true;mesh.receiveShadow=true;
       mesh.rotation.y = -item.rotationDeg * Math.PI / 180; mesh.userData = { entityId: item.id, category: 'furniture-placeholder' };
     }
     if(this.#instances){fallback.forEach((item,i)=>{const mesh=this.#furniture.get(item.id)!;mesh.updateMatrix();this.#instances!.setMatrixAt(i,mesh.matrix);});this.#instances.instanceMatrix.needsUpdate=true;this.#instances.computeBoundingBox();this.#instances.computeBoundingSphere();this.#instances.userData={category:'furniture-instances',entityIds:fallback.map(f=>f.id)};}
   }
-  setCeilingsVisible(visible:boolean):void{this.#showCeilings=visible;for(const {data,mesh}of this.#meshes.values())if(data.category==='ceiling')mesh.visible=this.#tier!=='low'&&visible;for(const mesh of this.#batches)if(mesh.userData.ceiling)mesh.visible=visible;}
+  setCeilingsVisible(visible:boolean):void{this.#showCeilings=visible;for(const {data,mesh}of this.#meshes.values())if(data.category==='ceiling')mesh.visible=this.#shown(data.category,mesh.userData.floorId);for(const mesh of this.#batches)if(mesh.userData.ceiling)mesh.visible=this.#batchShown(mesh);}
+  /** Hide the floors above the active floor; `document` (the applied one) re-presents furniture. */
+  setHiddenFloors(floorIds:ReadonlySet<string>,document:SceneDocument|null):void{
+    if(this.#closed||floorIds.size===this.#hidden.size&&[...floorIds].every(id=>this.#hidden.has(id)))return;this.#hidden=new Set(floorIds);
+    for(const {data,mesh}of this.#meshes.values())mesh.visible=this.#shown(data.category,mesh.userData.floorId);for(const mesh of this.#batches)mesh.visible=this.#batchShown(mesh);
+    if(document)this.refreshFurniture(document);
+  }
   mesh(id: string): THREE.Mesh | undefined { return this.#meshes.get(id)?.mesh; }
   dispose(): void {
     if(this.#closed)return;this.#closed=true;this.group.visible=false;

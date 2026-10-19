@@ -104,6 +104,29 @@ describe('FR-034 floors', () => {
     expect(run(store, { type: 'AddFloor', name: 'Copy', copyOutlineFrom: 'missing' }).ok).toBe(false);
   });
 
+  it('audit 2026-10-19: UpdateFloor and loaded files use the AddFloor name rule (trimmed, 1-60 characters)', () => {
+    const store = setup(), before = store.getSnapshot();
+    for (const name of ['', '   ', 'x'.repeat(61), ' ' + 'x'.repeat(61) + ' ', 'x'.repeat(5000), 7]) {
+      const result = run(store, { type: 'UpdateFloor', floorId: 'f0', properties: { name } });
+      expect(result.ok).toBe(false); if (!result.ok) expect(result.errors[0]!.code).toBe('floor-name'); expect(store.getSnapshot()).toBe(before);
+    }
+    expect(run(store, { type: 'UpdateFloor', floorId: 'f0', properties: { name: '  Neeche  ' } }).ok).toBe(true); expect(doc(store).floors[0]!.name).toBe('Neeche');
+    expect(run(store, { type: 'UpdateFloor', floorId: 'f0', properties: { name: 'x'.repeat(60) } }).ok).toBe(true); expect(doc(store).floors[0]!.name).toHaveLength(60);
+    const file = (name: string) => ({ ...structuredClone(sample), floors: [{ ...sample.floors[0]!, name }] });
+    for (const name of ['', '  ', 'x'.repeat(61)]) expect(validateProject(file(name)).map(e => e.code)).toEqual(['floor-name']);
+    for (const name of ['Ground floor', 'x'.repeat(60), ' Ground ', 'भूतल']) expect(validateProject(file(name))).toEqual([]);
+  });
+
+  it('audit 2026-10-19: floor-only edits report the floor as changed and move updatedAt', () => {
+    let tick = 0; const store = new ProjectStore(structuredClone(sample) as ProjectDoc, 'floors_session', { now: () => `2026-10-19T00:00:0${++tick}.000Z` });
+    const original = doc(store).updatedAt, add = run(store, { type: 'AddFloor', name: 'Floor 1' }), upper = doc(store).floors[1]!.id;
+    expect(add.ok && add.changedIds).toEqual([upper]); expect(doc(store).updatedAt).toBe('2026-10-19T00:00:01.000Z'); expect(original).not.toBe('2026-10-19T00:00:01.000Z');
+    const rename = run(store, { type: 'UpdateFloor', floorId: upper, properties: { name: 'Upstairs' } });
+    expect(rename.ok && rename.changedIds).toEqual([upper]); expect(doc(store).updatedAt).toBe('2026-10-19T00:00:02.000Z');
+    const remove = run(store, { type: 'DeleteFloor', floorId: upper });
+    expect(remove.ok && remove.changedIds).toEqual([upper]); expect(doc(store).updatedAt).toBe('2026-10-19T00:00:03.000Z');
+  });
+
   it('validation accepts several ordered floors and rejects duplicate levels or non-increasing elevations', () => {
     const d = structuredClone(sample) as ProjectDoc;
     d.floors.push({ id: 'f1', name: 'First', level: 1, elevation: 3000, defaultWallHeight: 3000 });

@@ -55,3 +55,6 @@ These are Claude-authored analytic tests, property tests and browser tests. They
 - Phone tests on Low and Mid phones.
 - Final Claude review.
 - Stair openings in upper floors (no floor slabs exist yet).
+
+## Audit (2026-10-19)
+See the audit section in [fr-034-floors.md](fr-034-floors.md#audit-2026-10-19). In 3D, the stairs and roofs of floors above the active floor are now hidden (finding 2). Before, they were only clipped at the active floor's wall top + 5 mm. These are Claude-authored tests, not an independent review.

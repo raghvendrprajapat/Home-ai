@@ -40,5 +40,5 @@ export function encodeBookmark(pose:CameraPose,name:string):Omit<CameraPreset,'i
 
 /** Opening focus follows the actual wall-hosted void even without a catalog mesh. */
 export function openingBounds(d:ReturnType<ProjectStore['getSnapshot']>['document'],id:string):Bounds3|null{
- const o=d.openings.find(o=>o.id===id);if(!o)return null;const w=d.walls.find(w=>w.id===o.wallId)!,a=d.junctions.find(j=>j.id===w.a)!,b=d.junctions.find(j=>j.id===w.b)!,length=Math.hypot(b.x-a.x,b.y-a.y),tx=(b.x-a.x)/length,tz=(b.y-a.y)/length,x=(a.x+tx*o.offset)/1000,z=(a.y+tz*o.offset)/1000,hx=(Math.abs(tx)*o.width+Math.abs(tz)*w.thickness)/2000,hz=(Math.abs(tz)*o.width+Math.abs(tx)*w.thickness)/2000,y=(d.floors[0]!.elevation+o.sill)/1000;return [x-hx,y,z-hz,x+hx,y+o.height/1000,z+hz];
+ const o=d.openings.find(o=>o.id===id);if(!o)return null;const w=d.walls.find(w=>w.id===o.wallId)!,a=d.junctions.find(j=>j.id===w.a)!,b=d.junctions.find(j=>j.id===w.b)!,length=Math.hypot(b.x-a.x,b.y-a.y),tx=(b.x-a.x)/length,tz=(b.y-a.y)/length,x=(a.x+tx*o.offset)/1000,z=(a.y+tz*o.offset)/1000,hx=(Math.abs(tx)*o.width+Math.abs(tz)*w.thickness)/2000,hz=(Math.abs(tz)*o.width+Math.abs(tx)*w.thickness)/2000,y=((d.floors.find(f=>f.id===w.floorId)??d.floors[0]!).elevation+o.sill)/1000;return [x-hx,y,z-hz,x+hx,y+o.height/1000,z+hz];
 }
