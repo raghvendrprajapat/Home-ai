@@ -32,6 +32,26 @@ Status: accepted by Claude Code on the owner's instruction, 2026-10-18. This ove
 - **Nothing is added automatically.** "Place in this room" opens the normal placement form at the centre of the room's clear rectangle (rounded to whole mm). The person then moves, turns or cancels it. Adding goes through the existing core-model command and undo.
 - The catalog list comes from the same shared catalog request as the 3D view (`CatalogSource.catalog`), so asking for ideas does not download the manifest again.
 
+## AI-1 choices (owner request "Part A", 2026-10-19)
+- **Size preference** (`RoomBrief.size`): compact, balanced or spacious. The panel defaults to balanced.
+  - Each slot's search starts at a different size and never goes bigger than that; it moves to smaller sizes when a piece does not fit:
+    - spacious starts at the biggest;
+    - balanced starts one size down;
+    - compact starts two sizes down.
+  - The stand-in fills at most 35% (compact), 45% (balanced) or 50% (spacious) of the clear floor.
+  - The trust boundary's 50% cap and 6-idea limit are unchanged.
+- **Why not budget or style:** the owner asked for budget and style choices. The catalog has no prices and only one (modern) style, and inventing prices would be dishonest, so size stands in for now. Price-based choice needs real price data, which belongs to the still-gated affiliate work.
+- **Other options:** each idea carries `options`, the interchangeable pieces for the same place, biggest first.
+  - `acceptSuggestions` keeps only options that are known, fit the room with a walkway, are new to the room and are not shown as another idea. The shown piece is always included.
+  - "Show another option" (`swapSuggestion`) moves to the next option, wrapping round, whose area keeps all ideas within the 50% floor budget. The button is disabled when none does.
+  - A swap clears any layout preview.
+- **More interchangeable pieces:**
+  - dining tables without chairs alongside the dining sets;
+  - a shoe cabinet as an alternative to the sideboard and the console table;
+  - a chest of drawers as an alternative to the bookcase.
+  - The "biggest choice" reason now appears only when the shown piece is the biggest option that fits.
+- **Tip line:** a one-line tip under the size choice says ideas are furniture only.
+
 ## AI-2 layout suggestion
 - **One command.** The new core-model command `AddFurnitureBatch` adds 1–20 items atomically (`MAX_FURNITURE_BATCH`).
   - The normal project validation checks every item. If one item is invalid, nothing is added.

@@ -1,8 +1,8 @@
 import {describe,expect,it} from 'vitest';
 import fc from 'fast-check';
 import type {CatalogAsset} from '../catalog/catalog';
-import {acceptSuggestions,fitsRoom,MAX_SUGGESTIONS,roomBrief} from './furniture-suggest';
-import type {RoomBrief} from './furniture-suggest';
+import {acceptSuggestions,fitsRoom,MAX_SUGGESTIONS,roomBrief,swapSuggestion} from './furniture-suggest';
+import type {RoomBrief,SizePreference} from './furniture-suggest';
 import {standInAi} from './stand-in';
 
 // D73 Claude-authored checks. Every expected list and number below is worked out by hand from the rules
@@ -10,6 +10,7 @@ import {standInAi} from './stand-in';
 const asset=(id:string,w:number,d:number):CatalogAsset=>({id,version:1,name_en:id,name_hi:id,category:'test',tags:[],dims:{w,d,h:500},lods:[],thumb:{path:'',sha256:'',bytes:0,width:256,height:256}});
 const brief=(widthMm:number,depthMm:number,roomType:RoomBrief['roomType']='living',existingAssetIds:string[]=[]):RoomBrief=>({roomType,widthMm,depthMm,existingAssetIds});
 const ids=(list:readonly {asset:CatalogAsset}[])=>list.map(s=>s.asset.id);
+const aids=(list:readonly CatalogAsset[])=>list.map(a=>a.id);
 
 describe('D73 fitsRoom',()=>{
  it('needs the width along one wall and the depth plus a 600 mm walkway across the room, either way round',()=>{
@@ -108,6 +109,47 @@ describe('D73 offline stand-in',()=>{
   expect(await askMore(brief(1600,2000,'bathroom'))).toEqual(['a_l0_vanity']);
   // Utility 1800 x 1500, budget 1,350,000: shoe cabinet 280,000, then the 1500 x 420 sideboard 630,000 (1500 <= 1800, 1020 <= 1500).
   expect(await askMore(brief(1800,1500,'utility'))).toEqual(['a_l0_shoe_rack','a_l0_low_cabinet']);
+ });
+ it('size preference: balanced starts one size down with a 45% budget, compact two sizes down with 35%',async()=>{
+  const sized=(w:number,d:number,type:RoomBrief['roomType'],size:SizePreference):RoomBrief=>({...brief(w,d,type),size});
+  // Bedroom 3327 x 4770 = 15,869,790 mm². Balanced budget 7,141,405.5: queen 3,483,000, three-door wardrobe 900,000,
+  // bedside 180,000, dressing 450,000, study 720,000 (5,733,000 in all).
+  expect(ids(await ask(sized(3327,4770,'bedroom','balanced')))).toEqual(['a_l0_queen_bed','a_l0_wardrobe_3','a_l0_nightstand','a_l0_dressing_table','a_l0_study_desk']);
+  // Compact budget 5,554,426.5: double 3,139,000, two-door wardrobe 600,000, then the same three (4,489,000 in all).
+  expect(ids(await ask(sized(3327,4770,'bedroom','compact')))).toEqual(['a_l0_double_bed','a_l0_wardrobe_2','a_l0_nightstand','a_l0_dressing_table','a_l0_study_desk']);
+  // Living 4327 x 4770, compact budget 7,223,926.5: the two-seat sofa first; seven fit, the limit keeps six.
+  expect(ids(await ask(sized(4327,4770,'living','compact')))).toEqual(['a_l0_sofa_2','a_l0_tv_unit','a_l0_coffee_table','a_l0_armchair','a_l0_side_table','a_l0_rug']);
+  // Bedroom 2400 x 3000, balanced budget 7,200,000 x 0.45 = 3,240,000: the queen (3,483,000) is over it, the double (3,139,000) fits.
+  expect(ids(await ask(sized(2400,3000,'bedroom','balanced')))).toEqual(['a_l0_double_bed']);
+  // Spacious is the earlier behaviour.
+  expect(ids(await ask(sized(3327,4770,'bedroom','spacious')))).toEqual(ids(await ask(brief(3327,4770,'bedroom'))));
+ });
+ it('each idea carries the interchangeable pieces that fit the room, biggest first',async()=>{
+  const out=await ask({...brief(3327,4770,'bedroom'),size:'balanced'});
+  expect(out.map(s=>aids(s.options))).toEqual([['a_l0_king_bed','a_l0_queen_bed','a_l0_double_bed','a_l0_single_bed'],['a_l0_wardrobe_sliding','a_l0_wardrobe_3','a_l0_wardrobe_2'],['a_l0_nightstand'],['a_l0_dressing_table'],['a_l0_study_desk']]);
+  expect(out[0]!.reason).toEqual({kind:'fits'}); // the queen bed is not the biggest that fits
+ });
+ it('acceptSuggestions keeps only options that are known, fit, are new to the room and are not shown as another idea',()=>{
+  const A=asset('a_a',2000,900),B=asset('a_b',1200,600),C=asset('a_c',2900,500),D=asset('a_d',1000,500),E=asset('a_e',900,500);
+  const out=acceptSuggestions([{assetId:'a_a',options:['a_x','a_b','a_c','a_d','a_e','a_d',7]},{assetId:'a_b'}],brief(3000,2000,'living',['a_e']),[A,B,C,D,E]);
+  // a_x unknown, a_b shown as the next idea, a_c fits (2900 <= 3000, 1100 <= 2000), a_e already in the room, repeat and 7 dropped;
+  // a_a itself was not listed, so it is put first.
+  expect(out.map(s=>aids(s.options))).toEqual([['a_a','a_c','a_d'],['a_b']]);
+  const narrow=acceptSuggestions([{assetId:'a_d',options:['a_d',asset('a_f',3100,500).id]}],brief(3000,2000),[D,asset('a_f',3100,500)]);
+  expect(aids(narrow[0]!.options)).toEqual(['a_d']); // a_f does not fit either way
+ });
+ it('swapSuggestion moves to the next option that keeps all ideas within half the floor, wrapping round',async()=>{
+  // Balanced bedroom: the other ideas use 900,000 + 180,000 + 450,000 + 720,000 = 2,250,000 of 7,934,895.
+  let list=await ask({...brief(3327,4770,'bedroom'),size:'balanced'});const b=brief(3327,4770,'bedroom');
+  const seen:string[]=[];
+  for(let n=0;n<4;n++){list=swapSuggestion(list,0,b)!;seen.push(list[0]!.asset.id);}
+  expect(seen).toEqual(['a_l0_double_bed','a_l0_single_bed','a_l0_king_bed','a_l0_queen_bed']);
+  expect(list[0]!.reason).toEqual({kind:'fits'});
+  expect(swapSuggestion(list,2,b)).toBeUndefined(); // the bedside table has no other option
+  // Small bedroom 2400 x 3000, budget 3,600,000: from the single bed the king (4,085,000) is skipped for the queen (3,483,000).
+  let small=await ask(brief(2400,3000,'bedroom'));const sb=brief(2400,3000,'bedroom');
+  small=swapSuggestion(small,0,sb)!;small=swapSuggestion(small,0,sb)!;expect(small[0]!.asset.id).toBe('a_l0_single_bed');
+  small=swapSuggestion(small,0,sb)!;expect(small[0]!.asset.id).toBe('a_l0_queen_bed');
  });
  it('rejects a request that was already cancelled',async()=>{
   const controller=new AbortController();controller.abort();
