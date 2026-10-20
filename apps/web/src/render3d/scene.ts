@@ -20,11 +20,21 @@ export function sameMesh(a: MeshData, b: MeshData): boolean {
   return sameGeometry(a,b) &&
     a.groups.length === b.groups.length && a.groups.every((g, i) => g.start === b.groups[i]!.start && g.count === b.groups[i]!.count && g.materialId === b.groups[i]!.materialId);
 }
+/** D76: wall tops (vertices with `wallCap` = 1) take a dark slate colour; every other mesh lacks the attribute and reads 0. */
+export const WALL_CAP_COLOR='#4b5150';
+export function wallCapShader(shader:{vertexShader:string;fragmentShader:string}):void{
+  shader.vertexShader=shader.vertexShader.replace('#include <common>','#include <common>\nattribute float wallCap;\nvarying float vWallCap;').replace('#include <begin_vertex>','#include <begin_vertex>\nvWallCap=wallCap;');
+  const [r,g,b]=new THREE.Color(WALL_CAP_COLOR).toArray();
+  shader.fragmentShader=shader.fragmentShader.replace('#include <common>','#include <common>\nvarying float vWallCap;').replace('#include <map_fragment>',`#include <map_fragment>\ndiffuseColor.rgb=mix(diffuseColor.rgb,vec3(${r!.toFixed(4)},${g!.toFixed(4)},${b!.toFixed(4)}),vWallCap);`);
+}
 export function bufferGeometry(data: MeshData): THREE.BufferGeometry {
   const geometry = new THREE.BufferGeometry();
   try{geometry.setAttribute('position', new THREE.Float32BufferAttribute(data.positions, 3));
   geometry.setAttribute('normal', new THREE.Float32BufferAttribute(data.normals, 3));
   geometry.setAttribute('uv', new THREE.Float32BufferAttribute(data.uv, 2));
+  // D76: the cut top of a wall is drawn dark (see wallCapShader) so room outlines read clearly from above.
+  // Only the topmost upward faces count, so window sills inside openings keep the wall colour.
+  if(data.category==='wall'){const cap=new Float32Array(data.normals.length/3);let top=-Infinity;for(let i=0;i<cap.length;i++)top=Math.max(top,data.positions[i*3+1]!);for(let i=0;i<cap.length;i++)cap[i]=data.normals[i*3+1]!>.5&&data.positions[i*3+1]!>=top-1e-6?1:0;geometry.setAttribute('wallCap',new THREE.Float32BufferAttribute(cap,1));}
   data.groups.forEach((g, i) => geometry.addGroup(g.start, g.count, i));
   geometry.computeBoundingBox(); geometry.computeBoundingSphere(); return geometry;}catch(error){geometry.dispose();throw error;}
 }
@@ -104,7 +114,7 @@ export class SceneAdapter {
     this.lastChanges = { replaced: [], kept: [], removed: [] };
     const wantedMaterials = new Set(document.materials.map(m => m.id));
     for (const m of document.materials) {
-      let root=this.#materialRoots.get(m.id);if(!root){root=this.#pool.acquire(`material:${m.id}`,()=>{const material=new THREE.MeshStandardMaterial();material.onBeforeCompile=shader=>this.onShader(shader.uniforms);return material;});this.#materialRoots.set(m.id,root);}
+      let root=this.#materialRoots.get(m.id);if(!root){root=this.#pool.acquire(`material:${m.id}`,()=>{const material=new THREE.MeshStandardMaterial();material.onBeforeCompile=shader=>{this.onShader(shader.uniforms);wallCapShader(shader);};return material;});this.#materialRoots.set(m.id,root);}
       const material=root.value;
       material.color.set(m.baseColor); material.roughness = m.roughness; material.metalness = m.metalness;this.#textures?.apply(material,m);
       this.#materials.set(m.id, material);
@@ -118,9 +128,10 @@ export class SceneAdapter {
       if(previous&&sameGeometry(previous.data,data)){this.#rebind(previous.mesh,data.groups,data.category==='ceiling');this.#meshes.set(data.id,{data,mesh:previous.mesh});this.lastChanges.replaced.push(data.id);continue;}
       structuralChange=true;
       const geometryLease=this.#geometry(bufferGeometry(data)),materialLeases=data.groups.map(g=>this.#material(g.materialId,data.category==='ceiling')),geometry=geometryLease.value,materials=materialLeases.map(l=>l.value);
+      // D76: walls receive but do not cast the sun's shadow, so no dark wedges fall across the opposite walls.
       const mesh=previous?.mesh??new THREE.Mesh(geometry,materials);
       this.#own(mesh,[geometryLease,...materialLeases]);if(!previous)this.group.add(mesh);
-      mesh.geometry = geometry; mesh.material = materials;mesh.castShadow=true;mesh.receiveShadow=true; mesh.userData = { entityId: data.entityId, category: data.category };
+      mesh.geometry = geometry; mesh.material = materials;mesh.castShadow=data.category!=='wall';mesh.receiveShadow=true; mesh.userData = { entityId: data.entityId, category: data.category };
       this.#meshes.set(data.id, { data, mesh }); this.lastChanges.replaced.push(data.id);
     }
     for(const {data,mesh}of this.#meshes.values()){mesh.userData.floorId=floorOf(data.category,data.entityId);mesh.visible=this.#shown(data.category,mesh.userData.floorId);}
