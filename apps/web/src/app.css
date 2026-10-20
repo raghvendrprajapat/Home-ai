@@ -848,3 +848,12 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
   .topbar-center .canvas-actions label { font-size:12px; }
 }
 .canvas-actions .grid-toggle[aria-pressed=true] { background:#e3eee6; color:#1f4a33; }
+/* D79 phones: an open sheet takes the lower part of the screen and the canvas shrinks above it (the 3D view keeps the
+   whole house in sight), instead of the sheet covering the drawing. The tool bar floats over the sheet's bottom edge. */
+@media (max-width:760px) {
+  .editor-body { padding-bottom:var(--sheet-bar); }
+  .editor-app:not([data-tool="none"]) .editor-body { padding-bottom:0; }
+  .tool-rail { position:absolute; left:0; right:0; bottom:0; }
+  .tool-panels { position:relative; order:2; flex:0 0 auto; left:auto; right:auto; bottom:auto; max-height:55vh; }
+  .canvas-area { order:1; }
+}
