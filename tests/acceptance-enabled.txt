@@ -2,3 +2,4 @@
 # removing a line needs an owner-visible reason in the PR.
 m1-3d.spec.ts
 m2-shell.spec.ts
+m3-copilot.spec.ts
