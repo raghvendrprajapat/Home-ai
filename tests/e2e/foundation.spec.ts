@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 import { readFile } from 'node:fs/promises';
+import { openTool } from './helpers/tools';
 async function begin(page: Page) {
   await page.goto('/'); await expect(page.getByRole('heading', { name: 'Make room for your ideas', exact: true })).toBeVisible();
   await page.getByRole('button', { name: 'Get started', exact: true }).click(); await saved(page);
@@ -21,7 +22,7 @@ test('UX-001 onboarding, cancel focus, measured creation, undo/redo and reload p
   await expect(page.getByRole('button',{name:'New project',exact:true})).toBeFocused(); await expect(page.getByRole('dialog')).toHaveCount(0);
   await page.getByRole('button',{name:'New project',exact:true}).click();await page.getByLabel('Project name',{exact:true}).fill('Test house <private>');
   await page.getByRole('button',{name:'Create drawing',exact:true}).click();await saved(page);
-  await page.getByRole('button',{name:'Add a starter room',exact:true}).click();await saved(page);await expect(page.getByTestId('total-area')).toContainText('14.44');
+  await openTool(page,'Draw');await page.getByRole('button',{name:'Add a starter room',exact:true}).click();await saved(page);await expect(page.getByTestId('total-area')).toContainText('14.44');
   await page.getByLabel('Corner X coordinate',{exact:true}).fill('4500');await page.getByRole('button',{name:'Apply coordinates',exact:false}).click();await saved(page);await expect(page.getByTestId('total-area')).toContainText('16.34');
   await page.getByRole('button',{name:'Undo',exact:true}).click();await saved(page);await expect(page.getByTestId('total-area')).toContainText('14.44');
   await page.getByRole('button',{name:'Redo',exact:true}).click();await saved(page); const before = await backup(page); await restore(page); expect(await backup(page)).toEqual(before);expect(errors).toEqual([]);
@@ -29,7 +30,7 @@ test('UX-001 onboarding, cancel focus, measured creation, undo/redo and reload p
 test('render crash retains unsaved latest drawing, exports exact content, requires explicit reload confirmation', async ({page}) => {
   await begin(page); const original=await backup(page);
   await page.evaluate(()=>{IDBObjectStore.prototype.put=function(){throw new DOMException('Injected write quota','QuotaExceededError');};});
-  await page.getByLabel('Corner X coordinate',{exact:true}).fill('4700');await page.getByRole('button',{name:'Apply coordinates',exact:false}).click();
+  await openTool(page,'Draw');await page.getByLabel('Corner X coordinate',{exact:true}).fill('4700');await page.getByRole('button',{name:'Apply coordinates',exact:false}).click();
   await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','error'); const changed=await backup(page); expect(changed).not.toEqual(original);
   await page.evaluate(()=>{window.dispatchEvent(new Event('gharplan-e2e-render-fault'));});
   await expect(page.getByRole('heading',{name:'The screen stopped working',exact:true})).toBeVisible();
@@ -68,13 +69,13 @@ test('UX-001 blocked storage and missing WebGL retain an editable/exportable dra
   await page.goto('/');await page.getByRole('button',{name:'Open a separate sample',exact:true}).click();await page.getByRole('button',{name:'Skip welcome',exact:true}).click();
   await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','memory');const original=await backup(page);
   await page.getByRole('button',{name:'3D view',exact:true}).click();await expect(page.getByTestId('three-view').getByText('3D is unavailable on this device. Continue editing in 2D; your drawing is unchanged.',{exact:true})).toBeVisible();
-  await page.getByRole('button',{name:'2D plan',exact:true}).click();expect(await backup(page)).toEqual(original);await page.getByLabel('Corner X coordinate',{exact:true}).fill('4350');await page.getByRole('button',{name:'Apply coordinates',exact:false}).click();expect(await backup(page)).not.toEqual(original);await expect(page.getByTestId('save-status')).not.toHaveAttribute('data-phase','saved');
+  await page.getByRole('button',{name:'2D plan',exact:true}).click();expect(await backup(page)).toEqual(original);await openTool(page,'Draw');await page.getByLabel('Corner X coordinate',{exact:true}).fill('4350');await page.getByRole('button',{name:'Apply coordinates',exact:false}).click();expect(await backup(page)).not.toEqual(original);await expect(page.getByTestId('save-status')).not.toHaveAttribute('data-phase','saved');
 });
 test('small touch viewport switches synchronized 3D and edits in 2D without horizontal overflow',async({page})=>{
   await page.setViewportSize({width:360,height:800});await begin(page);
   await expect(page.getByTestId('total-area')).toContainText('36.51');
   await page.getByRole('button',{name:'3D view',exact:true}).tap();await expect(page.getByTestId('three-view')).toHaveAttribute('data-rendered-generation','0',{timeout:15000});
-  await page.getByRole('button',{name:'2D plan',exact:true}).tap();await page.getByLabel('Corner X coordinate',{exact:true}).fill('4350');await page.getByRole('button',{name:'Apply coordinates',exact:false}).click();await saved(page);
+  await page.getByRole('button',{name:'2D plan',exact:true}).tap();await openTool(page,'Draw');await page.getByLabel('Corner X coordinate',{exact:true}).fill('4350');await page.getByRole('button',{name:'Apply coordinates',exact:false}).click();await saved(page);
   await page.getByRole('button',{name:'3D view',exact:true}).tap();await expect(page.getByTestId('three-view')).toHaveAttribute('data-rendered-generation','1',{timeout:15000});
   expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBe(true);
 });

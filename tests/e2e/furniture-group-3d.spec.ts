@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 // FR-019 moving and turning a furniture group in 3D. Claude-authored (D52 continuation); not an independent fixture.
 // Camera framing and the independent projection follow furniture-3d-gestures.spec.ts.
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
@@ -12,7 +13,7 @@ async function start(page:Page){
  const d=JSON.parse(await readFile('docs/examples/sample-project.json','utf8'));d.id='prj_group_3d';d.junctions=[];d.walls=[];d.openings=[];d.rooms=[];d.lights=[];
  d.furniture=[0,1].map(i=>({...d.furniture[0],id:`fu_drag_${i}`,assetId:'a_legacy_box',assetVersion:1,position:{x:i*2200,y:0},elevation:300,rotationDeg:0,size:{w:1200,d:600,h:750},materialOverrides:{},groupId:'group_1'}));
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);await page.getByRole('button',{name:'Projects',exact:true}).click();await page.getByLabel('Choose project backup JSON',{exact:true}).setInputFiles({name:'group-3d.json',mimeType:'application/json',buffer:Buffer.from(JSON.stringify(d))});await page.getByRole('button',{name:'Open backup with original IDs',exact:true}).click();await saved(page);
- await panel(page).getByLabel('Choose furniture',{exact:true}).selectOption('fu_drag_0');await page.getByRole('button',{name:'3D view',exact:true}).click();await expect(view(page)).toHaveAttribute('data-rendered-generation','0');
+ await openTool(page,'Furniture');await panel(page).getByLabel('Choose furniture',{exact:true}).selectOption('fu_drag_0');await page.getByRole('button',{name:'3D view',exact:true}).click();await expect(view(page)).toHaveAttribute('data-rendered-generation','0');
  const canvas=view(page).locator('canvas');await canvas.scrollIntoViewIfNeeded();await canvas.focus();for(let i=0;i<16;i++)await canvas.press('ArrowUp');for(let i=0;i<6;i++)await canvas.press('-');
  await expect.poll(async()=>{const p=await pose(page);return Math.hypot(p.position[0]!-p.target[0]!,p.position[2]!-p.target[2]!)/(p.position[1]!-p.target[1]!);}).toBeLessThan(.06);
  return backup(page);

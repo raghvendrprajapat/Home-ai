@@ -1,6 +1,7 @@
 import {expect} from '@playwright/test';
 import type {Page,Route} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 // Shared stand-in for Supabase Auth + the D65 functions used by the cloud browser tests (FR-031/032). Not shipped.
 export const CLOUD='https://gharplan-e2e.supabase.co',USER={id:'00000000-0000-4000-8000-0000000000e2',aud:'authenticated',role:'authenticated',email:'owner@example.test',user_metadata:{full_name:'Raghvendr Test'},app_metadata:{provider:'google'},created_at:'2026-10-18T00:00:00Z'};
 export const session=(lastSignInAt=new Date().toISOString())=>({access_token:'e2e-access',token_type:'bearer',expires_in:3600,expires_at:Math.floor(Date.now()/1000)+3600,refresh_token:'e2e-refresh',user:{...USER,last_sign_in_at:lastSignInAt}});
@@ -71,8 +72,8 @@ export async function backup(page:Page){const d=page.waitForEvent('download');aw
 export async function signedInWithNewCloudProject(page:Page,cloud:FakeCloud){
  await install(page,cloud);await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  await expect(status(page)).toHaveAttribute('data-phase','signed-out');
- await page.getByRole('button',{name:'Sign in with Google',exact:true}).click();
- await expect(page.getByText('Signed in as Raghvendr Test',{exact:true})).toBeVisible();
+ await openTool(page,'Project');await page.getByRole('button',{name:'Sign in with Google',exact:true}).click();
+ await openTool(page,'Project');await expect(page.getByText('Signed in as Raghvendr Test',{exact:true})).toBeVisible();
  await expect(page).not.toHaveURL(/code=/); // the one-time code is removed from the address bar
  await page.getByRole('button',{name:'Save this drawing to the cloud',exact:true}).click();
  // The bundled sample claims revision 1 under a fixed id this account never saved: offered as a new cloud project.

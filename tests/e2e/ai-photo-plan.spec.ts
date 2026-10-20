@@ -2,6 +2,7 @@ import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
 import {deflateSync} from 'node:zlib';
+import {openTool} from './helpers/tools';
 
 // D73 AI-3 photo or sketch to plan with the offline stand-in reader. The picture is the same 200 x 150 px two-room
 // drawing as apps/web/src/ai/sketch.test.ts; expected sizes are worked out by hand there and in
@@ -23,7 +24,7 @@ const twoRooms=png(200,150,[[20,20,181,21],[20,130,181,131],[20,20,21,131],[180,
 test('D73 AI-3 a two-room sketch shows under the plan, reads as two rooms and opens as a new drawing',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  const before=await backup(page),photo=page.getByRole('region',{name:'Photo or sketch to plan',exact:true});
- await expect(photo.getByText('The photo stays on this device.',{exact:false})).toBeVisible();
+ await openTool(page,'Copilot');await expect(photo.getByText('The photo stays on this device.',{exact:false})).toBeVisible();
  await photo.getByLabel('Choose a photo or sketch',{exact:true}).setInputFiles({name:'sketch.png',mimeType:'image/png',buffer:twoRooms});
  await expect(photo.getByLabel('Real width of the whole picture (mm)',{exact:true})).toHaveValue('10000');
  // Trace-over: 10 m wide and 150/200 of that tall, at the plan origin, half strength. Nothing is saved.
@@ -64,10 +65,10 @@ test('D73 AI-3 a two-room sketch shows under the plan, reads as two rooms and op
  expect(made.rooms.map((r:{name:string;type:string})=>[r.name,r.type])).toEqual([['Living room','living'],['Bedroom','bedroom']]);
  // Each clear area: (4050 - 200) x (5600 - 200) = 3850 x 5400 = 20.79 m².
  const areas=page.getByRole('region',{name:'Room areas',exact:true});
- await expect(areas).toContainText('Living room');await expect(areas).toContainText('20.79 m²');
+ await openTool(page,'Draw');await expect(areas).toContainText('Living room');await expect(areas).toContainText('20.79 m²');
  // The picture stays for this session and is shown under the new drawing where it was, so the rooms line up with it.
  const again=page.getByRole('region',{name:'Photo or sketch to plan',exact:true});
- await expect(again.locator('img.ai-photo-thumb')).toBeVisible();
+ await openTool(page,'Copilot');await expect(again.locator('img.ai-photo-thumb')).toBeVisible();
  await expect(again.getByLabel('Real width of the whole picture (mm)',{exact:true})).toHaveValue('10000');
  await expect(page.getByTestId('plan-canvas')).toHaveAttribute('data-underlay','-500,0,10000,7500,0.3');
 });
@@ -75,7 +76,7 @@ test('D73 AI-3 a two-room sketch shows under the plan, reads as two rooms and op
 test('D73 AI-3 a picture with no closed room says so and changes nothing',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  const before=await backup(page),photo=page.getByRole('region',{name:'Photo or sketch to plan',exact:true});
- await photo.getByLabel('Choose a photo or sketch',{exact:true}).setInputFiles({name:'open.png',mimeType:'image/png',buffer:png(200,150,[[20,20,181,21],[20,20,21,131]])});
+ await openTool(page,'Copilot');await photo.getByLabel('Choose a photo or sketch',{exact:true}).setInputFiles({name:'open.png',mimeType:'image/png',buffer:png(200,150,[[20,20,181,21],[20,20,21,131]])});
  await photo.getByRole('button',{name:'Read rooms from the picture',exact:true}).click();
  await expect(photo.getByRole('status')).toHaveText('No closed rooms were found. Try a clearer picture, check the width, or trace over the picture.');
  expect(await backup(page)).toEqual(before);
@@ -86,7 +87,7 @@ test('D73 AI-3 a picture with no closed room says so and changes nothing',async(
 test('D73 scale by marking a wall: two taps on the outer walls and their real length set the picture width',async({page})=>{
  await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);
  const photo=page.getByRole('region',{name:'Photo or sketch to plan',exact:true});
- await photo.getByLabel('Choose a photo or sketch',{exact:true}).setInputFiles({name:'sketch.png',mimeType:'image/png',buffer:twoRooms});
+ await openTool(page,'Copilot');await photo.getByLabel('Choose a photo or sketch',{exact:true}).setInputFiles({name:'sketch.png',mimeType:'image/png',buffer:twoRooms});
  await photo.getByRole('checkbox',{name:'Show under the plan',exact:true}).check();
  await photo.getByRole('button',{name:'Set scale by marking a wall',exact:true}).click();
  const scale=photo.getByRole('group',{name:'Set scale by marking a wall',exact:true}),picture=photo.getByRole('img',{name:'Picture: tap to mark',exact:true});

@@ -1,11 +1,12 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 // FR-019 furniture alignment in the real selection panel. Claude-authored (D52 continuation); not an independent fixture.
 // Sample footprints (centre; bounding box): sofa (1300,4300) x300..2300; tv (2250,400) x1350..3150; bed (6450,1200) x5550..7350; wardrobe (6250,4500) y4200..4800.
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
 async function backup(page:Page,label='Export drawing'){const download=page.waitForEvent('download');await page.getByRole('button',{name:label,exact:true}).click();return JSON.parse(await readFile((await(await download).path())!,'utf8'));}
-async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await panel.locator('summary').click();return panel;}
+async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await openTool(page,'Draw');await panel.locator('summary').click();return panel;}
 type Doc={furniture:{id:string;position:{x:number;y:number}}[]};
 const at=(doc:Doc,id:string)=>doc.furniture.find(f=>f.id===id)!.position;
 const group=(page:Page)=>page.getByRole('group',{name:'Align selected furniture',exact:true});

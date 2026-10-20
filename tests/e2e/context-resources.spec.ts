@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
 async function backup(page:Page){const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export drawing',exact:true}).click();return JSON.parse(await readFile((await(await download).path())!,'utf8'));}
 async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);await page.getByRole('button',{name:'3D view',exact:true}).click();await expect(page.getByTestId('three-view')).toHaveAttribute('data-rendered-generation','0');}
@@ -8,11 +9,11 @@ async function lose(page:Page){await page.getByTestId('three-view').locator('can
  if(!(c instanceof HTMLCanvasElement))throw Error('canvas');const gl=c.getContext('webgl2')!,extension=gl.getExtension('WEBGL_lose_context');if(!extension)throw Error('WEBGL_lose_context unavailable');Object.assign(window,{gpuLoss:{extension,canvas:c,at:performance.now()}});extension.loseContext();
 });await expect(page.getByTestId('three-view')).toHaveAttribute('data-context-state','lost');await expect(page.getByTestId('three-view')).toHaveAttribute('data-rendered-generation','');}
 async function restore(page:Page){await page.evaluate(()=>{(window as unknown as {gpuLoss:{extension:WEBGL_lose_context}}).gpuLoss.extension.restoreContext();});}
-async function height(page:Page,value:string){const room=page.getByRole('region',{name:'Room properties',exact:true});await room.getByLabel('Choose room',{exact:true}).selectOption('r_living');await room.getByLabel('Ceiling height (mm)',{exact:true}).fill(value);await room.getByRole('button',{name:'Apply room properties',exact:true}).click();}
+async function height(page:Page,value:string){await openTool(page,'Draw');const room=page.getByRole('region',{name:'Room properties',exact:true});await room.getByLabel('Choose room',{exact:true}).selectOption('r_living');await room.getByLabel('Ceiling height (mm)',{exact:true}).fill(value);await room.getByRole('button',{name:'Apply room properties',exact:true}).click();}
 test('REN-007 actual GPU loss clears current acknowledgement, preserves lost-state edits/Undo and draws latest on restore within 3s',async({page})=>{
  await start(page);const original=await backup(page),view=page.getByTestId('three-view');await lose(page);
  await height(page,'3500');await height(page,'3600');await page.getByRole('button',{name:'Undo',exact:true}).click();await expect(view).toHaveAttribute('data-rendered-generation','');
- await page.getByRole('region',{name:'3D image export',exact:true}).getByRole('button',{name:'Create 3D PNG',exact:true}).click();await expect(page.getByRole('region',{name:'3D image export',exact:true}).getByRole('alert')).toBeVisible();
+ await openTool(page,'Project');await page.getByRole('region',{name:'3D image export',exact:true}).getByRole('button',{name:'Create 3D PNG',exact:true}).click();await expect(page.getByRole('region',{name:'3D image export',exact:true}).getByRole('alert')).toBeVisible();
  await restore(page);await expect(view).toHaveAttribute('data-context-state','restored');await expect(view).toHaveAttribute('data-rendered-generation','3');
  const elapsed=await page.evaluate(()=>performance.now()-(window as unknown as {gpuLoss:{at:number}}).gpuLoss.at);expect(elapsed).toBeLessThan(3000);test.info().annotations.push({type:'actual-gpu-recovery-ms',description:String(elapsed)});
  await saved(page);const current=await backup(page);expect(current.rooms.find((r:{id:string})=>r.id==='r_living').ceilingHeight).toBe(3500);for(const key of ['walls','openings','junctions','furniture'])expect(current[key]).toEqual(original[key]);
