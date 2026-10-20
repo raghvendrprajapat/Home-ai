@@ -2,6 +2,7 @@ import type {FurnitureAssets} from './furniture-assets';
 import { ResourcePool,releaseOnce } from './resources';
 import type { Lease,Disposable } from './resources';
 import { materialBatches,batchMaterialGroups } from './batches';
+import {hungAboveCut} from './cutaway';
 import type {QualityTier} from './quality';
 import {SurfaceTextures} from './surface-textures';
 import * as THREE from 'three';
@@ -72,7 +73,7 @@ export class SceneAdapter {
   #serial=0;#closed=false;
   #placeholder:THREE.MeshStandardMaterial;
   #ceiling:THREE.MeshStandardMaterial;
-  #showCeilings=false;#tier:QualityTier='mid';#batches:THREE.Mesh[]=[];#hidden=new Set<string>();
+  #showCeilings=false;#tier:QualityTier='mid';#batches:THREE.Mesh[]=[];#hidden=new Set<string>();#lowWallsMm:number|undefined;
   #instances:THREE.InstancedMesh|null=null;#instanceCount=0;
   #unitBox:THREE.BufferGeometry;#textures:SurfaceTextures|null=null;
   /** `textures` (D76): where the CC0 surface textures live and what to call when one arrives; never used on Low. */
@@ -146,8 +147,11 @@ export class SceneAdapter {
     for(const [id,material]of this.#materials)if(!wantedMaterials.has(id)){this.#textures?.forget(material);this.#materialRoots.get(id)?.release();this.#materialRoots.delete(id);this.#materials.delete(id);}
     this.refreshFurniture(document);
   }
+  /** D77: the low-wall height the walls were built with (undefined = full walls); raised pieces above it are not drawn. Takes effect on the next apply/refresh. */
+  setLowWalls(heightMm:number|undefined):void{this.#lowWallsMm=heightMm;}
+  #furnitureShown(item:SceneDocument['furniture'][number]):boolean{return !this.#hidden.has(item.floorId)&&!hungAboveCut(item,this.#lowWallsMm);}
   refreshFurniture(document:ReturnType<ProjectStore['getSnapshot']>['document']):void{
-    const shown=this.#hidden.size?{...document,furniture:document.furniture.filter(f=>!this.#hidden.has(f.floorId))}:document;
+    const shown=document.furniture.every(f=>this.#furnitureShown(f))?document:{...document,furniture:document.furniture.filter(f=>this.#furnitureShown(f))};
     const loaded=this.furnitureAssets?.present(shown)??new Set<string>(),fallback=shown.furniture.filter(f=>!loaded.has(f.id));
     const instanced=this.#tier==='low'&&fallback.length>=3;
     if(this.#instances&&(!instanced||this.#instanceCount!==fallback.length)){this.group.remove(this.#instances);this.#release(this.#instances);this.#instances=null;}
@@ -159,7 +163,7 @@ export class SceneAdapter {
       if (!this.#furniture.has(item.id)) { this.#furniture.set(item.id, mesh);this.#own(mesh,[this.#shared('unit-box',this.#unitBox),this.#shared('placeholder',this.#placeholder)]); this.group.add(mesh); }
       mesh.scale.set(item.size.w / 1000, item.size.h / 1000, item.size.d / 1000);
       mesh.position.set(item.position.x / 1000, ((document.floors.find(f => f.id === item.floorId) ?? document.floors[0]!).elevation + item.elevation + item.size.h / 2) / 1000, item.position.y / 1000);
-      mesh.visible=!instanced&&!loaded.has(item.id)&&!this.#hidden.has(item.floorId);mesh.castShadow=true;mesh.receiveShadow=true;
+      mesh.visible=!instanced&&!loaded.has(item.id)&&this.#furnitureShown(item);mesh.castShadow=true;mesh.receiveShadow=true;
       mesh.rotation.y = -item.rotationDeg * Math.PI / 180; mesh.userData = { entityId: item.id, category: 'furniture-placeholder' };
     }
     if(this.#instances){fallback.forEach((item,i)=>{const mesh=this.#furniture.get(item.id)!;mesh.updateMatrix();this.#instances!.setMatrixAt(i,mesh.matrix);});this.#instances.instanceMatrix.needsUpdate=true;this.#instances.computeBoundingBox();this.#instances.computeBoundingSphere();this.#instances.userData={category:'furniture-instances',entityIds:fallback.map(f=>f.id)};}

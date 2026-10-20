@@ -35,6 +35,8 @@ export class ScenePipeline {
     try{this.worker.postMessage({requestId,tag,document:structuredClone(this.store.getSnapshot().document) as ProjectDoc,...lowWallsMm?{lowWallsMm}:{}});}
     catch(error){this.#fail(error instanceof Error?error.message:'Could not start the 3D preview.');}
   }
+  /** The low-wall height of the scene being built; a ready bundle always matches it (other replies are re-requested). */
+  get lowWallsMm():number|undefined{return this.#lowWallsMm;}
   /** D76: switch the low-wall overview on (a height in mm) or off; the scene is rebuilt from the same drawing. */
   setLowWalls(heightMm:number|undefined):void{if(this.#disposed||heightMm===this.#lowWallsMm)return;this.#lowWallsMm=heightMm;this.callbacks.pending();this.#request();}
   dispose():void{

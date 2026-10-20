@@ -12,3 +12,12 @@ export function lowerWalls(document:ProjectDoc,heightMm:number):ProjectDoc{
  const openings=document.openings.flatMap(o=>{const top=height.get(o.wallId)??heightMm;if(o.sill>=top-150)return [];return [o.sill+o.height>top?{...o,height:top-o.sill}:o];});
  const lowered:ProjectDoc={...document,walls,openings};delete lowered.roofs;return lowered;
 }
+/**
+ * D77: in the low-wall overview a raised piece (elevation above its floor) whose middle is above the cut hangs on wall
+ * that is not drawn, such as a picture, a wall cabinet or window-length curtains, so it is left out instead of floating.
+ * Floor-standing pieces (a wardrobe, floor-length curtains) and things standing on furniture (a table lamp on a bedside
+ * table) stay. Render-only, like the lowered walls.
+ */
+export function hungAboveCut(item:Pick<ProjectDoc['furniture'][number],'elevation'|'size'>,heightMm:number|undefined):boolean{
+ return heightMm!==undefined&&item.elevation>0&&item.elevation+item.size.h/2>heightMm;
+}

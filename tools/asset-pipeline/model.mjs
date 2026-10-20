@@ -84,9 +84,13 @@ export async function inspectGlb(bytes,dims,maximumTriangles) {
 // [metallic, roughness]. The 3D view has no reflection map, so `metal` stays partly metallic to avoid rendering black.
 export const FINISHES={matte:[0,.85],satin:[0,.5],gloss:[0,.25],metal:[.35,.4]};
 const PART_KEYS={box:['name','shape','center','size','color','finish'],rounded:['name','shape','center','size','color','finish','radius','segments'],cylinder:['name','shape','center','size','color','finish','axis','segments']};
+// D77: an opt-in `mergeByMaterial: true` (schemaVersion 3 only) bakes all parts that share colour and finish into one node,
+// so a detailed model costs one draw call per material instead of one per part. Sources without the key are untouched.
+const MERGE_KEY='mergeByMaterial';
 export function validateModernSource(source,path) {
-  validateSource({...source,schemaVersion:1,parts:source?.parts?.map?.(p=>({name:p?.name,center:p?.center,size:p?.size,color:p?.color}))},path);
-  if(!exactKeys(source,SOURCE_KEYS)||source.schemaVersion!==3)fail('source-identity');
+  const merged=source!==null&&typeof source==='object'&&Object.hasOwn(source,MERGE_KEY),{[MERGE_KEY]:merge,...rest}=merged?source:{};
+  validateSource({...(merged?rest:source),schemaVersion:1,parts:source?.parts?.map?.(p=>({name:p?.name,center:p?.center,size:p?.size,color:p?.color}))},path);
+  if(!exactKeys(source,merged?[...SOURCE_KEYS,MERGE_KEY]:SOURCE_KEYS)||source.schemaVersion!==3||merged&&merge!==true)fail('source-identity');
   for(const p of source.parts){
     if(!exactKeys(p,PART_KEYS[p?.shape]??[])||!Object.hasOwn(FINISHES,p.finish))fail('source-part');
     if(p.shape==='rounded'&&(!integer(p.radius,1,Math.floor(Math.min(...p.size)/2))||!integer(p.segments,1,3)))fail('source-part');
@@ -99,6 +103,17 @@ export function modernMeshes(source) {
     const data=p.shape==='rounded'?roundedBoxData(p.size,p.radius,p.segments):p.shape==='cylinder'?cylinderData(p.size,p.axis,p.segments):(()=>{const b=boxData();return {positions:[...b.positions].map((n,i)=>n*p.size[i%3]),normals:[...b.normals],indices:[...b.indices]};})();
     return {name:p.name,color:p.color,finish:p.finish,positions:data.positions.map((n,i)=>n+p.center[i%3]),normals:data.normals,indices:data.indices};
   });
+}
+/** D77: parts sharing colour and finish, in first-appearance order, concatenated into one mesh named after its first part. */
+export function mergeMeshes(meshes) {
+  const groups=new Map();
+  for(const m of meshes){
+    const key=`${m.color}-${m.finish}`,group=groups.get(key);
+    if(!group){groups.set(key,{name:m.name,color:m.color,finish:m.finish,positions:[...m.positions],normals:[...m.normals],indices:[...m.indices]});continue;}
+    const base=group.positions.length/3;group.positions.push(...m.positions);group.normals.push(...m.normals);group.indices.push(...m.indices.map(i=>i+base));
+  }
+  const merged=[...groups.values()];if(merged.some(m=>m.positions.length/3>65535))fail('source-parts');
+  return merged;
 }
 export function createModernDocument(meshes) {
   const doc=new Document(),buffer=doc.createBuffer(),scene=doc.createScene('catalog-model'),materials=new Map();doc.getRoot().setDefaultScene(scene);
@@ -114,7 +129,7 @@ export function createModernDocument(meshes) {
 
 export async function compileSource(bytes,path) {
   const raw=JSON.parse(Buffer.from(bytes).toString('utf8'));let source,glb,thumb;
-  if(raw?.schemaVersion===3){source=validateModernSource(raw,path);const meshes=modernMeshes(source);glb=Buffer.from(await new NodeIO().writeBinary(createModernDocument(meshes)));thumb=meshThumbnail(meshes);}
+  if(raw?.schemaVersion===3){source=validateModernSource(raw,path);const meshes=modernMeshes(source);glb=Buffer.from(await new NodeIO().writeBinary(createModernDocument(source[MERGE_KEY]?mergeMeshes(meshes):meshes)));thumb=meshThumbnail(meshes);}
   else{source=validateSource(raw,path);glb=Buffer.from(await new NodeIO().writeBinary(createAssetDocument(source)));thumb=thumbnail(source.parts);}
   const inspection=await inspectGlb(glb,source.dims,3000),modelHash=sha256(glb),thumbHash=sha256(thumb);
   const file=(hash,extension)=>`blobs/${hash}.${extension}`;

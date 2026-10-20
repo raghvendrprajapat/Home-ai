@@ -1,0 +1,1062 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_planter",
+  "version": 3,
+  "name_en": "Indoor plant in pot",
+  "name_hi": "गमले में पौधा",
+  "category": "decor",
+  "tags": [
+    "plant",
+    "indoor plant",
+    "artificial plant",
+    "planter",
+    "pot",
+    "green",
+    "leafy plant",
+    "गमले में पौधा"
+  ],
+  "dims": {
+    "w": 450,
+    "d": 420,
+    "h": 1100
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_planter-v3.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_planter-v3.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-20"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "pot",
+      "shape": "cylinder",
+      "center": [
+        0,
+        150,
+        0
+      ],
+      "size": [
+        300,
+        300,
+        300
+      ],
+      "color": "#e4ddd2",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "pot-rim",
+      "shape": "cylinder",
+      "center": [
+        0,
+        288,
+        0
+      ],
+      "size": [
+        316,
+        24,
+        316
+      ],
+      "color": "#e4ddd2",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "soil",
+      "shape": "cylinder",
+      "center": [
+        0,
+        302,
+        0
+      ],
+      "size": [
+        270,
+        8,
+        270
+      ],
+      "color": "#4a3a2c",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 16
+    },
+    {
+      "name": "stem-1",
+      "shape": "cylinder",
+      "center": [
+        -30,
+        590,
+        -20
+      ],
+      "size": [
+        16,
+        580,
+        16
+      ],
+      "color": "#5a5a3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leaf-1",
+      "shape": "cylinder",
+      "center": [
+        66,
+        420,
+        -20
+      ],
+      "size": [
+        200,
+        8,
+        105
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-2",
+      "shape": "cylinder",
+      "center": [
+        -111,
+        460,
+        -20
+      ],
+      "size": [
+        170,
+        95,
+        8
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-3",
+      "shape": "cylinder",
+      "center": [
+        -30,
+        510,
+        -113
+      ],
+      "size": [
+        8,
+        120,
+        194
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "x",
+      "segments": 12
+    },
+    {
+      "name": "leaf-4",
+      "shape": "cylinder",
+      "center": [
+        -30,
+        550,
+        91
+      ],
+      "size": [
+        95,
+        8,
+        230
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-5",
+      "shape": "cylinder",
+      "center": [
+        -125,
+        600,
+        -20
+      ],
+      "size": [
+        198,
+        8,
+        105
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-6",
+      "shape": "cylinder",
+      "center": [
+        66,
+        640,
+        -20
+      ],
+      "size": [
+        200,
+        95,
+        8
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-7",
+      "shape": "cylinder",
+      "center": [
+        -30,
+        690,
+        76
+      ],
+      "size": [
+        105,
+        8,
+        200
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-8",
+      "shape": "cylinder",
+      "center": [
+        -30,
+        730,
+        -101
+      ],
+      "size": [
+        95,
+        8,
+        170
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-9",
+      "shape": "cylinder",
+      "center": [
+        81,
+        780,
+        -20
+      ],
+      "size": [
+        230,
+        120,
+        8
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-10",
+      "shape": "cylinder",
+      "center": [
+        -125,
+        820,
+        -20
+      ],
+      "size": [
+        198,
+        8,
+        95
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "crown-1",
+      "shape": "cylinder",
+      "center": [
+        -30,
+        907,
+        -20
+      ],
+      "size": [
+        8,
+        110,
+        100
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "x",
+      "segments": 12
+    },
+    {
+      "name": "stem-2",
+      "shape": "cylinder",
+      "center": [
+        45,
+        659,
+        15
+      ],
+      "size": [
+        16,
+        718,
+        16
+      ],
+      "color": "#5a5a3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leaf-11",
+      "shape": "cylinder",
+      "center": [
+        45,
+        456,
+        -95
+      ],
+      "size": [
+        8,
+        120,
+        228
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "x",
+      "segments": 12
+    },
+    {
+      "name": "leaf-12",
+      "shape": "cylinder",
+      "center": [
+        45,
+        496,
+        110
+      ],
+      "size": [
+        95,
+        8,
+        198
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-13",
+      "shape": "cylinder",
+      "center": [
+        -81,
+        546,
+        15
+      ],
+      "size": [
+        260,
+        8,
+        105
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-14",
+      "shape": "cylinder",
+      "center": [
+        133,
+        586,
+        15
+      ],
+      "size": [
+        184,
+        95,
+        8
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-15",
+      "shape": "cylinder",
+      "center": [
+        45,
+        636,
+        110
+      ],
+      "size": [
+        105,
+        8,
+        198
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-16",
+      "shape": "cylinder",
+      "center": [
+        45,
+        676,
+        -66
+      ],
+      "size": [
+        95,
+        8,
+        170
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-17",
+      "shape": "cylinder",
+      "center": [
+        133,
+        726,
+        15
+      ],
+      "size": [
+        184,
+        120,
+        8
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-18",
+      "shape": "cylinder",
+      "center": [
+        -66,
+        766,
+        15
+      ],
+      "size": [
+        230,
+        8,
+        95
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-19",
+      "shape": "cylinder",
+      "center": [
+        45,
+        816,
+        -95
+      ],
+      "size": [
+        105,
+        8,
+        228
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-20",
+      "shape": "cylinder",
+      "center": [
+        45,
+        856,
+        110
+      ],
+      "size": [
+        95,
+        8,
+        198
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-21",
+      "shape": "cylinder",
+      "center": [
+        -51,
+        906,
+        15
+      ],
+      "size": [
+        200,
+        8,
+        105
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-22",
+      "shape": "cylinder",
+      "center": [
+        126,
+        946,
+        15
+      ],
+      "size": [
+        170,
+        95,
+        8
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "crown-2",
+      "shape": "cylinder",
+      "center": [
+        45,
+        1045,
+        15
+      ],
+      "size": [
+        100,
+        110,
+        8
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "stem-3",
+      "shape": "cylinder",
+      "center": [
+        -10,
+        630,
+        55
+      ],
+      "size": [
+        16,
+        660,
+        16
+      ],
+      "color": "#5a5a3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leaf-23",
+      "shape": "cylinder",
+      "center": [
+        -115,
+        492,
+        55
+      ],
+      "size": [
+        218,
+        8,
+        105
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-24",
+      "shape": "cylinder",
+      "center": [
+        86,
+        532,
+        55
+      ],
+      "size": [
+        200,
+        95,
+        8
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-25",
+      "shape": "cylinder",
+      "center": [
+        -10,
+        582,
+        130
+      ],
+      "size": [
+        105,
+        8,
+        158
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-26",
+      "shape": "cylinder",
+      "center": [
+        -10,
+        622,
+        -26
+      ],
+      "size": [
+        95,
+        8,
+        170
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-27",
+      "shape": "cylinder",
+      "center": [
+        101,
+        672,
+        55
+      ],
+      "size": [
+        230,
+        120,
+        8
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-28",
+      "shape": "cylinder",
+      "center": [
+        -115,
+        712,
+        55
+      ],
+      "size": [
+        218,
+        8,
+        95
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-29",
+      "shape": "cylinder",
+      "center": [
+        -10,
+        762,
+        -71
+      ],
+      "size": [
+        105,
+        8,
+        260
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-30",
+      "shape": "cylinder",
+      "center": [
+        -10,
+        802,
+        130
+      ],
+      "size": [
+        95,
+        8,
+        158
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-31",
+      "shape": "cylinder",
+      "center": [
+        -106,
+        852,
+        55
+      ],
+      "size": [
+        200,
+        8,
+        105
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-32",
+      "shape": "cylinder",
+      "center": [
+        71,
+        892,
+        55
+      ],
+      "size": [
+        170,
+        95,
+        8
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "crown-3",
+      "shape": "cylinder",
+      "center": [
+        -10,
+        987,
+        55
+      ],
+      "size": [
+        8,
+        110,
+        100
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "x",
+      "segments": 12
+    },
+    {
+      "name": "stem-4",
+      "shape": "cylinder",
+      "center": [
+        20,
+        550,
+        -60
+      ],
+      "size": [
+        16,
+        500,
+        16
+      ],
+      "color": "#5a5a3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leaf-33",
+      "shape": "cylinder",
+      "center": [
+        20,
+        528,
+        36
+      ],
+      "size": [
+        105,
+        8,
+        200
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-34",
+      "shape": "cylinder",
+      "center": [
+        20,
+        568,
+        -133
+      ],
+      "size": [
+        95,
+        8,
+        154
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-35",
+      "shape": "cylinder",
+      "center": [
+        120,
+        618,
+        -60
+      ],
+      "size": [
+        208,
+        120,
+        8
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-36",
+      "shape": "cylinder",
+      "center": [
+        -91,
+        658,
+        -60
+      ],
+      "size": [
+        230,
+        8,
+        95
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-37",
+      "shape": "cylinder",
+      "center": [
+        20,
+        708,
+        -133
+      ],
+      "size": [
+        105,
+        8,
+        154
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-38",
+      "shape": "cylinder",
+      "center": [
+        20,
+        748,
+        36
+      ],
+      "size": [
+        95,
+        8,
+        200
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "crown-4",
+      "shape": "cylinder",
+      "center": [
+        20,
+        827,
+        -60
+      ],
+      "size": [
+        100,
+        110,
+        8
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "stem-5",
+      "shape": "cylinder",
+      "center": [
+        -60,
+        510,
+        30
+      ],
+      "size": [
+        16,
+        420,
+        16
+      ],
+      "color": "#5a5a3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "leaf-39",
+      "shape": "cylinder",
+      "center": [
+        51,
+        564,
+        30
+      ],
+      "size": [
+        230,
+        120,
+        8
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "leaf-40",
+      "shape": "cylinder",
+      "center": [
+        -140,
+        604,
+        30
+      ],
+      "size": [
+        168,
+        8,
+        95
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "crown-5",
+      "shape": "cylinder",
+      "center": [
+        -60,
+        747,
+        30
+      ],
+      "size": [
+        8,
+        110,
+        100
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "x",
+      "segments": 12
+    },
+    {
+      "name": "leaf-41",
+      "shape": "cylinder",
+      "center": [
+        133,
+        760,
+        15
+      ],
+      "size": [
+        184,
+        8,
+        105
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-42",
+      "shape": "cylinder",
+      "center": [
+        -140,
+        620,
+        30
+      ],
+      "size": [
+        170,
+        8,
+        105
+      ],
+      "color": "#3f6b3a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-43",
+      "shape": "cylinder",
+      "center": [
+        -10,
+        700,
+        130
+      ],
+      "size": [
+        105,
+        8,
+        160
+      ],
+      "color": "#6f9a55",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leaf-44",
+      "shape": "cylinder",
+      "center": [
+        20,
+        560,
+        -133
+      ],
+      "size": [
+        105,
+        8,
+        154
+      ],
+      "color": "#557f45",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    }
+  ]
+}

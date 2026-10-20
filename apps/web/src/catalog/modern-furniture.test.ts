@@ -76,7 +76,7 @@ const modern=sources.filter(s=>s.schemaVersion===3);
 
 describe('D72 modern furniture parts',()=>{
  it('covers the modern designs, including the corrected versions',()=>{
-  expect(modern.map(s=>`${s.id}@${s.version}`)).toEqual(expect.arrayContaining(['a_l0_dining_set_6@2','a_l0_dining_set_4@2','a_l0_dressing_table@2','a_l0_console_table@3','a_l0_coffee_table@3','a_l0_low_cabinet@3','a_l0_study_desk@3']));
+  expect(modern.map(s=>`${s.id}@${s.version}`)).toEqual(expect.arrayContaining(['a_l0_dining_set_6@2','a_l0_dining_set_4@2','a_l0_dressing_table@2','a_l0_console_table@3','a_l0_coffee_table@4','a_l0_low_cabinet@3','a_l0_study_desk@3']));
  });
  it.each(modern.map(s=>[`${s.id}@${s.version}`,s] as const))('%s has no floating part',(_,source)=>{
   const resting=new Set(source.parts.filter(p=>box(p)[1][0]===0).map(p=>p.name));
@@ -89,5 +89,46 @@ describe('D72 modern furniture parts',()=>{
   expect(backs).toHaveLength(seats.length);
   for(const back of backs){const [bx,,bz]=box(back),outside=bx[0]>=tx[1]||bx[1]<=tx[0]||bz[0]>=tz[1]||bz[1]<=tz[0];expect(outside,back.name).toBe(true);}
   for(const seat of seats)for(const leg of legs)expect(overlap(seat,leg,0),`${seat.name} / ${leg.name}`).toBe(false);
+ });
+});
+
+// D77 decor pack and improved pieces. Sources set mergeByMaterial, so the decoder sees one primitive per colour and finish,
+// named after the first part of that material. Expected names, colours and counts are written by hand from the designs.
+const decor:{id:string;version:number;main:string;names:string[];back?:string;front?:string}[]=[
+ {id:'a_l0_curtains',version:1,main:'#d8cdb9',names:['rod','fold-left-1'],back:'rod',front:'fold-left-1'},
+ {id:'a_l0_curtains_short',version:1,main:'#d8cdb9',names:['rod','fold-left-1'],back:'rod',front:'fold-left-1'},
+ {id:'a_l0_floor_lamp',version:1,main:'#efe9df',names:['base','pole','shade']},
+ {id:'a_l0_table_lamp',version:1,main:'#efe9df',names:['foot','neck','shade']},
+ // The walnut frame is the main colour (a finish recolours the frame); the canvas fields sit behind the painted shapes.
+ {id:'a_l0_wall_art',version:1,main:'#8a5a3a',names:['frame-bottom','field-left','field-top','field-bottom','sun','moon','line'],back:'field-left',front:'sun'},
+ {id:'a_l0_planter',version:3,main:'#6f9a55',names:['pot','soil','stem-1','leaf-1','leaf-2','leaf-4']},
+ {id:'a_l0_coffee_table',version:4,main:'#8a5a3a',names:['top','marble','shelf']},
+ {id:'a_l0_armchair',version:3,main:'#a3a19b',names:['leg-1','base','pillow']},
+ {id:'a_l0_wardrobe_sliding',version:2,main:'#ecebe7',names:['plinth','side-left','track-top','front-inset'],back:'plinth',front:'track-top'},
+ // Same design as version 2, merged for fewer draw calls.
+ {id:'a_l0_sofa_3',version:3,main:'#868a90',names:['leg-lf940','base']},
+];
+describe('D77 decor pack and improved pieces in the 3D decoder',()=>{
+ it.each(decor)('$id@$version decodes to its size with one primitive per material and its main colour',async design=>{
+  const asset=exactAsset(catalog,design.id,design.version)!,lod=asset.lods[0]!;expect(asset).toBeDefined();
+  const source=JSON.parse(await readFile(new URL(`../../../../tools/asset-pipeline/sources/${design.id}-v${design.version}.json`,import.meta.url),'utf8')) as {schemaVersion:number;mergeByMaterial?:boolean;parts:{color:string;finish:string}[]};
+  const file=await readFile(new URL('../../public/catalog/'+lod.path,import.meta.url)),bytes=file.buffer.slice(file.byteOffset,file.byteOffset+file.byteLength);
+  const decoded=await decodeFurniture({id:asset.id,version:asset.version,lod:0,sha256:lod.sha256,bytes,dims:asset.dims,triangles:lod.triangles});
+  try{
+   expect(source.schemaVersion).toBe(3);expect(source.mergeByMaterial).toBe(true);
+   expect(decoded.primitives.map(p=>p.name)).toEqual(design.names);expect(new Set(source.parts.map(p=>`${p.color}-${p.finish}`)).size).toBe(design.names.length);
+   expect(lod.triangles).toBeLessThanOrEqual(3000);
+   const bounds=new Box3();for(const p of decoded.primitives)bounds.union(p.geometry.boundingBox!);
+   expect(bounds.getSize(new Vector3()).toArray()).toEqual([asset.dims.w/1000,asset.dims.h/1000,asset.dims.d/1000].map(n=>expect.closeTo(n,5)));
+   const centre=(name:string)=>decoded.primitives.find(p=>p.name===name)!.geometry.boundingBox!.getCenter(new Vector3()).z;
+   if(design.back)expect(centre(design.back)).toBeGreaterThan(0);
+   if(design.front)expect(centre(design.front)).toBeLessThan(0);
+   const actual=channels(`#${mainFurnitureMaterial(decoded).color.getHexString()}`);
+   channels(design.main).forEach((c,i)=>expect(Math.abs(actual[i]!-c)).toBeLessThanOrEqual(1));
+  }finally{decoded.dispose();}
+ });
+ it('new decor items are lighting or decor with English and Hindi names',()=>{
+  const wanted={a_l0_curtains:'decor',a_l0_curtains_short:'decor',a_l0_wall_art:'decor',a_l0_floor_lamp:'lighting',a_l0_table_lamp:'lighting'};
+  for(const [id,category]of Object.entries(wanted)){const a=exactAsset(catalog,id,1)!;expect(a.category).toBe(category);expect(a.name_hi).toMatch(/[ऀ-ॿ]/);expect(a.name_en).not.toBe(a.name_hi);}
  });
 });

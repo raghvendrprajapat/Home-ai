@@ -224,6 +224,84 @@
       }
     },
     {
+      "id": "a_l0_armchair",
+      "version": 3,
+      "name_en": "Accent armchair",
+      "name_hi": "सजावटी आराम कुर्सी",
+      "category": "seating",
+      "tags": [
+        "armchair",
+        "accent chair",
+        "lounge chair",
+        "single seater sofa",
+        "fabric",
+        "grey",
+        "cushion",
+        "आराम कुर्सी"
+      ],
+      "dims": {
+        "w": 800,
+        "d": 820,
+        "h": 820
+      },
+      "sourceSha256": "c57a60ce37833f27f7dd375468b3292448825efc8039a7d6d50168664c81edd6",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_armchair-v3.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_armchair-v3.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/5d70a3e47026a8251db19c451bcf1e5d285ca23c692d58c76f94653e8724f63e.glb",
+          "sha256": "5d70a3e47026a8251db19c451bcf1e5d285ca23c692d58c76f94653e8724f63e",
+          "bytes": 53596,
+          "triangles": 2100
+        },
+        {
+          "level": 1,
+          "path": "blobs/5d70a3e47026a8251db19c451bcf1e5d285ca23c692d58c76f94653e8724f63e.glb",
+          "sha256": "5d70a3e47026a8251db19c451bcf1e5d285ca23c692d58c76f94653e8724f63e",
+          "bytes": 53596,
+          "triangles": 2100
+        }
+      ],
+      "thumb": {
+        "path": "blobs/6d5ebe259ae0fcfaa12efb9c20334c840eb42bf0ae3b7daf9e414ee0d296c1a6.svg",
+        "sha256": "6d5ebe259ae0fcfaa12efb9c20334c840eb42bf0ae3b7daf9e414ee0d296c1a6",
+        "bytes": 42514,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 2100,
+        "bounds": {
+          "min": [
+            -0.4000000059604645,
+            0,
+            -0.4099999964237213
+          ],
+          "max": [
+            0.4000000059604645,
+            0.8199999928474426,
+            0.4099999964237213
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_bench",
       "version": 1,
       "name_en": "Entry bench",
@@ -822,6 +900,84 @@
       }
     },
     {
+      "id": "a_l0_coffee_table",
+      "version": 4,
+      "name_en": "Coffee table, marble top",
+      "name_hi": "मार्बल टॉप वाली छोटी बैठक मेज़",
+      "category": "tables",
+      "tags": [
+        "coffee table",
+        "centre table",
+        "center table",
+        "wooden",
+        "marble top",
+        "cane shelf",
+        "walnut",
+        "छोटी बैठक मेज़"
+      ],
+      "dims": {
+        "w": 1100,
+        "d": 600,
+        "h": 450
+      },
+      "sourceSha256": "66822ca06ce13e285740444b16504c8eb3a81f07c561b0e96eab9aa76d467534",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_coffee_table-v4.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_coffee_table-v4.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/6cf643eb0decaebd8b61de93eebe4fe515e84fc8bbef8b28bce8b81c1e18a81c.glb",
+          "sha256": "6cf643eb0decaebd8b61de93eebe4fe515e84fc8bbef8b28bce8b81c1e18a81c",
+          "bytes": 25172,
+          "triangles": 852
+        },
+        {
+          "level": 1,
+          "path": "blobs/6cf643eb0decaebd8b61de93eebe4fe515e84fc8bbef8b28bce8b81c1e18a81c.glb",
+          "sha256": "6cf643eb0decaebd8b61de93eebe4fe515e84fc8bbef8b28bce8b81c1e18a81c",
+          "bytes": 25172,
+          "triangles": 852
+        }
+      ],
+      "thumb": {
+        "path": "blobs/8cc200fcfabba6edf5806521cb690e0def1d14ae7cf5c69983239ad90b04b039.svg",
+        "sha256": "8cc200fcfabba6edf5806521cb690e0def1d14ae7cf5c69983239ad90b04b039",
+        "bytes": 19087,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 852,
+        "bounds": {
+          "min": [
+            -0.550000011920929,
+            0,
+            -0.30000001192092896
+          ],
+          "max": [
+            0.550000011920929,
+            0.44999998807907104,
+            0.30000001192092896
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_console_table",
       "version": 1,
       "name_en": "Console table",
@@ -1035,6 +1191,164 @@
             0.6000000238418579,
             0.800000011920929,
             0.17499999701976776
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_curtains",
+      "version": 1,
+      "name_en": "Curtains with rod, floor length",
+      "name_hi": "रॉड के साथ पर्दे (फ़र्श तक)",
+      "category": "decor",
+      "tags": [
+        "curtains",
+        "parda",
+        "curtain",
+        "window curtains",
+        "long curtains",
+        "linen",
+        "beige",
+        "curtain rod",
+        "पर्दे"
+      ],
+      "dims": {
+        "w": 2100,
+        "d": 160,
+        "h": 2425
+      },
+      "sourceSha256": "0d5815ce1d8fdfe547f92048b8219f881c62cec6656fd1fd84c4a9671ce35d45",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_curtains-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_curtains-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/d6bca82955aa8b5707c8d2da6a11529ebcb341fb236ecf38c376fcc54551c340.glb",
+          "sha256": "d6bca82955aa8b5707c8d2da6a11529ebcb341fb236ecf38c376fcc54551c340",
+          "bytes": 34392,
+          "triangles": 1080
+        },
+        {
+          "level": 1,
+          "path": "blobs/d6bca82955aa8b5707c8d2da6a11529ebcb341fb236ecf38c376fcc54551c340.glb",
+          "sha256": "d6bca82955aa8b5707c8d2da6a11529ebcb341fb236ecf38c376fcc54551c340",
+          "bytes": 34392,
+          "triangles": 1080
+        }
+      ],
+      "thumb": {
+        "path": "blobs/58257b0f8328c0dcc82531482bc143b299a0e31bf7e4e59ded46cac342a0536f.svg",
+        "sha256": "58257b0f8328c0dcc82531482bc143b299a0e31bf7e4e59ded46cac342a0536f",
+        "bytes": 27430,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1080,
+        "bounds": {
+          "min": [
+            -1.0499999523162842,
+            0,
+            -0.07999999821186066
+          ],
+          "max": [
+            1.0499999523162842,
+            2.424999952316284,
+            0.07999999821186066
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_curtains_short",
+      "version": 1,
+      "name_en": "Curtains with rod, window length",
+      "name_hi": "रॉड के साथ पर्दे (खिड़की तक)",
+      "category": "decor",
+      "tags": [
+        "curtains",
+        "parda",
+        "curtain",
+        "window curtains",
+        "short curtains",
+        "linen",
+        "beige",
+        "curtain rod",
+        "पर्दे"
+      ],
+      "dims": {
+        "w": 2100,
+        "d": 160,
+        "h": 1545
+      },
+      "sourceSha256": "f5f882037a253f2868c12d001818f9190d0e50a2b170dcd6d89252daed848a91",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_curtains_short-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_curtains_short-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/306453bc61b0ce4b926bf9f1d7b21ce4fd2647bae8e40e5cf4ae0970e0f68779.glb",
+          "sha256": "306453bc61b0ce4b926bf9f1d7b21ce4fd2647bae8e40e5cf4ae0970e0f68779",
+          "bytes": 34408,
+          "triangles": 1080
+        },
+        {
+          "level": 1,
+          "path": "blobs/306453bc61b0ce4b926bf9f1d7b21ce4fd2647bae8e40e5cf4ae0970e0f68779.glb",
+          "sha256": "306453bc61b0ce4b926bf9f1d7b21ce4fd2647bae8e40e5cf4ae0970e0f68779",
+          "bytes": 34408,
+          "triangles": 1080
+        }
+      ],
+      "thumb": {
+        "path": "blobs/d756b5106bcd0990fdb7eb7e2dd1c08c8dbdd6e4f882045a84c43ef83367f4f8.svg",
+        "sha256": "d756b5106bcd0990fdb7eb7e2dd1c08c8dbdd6e4f882045a84c43ef83367f4f8",
+        "bytes": 28117,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1080,
+        "bounds": {
+          "min": [
+            -1.0499999523162842,
+            0,
+            -0.07999999821186066
+          ],
+          "max": [
+            1.0499999523162842,
+            1.5449999570846558,
+            0.07999999821186066
           ]
         },
         "validator": {
@@ -2249,6 +2563,84 @@
       }
     },
     {
+      "id": "a_l0_floor_lamp",
+      "version": 1,
+      "name_en": "Floor lamp with drum shade",
+      "name_hi": "ड्रम शेड वाला फ़र्श लैंप",
+      "category": "lighting",
+      "tags": [
+        "floor lamp",
+        "standing lamp",
+        "lamp",
+        "light",
+        "reading lamp",
+        "brass",
+        "fabric shade",
+        "फ़र्श लैंप"
+      ],
+      "dims": {
+        "w": 400,
+        "d": 400,
+        "h": 1600
+      },
+      "sourceSha256": "8d8607f4a5a57d5d12e10084bfd71be869519d46799276cd494dabbbd3dc6c1a",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_floor_lamp-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_floor_lamp-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/6eaf54a7f7797110e66534e0cced03a786acbfdaba9a1551a04655e8cf9c9e01.glb",
+          "sha256": "6eaf54a7f7797110e66534e0cced03a786acbfdaba9a1551a04655e8cf9c9e01",
+          "bytes": 11620,
+          "triangles": 288
+        },
+        {
+          "level": 1,
+          "path": "blobs/6eaf54a7f7797110e66534e0cced03a786acbfdaba9a1551a04655e8cf9c9e01.glb",
+          "sha256": "6eaf54a7f7797110e66534e0cced03a786acbfdaba9a1551a04655e8cf9c9e01",
+          "bytes": 11620,
+          "triangles": 288
+        }
+      ],
+      "thumb": {
+        "path": "blobs/1d8e84f5d3722d826dc081b52990b82ce20d36ef75c45c461c694db975ff4467.svg",
+        "sha256": "1d8e84f5d3722d826dc081b52990b82ce20d36ef75c45c461c694db975ff4467",
+        "bytes": 6833,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 288,
+        "bounds": {
+          "min": [
+            -0.20000000298023224,
+            0,
+            -0.20000000298023224
+          ],
+          "max": [
+            0.20000000298023224,
+            1.600000023841858,
+            0.20000000298023224
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_island",
       "version": 1,
       "name_en": "Kitchen island",
@@ -2976,6 +3368,84 @@
       },
       "inspection": {
         "triangles": 1028,
+        "bounds": {
+          "min": [
+            -0.22499999403953552,
+            0,
+            -0.20999999344348907
+          ],
+          "max": [
+            0.22499999403953552,
+            1.100000023841858,
+            0.20999999344348907
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_planter",
+      "version": 3,
+      "name_en": "Indoor plant in pot",
+      "name_hi": "गमले में पौधा",
+      "category": "decor",
+      "tags": [
+        "plant",
+        "indoor plant",
+        "artificial plant",
+        "planter",
+        "pot",
+        "green",
+        "leafy plant",
+        "गमले में पौधा"
+      ],
+      "dims": {
+        "w": 450,
+        "d": 420,
+        "h": 1100
+      },
+      "sourceSha256": "e0c2077ec2a0faa67149f3cb1aeff17d5db6ded0bcdeb5ef6d412948bc95b051",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_planter-v3.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_planter-v3.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/29569032e4ee98b263418712bf0d2554a7d9535a1756bc132682d74debfb975a.glb",
+          "sha256": "29569032e4ee98b263418712bf0d2554a7d9535a1756bc132682d74debfb975a",
+          "bytes": 91092,
+          "triangles": 2768
+        },
+        {
+          "level": 1,
+          "path": "blobs/29569032e4ee98b263418712bf0d2554a7d9535a1756bc132682d74debfb975a.glb",
+          "sha256": "29569032e4ee98b263418712bf0d2554a7d9535a1756bc132682d74debfb975a",
+          "bytes": 91092,
+          "triangles": 2768
+        }
+      ],
+      "thumb": {
+        "path": "blobs/7ed0cd37cec5ea6d690af23e32bfded02b22039366db747134ed3077f99fe787.svg",
+        "sha256": "7ed0cd37cec5ea6d690af23e32bfded02b22039366db747134ed3077f99fe787",
+        "bytes": 73378,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 2768,
         "bounds": {
           "min": [
             -0.22499999403953552,
@@ -4046,6 +4516,82 @@
       }
     },
     {
+      "id": "a_l0_sofa_3",
+      "version": 3,
+      "name_en": "Three-seat sofa",
+      "name_hi": "तीन सीट का सोफ़ा",
+      "category": "seating",
+      "tags": [
+        "sofa",
+        "couch",
+        "3 seater sofa",
+        "fabric sofa",
+        "grey",
+        "तीन सीट का सोफ़ा"
+      ],
+      "dims": {
+        "w": 2100,
+        "d": 860,
+        "h": 820
+      },
+      "sourceSha256": "6e54b44e2c475cffe0d82cef0173a635135dae98a2b05bf5aee33f1d3a1d2cef",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_sofa_3-v3.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_sofa_3-v3.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/fadfb95c2b7b82ec975fb2cb26dcc95eb744bbf49264edb46b67b488a3af44ac.glb",
+          "sha256": "fadfb95c2b7b82ec975fb2cb26dcc95eb744bbf49264edb46b67b488a3af44ac",
+          "bytes": 67780,
+          "triangles": 2744
+        },
+        {
+          "level": 1,
+          "path": "blobs/fadfb95c2b7b82ec975fb2cb26dcc95eb744bbf49264edb46b67b488a3af44ac.glb",
+          "sha256": "fadfb95c2b7b82ec975fb2cb26dcc95eb744bbf49264edb46b67b488a3af44ac",
+          "bytes": 67780,
+          "triangles": 2744
+        }
+      ],
+      "thumb": {
+        "path": "blobs/5be9aa0485308c9042dcf743bc2f5c375d8741c45465ca795a113442ee40c18f.svg",
+        "sha256": "5be9aa0485308c9042dcf743bc2f5c375d8741c45465ca795a113442ee40c18f",
+        "bytes": 56223,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 2744,
+        "bounds": {
+          "min": [
+            -1.0499999523162842,
+            0,
+            -0.4300000071525574
+          ],
+          "max": [
+            1.0499999523162842,
+            0.8199999928474426,
+            0.4300000071525574
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_sofa_l",
       "version": 1,
       "name_en": "L-shape sofa (5 seats)",
@@ -4500,6 +5046,84 @@
       }
     },
     {
+      "id": "a_l0_table_lamp",
+      "version": 1,
+      "name_en": "Table lamp, ceramic base",
+      "name_hi": "सिरेमिक बेस वाला टेबल लैंप",
+      "category": "lighting",
+      "tags": [
+        "table lamp",
+        "desk lamp",
+        "lamp",
+        "light",
+        "ceramic",
+        "sage",
+        "fabric shade",
+        "टेबल लैंप"
+      ],
+      "dims": {
+        "w": 260,
+        "d": 260,
+        "h": 450
+      },
+      "sourceSha256": "6ad5b1754478d6898b9d7e0df1da8c4921829c9c7ca8e7333f04a34fd2d917e4",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_table_lamp-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_table_lamp-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/c99a9fb1901ba105f655b8951cfcb1f1b65d85985cb531184c0b0e9bdea127a9.glb",
+          "sha256": "c99a9fb1901ba105f655b8951cfcb1f1b65d85985cb531184c0b0e9bdea127a9",
+          "bytes": 14064,
+          "triangles": 368
+        },
+        {
+          "level": 1,
+          "path": "blobs/c99a9fb1901ba105f655b8951cfcb1f1b65d85985cb531184c0b0e9bdea127a9.glb",
+          "sha256": "c99a9fb1901ba105f655b8951cfcb1f1b65d85985cb531184c0b0e9bdea127a9",
+          "bytes": 14064,
+          "triangles": 368
+        }
+      ],
+      "thumb": {
+        "path": "blobs/1458ab31b64ca05c17db5d7fc49e220c5e0ccd98eaf217b96f71e69abe493b82.svg",
+        "sha256": "1458ab31b64ca05c17db5d7fc49e220c5e0ccd98eaf217b96f71e69abe493b82",
+        "bytes": 8921,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 368,
+        "bounds": {
+          "min": [
+            -0.12999999523162842,
+            0,
+            -0.12999999523162842
+          ],
+          "max": [
+            0.12999999523162842,
+            0.44999998807907104,
+            0.12999999523162842
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_tv_unit",
       "version": 1,
       "name_en": "TV unit",
@@ -4639,6 +5263,85 @@
             0.3,
             0.85,
             0.225
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wall_art",
+      "version": 1,
+      "name_en": "Framed wall art, abstract",
+      "name_hi": "फ़्रेम वाली दीवार की तस्वीर (एब्स्ट्रैक्ट)",
+      "category": "decor",
+      "tags": [
+        "wall art",
+        "painting",
+        "picture",
+        "frame",
+        "framed print",
+        "abstract",
+        "wall decor",
+        "walnut frame",
+        "दीवार की तस्वीर"
+      ],
+      "dims": {
+        "w": 900,
+        "d": 40,
+        "h": 650
+      },
+      "sourceSha256": "848213e2312589f395bab0caf92f0ba34eef72db019db881082913d77bceb805",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wall_art-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_art-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/4df3f9ad383c115e0b482a524f9dae8455d83771207bddf6dd5f8dbcfa5f9eed.glb",
+          "sha256": "4df3f9ad383c115e0b482a524f9dae8455d83771207bddf6dd5f8dbcfa5f9eed",
+          "bytes": 17232,
+          "triangles": 288
+        },
+        {
+          "level": 1,
+          "path": "blobs/4df3f9ad383c115e0b482a524f9dae8455d83771207bddf6dd5f8dbcfa5f9eed.glb",
+          "sha256": "4df3f9ad383c115e0b482a524f9dae8455d83771207bddf6dd5f8dbcfa5f9eed",
+          "bytes": 17232,
+          "triangles": 288
+        }
+      ],
+      "thumb": {
+        "path": "blobs/e98fcbc90e957bacfc5bfa2e75336154e45bb74d2c04a10d231bfb649f73e076.svg",
+        "sha256": "e98fcbc90e957bacfc5bfa2e75336154e45bb74d2c04a10d231bfb649f73e076",
+        "bytes": 8257,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 288,
+        "bounds": {
+          "min": [
+            -0.44999998807907104,
+            0,
+            -0.019999999552965164
+          ],
+          "max": [
+            0.44999998807907104,
+            0.6499999761581421,
+            0.019999999552965164
           ]
         },
         "validator": {
@@ -5075,6 +5778,83 @@
       },
       "inspection": {
         "triangles": 180,
+        "bounds": {
+          "min": [
+            -0.8999999761581421,
+            0,
+            -0.32499998807907104
+          ],
+          "max": [
+            0.8999999761581421,
+            2.0999999046325684,
+            0.32499998807907104
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wardrobe_sliding",
+      "version": 2,
+      "name_en": "Sliding-door wardrobe",
+      "name_hi": "स्लाइडिंग दरवाज़े की अलमारी",
+      "category": "storage",
+      "tags": [
+        "wardrobe",
+        "almirah",
+        "sliding wardrobe",
+        "2 door",
+        "white",
+        "oak",
+        "स्लाइडिंग अलमारी"
+      ],
+      "dims": {
+        "w": 1800,
+        "d": 650,
+        "h": 2100
+      },
+      "sourceSha256": "522bfb5ce0af4dfcd3200bc72e9e91d7c5fc54c6e6f70ac93dd63fe9336a978d",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v2.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v2.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-20"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/0262caecb4984dd22a2cab3300e9341ecd637ecca6664d5a7b67dc435c6c5c25.glb",
+          "sha256": "0262caecb4984dd22a2cab3300e9341ecd637ecca6664d5a7b67dc435c6c5c25",
+          "bytes": 26152,
+          "triangles": 576
+        },
+        {
+          "level": 1,
+          "path": "blobs/0262caecb4984dd22a2cab3300e9341ecd637ecca6664d5a7b67dc435c6c5c25.glb",
+          "sha256": "0262caecb4984dd22a2cab3300e9341ecd637ecca6664d5a7b67dc435c6c5c25",
+          "bytes": 26152,
+          "triangles": 576
+        }
+      ],
+      "thumb": {
+        "path": "blobs/12f0319c49688c7acea4d07b5c7f91223b473e4108a0a910d4b8e394e8b1636f.svg",
+        "sha256": "12f0319c49688c7acea4d07b5c7f91223b473e4108a0a910d4b8e394e8b1636f",
+        "bytes": 17198,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 576,
         "bounds": {
           "min": [
             -0.8999999761581421,

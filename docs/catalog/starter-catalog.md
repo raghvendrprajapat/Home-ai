@@ -103,6 +103,25 @@ New versions fix geometry found in the audit; the earlier versions stay publishe
 | a_l0_low_cabinet@3 | Sideboard cabinet / साइडबोर्ड अलमारी | storage | 1500 × 420 × 800 | 368 | [a_l0_low_cabinet-v3.json](../../tools/asset-pipeline/sources/a_l0_low_cabinet-v3.json) — handles touch the doors |
 | a_l0_study_desk@3 | Study table with drawers / दराज़ वाली पढ़ने की मेज़ | tables | 1200 × 600 × 750 | 364 | [a_l0_study_desk-v3.json](../../tools/asset-pipeline/sources/a_l0_study_desk-v3.json) — handles touch the drawers |
 
+## D77 decor pack and improved pieces (2026-10-20)
+
+Original designs by Claude Code in the same schemaVersion 3 profile, with the new opt-in `mergeByMaterial` (parts that share colour and finish become one mesh, so the 3D view spends one draw call per material). "Parts / meshes" gives source parts and the meshes the model draws. Older versions stay published for existing drawings. See [D77](../decisions/modern-furniture.md#d77-decor-pack-2026-10-20).
+
+| ID | English / Hindi | Category | W × D × H (mm) | Triangles | Parts / meshes | Source |
+|---|---|---|---|---:|---|---|
+| a_l0_curtains@1 | Curtains with rod, floor length / रॉड के साथ पर्दे (फ़र्श तक) | decor | 2100 × 160 × 2425 | 1080 | 19 / 2 | [a_l0_curtains-v1.json](../../tools/asset-pipeline/sources/a_l0_curtains-v1.json) |
+| a_l0_curtains_short@1 | Curtains with rod, window length / रॉड के साथ पर्दे (खिड़की तक) | decor | 2100 × 160 × 1545 | 1080 | 19 / 2 | [a_l0_curtains_short-v1.json](../../tools/asset-pipeline/sources/a_l0_curtains_short-v1.json) |
+| a_l0_floor_lamp@1 | Floor lamp with drum shade / ड्रम शेड वाला फ़र्श लैंप | lighting | 400 × 400 × 1600 | 288 | 4 / 3 | [a_l0_floor_lamp-v1.json](../../tools/asset-pipeline/sources/a_l0_floor_lamp-v1.json) |
+| a_l0_table_lamp@1 | Table lamp, ceramic base / सिरेमिक बेस वाला टेबल लैंप | lighting | 260 × 260 × 450 | 368 | 5 / 3 | [a_l0_table_lamp-v1.json](../../tools/asset-pipeline/sources/a_l0_table_lamp-v1.json) |
+| a_l0_wall_art@1 | Framed wall art, abstract / फ़्रेम वाली दीवार की तस्वीर (एब्स्ट्रैक्ट) | decor | 900 × 40 × 650 | 288 | 10 / 7 | [a_l0_wall_art-v1.json](../../tools/asset-pipeline/sources/a_l0_wall_art-v1.json) |
+| a_l0_planter@3 | Indoor plant in pot / गमले में पौधा | decor | 450 × 420 × 1100 | 2768 | 57 / 6 | [a_l0_planter-v3.json](../../tools/asset-pipeline/sources/a_l0_planter-v3.json) — five stems and 49 leaves in three greens |
+| a_l0_coffee_table@4 | Coffee table, marble top / मार्बल टॉप वाली छोटी बैठक मेज़ | tables | 1100 × 600 × 450 | 852 | 7 / 3 | [a_l0_coffee_table-v4.json](../../tools/asset-pipeline/sources/a_l0_coffee_table-v4.json) — wooden legs and frame, marble top, cane shelf |
+| a_l0_armchair@3 | Accent armchair / सजावटी आराम कुर्सी | seating | 800 × 820 × 820 | 2100 | 11 / 3 | [a_l0_armchair-v3.json](../../tools/asset-pipeline/sources/a_l0_armchair-v3.json) — seat and back cushions, track arms, oak legs, a pillow |
+| a_l0_wardrobe_sliding@2 | Sliding-door wardrobe / स्लाइडिंग दरवाज़े की अलमारी | storage | 1800 × 650 × 2100 | 576 | 24 / 4 | [a_l0_wardrobe_sliding-v2.json](../../tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v2.json) — framed panels, oak insets, full-height handles, tracks |
+| a_l0_sofa_3@3 | Three-seat sofa / तीन सीट का सोफ़ा | seating | 2100 × 860 × 820 | 2744 | 14 / 2 | [a_l0_sofa_3-v3.json](../../tools/asset-pipeline/sources/a_l0_sofa_3-v3.json) — the version 2 design, merged |
+
+The catalog now lists 42 items (78 published versions). Pictures and window-length curtains hang on a wall: place them, then type their height in "Furniture elevation" (for example 1300 mm for a picture, 760 mm for window-length curtains); placement starts at 0 mm.
+
 All LOD0/LOD1 pairs currently share the same already-small GLB; no simplification/compression claim. No downloaded/proprietary art, electrical fixtures, textures or entitlement/cloud-delivery adapter is added. Canonical furniture pins ID/version and nominal dimensions; user scaling/elevation/rotation remain the existing commands. Physical-device performance, aesthetic/accessibility review and all D36 gates remain pending.
 
 Change an existing asset by adding a new version, never by editing an accepted source/blob under the same ID/version. Rebuild via pnpm assets:build, then run assets:check and assets:versions. See the PH4-T05 verification and decision records for actual validator/hash/paging/placement/Undo evidence.

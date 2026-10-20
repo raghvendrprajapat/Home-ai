@@ -1,0 +1,234 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_armchair",
+  "version": 3,
+  "name_en": "Accent armchair",
+  "name_hi": "सजावटी आराम कुर्सी",
+  "category": "seating",
+  "tags": [
+    "armchair",
+    "accent chair",
+    "lounge chair",
+    "single seater sofa",
+    "fabric",
+    "grey",
+    "cushion",
+    "आराम कुर्सी"
+  ],
+  "dims": {
+    "w": 800,
+    "d": 820,
+    "h": 820
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_armchair-v3.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_armchair-v3.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-20"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -340,
+        75,
+        -340
+      ],
+      "size": [
+        40,
+        150,
+        40
+      ],
+      "color": "#c8a77e",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        340,
+        75,
+        -340
+      ],
+      "size": [
+        40,
+        150,
+        40
+      ],
+      "color": "#c8a77e",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -340,
+        75,
+        340
+      ],
+      "size": [
+        40,
+        150,
+        40
+      ],
+      "color": "#c8a77e",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        340,
+        75,
+        340
+      ],
+      "size": [
+        40,
+        150,
+        40
+      ],
+      "color": "#c8a77e",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "base",
+      "shape": "rounded",
+      "center": [
+        0,
+        240,
+        20
+      ],
+      "size": [
+        640,
+        180,
+        760
+      ],
+      "color": "#a3a19b",
+      "finish": "matte",
+      "radius": 30,
+      "segments": 1
+    },
+    {
+      "name": "arm-left",
+      "shape": "rounded",
+      "center": [
+        -360,
+        385,
+        20
+      ],
+      "size": [
+        80,
+        470,
+        780
+      ],
+      "color": "#a3a19b",
+      "finish": "matte",
+      "radius": 35,
+      "segments": 2
+    },
+    {
+      "name": "arm-right",
+      "shape": "rounded",
+      "center": [
+        360,
+        385,
+        20
+      ],
+      "size": [
+        80,
+        470,
+        780
+      ],
+      "color": "#a3a19b",
+      "finish": "matte",
+      "radius": 35,
+      "segments": 2
+    },
+    {
+      "name": "back-frame",
+      "shape": "rounded",
+      "center": [
+        0,
+        590,
+        330
+      ],
+      "size": [
+        640,
+        460,
+        140
+      ],
+      "color": "#a3a19b",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 2
+    },
+    {
+      "name": "seat",
+      "shape": "rounded",
+      "center": [
+        0,
+        390,
+        -80
+      ],
+      "size": [
+        620,
+        120,
+        660
+      ],
+      "color": "#a3a19b",
+      "finish": "matte",
+      "radius": 50,
+      "segments": 2
+    },
+    {
+      "name": "back-cushion",
+      "shape": "rounded",
+      "center": [
+        0,
+        600,
+        180
+      ],
+      "size": [
+        600,
+        340,
+        160
+      ],
+      "color": "#a3a19b",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "pillow",
+      "shape": "rounded",
+      "center": [
+        0,
+        590,
+        45
+      ],
+      "size": [
+        380,
+        280,
+        110
+      ],
+      "color": "#b8704f",
+      "finish": "matte",
+      "radius": 50,
+      "segments": 2
+    }
+  ]
+}

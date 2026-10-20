@@ -8,7 +8,7 @@ import {tmpdir} from 'node:os';
 import fc from 'fast-check';
 import {NodeIO} from '@gltf-transform/core';
 import {boxData,thumbnail,roundedBoxData,cylinderData} from './geometry.mjs';
-import {compileSource,validateSource,validateModernSource,FINISHES,inspectGlb,binaryProfile,sha256,createAssetDocument} from './model.mjs';
+import {compileSource,validateSource,validateModernSource,FINISHES,inspectGlb,binaryProfile,sha256,createAssetDocument,modernMeshes,mergeMeshes} from './model.mjs';
 import {runPipeline,defaults,assertImmutable} from './pipeline.mjs';
 import {verifyVersions} from './versions.mjs';
 
@@ -118,6 +118,54 @@ test('D72 modern sources reject unknown shapes/finishes, oversized radii, unsupp
     const changed=structuredClone(modern);mutate(changed);assert.throws(()=>validateModernSource(changed,modernPath),/source-/);await assert.rejects(compileSource(Buffer.from(JSON.stringify(changed)),modernPath),/source-/);
   }
   const wrongSize=structuredClone(modern);wrongSize.dims.w=2101;await assert.rejects(compileSource(Buffer.from(JSON.stringify(wrongSize)),modernPath),/asset-bounds/);
+});
+
+// D77 opt-in merge: parts that share colour and finish become one node, so a model costs one draw call per material.
+// Expected names, counts and triangle totals are written by hand from the sofa source (4 wooden legs, then 10 fabric parts).
+test('D77 mergeByMaterial bakes parts sharing colour and finish into one node per material; triangles, bounds and preview stay the same',async()=>{
+  const merged=structuredClone(modern);merged.mergeByMaterial=true;const mergedBytes=Buffer.from(JSON.stringify(merged));
+  const plain=await compileSource(modernBytes,modernPath),joined=await compileSource(mergedBytes,modernPath);
+  const read=async compiled=>(await new NodeIO().readBinary(compiled.files.get(compiled.entry.lods[0].path))).getRoot().getDefaultScene().listChildren();
+  const plainNodes=await read(plain),joinedNodes=await read(joined);
+  assert.equal(plainNodes.length,14);assert.deepEqual(joinedNodes.map(n=>n.getName()),['leg-lf940','base']);
+  assert.deepEqual(joinedNodes.map(n=>n.getMesh().listPrimitives()[0].getMaterial().getName()),['#8a5a3a-satin','#868a90-matte']);
+  for(const node of joinedNodes){assert.deepEqual(node.getTranslation(),[0,0,0]);assert.deepEqual(node.getScale(),[1,1,1]);assert.equal(node.getMesh().listPrimitives().length,1);}
+  // Four 8-sided legs: 4·32 triangles; the rest of the 2744 are fabric.
+  const triangles=node=>node.getMesh().listPrimitives()[0].getIndices().getCount()/3;assert.deepEqual(joinedNodes.map(triangles),[128,2744-128]);
+  assert.equal(joined.entry.inspection.triangles,2744);assert.deepEqual(joined.entry.inspection.bounds,plain.entry.inspection.bounds);
+  // Same vertices: each merged node holds exactly the vertices of the parts of its material, in source order.
+  const points=node=>Array.from(node.getMesh().listPrimitives()[0].getAttribute('POSITION').getArray());
+  assert.deepEqual(points(joinedNodes[0]),plainNodes.slice(0,4).flatMap(points));assert.deepEqual(points(joinedNodes[1]),plainNodes.slice(4).flatMap(points));
+  assert.equal(joined.entry.thumb.sha256,plain.entry.thumb.sha256);assert.notEqual(joined.entry.lods[0].sha256,plain.entry.lods[0].sha256);
+  assert.equal(joined.entry.inspection.validator.errors,0);assert.equal(joined.entry.inspection.validator.warnings,0);
+});
+test('D77 every published source without mergeByMaterial still compiles to its exact published GLB and preview',async()=>{
+  const published=JSON.parse(await readFile(join(defaults.outputDir,'catalog.json'))).assets;let unchanged=0;
+  for(const entry of published){
+    const file=`${entry.id}-v${entry.version}.json`,raw=await readFile(join(defaults.sourceDir,file));if(Object.hasOwn(JSON.parse(raw),'mergeByMaterial'))continue;
+    const compiled=await compileSource(raw,`tools/asset-pipeline/sources/${file}`);assert.equal(compiled.entry.lods[0].sha256,entry.lods[0].sha256,file);assert.equal(compiled.entry.thumb.sha256,entry.thumb.sha256,file);unchanged++;
+  }
+  // The 68 versions published before D77 carry no merge key.
+  assert.ok(unchanged>=68,String(unchanged));
+});
+test('D77 mergeByMaterial accepts only true on schemaVersion 3 sources',async()=>{
+  for(const value of [false,'yes',1,null]){const changed=structuredClone(modern);changed.mergeByMaterial=value;assert.throws(()=>validateModernSource(changed,modernPath),/source-identity/);await assert.rejects(compileSource(Buffer.from(JSON.stringify(changed)),modernPath),/source-/);}
+  const old=structuredClone(source);old.mergeByMaterial=true;assert.throws(()=>validateSource(old,sourcePath),/source-identity/);await assert.rejects(compileSource(Buffer.from(JSON.stringify(old)),sourcePath),/source-identity/);
+});
+test('D77 merging keeps every vertex and triangle, one mesh per colour and finish in first-appearance order, with valid indices',()=>{
+  const part=fc.record({shape:fc.constantFrom('box','rounded','cylinder'),size:fc.tuple(...Array.from({length:3},()=>fc.integer({min:4,max:900}))),center:fc.tuple(...Array.from({length:3},()=>fc.integer({min:-900,max:900}))),color:fc.constantFrom('#111111','#222222','#333333'),finish:fc.constantFrom('matte','metal')});
+  fc.assert(fc.property(fc.array(part,{minLength:1,maxLength:12}),list=>{
+    const parts=list.map((p,i)=>({...p,name:`p${i}`,radius:Math.max(1,Math.floor(Math.min(...p.size)/4)),segments:p.shape==='cylinder'?8:1,axis:'y'}));
+    const meshes=modernMeshes({parts}),merged=mergeMeshes(meshes),keys=[...new Set(parts.map(p=>`${p.color}-${p.finish}`))];
+    assert.deepEqual(merged.map(m=>`${m.color}-${m.finish}`),keys);assert.deepEqual(merged.map(m=>m.name),keys.map(k=>parts.find(p=>`${p.color}-${p.finish}`===k).name));
+    for(const m of merged){
+      const own=meshes.filter(x=>x.color===m.color&&x.finish===m.finish);
+      assert.deepEqual(m.positions,own.flatMap(x=>[...x.positions]));assert.deepEqual(m.normals,own.flatMap(x=>[...x.normals]));
+      assert.equal(m.indices.length,own.reduce((n,x)=>n+x.indices.length,0));assert.ok(m.indices.every(i=>Number.isInteger(i)&&i>=0&&i<m.positions.length/3));
+      // Each part's triangles keep their own vertices: index offsets equal the vertices of the parts before it.
+      let base=0,at=0;for(const x of own){assert.deepEqual(m.indices.slice(at,at+x.indices.length),[...x.indices].map(i=>i+base));base+=x.positions.length/3;at+=x.indices.length;}
+    }
+  }),{numRuns:100,seed:771});
 });
 
 async function snapshot(directory,prefix=''){
