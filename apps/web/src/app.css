@@ -823,3 +823,28 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 @media (max-width:760px) { .copilot-log { max-height:28vh; } }
 .tool-panel-body .copilot-ask input, .copilot-ask input { flex:1 1 auto; margin:0; min-height:44px; border-radius:22px; padding:0 14px; }
 .tool-panel-body .copilot-ask button, .copilot-ask button { width:auto; margin:0; min-height:44px; border-radius:22px; padding:0 18px; }
+
+/* D79: a calmer 3D screen. Small floating controls leave the picture to the house, most of all on phones. */
+.furniture-three-tools { left:12px; right:auto; bottom:12px; max-width:calc(100% - 24px); padding:4px; gap:4px; border-radius:12px; background:rgba(255,255,255,.92); box-shadow:0 2px 12px #1d3b2c22; }
+.furniture-three-tools .three-tool { display:inline-flex; align-items:center; justify-content:center; gap:6px; min-width:48px; min-height:48px; padding:0 10px; font-size:13px; border-color:transparent; background:transparent; }
+.furniture-three-tools .three-tool[aria-pressed=true] { background:#e3eee6; color:#1f4a33; }
+.furniture-three-tools .free-toggle { min-height:48px; padding:0 8px; background:transparent; font-size:13px; }
+.three-toggles { flex-direction:row; flex-wrap:wrap; justify-content:flex-end; max-width:calc(100% - 24px); }
+.three-toggles > label { min-height:40px; font-size:13px; padding:0 10px; box-shadow:0 1px 6px #1d3b2c1a; }
+.furniture-models { font-size:13px; padding:4px 10px; }
+.furniture-models.all-ready { display:none; }
+.canvas-hint { background:rgba(255,255,255,.85); }
+.three-canvas .canvas-hint { left:auto; right:12px; bottom:12px; max-width:min(320px,45%); }
+@media (max-width:760px) {
+  .three-canvas .canvas-hint { display:none; }
+  .three-toggles { top:8px; right:8px; gap:4px; }
+  .three-toggles > label { font-size:12px; padding:0 8px; }
+  .furniture-three-tools { left:8px; bottom:8px; }
+  .furniture-three-tools .walk-button span { display:none; }
+}
+@media (max-width:760px) {
+  .topbar-center .canvas-actions { gap:4px; margin-left:auto; }
+  .topbar-center .canvas-actions button { min-height:48px; padding:0 10px; border-color:transparent; background:transparent; font-size:12px; }
+  .topbar-center .canvas-actions label { font-size:12px; }
+}
+.canvas-actions .grid-toggle[aria-pressed=true] { background:#e3eee6; color:#1f4a33; }

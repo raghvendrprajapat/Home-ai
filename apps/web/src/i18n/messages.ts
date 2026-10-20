@@ -332,7 +332,6 @@ export const messages = {
   threeLost: ['3D paused. Continue in 2D while the display recovers.', '3D रुका है। डिस्प्ले ठीक होने तक 2D में जारी रखें।'],
   threeRestoring: ['Restoring 3D…', '3D वापस लाया जा रहा है…'],
   threeHint: ['Drag to orbit · two fingers to pan/zoom · arrow keys to orbit', 'घुमाने के लिए खींचें · दो उँगलियों से खिसकाएँ/ज़ूम करें · तीर कुंजियों से घुमाएँ'],
-  dimensionsFurniture: ['Furniture is shown at its true size', 'फ़र्नीचर अपने असली नाप में दिखता है'],
   invalidEdit: ['This change is invalid. The drawing is unchanged.', 'यह बदलाव मान्य नहीं है। ड्रॉइंग नहीं बदली है।'],
   integerError: ['Use whole millimetres within the drawing limits.', 'ड्रॉइंग की सीमा में पूरे मिलीमीटर डालें।'],
   orthogonalError: ['Walls must stay horizontal or vertical.', 'दीवारें क्षैतिज या ऊर्ध्वाधर रखें।'],
@@ -350,6 +349,7 @@ export const messages = {
  furniture3dOrbit: ['Orbit camera', 'कैमरा घुमाएँ'],
  furniture3dMove: ['Move selected furniture', 'चुना फ़र्नीचर खिसकाएँ'],
  furniture3dRotate: ['Rotate selected furniture', 'चुना फ़र्नीचर घुमाएँ'],
+ furniture3dFreeShort: ['Free', 'मुक्त'],
  furniture3dFree: ['Free move / rotation (otherwise 50 mm / 15°)', 'स्वतंत्र खिसकाव / घुमाव (अन्यथा 50 मिमी / 15°)'],
  furniture3dHelp: ['Furniture preview: hold briefly on touch, then drag. Camera stays fixed; release applies once. Escape cancels.', 'फ़र्नीचर पूर्वावलोकन: टच पर थोड़ा रोककर खींचें। कैमरा स्थिर है; छोड़ने पर एक बदलाव लागू होगा। Escape से रद्द करें।'],
  // D76 M3 Copilot (offline helper)
