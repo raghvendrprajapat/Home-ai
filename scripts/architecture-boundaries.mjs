@@ -22,8 +22,8 @@ export function boundaryViolation(filename, dependency) {
   if (layer && !Object.hasOwn(layers, layer)) return 'Register this package layer before importing dependencies.';
   if (typeof dependency !== 'string') return 'Calculated module loads are forbidden in protected layers; use a literal import.';
   const specifier = slash(dependency);
-  // Four consumer tests read the shipped catalog/SVG/GLB files and D72 sources (D76: the showcase sample checks catalog sizes); no production Node import.
-  if (test && ['apps/web/src/catalog/catalog.test.ts', 'apps/web/src/catalog/api.test.ts', 'apps/web/src/catalog/modern-furniture.test.ts', 'apps/web/src/samples/showcase.test.ts'].includes(relative) && specifier === 'node:fs/promises') return null;
+  // Five consumer tests read the shipped catalog/SVG/GLB files and D72 sources (D76: the showcase sample checks catalog sizes; D78: every catalog asset has a 2D symbol); no production Node import.
+  if (test && ['apps/web/src/catalog/catalog.test.ts', 'apps/web/src/catalog/api.test.ts', 'apps/web/src/catalog/modern-furniture.test.ts', 'apps/web/src/samples/showcase.test.ts', 'apps/web/src/catalog/furniture-symbols.test.ts'].includes(relative) && specifier === 'node:fs/promises') return null;
   if (specifier.startsWith('/') || /^[A-Za-z][A-Za-z\d+.-]*:/.test(specifier))
     return 'Rooted or URL module imports bypass public package boundaries; use an admitted bare or relative specifier.';
   if (/^@gharplan\//.test(specifier) && specifier.split('/').length !== 2)

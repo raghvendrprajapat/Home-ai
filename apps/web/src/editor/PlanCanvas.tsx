@@ -1,6 +1,8 @@
 import type {PlanUnderlay} from './view2d';
 import {materialColor,wallSurfaceStrips} from './surface-materials';
 import {furnitureFinish} from './material-library';
+import {furnitureSymbol,orderedFurniture,paintFurnitureSymbol} from './furniture-symbol';
+import type {SymbolCanvas} from './furniture-symbol';
 import {FurnitureAdvisories} from './furniture-advisories';
 import {FurnitureWarning} from './FurnitureWarning';
 import type {BackAlignment} from './furniture-spatial';
@@ -271,9 +273,12 @@ export function PlanCanvas({ selectedPick:controlledPick,advisories:providedAdvi
       const p = worldToScreen([outline[0], outline[1]], view);
       layer.add(new K.Rect({ x: p[0], y: p[1], width: (outline[2] - outline[0]) * view.scale, height: (outline[3] - outline[1]) * view.scale, stroke: '#9c5a3c', strokeWidth: 1.5, dash: [10, 6], listening: false }));
     }
-    for (const object of document.furniture) {
-      const p = worldToScreen([object.position.x, object.position.y], view);
-      layer.add(new K.Rect({ x: p[0], y: p[1], width: object.size.w * view.scale, height: object.size.d * view.scale, offsetX: object.size.w * view.scale / 2, offsetY: object.size.d * view.scale / 2, rotation: object.rotationDeg, fill: furnitureFinish(document,object)??'#c8af90', stroke: warned(object.id)?'#a52e31':(selection?selection.some(p=>p.kind==='furniture'&&p.id===object.id):picked?.kind==='furniture'&&picked.id===object.id)?'#b6723f':'#a38a6d', strokeWidth: warned(object.id)?3:1, cornerRadius: 3 }));
+    // D78: each item is ONE display-only Konva shape painting its original top-view symbol inside the footprint.
+    // Hit-testing stays in PickIndex (the footprint rectangle); this layer never listens.
+    for (const object of orderedFurniture(document.furniture)) {
+      const p = worldToScreen([object.position.x, object.position.y], view), symbol = furnitureSymbol(object.assetId, object.size, furnitureFinish(document,object)??null);
+      const chosen = selection?selection.some(p=>p.kind==='furniture'&&p.id===object.id):picked?.kind==='furniture'&&picked.id===object.id, outline = warned(object.id)?{color:'#a52e31',width:3}:chosen?{color:'#b6723f',width:1}:null, scale = view.scale;
+      layer.add(new K.Shape({ x: p[0], y: p[1], rotation: object.rotationDeg, listening: false, perfectDrawEnabled: false, sceneFunc: context => paintFurnitureSymbol(context as unknown as SymbolCanvas, symbol, scale, outline) }));
     }
     for (const opening of document.openings) {
       const wall = document.walls.find(w => w.id === opening.wallId)!, a = document.junctions.find(j => j.id === wall.a)!, b = document.junctions.find(j => j.id === wall.b)!;
