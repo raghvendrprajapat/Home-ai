@@ -332,7 +332,7 @@ export const messages = {
   threeLost: ['3D paused. Continue in 2D while the display recovers.', '3D रुका है। डिस्प्ले ठीक होने तक 2D में जारी रखें।'],
   threeRestoring: ['Restoring 3D…', '3D वापस लाया जा रहा है…'],
   threeHint: ['Drag to orbit · two fingers to pan/zoom · arrow keys to orbit', 'घुमाने के लिए खींचें · दो उँगलियों से खिसकाएँ/ज़ूम करें · तीर कुंजियों से घुमाएँ'],
-  dimensionsFurniture: ['Furniture shown by its dimensions', 'फर्नीचर अपने नाप के अनुसार दिखता है'],
+  dimensionsFurniture: ['Furniture is shown at its true size', 'फ़र्नीचर अपने असली नाप में दिखता है'],
   invalidEdit: ['This change is invalid. The drawing is unchanged.', 'यह बदलाव मान्य नहीं है। ड्रॉइंग नहीं बदली है।'],
   integerError: ['Use whole millimetres within the drawing limits.', 'ड्रॉइंग की सीमा में पूरे मिलीमीटर डालें।'],
   orthogonalError: ['Walls must stay horizontal or vertical.', 'दीवारें क्षैतिज या ऊर्ध्वाधर रखें।'],
