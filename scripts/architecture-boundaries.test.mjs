@@ -55,6 +55,7 @@ test('actual ESLint admits downward public APIs, local helpers and bounded test 
     ['apps/web/src/catalog/api.test.ts', "import { readFile } from 'node:fs/promises';"],
     ['apps/web/src/catalog/catalog.test.ts', "import { readFile } from 'node:fs/promises';"],
     ['apps/web/src/catalog/modern-furniture.test.ts', "import { readFile } from 'node:fs/promises';"],
+    ['apps/web/src/catalog/furniture-symbols.test.ts', "import { readFile } from 'node:fs/promises';"],
     ['packages/geometry/src/boundary-probe.ts', "export { rectArea } from './primitives';"],
     ['packages/core-model/src/boundary-probe.ts', "import type { Plan } from '@gharplan/geometry';"],
     ['packages/core-model/src/boundary-probe.ts', "type T = import('@gharplan/geometry').Plan;"],
