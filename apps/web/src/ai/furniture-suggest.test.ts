@@ -91,8 +91,10 @@ describe('D73 offline stand-in',()=>{
  it('small bedroom 2400×3000 (budget 3,600,000 mm²): the king bed (4,085,000) is too big, the queen bed (3,483,000) leaves 117,000, nothing else fits',async()=>{
   expect(ids(await ask(brief(2400,3000,'bedroom')))).toEqual(['a_l0_queen_bed']);
  });
- it('skips what the room already has and proposes nothing for a room type without a plan',async()=>{
-  expect(ids(await ask(brief(3327,4770,'bedroom',['a_l0_king_bed','a_l0_nightstand'])))).toEqual(['a_l0_queen_bed','a_l0_wardrobe_sliding','a_l0_dressing_table','a_l0_study_desk']);
+ it('skips every slot the room already fills (any bed fills the bed slot) and proposes nothing for a room type without a plan',async()=>{
+  // D76: the room has a king bed and a bedside table, so neither the bed slot nor the bedside slot gets a second piece.
+  expect(ids(await ask(brief(3327,4770,'bedroom',['a_l0_king_bed','a_l0_nightstand'])))).toEqual(['a_l0_wardrobe_sliding','a_l0_dressing_table','a_l0_study_desk']);
+  expect(ids(await ask(brief(3327,4770,'bedroom',['a_l0_single_bed'])))).toEqual(['a_l0_wardrobe_sliding','a_l0_nightstand','a_l0_dressing_table','a_l0_study_desk']);
   expect(await ask(brief(3000,3000,'pooja'))).toEqual([]);
  });
  it('kitchen, bathroom and utility rooms get catalog furniture only: no appliances or sanitaryware',async()=>{

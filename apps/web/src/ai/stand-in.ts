@@ -38,6 +38,8 @@ export const standInAi:AiProvider={
   const known=new Map(candidates.map(a=>[a.id,a])),plan=SIZE_PLAN[brief.size??'spacious'],answer:{assetId:string;reason:{kind:'largest'|'fits'};options:string[]}[]=[];
   let budget=brief.widthMm*brief.depthMm*plan.share;
   for(const slot of ROOM_PLANS[brief.roomType]??[]){
+   // D76: a slot the room already fills with any of its pieces (a king bed fills the bed slot) gets no second one.
+   if(slot.some(id=>brief.existingAssetIds.includes(id)))continue;
    const usable=slot.filter(id=>{const a=known.get(id);return !!a&&!brief.existingAssetIds.includes(id)&&fitsRoom(a.dims,brief.widthMm,brief.depthMm);});
    const pick=slot.slice(Math.min(plan.start,slot.length-1)).find(id=>usable.includes(id)&&known.get(id)!.dims.w*known.get(id)!.dims.d<=budget);
    if(!pick)continue;

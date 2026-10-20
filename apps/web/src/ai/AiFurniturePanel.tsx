@@ -10,7 +10,7 @@ import type {AiProvider,FurnitureSuggestion,RoomBrief,SizePreference} from './fu
 import {acceptLayouts,adjustPlacement,footprint,layoutRoom,NUDGE_MM} from './layout';
 import type {LayoutResult,LayoutRoom,PlacementProblem} from './layout';
 
-type Layout=Readonly<{generation:number;floorId:string;room:LayoutRoom;results:readonly LayoutResult[];chosen:number;piece:number;problem?:PlacementProblem|undefined}>;
+export type Layout=Readonly<{generation:number;floorId:string;room:LayoutRoom;results:readonly LayoutResult[];chosen:number;piece:number;problem?:PlacementProblem|undefined}>;
 type State=Readonly<{phase:'idle'}|{phase:'loading'}|{phase:'failed'}|{phase:'ready';roomId:string;brief:RoomBrief;items:readonly FurnitureSuggestion[];layout?:Layout|'loading'|'failed'|undefined;note?:'added'|'stale'|'rejected'|undefined;added?:number}>;
 
 /**
@@ -92,7 +92,7 @@ export function AiFurniturePanel({store,locale,selectedRoomId,provider,catalog,o
 }
 
 /** A small top view: the clear floor, door swings, windows, existing furniture and the suggested pieces with their fronts. */
-function LayoutPreview({layout,locale,onApply,onCancel,onChange}:{layout:Layout;locale:Locale;onApply():void;onCancel():void;onChange(next:Layout):void}){
+export function LayoutPreview({layout,locale,onApply,onCancel,onChange,applyLabel}:{layout:Layout;locale:Locale;onApply():void;onCancel():void;onChange(next:Layout):void;applyLabel?:string}){
  const {room,results,chosen,piece,problem}=layout,result=results[chosen]!,[x0,y0,x1,y1]=room.bounds,pad=150;
  const rect=(r:readonly number[],key:string,className:string,label?:string)=><rect key={key} className={className} x={r[0]} y={r[1]} width={r[2]!-r[0]!} height={r[3]!-r[1]!}>{label&&<title>{label}</title>}</rect>;
  const adjust=(change:Readonly<{dx?:number;dy?:number;turn?:boolean}>)=>{
@@ -127,6 +127,6 @@ function LayoutPreview({layout,locale,onApply,onCancel,onChange}:{layout:Layout;
   </div>}
   {swaps.length>0&&<p className="structure-note">{message(locale,'aiLayoutSmaller',{names:swaps.map(p=>assetName(p.asset,locale)).join(', ')})}</p>}
   {result.skipped.length>0&&<p className="structure-note">{message(locale,'aiLayoutSkipped',{names:result.skipped.map(a=>assetName(a,locale)).join(', ')})}</p>}
-  {result.placed.length?<div className="ai-layout-actions"><button className="primary-button" onClick={onApply}>{message(locale,'aiLayoutApply',{count:result.placed.length})}</button><button onClick={onCancel}>{message(locale,'aiLayoutCancel')}</button></div>:<p role="status">{message(locale,'aiLayoutEmpty')}</p>}
+  {result.placed.length?<div className="ai-layout-actions"><button className="primary-button" onClick={onApply}>{applyLabel??message(locale,'aiLayoutApply',{count:result.placed.length})}</button><button onClick={onCancel}>{message(locale,'aiLayoutCancel')}</button></div>:<p role="status">{message(locale,'aiLayoutEmpty')}</p>}
  </div>;
 }

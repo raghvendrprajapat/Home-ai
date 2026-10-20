@@ -9,6 +9,8 @@ import type {PlanUnderlay,Point2} from './editor/view2d';
 import {CatalogApi,CatalogSource} from './catalog/api';
 import {CatalogControls} from './catalog/CatalogControls';
 import {AiFurniturePanel} from './ai/AiFurniturePanel';
+import {CopilotPanel} from './ai/CopilotPanel';
+import {standInCopilot} from './ai/copilot';
 import {PhotoPlanPanel} from './ai/PhotoPlanPanel';
 import {standInAi} from './ai/stand-in';
 import {FurnitureControls} from './editor/FurnitureControls';
@@ -192,7 +194,8 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
           {placement&&<FurniturePlacementControls advisories={advisories} key={placement.intent.id} store={store} intent={placement.intent} label={ui.locale==='hi'?placement.name_hi:placement.name_en} locale={ui.locale} onPreview={furniturePreview} onCancel={cancelPlacement} onAdded={id=>{cancelPlacement();selectEntities([{kind:'furniture',id}]);setMessage(t('placementAdded'));}}/>}
           <FurnitureControls onEditStart={startFurnitureEdit} advisories={advisories} cancelToken={furnitureCancel} onPreview={furnitureEditPreview} store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/></>)}
         {panel('materials',<SurfaceControls store={store} locale={ui.locale} view={view} picked={activePick} onSelect={choosePick} onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} onMessage={setMessage}/>)}
-        {panel('copilot',<><AiFurniturePanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInAi} catalog={signal=>assetSource.catalog(signal)} onPlace={(asset,centre)=>{drawing.setMode('select');cancelPrecision();setTool('furniture');try{setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
+        {panel('copilot',<><CopilotPanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInCopilot} ai={standInAi} catalog={signal=>assetSource.catalog(signal)} onOpenDocument={onOpenDocument?document=>onOpenDocument(document,false):undefined}/>
+          <AiFurniturePanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInAi} catalog={signal=>assetSource.catalog(signal)} onPlace={(asset,centre)=>{drawing.setMode('select');cancelPrecision();setTool('furniture');try{setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
           <PhotoPlanPanel locale={ui.locale} provider={standInAi} units={snapshot.document.units} onUnderlay={setUnderlay} onOpen={document=>onOpenDocument?.(document,false)}/></>)}
         {panel('project',<>{narrow&&navigation}
           <CloudPanel store={baseStore} locale={ui.locale} flush={() => session?.saving?.flush() ?? Promise.resolve()} onOpenDocument={(document, link) => onOpenDocument?.(document, link)} />
