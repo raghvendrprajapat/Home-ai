@@ -1,12 +1,13 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 // FR-035 stairs and roofs in the real editor. Claude-authored (D52/D63 continuation); not an independent fixture.
 // H.6 sample: outer 230 mm walls on the centreline rectangle 0..8000 x 0..5000, 3000 mm high, ground floor f0.
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
 async function backup(page:Page){const d=page.waitForEvent('download');await page.getByRole('button',{name:'Export drawing',exact:true}).click();return JSON.parse(await readFile((await(await d).path())!,'utf8'));}
 type Doc={stairs?:{id:string;floorId:string;position:{x:number;y:number};rotationDeg:number;width:number;length:number;height:number;steps:number;material:string}[];roofs?:{floorId:string;kind:string;pitchDeg:number;overhang:number;ridgeAxis:string;material:string}[]};
-async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.locator('.structure-controls');await panel.locator('summary').click();return {panel,original:await backup(page) as Doc};}
+async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.locator('.structure-controls');await openTool(page,'Draw');await panel.locator('summary').click();return {panel,original:await backup(page) as Doc};}
 
 test('FR-035 add stairs centred on the floor with about 175 mm risers, turn them, reject bad sizes, Undo restores',async({page})=>{
  const {panel,original}=await start(page);
@@ -66,3 +67,8 @@ test('FR-035 stairs and roof belong to their floor: a roof set upstairs is not s
  await page.getByRole('group',{name:'Floors',exact:true}).getByRole('button',{name:'Ground floor',exact:true}).click();
  await expect(panel).toHaveAttribute('data-roof-kind','none');
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 
 // D72 modern original living-room designs placed through the real catalog dialog and drawn by the real 3D view.
 const manifest=JSON.parse(await readFile('apps/web/public/catalog/catalog.json','utf8')) as {assets:{id:string;version:number;name_en:string;dims:{w:number;d:number;h:number};lods:{triangles:number}[]}[]};
@@ -16,7 +17,7 @@ async function placeAndRender(page:Page,chosen:Choice[],shot:string){
   const asset=manifest.assets.find(a=>a.id===id&&a.version===version)!;expect(asset).toBeDefined();
   // Exactly this version is the newest one published for the ID.
   expect(Math.max(...manifest.assets.filter(a=>a.id===id).map(a=>a.version))).toBe(version);
-  await page.getByRole('button',{name:'Browse furniture',exact:true}).click();await expect(dialog(page)).toBeVisible();
+  await openTool(page,'Furniture');await page.getByRole('button',{name:'Browse furniture',exact:true}).click();await expect(dialog(page)).toBeVisible();
   await dialog(page).getByLabel('Search furniture',{exact:true}).fill(asset.name_en);
   await dialog(page).getByRole('article',{name:asset.name_en,exact:true}).getByRole('button',{name:'Place in drawing',exact:true}).click();
   const form=page.getByRole('region',{name:'Place furniture',exact:true});
@@ -41,3 +42,8 @@ test('D72 king bed, sliding wardrobe, bedside table and dressing table place the
 test('D72 six-seat dining set, sideboard, shoe cabinet and plant place their newest versions and load as real 3D models',async({page})=>{
  await placeAndRender(page,[['a_l0_dining_set_6',2,2250,2500,0],['a_l0_low_cabinet',3,2250,350,180],['a_l0_shoe_rack',2,600,4600,0],['a_l0_planter',2,4000,4600,0]],'modern-dining-3d.png');
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

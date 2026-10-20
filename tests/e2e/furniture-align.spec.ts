@@ -1,11 +1,12 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 // FR-019 furniture alignment in the real selection panel. Claude-authored (D52 continuation); not an independent fixture.
 // Sample footprints (centre; bounding box): sofa (1300,4300) x300..2300; tv (2250,400) x1350..3150; bed (6450,1200) x5550..7350; wardrobe (6250,4500) y4200..4800.
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
 async function backup(page:Page,label='Export drawing'){const download=page.waitForEvent('download');await page.getByRole('button',{name:label,exact:true}).click();return JSON.parse(await readFile((await(await download).path())!,'utf8'));}
-async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await panel.locator('summary').click();return panel;}
+async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await openTool(page,'Draw');await panel.locator('summary').click();return panel;}
 type Doc={furniture:{id:string;position:{x:number;y:number}}[]};
 const at=(doc:Doc,id:string)=>doc.furniture.find(f=>f.id===id)!.position;
 const group=(page:Page)=>page.getByRole('group',{name:'Align selected furniture',exact:true});
@@ -40,3 +41,8 @@ test('FR-019 a selection that includes a wall cannot be aligned',async({page})=>
   await panel.getByLabel(/^Select wall /).first().check();
   await expect(group(page).getByRole('button',{name:'Align left edges',exact:true})).toBeDisabled();
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

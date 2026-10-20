@@ -1,6 +1,7 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 // FR-034 multiple floors in the real editor. Claude-authored (D52/D63 continuation); not an independent fixture.
 // H.6 sample: outer 230 mm walls around 8000 x 5000, 115 mm partition w7 at x=4500, ground floor f0 at elevation 0 with 3000 mm walls.
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
@@ -13,7 +14,7 @@ async function pickAt(page:Page,x:number,y:number){const at=(await frame(page))(
 
 test('FR-034 add a floor with the outer walls copied; each floor edits only its own walls; Undo removes the floor',async({page})=>{
  const original=await start(page);
- await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
+ await openTool(page,'Draw');await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
  await expect(floors(page).getByRole('button',{name:'Floor 1',exact:true})).toHaveAttribute('aria-pressed','true');
  await expect(page.getByText('2 floors',{exact:true})).toBeVisible();
  const two=await backup(page) as Doc,upper=two.floors.find(f=>f.level===1)!;
@@ -30,7 +31,7 @@ test('FR-034 add a floor with the outer walls copied; each floor edits only its 
 });
 
 test('FR-034 a wall drawn upstairs lands on the upper floor and leaves the ground floor untouched',async({page})=>{
- await start(page);await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
+ await start(page);await openTool(page,'Draw');await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
  const before=await backup(page) as Doc,upper=before.floors.find(f=>f.level===1)!.id;
  await page.keyboard.press('w');const at=await frame(page),a=at(2000,0),b=at(2000,5000);
  await page.mouse.click(a.x,a.y);await page.mouse.click(b.x,b.y);await page.keyboard.press('Escape');await saved(page);
@@ -41,7 +42,7 @@ test('FR-034 a wall drawn upstairs lands on the upper floor and leaves the groun
 });
 
 test('FR-034 3D cuts away floors above the one being edited, can show them, and walks on the active floor',async({page})=>{
- await start(page);await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
+ await start(page);await openTool(page,'Draw');await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
  await floors(page).getByRole('button',{name:'Ground floor',exact:true}).click();
  await page.getByRole('button',{name:'3D view',exact:true}).click();const view=page.getByTestId('three-view');
  await expect(view).toHaveAttribute('data-clip-height','3000');await expect(view).toHaveAttribute('data-hidden-floors','1'); // audit 2026-10-19: upper floor hidden, not only clipped
@@ -53,7 +54,7 @@ test('FR-034 3D cuts away floors above the one being edited, can show them, and 
 });
 
 test('FR-034 deleting a floor needs confirmation, removes only that floor, and Undo brings it back',async({page})=>{
- await start(page);await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
+ await start(page);await openTool(page,'Draw');await floors(page).getByRole('button',{name:'+ Add floor',exact:true}).click();await saved(page);
  const two=await backup(page) as Doc;
  const settings=page.locator('.floor-settings');await settings.locator('summary').click();
  await settings.getByRole('button',{name:'Delete this floor',exact:true}).click();

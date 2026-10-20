@@ -1,11 +1,12 @@
 import {test,expect} from '@playwright/test';
 import type {Page} from '@playwright/test';
 import {readFile} from 'node:fs/promises';
+import {openTool} from './helpers/tools';
 // FR-019 furniture grouping in the real editor. Claude-authored (D52 continuation); not an independent fixture.
 // Sample: sofa centre (1300,4300), tv centre (2250,400); bed and wardrobe are not grouped.
 async function saved(page:Page){await expect(page.getByTestId('save-status')).toHaveAttribute('data-phase','saved');}
 async function backup(page:Page){const download=page.waitForEvent('download');await page.getByRole('button',{name:'Export drawing',exact:true}).click();return JSON.parse(await readFile((await(await download).path())!,'utf8'));}
-async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await panel.locator('summary').click();return panel;}
+async function start(page:Page){await page.goto('/');await page.getByRole('button',{name:'Skip welcome',exact:true}).click();await saved(page);const panel=page.getByRole('region',{name:'Selection and copies',exact:true});await openTool(page,'Draw');await panel.locator('summary').click();return panel;}
 async function frame(page:Page){const canvas=page.getByTestId('plan-canvas');await canvas.scrollIntoViewIfNeeded();const box=await canvas.boundingBox();expect(box).toBeTruthy();const view=await canvas.evaluate(el=>({x:Number((el as HTMLElement).dataset.viewX),y:Number((el as HTMLElement).dataset.viewY),scale:Number((el as HTMLElement).dataset.viewScale)}));return {box:box!,view};}
 const screenOf=(f:Awaited<ReturnType<typeof frame>>,x:number,y:number)=>({x:f.box.x+f.view.x+x*f.view.scale,y:f.box.y+f.view.y+y*f.view.scale});
 type Doc={furniture:{id:string;position:{x:number;y:number};rotationDeg:number;groupId?:string}[]};
@@ -103,3 +104,8 @@ test('FR-019 a selected group shows the overlap warning live and after commit wh
   await expect(canvas).toHaveAttribute('data-furniture-overlap','true');await expect(page.locator('.canvas-furniture-advisory').getByTestId('furniture-warning')).toHaveAttribute('data-overlap','true');
   await page.getByRole('button',{name:'Undo',exact:true}).click();await saved(page);await expect(canvas).toHaveAttribute('data-furniture-overlap','false');
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

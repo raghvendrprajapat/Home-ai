@@ -66,3 +66,8 @@ test('FR-026 + and - change the eye height within 1000..2000 mm; a project with 
   await page.getByTestId('walk-enter').click();await expect(page.getByTestId('three-view')).toHaveAttribute('data-walk-active','false');
   await expect(page.getByText('Draw a room first, then you can walk through it.',{exact:true})).toBeVisible();
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});
