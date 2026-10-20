@@ -17,7 +17,7 @@ import {ContextRecovery} from './recovery';
 import {pointLightPosition,sunPlacement} from './lighting';
 import {clampOrbit,stablePose,fitPose,openingBounds,BOOKMARK_TOLERANCE} from './camera';
 import type {CameraPose,Bounds3} from './camera';
-import {profiles,pixelRatio,resolveQuality} from './quality';
+import {deviceHints,profiles,pixelRatio,resolveQuality} from './quality';
 import type {QualityChoice} from './quality';
 import {captureFrame} from './capture';
 import {advance,buildWalkWorld,walkPose,walkStart} from './walk';
@@ -27,14 +27,21 @@ import type {ThreeControlsApi} from './types';
 import { useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from 'react';
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import { HDRLoader } from 'three/addons/loaders/HDRLoader.js';
+/** D76 R2: CC0 studio HDRI (Poly Haven, rights in docs/assets/texture-rights.json), used on mid/high only. */
+const ENVIRONMENT={id:'studio_small_09',path:'env/studio_small_09_1k.hdr'};
 import type { ProjectStore } from '@gharplan/core-model';
 import { SceneAdapter } from './scene';
 import { ScenePipeline } from './pipeline';
+import { LOW_WALL_MM } from './cutaway';
 import type { SceneBundle,CeilingWarning } from './types';
 import type { RenderReading } from '../perf/metrics';
 import { editError,message } from '../i18n/messages';
 import type { Locale } from '../i18n/messages';
 
+/** D76: the "Low walls" view choice is remembered on this device (on by default); it is a view setting, never saved in the drawing. */
+const LOW_WALLS_KEY='gharplan-low-walls';
+function readLowWalls():boolean{try{return localStorage.getItem(LOW_WALLS_KEY)!=='0';}catch{return true;}}
 export default function ThreeView({ activeFloorId,advisories:providedAdvisories,store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d,onPick,selectedPick,placementPreview,assetSource,onEditStart }: {
   activeFloorId?:string;onEditStart?:()=>void;advisories?:FurnitureAdvisories;store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;assetSource?:FurnitureAssetSource;
 }) {
@@ -54,6 +61,8 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
   const [showAbove,setShowAbove]=useState(false),showAboveRef=useRef(showAbove);showAboveRef.current=showAbove;const clipRef=useRef<()=>void>(()=>{});
   const floorCount=useSyncExternalStore(store.subscribe,()=>store.getSnapshot().document.floors.length);
   const walkControl=useRef<{enter():'ok'|'empty'|'unavailable';exit():void;axes(forward:number,strafe:number):void;eye(step:-1|1):void}|null>(null);
+  // D76: the overview starts with low walls (furniture by the near walls stays visible); walking always uses full walls.
+  const [lowWalls,setLowWalls]=useState(readLowWalls),lowWallsRef=useRef(lowWalls),pipelineRef=useRef<ScenePipeline|null>(null);lowWallsRef.current=lowWalls;
   const [ceilings,setCeilings]=useState(false),[ceilingWarnings,setCeilingWarnings]=useState<CeilingWarning[]>([]);
   const poseRef=useRef<CameraPose|null>(null),apiCallback=useRef(onControlsReady);apiCallback.current=onControlsReady;
   const adapterRef=useRef<SceneAdapter|null>(null),invalidateRef=useRef<()=>void>(()=>{});
@@ -76,26 +85,35 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     try{
     const initialPose=poseRef.current;
     let renderer: THREE.WebGLRenderer;
-    try { renderer = new THREE.WebGLRenderer({ antialias: profiles[resolveQuality(quality).tier].antialias, powerPreference: quality==='high'?'high-performance':'low-power' }); }
+    try { renderer = new THREE.WebGLRenderer({ antialias: profiles[resolveQuality(quality,undefined,deviceHints()).tier].antialias, powerPreference: quality==='high'?'high-performance':'low-power' }); }
     catch { element.dataset.sceneState='failed';setStatus('threeUnavailable'); onMessage(message(language.current, 'threeUnavailable')); problemCallback.current?.('WebGL2 initialization failed.');cleanup();return cleanup; }
     const ownRenderer=(owned:THREE.WebGLRenderer)=>{const release=releaseOnce([()=>owned.dispose(),()=>{element.dataset.disposedGpu=JSON.stringify(owned.info.memory);},()=>owned.forceContextLoss(),()=>owned.domElement.remove()]);teardown.push(release);return release;};
     let releaseRenderer=ownRenderer(renderer);
-    const context=renderer.getContext() as WebGL2RenderingContext,gpu={maxTextureSize:Number(context.getParameter(context.MAX_TEXTURE_SIZE)),maxRenderbufferSize:Number(context.getParameter(context.MAX_RENDERBUFFER_SIZE)),maxSamples:Number(context.getParameter(context.MAX_SAMPLES))},resolved=resolveQuality(quality,gpu),tier=resolved.tier,profile=profiles[tier];setDowngraded(resolved.downgraded);element.dataset.qualityTier=tier;element.dataset.qualityDowngraded=String(resolved.downgraded);element.dataset.gpuCapabilities=JSON.stringify(gpu);
-    if(resolved.downgraded&&profiles[resolveQuality(quality).tier].antialias){releaseRenderer();try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});releaseRenderer=ownRenderer(renderer);}catch{element.dataset.sceneState='failed';setStatus('threeUnavailable');problemCallback.current?.('Quality fallback failed.');fallback();return cleanup;}}
+    const context=renderer.getContext() as WebGL2RenderingContext,gpu={maxTextureSize:Number(context.getParameter(context.MAX_TEXTURE_SIZE)),maxRenderbufferSize:Number(context.getParameter(context.MAX_RENDERBUFFER_SIZE)),maxSamples:Number(context.getParameter(context.MAX_SAMPLES))},resolved=resolveQuality(quality,gpu,deviceHints()),tier=resolved.tier,profile=profiles[tier];setDowngraded(resolved.downgraded);element.dataset.qualityTier=tier;element.dataset.qualityDowngraded=String(resolved.downgraded);element.dataset.gpuCapabilities=JSON.stringify(gpu);
+    if(resolved.downgraded&&profiles[resolveQuality(quality,undefined,deviceHints()).tier].antialias){releaseRenderer();try{renderer=new THREE.WebGLRenderer({antialias:false,powerPreference:'low-power'});releaseRenderer=ownRenderer(renderer);}catch{element.dataset.sceneState='failed';setStatus('threeUnavailable');problemCallback.current?.('Quality fallback failed.');fallback();return cleanup;}}
     element.dataset.antialias=String(renderer.getContext().getContextAttributes()?.antialias??false);
     renderer.shadowMap.enabled=profile.shadows;renderer.shadowMap.type=THREE.PCFSoftShadowMap;
     renderer.outputColorSpace = THREE.SRGBColorSpace; renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.1;
+    element.dataset.toneMapping='aces';element.dataset.shadows=profile.shadows?'on':'off';element.dataset.environment='none';element.dataset.texturedMaterials='0';element.dataset.textureBytes='0';
     const gl = renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info');
     const gpuRenderer = debug ? String(gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)) : 'unknown', graphicsVersion = String(gl.getParameter(gl.VERSION));
     renderer.domElement.setAttribute('aria-label', message(language.current, 'canvas3d')); renderer.domElement.setAttribute('role', 'img');
     renderer.domElement.tabIndex = 0; container.appendChild(renderer.domElement);
-    const scene = new THREE.Scene(); scene.background = new THREE.Color('#eef2e9');
+    const scene = new THREE.Scene(); scene.background = new THREE.Color('#f1f2ee');
     const shaderTextures=new ShaderTextures();teardown.push(()=>shaderTextures.close());
-    const adapter = new SceneAdapter(tier,uniforms=>shaderTextures.observe(uniforms));teardown.push(()=>{adapter.dispose();element.dataset.resourceStats=JSON.stringify(adapter.resourceStats);});adapterRef.current=adapter;adapter.setCeilingsVisible(ceilings);scene.add(adapter.group);
+    const assetBase=new URL(import.meta.env.BASE_URL,window.location.href);
+    const adapter = new SceneAdapter(tier,uniforms=>shaderTextures.observe(uniforms),{baseUrl:assetBase,onReady:()=>{if(!disposed){publishTextures();invalidate();}}});teardown.push(()=>{adapter.dispose();element.dataset.resourceStats=JSON.stringify(adapter.resourceStats);});adapterRef.current=adapter;adapter.setCeilingsVisible(ceilings);scene.add(adapter.group);
     const outline=new SelectionOutline();scene.add(outline.group);teardown.push(()=>{outline.dispose();element.dataset.selectionResources=JSON.stringify(outline.resourceStats);selectionUpdate.current=()=>{};});
     const ghost=new PlacementGhost();scene.add(ghost.group);teardown.push(()=>{ghost.dispose();element.dataset.placementResources=JSON.stringify(ghost.resourceStats);ghostUpdate.current=()=>{};});
-    scene.add(new THREE.HemisphereLight('#ffffff', '#87987b', 2.1));
-    const sun = new THREE.DirectionalLight('#fff5e6', 2.8); sun.position.set(-6, 12, 8);sun.castShadow=profile.shadows;sun.shadow.mapSize.set(profile.shadowSize||1,profile.shadowSize||1);sun.shadow.camera.left=-20;sun.shadow.camera.right=20;sun.shadow.camera.top=20;sun.shadow.camera.bottom=-20;sun.shadow.camera.far=80;scene.add(sun,sun.target);
+    const hemisphere=new THREE.HemisphereLight('#ffffff', '#87987b', 2.1);scene.add(hemisphere);
+    // Mid/high: image-based light from the HDRI, so surfaces get soft fill and real reflections; Low skips the download.
+    if(tier!=='low'){
+      const pmrem=new THREE.PMREMGenerator(renderer);let environment:THREE.Texture|null=null;teardown.push(()=>{environment?.dispose();pmrem.dispose();});
+      void new HDRLoader().loadAsync(new URL(ENVIRONMENT.path,assetBase).href).then(hdr=>{
+        try{if(disposed)return;environment=pmrem.fromEquirectangular(hdr).texture;scene.environment=environment;scene.environmentIntensity=.55;hemisphere.intensity=.9;element.dataset.environment=`hdri:${ENVIRONMENT.id}`;publishTextures();invalidate();}finally{hdr.dispose();}
+      },()=>{/* Without the HDRI the hemisphere light stays as before. */});
+    }
+    const sun = new THREE.DirectionalLight('#fff5e6', 2.8); sun.position.set(-6, 12, 8);sun.castShadow=profile.shadows;sun.shadow.mapSize.set(profile.shadowSize||1,profile.shadowSize||1);sun.shadow.camera.left=-20;sun.shadow.camera.right=20;sun.shadow.camera.top=20;sun.shadow.camera.bottom=-20;sun.shadow.camera.far=80;sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;scene.add(sun,sun.target);
     teardown.push(()=>sun.shadow.dispose());
     if(lighting==='warm'){sun.color.set('#ffd9ad');sun.intensity=2.2;}
     const pointLights:THREE.PointLight[]=[];const updateLights=()=>{for(const light of pointLights){scene.remove(light);light.dispose();}pointLights.length=0;for(const l of store.getSnapshot().document.lights.filter(l=>l.kind==='point').sort((a,b)=>a.id.localeCompare(b.id)).slice(0,profile.pointLights)){const light=new THREE.PointLight(l.colorTempK<4000?'#ffd9ad':'#fff5e6',Math.min(4,l.lumens/1000),12,2);light.position.fromArray(pointLightPosition(store.getSnapshot().document,l));light.castShadow=false;pointLights.push(light);scene.add(light);}element.dataset.pointLights=String(pointLights.length);element.dataset.shadowLights=String(profile.shadows?1:0);};
@@ -108,6 +126,8 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     controls.maxPolarAngle = 85*Math.PI/180;
     let needsRender = true, lost = false, bundle: SceneBundle | undefined, first = true, generation = -1, sceneState:'pending'|'current'|'stale'|'failed'='pending';
     const invalidate = () => { needsRender = true; };
+    // D76: true statements about the live scene for the acceptance tests (textures and the HDRI's half-float PMREM).
+    const publishTextures=()=>{const t=adapter.textureStats,env=scene.environment?.image as {width?:number;height?:number}|undefined;element.dataset.texturedMaterials=String(t.texturedMaterials);element.dataset.textureBytes=String(t.textureBytes+(env?.width&&env.height?env.width*env.height*8:0));};
     const activeFloor=()=>{const d=store.getSnapshot().document;return d.floors.find(f=>f.id===floorRef.current)??d.floors[0]!;};
     // Cutaway: hide everything above the active floor's walls unless the viewer asks to see upper floors.
     const updateClip=()=>{if(!renderer)return;const d=store.getSnapshot().document,floor=activeFloor(),higher=d.floors.some(f=>f.level>floor.level);try{adapter.setHiddenFloors(new Set(showAboveRef.current?[]:d.floors.filter(f=>f.level>floor.level).map(f=>f.id)),previewDocument??appliedDocument);}catch{fallback();return;}element.dataset.hiddenFloors=String(adapter.hiddenFloors.size);renderer.clippingPlanes=higher&&!showAboveRef.current?[new THREE.Plane(new THREE.Vector3(0,-1,0),(floor.elevation+floor.defaultWallHeight)/1000+0.005)]:[];element.dataset.clipHeight=renderer.clippingPlanes.length?String(floor.elevation+floor.defaultWallHeight):'';invalidate();};
@@ -147,13 +167,13 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     const clearWalkInput=()=>{held.clear();lookX=0;lookY=0;eyePress=0;padForward=0;padStrafe=0;look=null;};
     const exitWalk=()=>{
       if(!walkActive)return;walkActive=false;walkState=null;walkWorld=null;clearWalkInput();controls.enabled=true;camera.fov=45;camera.updateProjectionMatrix();
-      if(saved&&!disposed){applyPose(saved);controls.update();guard();}saved=null;publishWalk();setWalking(false);invalidate();
+      if(saved&&!disposed){applyPose(saved);controls.update();guard();}saved=null;publishWalk();setWalking(false);pipelineRef.current?.setLowWalls(lowWallsRef.current?LOW_WALL_MM:undefined);invalidate();
     };
     const enterWalk=():'ok'|'empty'|'unavailable'=>{
       if(walkActive)return 'ok';if(disposed||lost||recovery.active||sceneState!=='current'||generation!==store.getSnapshot().localGeneration)return 'unavailable';
       const start=walkStart(floorSnapshot(store.getSnapshot(),floorRef.current),walkWorldFor());if(!start)return 'empty';
       transform?.cancel();gesture.cancel();saved={position:camera.position.toArray() as CameraPose['position'],target:controls.target.toArray() as CameraPose['target']};
-      walkState=start;walkActive=true;walkLast=performance.now();clearWalkInput();controls.enabled=false;camera.fov=65;camera.updateProjectionMatrix();publishWalk();setWalking(true);invalidate();return 'ok';
+      walkState=start;walkActive=true;walkLast=performance.now();clearWalkInput();controls.enabled=false;camera.fov=65;camera.updateProjectionMatrix();publishWalk();setWalking(true);pipelineRef.current?.setLowWalls(undefined);invalidate();return 'ok';
     };
     const walkFrame=()=>{
       if(!walkState)return;const now=performance.now(),dt=now-walkLast;walkLast=now;
@@ -222,8 +242,8 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
         }catch{fallback();}
       },
       failed: reason => {if(disposed)return;transform?.cancel();gesture.cancel();outline.group.visible=false;setSelectionAdvisory(null);element.dataset.furnitureOverlap='false';sceneState=bundle?'stale':'failed';syncGhost();element.dataset.sceneState=sceneState;element.dataset.renderedGeneration='';element.dataset.previousGeneration=bundle?String(generation):'';adapter.group.visible=!!bundle;setStatus(bundle?'threePrevious':'threeFailed');onMessage(message(language.current,bundle?'threePrevious':'threeFailed'));problemCallback.current?.(reason);invalidate();},
-    });
-    pipelineOwnsWorker=true;teardown.push(()=>pipeline.dispose());if(disposed){pipeline.dispose();return cleanup;}
+    },lowWallsRef.current?LOW_WALL_MM:undefined);
+    pipelineRef.current=pipeline;pipelineOwnsWorker=true;teardown.push(()=>{pipelineRef.current=null;pipeline.dispose();});if(disposed){pipeline.dispose();return cleanup;}
     transform=new FurniturePointer(store,renderer.domElement,camera,controls,{
       eligible:()=>!disposed&&!lost&&!recovery.active&&sceneState==='current'&&generation===store.getSnapshot().localGeneration&&appliedTag===JSON.stringify(store.asyncTag())&&(transform?.active||element.dataset.renderedGeneration===String(generation)),
       selected:()=>selectedRef.current?.kind==='furniture'?selectedRef.current.id:undefined,
@@ -250,7 +270,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
           }
           if(disposed)return;
           element.dataset.drawCalls=current?String(renderer.info.render.calls):'';
-          element.dataset.gpuMemory=JSON.stringify(renderer.info.memory);
+          element.dataset.gpuMemory=JSON.stringify(renderer.info.memory);publishTextures();
         }
       }catch{fallback();}
     };
@@ -294,6 +314,8 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
   useEffect(()=>{walkControl.current?.exit();},[activeFloorId]); // walking always starts again on the floor being edited
   useEffect(()=>{transformRef.current?.setMode(furnitureMode,freeTransform);},[furnitureMode,freeTransform]);
   useEffect(()=>{ghostUpdate.current();},[placementPreview]);
+  useEffect(()=>{try{localStorage.setItem(LOW_WALLS_KEY,lowWalls?'1':'0');}catch{/* the choice lasts for this view only */}},[lowWalls]);
+  useEffect(()=>{if(host.current)host.current.dataset.lowWalls=String(lowWalls);if(!walking)pipelineRef.current?.setLowWalls(lowWalls?LOW_WALL_MM:undefined);},[lowWalls,walking]);
   useEffect(()=>{adapterRef.current?.setCeilingsVisible(ceilings);if(host.current)host.current.dataset.ceilingsVisible=String(ceilings);invalidateRef.current();},[ceilings]);
   useEffect(() => { fit.current(); }, [fitRequest]);
   useEffect(() => { host.current?.querySelector('canvas')?.setAttribute('aria-label', message(locale, 'canvas3d')); }, [locale]);
@@ -322,7 +344,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
       </div>
       <p className="walk-hint" role="status">{message(locale,'walkHint')}</p>
     </div>}
-    <label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>{floorCount>1&&<label className="upper-floors-toggle snap-toggle"><input type="checkbox" checked={showAbove} onChange={e=>setShowAbove(e.target.checked)}/>{message(locale,'showUpperFloors')}</label>}
+    <div className="three-toggles"><label className="low-walls-toggle snap-toggle"><input type="checkbox" checked={lowWalls} onChange={e=>setLowWalls(e.target.checked)}/>{message(locale,'lowWalls')}</label><label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>{floorCount>1&&<label className="upper-floors-toggle snap-toggle"><input type="checkbox" checked={showAbove} onChange={e=>setShowAbove(e.target.checked)}/>{message(locale,'showUpperFloors')}</label>}</div>
     {ceilingWarnings.length>0&&<div className="ceiling-warnings" role="status" tabIndex={0} aria-label={message(locale,'ceilingWarningDetails')}>{ceilingWarnings.map(w=><p key={w.roomIds.join(':')}>{message(locale,'ceilingHeightsDiffer',{a:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[0])?.name??w.roomIds[0],b:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[1])?.name??w.roomIds[1],ha:w.heightsMm[0],hb:w.heightsMm[1]})}</p>)}</div>}
     {modelStatus.length>0&&<details className="furniture-models"><summary>{message(locale,'furnitureModels')}</summary><ul>{modelStatus.slice(currentModelPage*20,(currentModelPage+1)*20).map((m,i)=><li key={m.id} data-model-id={m.id} data-model-phase={m.phase}>{message(locale,'furnitureModelNumber',{n:currentModelPage*20+i+1})}: {message(locale,m.sizeMismatch?'furnitureModelSize':m.unsupportedFinish?'furnitureModelFinish':m.phase==='ready'?'furnitureModelReady':m.phase==='error'?'furnitureModelFailed':'furnitureModelLoading')}{m.phase==='loading'&&m.total?` ${Math.min(100,Math.floor(m.received/m.total*100))}%`:''}{m.retryable&&<button onClick={()=>retryModel.current(m.id)}>{message(locale,'furnitureModelRetry')}</button>}</li>)}</ul>{modelPages>1&&<nav aria-label={message(locale,'furnitureModelPages')}><button disabled={currentModelPage===0} onClick={()=>setModelPage(currentModelPage-1)}>{message(locale,'catalogPrevious')}</button><span>{message(locale,'catalogPage',{page:currentModelPage+1,pages:modelPages})}</span><button disabled={currentModelPage===modelPages-1} onClick={()=>setModelPage(currentModelPage+1)}>{message(locale,'catalogNext')}</button></nav>}</details>}
     <div className="canvas-hint">{message(locale, 'threeHint')}<br />{message(locale, 'dimensionsFurniture')}</div>

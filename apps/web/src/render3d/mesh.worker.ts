@@ -1,5 +1,6 @@
 import { dependencyHash, validateProject } from '@gharplan/core-model';
 import { CachedSceneBuilder } from './mesh';
+import { lowerWalls } from './cutaway';
 import type { BuildReply, BuildRequest } from './types';
 
 const worker = globalThis as unknown as { onmessage: (event: { data: BuildRequest }) => void; postMessage(reply: BuildReply, transfers?: ArrayBuffer[]): void };
@@ -9,7 +10,7 @@ worker.onmessage = ({ data }) => {
     if(!Number.isSafeInteger(data.requestId)||data.requestId<1||data.tag.projectId!==data.document.id||data.tag.dependencyHash!==dependencyHash(data.document))throw new Error('3D request does not match its drawing.');
     const errors = validateProject(data.document);
     if (errors.length) throw new Error(errors[0]!.message);
-    const bundle = builder.build(data.document);
+    const bundle = builder.build(data.lowWallsMm ? lowerWalls(data.document, data.lowWallsMm) : data.document);
     // Transfer copies: transferring the cached buffers themselves would detach future builds.
     const output = { ...bundle, meshes: bundle.meshes.map(m => ({ ...m, positions: m.positions.slice(), normals: m.normals.slice(), uv: m.uv.slice() })) };
     worker.postMessage({ requestId:data.requestId, tag: data.tag, ok: true, bundle: output }, output.meshes.flatMap(m => [m.positions.buffer, m.normals.buffer, m.uv.buffer] as ArrayBuffer[]));

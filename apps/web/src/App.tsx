@@ -20,7 +20,7 @@ import { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useState, useR
 import type { ReactNode } from 'react';
 import { parseProject, ProjectStore } from '@gharplan/core-model';
 import type { ProjectDoc } from '@gharplan/core-model';
-import sample from '../../../docs/examples/sample-project.json';
+import { firstRunSample } from './samples/showcase';
 import { PlanCanvas } from './editor/PlanCanvas';
 import { createFloorScope } from './editor/floor-scope';
 import { FloorControls } from './editor/FloorControls';
@@ -49,7 +49,7 @@ function EngineLoadError() {
 const ThreeView = lazy(() => import('./render3d/ThreeView').catch(() => ({ default: EngineLoadError })));
 
 function createDemo(): ProjectStore {
-  const parsed = parseProject(JSON.stringify(sample));
+  const parsed = parseProject(JSON.stringify(firstRunSample()));
   if (!parsed.ok) throw new Error('Bundled sample project failed validation.');
   return new ProjectStore(parsed.document, `editor_${crypto.randomUUID()}`);
 }

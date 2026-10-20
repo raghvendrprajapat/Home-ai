@@ -26,7 +26,7 @@ export interface SceneBundle {
   bounds: [number, number, number, number, number, number] | null;
   stats: { boxes: number; quads: number; vertices: number; wallVolumeMm3: number; meshesBuilt: number };
 }
-export interface BuildRequest { requestId:number; tag: AsyncTag; document: ProjectDoc }
+export interface BuildRequest { requestId:number; tag: AsyncTag; document: ProjectDoc; /** D76 low-wall overview height (render-only) */ lowWallsMm?: number }
 export type BuildReply = { requestId:number; tag: AsyncTag; ok: true; bundle: SceneBundle } | { requestId:number; tag: AsyncTag; ok: false; message: string };
 export interface ThreeControlsApi {
  pose():import('./camera').CameraPose;

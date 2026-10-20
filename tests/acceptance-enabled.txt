@@ -1,2 +1,3 @@
 # D76: acceptance specs that must pass in CI (paths relative to tests/acceptance). Enabling only adds requirements;
 # removing a line needs an owner-visible reason in the PR.
+m1-3d.spec.ts

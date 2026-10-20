@@ -47,3 +47,8 @@ test('REN-009 decode-ready before the first CPU scene cannot claim a previously 
  await expect(view).toHaveAttribute('data-scene-state','pending');await expect(view).toHaveAttribute('data-rendered-generation','');await expect(view).toHaveAttribute('data-model-attached','[]');expect(JSON.parse((await view.getAttribute('data-model-scene'))!).triangles).toBe(0);
  await workerAction(page,'fail');await expect(view).toHaveAttribute('data-scene-state','failed');await expect(view).toHaveAttribute('data-previous-generation','');await expect(view).toHaveAttribute('data-rendered-generation','');await expect(view).toHaveAttribute('data-model-attached','[]');
 });
+
+// D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving
+// to low on a budget phone, and full-height walls in 3D. M1 made the furnished sample, mid on capable devices and
+// low walls the defaults, so this file starts like a budget phone with the fixture and full walls.
+test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});

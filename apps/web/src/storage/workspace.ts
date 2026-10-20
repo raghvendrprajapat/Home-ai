@@ -3,7 +3,7 @@ import { parseProject, ProjectStore, recoveryCopy, serializeProject } from '@gha
 import type { ProjectDoc } from '@gharplan/core-model';
 import { canOpenLocalAutomatically, capacitorMirror, IndexedProjectStorage, recover, sameHead, SaveCoordinator, sha256 } from '@gharplan/persistence';
 import type { MirrorCandidate, NativeMirror, Recovered } from '@gharplan/persistence';
-import sample from '../../../../docs/examples/sample-project.json';
+import { firstRunSample } from '../samples/showcase';
 
 export interface WorkspaceSession { store: ProjectStore; saving: SaveCoordinator | null; warning: string | null }
 export interface StartupChoice { label: string; warning: string | null; document: ProjectDoc; local: Recovered | null; native: MirrorCandidate | null }
@@ -13,7 +13,7 @@ export interface StartupInspection {
   hasProjects?: boolean;
 }
 const demoDocument = (): ProjectDoc => {
-  const parsed = parseProject(JSON.stringify(sample)); if (!parsed.ok) throw new Error('Bundled sample failed validation.'); return parsed.document;
+  const parsed = parseProject(JSON.stringify(firstRunSample())); if (!parsed.ok) throw new Error('Bundled sample failed validation.'); return parsed.document;
 };
 export async function inspectWorkspace(): Promise<StartupInspection> {
   const result: StartupInspection = { storage: null, mirror: null, nativeRequired: Capacitor.getPlatform() === 'android', choices: [], warnings: [], automatic: null };
