@@ -58,6 +58,9 @@ function createDemo(): ProjectStore {
   if (!parsed.ok) throw new Error('Bundled sample project failed validation.');
   return new ProjectStore(parsed.document, `editor_${crypto.randomUUID()}`);
 }
+/** D76 M2: the open tool panel survives the editor being remounted for the same project (a new session after sign-in or
+ * recovery); another project, or a page reload, starts with no panel open. */
+const openToolMemory:{projectId:string;tool:ToolId|null}={projectId:'',tool:null};
 export function App({ session, navigation, onOpenDocument }: { session?: WorkspaceSession; navigation?: ReactNode; onOpenDocument?: (document: ProjectDoc, linkToCloud: boolean) => void } = {}) {
   const ui = useUi(), t = <K extends MessageKey>(key: K, ...args: MessageArgs<K>) => message(ui.locale, key, ...args);
   // FR-034: `baseStore`/`house` is the whole project (save, 3D, totals); `store`/`snapshot` is the active floor's view for 2D editing.
@@ -104,7 +107,8 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
   const [x, setX] = useState(''), [y, setY] = useState(''), [showGrid, setShowGrid] = useState(true), [fit, setFit] = useState(0), [underlay, setUnderlay] = useState<PlanUnderlay | null>(null);
   const [view, setView] = useState<'2d' | '3d' | 'split'>('2d');
   // D76 M2: one tool panel at a time beside the canvas (a bottom sheet on phones); none open at first.
-  const [tool,setTool]=useState<ToolId|null>(null),closeTool=useCallback(()=>setTool(null),[]),narrow=useNarrow();
+  const projectId=house.document.id,[tool,setToolState]=useState<ToolId|null>(()=>openToolMemory.projectId===projectId?openToolMemory.tool:null),narrow=useNarrow();
+  const setTool=useCallback((next:ToolId|null|((old:ToolId|null)=>ToolId|null))=>setToolState(old=>{const value=typeof next==='function'?next(old):next;openToolMemory.projectId=projectId;openToolMemory.tool=value;return value;}),[projectId]),closeTool=useCallback(()=>setTool(null),[setTool]);
   // Escape also closes the open panel when focus is on the tool rail or nowhere in particular (inside a panel, the panel handles it).
   useEffect(()=>{if(!tool)return;const close=(event:KeyboardEvent)=>{if(event.key==='Escape'&&(event.target===document.body||event.target instanceof Element&&event.target.closest('.tool-rail')))closeTool();};window.addEventListener('keydown',close);return()=>window.removeEventListener('keydown',close);},[tool,closeTool]);
   const drawingPanel=useRef<HTMLElement>(null),[splitAvailable,setSplitAvailable]=useState(false);
