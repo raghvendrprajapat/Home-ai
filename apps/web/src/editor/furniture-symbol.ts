@@ -243,11 +243,12 @@ function plant(c:Ctx){
 function lamp(c:Ctx){const {b,W,D}=c,fill=c.finish?c.main:SHADE;b.shape(ellipse(0,0,W,D,32),fill,shade(fill,.35),1);b.shape(ellipse(0,0,W*.42,D*.42,24),tint(fill,.6),shade(fill,.3),.6);for(const [x,y] of [[1,0],[0,1]] as const)b.stroke([-x*W*.86,-y*D*.86,x*W*.86,y*D*.86],shade(fill,.3),.5,{detail:true});}
 function curtain(c:Ctx){
  const {b,W,D,w,d,main}=c,rod=D-clamp(d*.05,1,10);b.stroke([-W,rod,W,rod],shade(main,.35),1);
- const wave=clamp(w/10,60,240),amp=D*.6,mid=-D*.15,n=Math.min(400,Math.ceil(w/Math.min(wave/8,w/16))),pts:number[]=[];
- for(let i=0;i<=n;i++){const x=-W+w*i/n;pts.push(x,mid+amp*Math.sin(2*Math.PI*(x+W)/wave));}
- b.stroke(pts,shade(main,.2),1.25);
+ // The fabric is a filled wavy band in the curtain's colour (lowest point -0.75D, highest 0.45D + 0.24D), so a finish shows in the plan.
+ const wave=clamp(w/10,60,240),amp=D*.6,mid=-D*.15,thick=Math.min(clamp(d*.12,4,30),D*.24),n=Math.min(200,Math.ceil(w/Math.min(wave/8,w/16))),top:number[]=[],under:number[]=[];
+ for(let i=0;i<=n;i++){const x=-W+w*i/n,y=mid+amp*Math.sin(2*Math.PI*(x+W)/wave);top.push(x,y);under.unshift(x,y+thick);}
+ b.shape([...top,...under],main,shade(main,.2),1);
 }
-function picture(c:Ctx){const {b,W,D,w,d,main}=c,t=clamp(Math.min(w,d)*.25,1,25);b.shape([-W,-D,W,-D,W,D,-W,D],shade(main,.25),undefined,1);if(W-t>0&&D-t>0)b.shape([-W+t,-D+t,W-t,-D+t,W-t,D-t,-W+t,D-t],PAPER,null);}
+function picture(c:Ctx){const {b,W,D,w,d,main}=c,t=clamp(Math.min(w,d)*.25,1,25);b.shape([-W,-D,W,-D,W,D,-W,D],main,shade(main,.3),1);if(W-t>0&&D-t>0)b.shape([-W+t,-D+t,W-t,-D+t,W-t,D-t,-W+t,D-t],PAPER,null);}
 function desk(c:Ctx){
  const {b,W,D,w,d}=c;tableTop(c,-W,-D,W,D);
  // Drawer pedestal under the top, drawn dashed like other hidden parts.
