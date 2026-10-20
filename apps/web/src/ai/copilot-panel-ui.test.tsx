@@ -30,8 +30,8 @@ it('a request it cannot do gets the help reply and leaves the drawing byte-ident
 it('"deewar beige karo" paints all 14 wall sides as one Undo step; the newest message is last',async()=>{
  const store=setup(),before=serializeProject(store.getSnapshot().document);
  send('deewar beige karo');
- await screen.findByText('Painted 14 wall sides beige. Undo puts the old colours back.');
- expect(lines().at(-1)).toBe('Painted 14 wall sides beige. Undo puts the old colours back.');
+ await screen.findByText('Painted 14 wall sides beige (inside and outside faces). Undo puts the old colours back.');
+ expect(lines().at(-1)).toBe('Painted 14 wall sides beige (inside and outside faces). Undo puts the old colours back.');
  expect(store.getSnapshot().document.walls.every(w=>w.leftMaterial==='m_paint_beige'&&w.rightMaterial==='m_paint_beige')).toBe(true);
  store.undo();
  expect(serializeProject(store.getSnapshot().document)).toBe(before);

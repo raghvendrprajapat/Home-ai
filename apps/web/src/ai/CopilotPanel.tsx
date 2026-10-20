@@ -1,6 +1,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {createTemplateProject} from '@gharplan/core-model';
 import type {ProjectDoc,ProjectStore,RoomType,SurfaceMaterialTarget} from '@gharplan/core-model';
+import {assetName} from '../catalog/catalog';
 import type {Catalog} from '../catalog/catalog';
 import {message} from '../i18n/messages';
 import type {Locale,MessageArgs,MessageKey} from '../i18n/messages';
@@ -26,7 +27,8 @@ export function CopilotPanel({store,locale,selectedRoomId,provider,ai,catalog,on
  const [lines,setLines]=useState<readonly Line[]>([]),[text,setText]=useState(''),[busy,setBusy]=useState(false);
  const counter=useRef(0),input=useRef<HTMLInputElement>(null),log=useRef<HTMLOListElement>(null),alive=useRef<AbortController|null>(null);
  useEffect(()=>()=>alive.current?.abort(),[]);
- useEffect(()=>{const el=log.current;if(el)el.scrollTop=el.scrollHeight;},[lines]);
+ // The newest message is shown from its first line, so a long layout preview never starts mid-sentence.
+ useEffect(()=>{const el=log.current,last=[...(el?.querySelectorAll<HTMLElement>('li[data-from]')??[])].at(-1);if(el&&last)el.scrollTop=Math.max(0,last.offsetTop-el.offsetTop-4);},[lines,busy]);
  const say=(from:Line['from'],said:string,layout?:Layout)=>setLines(old=>[...old,{id:++counter.current,from,text:said,layout}]);
  const roomNames=()=>floorRooms(store.getSnapshot()).map(r=>r.room.name).join(', ');
  const typeName=(type:RoomType)=>t(`room_${type}` as const);
@@ -55,7 +57,7 @@ export function CopilotPanel({store,locale,selectedRoomId,provider,ai,catalog,on
     const colour=t(`colour_${intent.colour}` as const);
     if(!intent.room){say('copilot',paint(allWallSides(store.getSnapshot().document),PAINT_MATERIAL[intent.colour],count=>t('copilotPainted',{count,colour})));return;}
     const room=roomFor(intent);if(typeof room==='string'){say('copilot',room);return;}
-    say('copilot',paint(roomWallSides(store.getSnapshot(),room.id),PAINT_MATERIAL[intent.colour],count=>t('copilotPainted',{count,colour})));return;
+    say('copilot',paint(roomWallSides(store.getSnapshot(),room.id),PAINT_MATERIAL[intent.colour],count=>t('copilotPaintedRoom',{count,colour,room:room.name})));return;
    }
    case 'floor':{
     if(!intent.finish){say('copilot',t('copilotWhichFinish'));return;}
@@ -92,7 +94,7 @@ export function CopilotPanel({store,locale,selectedRoomId,provider,ai,catalog,on
   if(store.getSnapshot().localGeneration!==layout.generation){say('copilot',t('copilotFurnishStale'));return;}
   const furniture=result.placed.map(p=>({id:`fu_${crypto.randomUUID().replaceAll('-','')}`,floorId:layout.floorId,assetId:p.asset.id,assetVersion:p.asset.version,position:{x:p.x,y:p.y},elevation:0,rotationDeg:p.rotationDeg,size:{...p.asset.dims},materialOverrides:{}}));
   const outcome=store.execute({id:`copilot_layout_${crypto.randomUUID().replaceAll('-','')}`,baseGeneration:layout.generation,type:'AddFurnitureBatch',furniture});
-  say('copilot',outcome.ok?t('copilotFurnishAdded',{count:furniture.length}):t('copilotRejected'));
+  say('copilot',outcome.ok?t('copilotFurnishAdded',{names:result.placed.map(p=>assetName(p.asset,locale)).join(', ')}):t('copilotRejected'));
  };
  const chips=[t('copilotChip2bhk'),t('copilotChipFurnish'),t('copilotChipPaint')];
  return <div className="copilot">

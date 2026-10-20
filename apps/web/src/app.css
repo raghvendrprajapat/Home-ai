@@ -819,5 +819,7 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .copilot-line p { margin:0; font-size:13px; }
 .copilot-line .ai-layout { margin-top:8px; }
 .copilot-ask { display:flex; gap:8px; align-items:center; }
+/* Phones: a shorter conversation keeps the ask box on screen inside the bottom sheet. */
+@media (max-width:760px) { .copilot-log { max-height:28vh; } }
 .tool-panel-body .copilot-ask input, .copilot-ask input { flex:1 1 auto; margin:0; min-height:44px; border-radius:22px; padding:0 14px; }
 .tool-panel-body .copilot-ask button, .copilot-ask button { width:auto; margin:0; min-height:44px; border-radius:22px; padding:0 18px; }
