@@ -69,7 +69,7 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
   const [floorScope] = useState(() => { const scope = createFloorScope(baseStore); scope.setFloor(activeFloor); return scope; }), store = floorScope.store, snapshot = useSyncExternalStore(store.subscribe, store.getSnapshot);
   const [advisories]=useState(()=>new FurnitureAdvisories()),[furnitureCancel,setFurnitureCancel]=useState(0);
   const [assetSource]=useState(()=>new CatalogSource(new CatalogApi(new URL('catalog/',new URL(import.meta.env.BASE_URL,window.location.href)))));
-  const [threeApi,setThreeApi]=useState<ThreeControlsApi|null>(null),[quality,setQuality]=useState<QualityChoice>('auto'),[lighting,setLighting]=useState<'day'|'warm'>('day');
+  const [threeApi,setThreeApi]=useState<ThreeControlsApi|null>(null),[quality,setQuality]=useState<QualityChoice>('auto'),[lighting,setLighting]=useState<'day'|'warm'|'night'>('day');
   const [drawing] = useState(()=>new DrawingTool(store));
   // A deleted or undone floor falls back to the lowest floor; switching floors drops tool drafts.
   useEffect(()=>{if(!house.document.floors.some(f=>f.id===activeFloor))setActiveFloor([...house.document.floors].sort((a,b)=>a.level-b.level)[0]!.id);},[house.document.floors,activeFloor]);
