@@ -137,6 +137,54 @@
       "author": "Lennart Demes (ambientCG)",
       "checkedOn": "2026-10-19",
       "sha256": "9bfa65d6209a69f786741cae40cb9926df77db2d1f583276507ef58348e4e4ae"
+    },
+    {
+      "path": "apps/web/public/textures/marble_charcoal/color.jpg",
+      "set": "marble_charcoal",
+      "source": "https://ambientcg.com/view?id=Marble012",
+      "download": "https://ambientcg.com/get?file=Marble012_1K-JPG.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "author": "Lennart Demes (ambientCG)",
+      "derived": "D82 inverted charcoal colour grade of the recorded marble_white/color.jpg; tools/textures/derive_variants.py; unchanged shared marble normals/roughness; source rights inherited from D76 records checked 2026-10-19; no new external source download",
+      "checkedOn": "2026-10-21",
+      "sha256": "61b231565b0e8253e434bea51197d62cffe422c26cb9ef977611b02c196f5018"
+    },
+    {
+      "path": "apps/web/public/textures/tile_terracotta_600/color.jpg",
+      "set": "tile_terracotta_600",
+      "source": "https://ambientcg.com/view?id=Marble012",
+      "download": "https://ambientcg.com/get?file=Marble012_1K-JPG.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "author": "Lennart Demes (ambientCG)",
+      "derived": "D82 terracotta colour grade of the recorded original 2x2 tile layout; tools/textures/derive_variants.py; 600 mm tiles, unchanged shared tile normal; source rights inherited from D76 records checked 2026-10-19; no new external source download",
+      "checkedOn": "2026-10-21",
+      "sha256": "14b41b3126f03dc5aedd53879379c7e762a2cf81beef0ad7909edcd7a0c39069"
+    },
+    {
+      "path": "apps/web/public/textures/wallpaper_linen/color.jpg",
+      "set": "wallpaper_linen",
+      "source": "https://ambientcg.com/view?id=PaintedPlaster017",
+      "download": "https://ambientcg.com/get?file=PaintedPlaster017_1K-JPG.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "author": "Lennart Demes (ambientCG)",
+      "derived": "D82 original linen pinstripe layout over the recorded plaster/color.jpg; tools/textures/derive_variants.py; stripe interval 150 mm; source rights inherited from D76 records checked 2026-10-19; no new external source download",
+      "checkedOn": "2026-10-21",
+      "sha256": "a776ed7b2aebd83325f252c48b0e96920610fc6f698d405bd886c61ef4bee780"
+    },
+    {
+      "path": "apps/web/public/textures/wood_walnut/color.jpg",
+      "set": "wood_walnut",
+      "source": "https://ambientcg.com/view?id=WoodFloor051",
+      "download": "https://ambientcg.com/get?file=WoodFloor051_1K-JPG.zip",
+      "license": "CC0-1.0",
+      "licenseUrl": "https://docs.ambientcg.com/license/",
+      "author": "Lennart Demes (ambientCG)",
+      "derived": "D82 walnut colour grade from the recorded wood_oak/color.jpg; tools/textures/derive_variants.py; unchanged shared wood normals/roughness; source rights inherited from D76 records checked 2026-10-19; no new external source download",
+      "checkedOn": "2026-10-21",
+      "sha256": "d5695d6ed66d60406de2e8d2c50b0d4b3c9e1f4f53ac9b6592a3fc090a07291a"
     }
   ]
 }

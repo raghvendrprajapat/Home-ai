@@ -89,6 +89,7 @@ export class SceneAdapter {
   get resourceStats(){return this.#pool.stats;}
   /** D76: textured materials in the scene and the GPU bytes of their images (0 on Low). */
   get textureStats():{texturedMaterials:number;textureBytes:number}{return this.#textures?.stats??{texturedMaterials:0,textureBytes:0};}
+  get textureBindings(){return this.#textures?.bindings??[];}
   /** Floors cut away above the active floor (D64): hidden, so neither drawn nor picked. */
   get hiddenFloors():ReadonlySet<string>{return this.#hidden;}
   #shown(category:string,floorId:unknown):boolean{return this.#tier!=='low'&&(category!=='ceiling'||this.#showCeilings)&&!this.#hidden.has(floorId as string);}
