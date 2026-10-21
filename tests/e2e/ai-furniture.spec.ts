@@ -32,7 +32,7 @@ test('D73 stand-in suggests bedroom furniture that fits, and Place opens the nor
  await form.getByRole('button',{name:'Add furniture',exact:true}).click();await saved(page);
  const after=await backup(page);
  expect(after.furniture.length).toBe(before.furniture.length+1);
- expect(after.furniture.at(-1)).toMatchObject({assetId:'a_l0_king_bed',assetVersion:2,size:{w:1900,d:2150,h:1100},position:{x:6221,y:2500}});
+ expect(after.furniture.at(-1)).toMatchObject({assetId:'a_l0_king_bed',assetVersion:3,size:{w:1900,d:2150,h:1100},position:{x:6221,y:2500}});
 
  // The living room gets its own list; the sample's older demo pieces are not catalog IDs, so they do not count.
  await openTool(page,'Copilot');await ai.getByLabel('Room for ideas',{exact:true}).selectOption({label:'Living'});

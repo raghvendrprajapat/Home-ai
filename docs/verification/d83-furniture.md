@@ -16,11 +16,12 @@ Parent D82 tested head `d5e93850d066a7c2339791d6151b2c682e9c4e21`; D82 merged as
 
 Local browser: Chromium151.0.7922.173/SwiftShader; pinned156 download remains blocked locally. Required CI retains the pinned browser. Final pre-commit/main-sync checks and exact-head CI results are recorded in the PR once actually complete; pending is not a pass.
 
-## Existing test changes (permitted counts/pins only)
+## CI diagnosis and permitted existing-test changes
 
 - `catalog.test.ts`: versions78→87,items42→48,category counts,king/queen/double newest pins3.
 - `starter-catalog.spec.ts`: versions/items/thumbnail totals and second-page count18→24; no assertion logic or paging actions changed.
-- `modern-furniture.spec.ts`: king bed newest pin2→3.
+- `modern-furniture.spec.ts` and `ai-furniture.spec.ts`: king bed newest pin2→3, forced by the new immutable packed version.
+- CI run39568002124:180browser cases passed/16failed. Fifteen cases assumed the original demo desk was on the first24-card page; six new alphabetically sorted names moved it to page2. Four old setup helpers (`furniture-models`, `furniture-placement`, `furniture-advisories`, `furniture-finish`) now search its exact name before selecting it. Every original assertion, timeout, model, geometry, export, failure-injection and history check remains unchanged. The sixteenth case was the required newest king-bed pin. This was a real test-setup regression, not an environmental failure; production sorting/paging is unchanged. No automatic retry hides it. Targeted rerun of all five affected specs: **26passed(1.9m)** (Chromium151 locally); actual elapsed is retained in the PR logs.
 - The sample factory uses king@3; no fixture or stored drawing is migrated. New sources are the six@1 IDs and three@3 beds named in the decision.
 
 ## Owner steps — after real-phone testing is authorised

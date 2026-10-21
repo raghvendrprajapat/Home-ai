@@ -21,7 +21,7 @@ The existing main-material heuristic uses merged primitive bounds. Finishes reco
 
 `a_l0_king_bed@3`, `a_l0_queen_bed@3`, `a_l0_double_bed@3` reuse their v2 source geometry exactly and opt into material packing:10→5meshes,1944triangles unchanged. New sources/rights/GLBs are appended; every old version remains available. Decoder checks compare every triangle's positions, normals and colour against the old v2 files, not regenerated expectations. The furnished sample pins king@3; its dimensions/position and every other piece stay unchanged.
 
-The catalog becomes **48 IDs /87 immutable versions**, nine categories, two24-card pages. Existing assertions are unchanged except permitted count updates and newest-version pins: catalog counts78→87/42→48, page2count18→24, category totals, king/queen/double latest pins3, and the existing modern bedroom e2e king pin2→3. All exact dimensions/history/search/disposal checks remain.
+The catalog becomes **48 IDs /87 immutable versions**, nine categories, two24-card pages. Existing assertions are unchanged except permitted count updates and newest-version pins: catalog counts78→87/42→48, page2count18→24, category totals, king/queen/double latest pins3, and existing modern/AI bedroom e2e king pin2→3. Four existing demo-desk helpers gain setup-only exact-name search because the enlarged alphabetic catalog moves that item to page2; all their assertions stay unchanged. All exact dimensions/history/search/disposal checks remain.
 
 ## Verification boundaries
 
