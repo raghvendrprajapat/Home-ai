@@ -15,8 +15,15 @@ export const surfaceLibrary:readonly {material:MaterialDef;hi:string}[]=[
  {material:{id:'m_wood_laminate',name:'Wood laminate',baseColor:'#a07850',uvScaleMm:1200,roughness:.6,metalness:0},hi:'लकड़ी का रंग'},
  {material:{id:'m_marble_white',name:'Marble - white',baseColor:'#ece9e3',uvScaleMm:1500,roughness:.25,metalness:0},hi:'सफ़ेद संगमरमर'},
 ];
-export function surfacePalette(document:Document):readonly MaterialDef[]{return [...document.materials,...surfaceLibrary.filter(e=>!document.materials.some(m=>m.id===e.material.id)).map(e=>e.material)];}
-export function surfaceMaterialName(material:MaterialDef,locale:Locale):string{const known=surfaceLibrary.find(e=>e.material.id===material.id&&e.material.name===material.name);return locale==='hi'&&known?known.hi:material.name;}
+/** D82 texture pack, explicitly added by the UI; the original ten-swatch palette API stays compatible. */
+export const surfaceTextureLibrary:typeof surfaceLibrary=[
+ {material:{id:'m_wood_walnut',name:'Wood - walnut',baseColor:'#765039',uvScaleMm:1200,roughness:.65,metalness:0},hi:'लकड़ी - अखरोट'},
+ {material:{id:'m_tile_terracotta',name:'Tile - terracotta 600x600',baseColor:'#bf7853',uvScaleMm:600,roughness:.85,metalness:0},hi:'टाइल - टेराकोटा 600×600'},
+ {material:{id:'m_marble_charcoal',name:'Marble - charcoal',baseColor:'#35393b',uvScaleMm:1500,roughness:.35,metalness:0},hi:'संगमरमर - गहरा स्लेटी'},
+ {material:{id:'m_wallpaper_linen',name:'Wallpaper - linen stripe',baseColor:'#e4dbc5',uvScaleMm:1200,roughness:.9,metalness:0},hi:'वॉलपेपर - लिनन धारी'},
+];
+export function surfacePalette(document:Document,extraLibrary:typeof surfaceLibrary=[]):readonly MaterialDef[]{return [...document.materials,...[...surfaceLibrary,...extraLibrary].filter(e=>!document.materials.some(m=>m.id===e.material.id)).map(e=>e.material)];}
+export function surfaceMaterialName(material:MaterialDef,locale:Locale):string{const known=[...surfaceLibrary,...surfaceTextureLibrary].find(e=>e.material.id===material.id&&e.material.name===material.name);return locale==='hi'&&known?known.hi:material.name;}
 /** FR-022 original furniture finishes (solid colours only). They recolour a model's main material. */
 export const furnitureFinishLibrary:readonly {material:MaterialDef;hi:string}[]=[
  {material:{id:'m_fin_teak',name:'Finish - teak',baseColor:'#9a6b43',roughness:.6,metalness:0},hi:'सागौन रंग'},

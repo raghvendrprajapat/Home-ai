@@ -15,6 +15,10 @@ export const SOURCES = {
   tile_vitrified_600: { asset: 'Marble012', site: 'ambientCG', author: 'Lennart Demes (ambientCG)', derived: 'Original 2x2 tile layout with grout drawn by tools/textures/prepare_textures.py from the marble colour map' },
   marble_white: { asset: 'Marble012', site: 'ambientCG', author: 'Lennart Demes (ambientCG)' },
   plaster: { asset: 'PaintedPlaster017', site: 'ambientCG', author: 'Lennart Demes (ambientCG)', derived: 'Greyscale detail normalised to near white by tools/textures/prepare_textures.py' },
+  wood_walnut: { asset: 'WoodFloor051', site: 'ambientCG', author: 'Lennart Demes (ambientCG)', derived: 'D82 walnut colour grade from the recorded wood_oak/color.jpg; tools/textures/derive_variants.py; unchanged shared wood normals/roughness' },
+  tile_terracotta_600: { asset: 'Marble012', site: 'ambientCG', author: 'Lennart Demes (ambientCG)', derived: 'D82 terracotta colour grade of the recorded original 2x2 tile layout; tools/textures/derive_variants.py; 600 mm tiles, unchanged shared tile normal' },
+  marble_charcoal: { asset: 'Marble012', site: 'ambientCG', author: 'Lennart Demes (ambientCG)', derived: 'D82 inverted charcoal colour grade of the recorded marble_white/color.jpg; tools/textures/derive_variants.py; unchanged shared marble normals/roughness' },
+  wallpaper_linen: { asset: 'PaintedPlaster017', site: 'ambientCG', author: 'Lennart Demes (ambientCG)', derived: 'D82 original linen pinstripe layout over the recorded plaster/color.jpg; tools/textures/derive_variants.py; stripe interval 150 mm' },
   studio_small_09_1k: { asset: 'studio_small_09', site: 'Poly Haven', author: 'Sergej Majboroda (Poly Haven)' },
 };
 const SITES = {
