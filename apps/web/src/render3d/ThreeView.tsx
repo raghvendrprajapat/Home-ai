@@ -14,7 +14,9 @@ import type {Pick} from '../editor/hit-test';
 import {ShaderTextures} from './shader-textures';
 import {releaseOnce} from './resources';
 import {ContextRecovery} from './recovery';
-import {pointLightPosition,sunPlacement} from './lighting';
+import {sunPlacement} from './lighting';
+import {BoundedPointLights,lightSources,mood} from './night-lighting';
+import type {LightingMode} from './night-lighting';
 import {clampOrbit,stablePose,fitPose,openingBounds,BOOKMARK_TOLERANCE} from './camera';
 import type {CameraPose,Bounds3} from './camera';
 import {deviceHints,profiles,pixelRatio,resolveQuality} from './quality';
@@ -46,8 +48,10 @@ function readLowWalls():boolean{try{return localStorage.getItem(LOW_WALLS_KEY)!=
 const TOOL_ICONS={walk:'M13 4.5a1.5 1.5 0 1 0 0 .01M10 21l2-6 3 3v3M8 11l4-3 3 2 2 3M12 8l-1.5 6.5',orbit:'M4 12c0-3.9 3.6-7 8-7s8 3.1 8 7-3.6 7-8 7M4 12l-2-2.5M4 12l2.5-2M12 10.5v3',move:'M12 3v18M3 12h18M12 3 9.5 5.5M12 3l2.5 2.5M12 21l-2.5-2.5M12 21l2.5-2.5M3 12l2.5-2.5M3 12l2.5 2.5M21 12l-2.5-2.5M21 12l-2.5 2.5',rotate:'M19.5 12A7.5 7.5 0 1 1 17 6.4M19.5 3.5v4.5H15'} as const;
 const toolIcon=(name:keyof typeof TOOL_ICONS)=><svg className="icon" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" focusable="false"><path d={TOOL_ICONS[name]}/></svg>;
 export default function ThreeView({ activeFloorId,advisories:providedAdvisories,store, fitRequest, onMessage, onFrame, onUnavailable, onScenePending, autoOrbit = false, locale = 'en',quality='auto',lighting='day',onControlsReady,onFallback2d,onPick,selectedPick,placementPreview,assetSource,onEditStart }: {
-  activeFloorId?:string;onEditStart?:()=>void;advisories?:FurnitureAdvisories;store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:'day'|'warm';onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;assetSource?:FurnitureAssetSource;
+  activeFloorId?:string;onEditStart?:()=>void;advisories?:FurnitureAdvisories;store: ProjectStore; fitRequest: number; onMessage(text: string): void; onFrame?: (reading: RenderReading) => void; onUnavailable?: (reason: string) => void; onScenePending?: () => void; autoOrbit?: boolean; locale?: Locale;quality?:QualityChoice;lighting?:LightingMode;onControlsReady?:(api:ThreeControlsApi|null)=>void;onFallback2d?:()=>void;onPick?:(pick:Pick|null,additive?:boolean)=>void;selectedPick?:Pick|undefined;placementPreview?:FurnitureGhost|undefined;assetSource?:FurnitureAssetSource;
 }) {
+  const [nightLights,setNightLights]=useState(true),nightLightsRef=useRef(nightLights);nightLightsRef.current=nightLights;
+  const lightingRef=useRef(lighting),lightingUpdate=useRef<()=>void>(()=>{});lightingRef.current=lighting;
   const [furnitureMode,setFurnitureMode]=useState<FurniturePointerMode>('orbit'),[freeTransform,setFreeTransform]=useState(false);
   // FR-019: 3D Move/Rotate on a grouped item act on its whole group (MoveFurniture/RotateFurniture).
   const groupedPick=useSyncExternalStore(store.subscribe,()=>{if(selectedPick?.kind!=='furniture')return false;const furniture=store.getSnapshot().document.furniture,group=furniture.find(f=>f.id===selectedPick.id)?.groupId;return group!==undefined&&furniture.filter(f=>f.groupId===group).length>=2;}),editablePick=selectedPick?.kind==='furniture';
@@ -83,7 +87,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
   useLayoutEffect(() => {
     const element = host.current!, container = mount.current!;setCeilingWarnings([]);setDowngraded(false);setStatus('building3d');element.dataset.sceneState='pending';element.dataset.renderedGeneration='';element.dataset.previousGeneration='';
     setModelStatus([]);setModelPage(0);let disposed=false,frame=0;const teardown:(()=>void)[]=[];
-    const cleanup=()=>{if(disposed)return;disposed=true;cancelAnimationFrame(frame);for(const release of teardown.reverse())try{release();}catch{/* Continue releasing independent owners. */}apiCallback.current?.(null);walkControl.current=null;adapterRef.current=null;invalidateRef.current=()=>{};fit.current=()=>{};orbit.current=null;transformRef.current=null;};
+    const cleanup=()=>{if(disposed)return;disposed=true;cancelAnimationFrame(frame);for(const release of teardown.reverse())try{release();}catch{/* Continue releasing independent owners. */}apiCallback.current?.(null);walkControl.current=null;adapterRef.current=null;invalidateRef.current=()=>{};fit.current=()=>{};orbit.current=null;transformRef.current=null;lightingUpdate.current=()=>{};};
     const fallback=()=>{if(disposed)return;element.dataset.sceneState='failed';element.dataset.renderedGeneration='';setStatus('threeFailed');onMessage(message(language.current,'threeFallback'));problemCallback.current?.('3D unavailable; drawing retained.');cleanup();fallbackCallback.current?.();};
     try{
     const initialPose=poseRef.current;
@@ -113,14 +117,21 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     if(tier!=='low'){
       const pmrem=new THREE.PMREMGenerator(renderer);let environment:THREE.Texture|null=null;teardown.push(()=>{environment?.dispose();pmrem.dispose();});
       void new HDRLoader().loadAsync(new URL(ENVIRONMENT.path,assetBase).href).then(hdr=>{
-        try{if(disposed)return;environment=pmrem.fromEquirectangular(hdr).texture;scene.environment=environment;scene.environmentIntensity=.6;hemisphere.intensity=.45;element.dataset.environment=`hdri:${ENVIRONMENT.id}`;publishTextures();invalidate();}finally{hdr.dispose();}
+        try{if(disposed)return;environment=pmrem.fromEquirectangular(hdr).texture;scene.environment=environment;updateLights();element.dataset.environment=`hdri:${ENVIRONMENT.id}`;publishTextures();invalidate();}finally{hdr.dispose();}
       },()=>{/* Without the HDRI the hemisphere light stays as before. */});
     }
     const sun = new THREE.DirectionalLight('#fff1dc', 3.3); sun.position.set(-6, 12, 8);sun.castShadow=profile.shadows;sun.shadow.mapSize.set(profile.shadowSize||1,profile.shadowSize||1);sun.shadow.camera.left=-20;sun.shadow.camera.right=20;sun.shadow.camera.top=20;sun.shadow.camera.bottom=-20;sun.shadow.camera.far=80;sun.shadow.bias=-.0004;sun.shadow.normalBias=.02;scene.add(sun,sun.target);
     teardown.push(()=>sun.shadow.dispose());
-    if(lighting==='warm'){sun.color.set('#ffd9ad');sun.intensity=2.2;}
-    const pointLights:THREE.PointLight[]=[];const updateLights=()=>{for(const light of pointLights){scene.remove(light);light.dispose();}pointLights.length=0;for(const l of store.getSnapshot().document.lights.filter(l=>l.kind==='point').sort((a,b)=>a.id.localeCompare(b.id)).slice(0,profile.pointLights)){const light=new THREE.PointLight(l.colorTempK<4000?'#ffd9ad':'#fff5e6',Math.min(4,l.lumens/1000),12,2);light.position.fromArray(pointLightPosition(store.getSnapshot().document,l));light.castShadow=false;pointLights.push(light);scene.add(light);}element.dataset.pointLights=String(pointLights.length);element.dataset.shadowLights=String(profile.shadows?1:0);};
-    teardown.push(()=>{for(const light of pointLights)light.dispose();pointLights.length=0;});
+    const pointLights=new BoundedPointLights(scene);teardown.push(()=>{pointLights.close();element.dataset.lampSources='[]';element.dataset.pointLights='0';});
+    const updateLights=(document=previewDocument??appliedDocument??store.getSnapshot().document)=>{
+      if(disposed)return;
+      const mode=lightingRef.current,settings=mood(mode,scene.environment!==null);
+      (scene.background as THREE.Color).set(settings.background);sun.color.set(settings.sunColor);sun.intensity=settings.sun;hemisphere.intensity=settings.hemisphere;scene.environmentIntensity=settings.environment;
+      pointLights.set(mode==='night'&&!nightLightsRef.current?[]:lightSources(document,tier,mode,floorRef.current??document.floors[0]!.id,pipelineRef.current?.lowWallsMm));
+      element.dataset.lighting=mode;element.dataset.pointLights=String(pointLights.snapshot.length);element.dataset.lampSources=JSON.stringify(pointLights.snapshot);element.dataset.shadowLights=String(profile.shadows?1:0);
+      invalidate();
+    };
+    lightingUpdate.current=()=>{transform?.cancel();updateLights();};
     const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000), controls = new OrbitControls(camera, renderer.domElement);
     teardown.push(()=>controls.dispose());
     orbit.current = controls; controls.autoRotate = autoOrbit; controls.autoRotateSpeed = 1.2;
@@ -133,7 +144,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     const publishTextures=()=>{const t=adapter.textureStats,env=scene.environment?.image as {width?:number;height?:number}|undefined;element.dataset.texturedMaterials=String(t.texturedMaterials);element.dataset.textureBytes=String(t.textureBytes+(env?.width&&env.height?env.width*env.height*8:0));};
     const activeFloor=()=>{const d=store.getSnapshot().document;return d.floors.find(f=>f.id===floorRef.current)??d.floors[0]!;};
     // Cutaway: hide everything above the active floor's walls unless the viewer asks to see upper floors.
-    const updateClip=()=>{if(!renderer)return;const d=store.getSnapshot().document,floor=activeFloor(),higher=d.floors.some(f=>f.level>floor.level);try{adapter.setHiddenFloors(new Set(showAboveRef.current?[]:d.floors.filter(f=>f.level>floor.level).map(f=>f.id)),previewDocument??appliedDocument);}catch{fallback();return;}element.dataset.hiddenFloors=String(adapter.hiddenFloors.size);renderer.clippingPlanes=higher&&!showAboveRef.current?[new THREE.Plane(new THREE.Vector3(0,-1,0),(floor.elevation+floor.defaultWallHeight)/1000+0.005)]:[];element.dataset.clipHeight=renderer.clippingPlanes.length?String(floor.elevation+floor.defaultWallHeight):'';invalidate();};
+    const updateClip=()=>{if(!renderer)return;const d=store.getSnapshot().document,floor=activeFloor(),higher=d.floors.some(f=>f.level>floor.level);try{adapter.setHiddenFloors(new Set(showAboveRef.current?[]:d.floors.filter(f=>f.level>floor.level).map(f=>f.id)),previewDocument??appliedDocument);}catch{fallback();return;}element.dataset.hiddenFloors=String(adapter.hiddenFloors.size);renderer.clippingPlanes=higher&&!showAboveRef.current?[new THREE.Plane(new THREE.Vector3(0,-1,0),(floor.elevation+floor.defaultWallHeight)/1000+0.005)]:[];element.dataset.clipHeight=renderer.clippingPlanes.length?String(floor.elevation+floor.defaultWallHeight):'';updateLights();invalidate();};
     clipRef.current=updateClip;teardown.push(store.subscribe(updateClip));
     let appliedTag='';let appliedDocument:ReturnType<ProjectStore['getSnapshot']>['document']|null=null,previewDocument:ReturnType<ProjectStore['getSnapshot']>['document']|null=null,transform:FurniturePointer|undefined;
     const effectiveDocument=()=>previewDocument??store.getSnapshot().document;
@@ -258,7 +269,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
       selected:()=>selectedRef.current?.kind==='furniture'?selectedRef.current.id:undefined,
       start:()=>{gesture.cancel();editStartRef.current?.();},
       hit:client=>{const r=renderer.domElement.getBoundingClientRect(),ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((client[0]-r.left)/r.width*2-1,1-(client[1]-r.top)/r.height*2),camera);return furnitureRayHit(ray,adapter.group,store.getSnapshot().document,adapter.hiddenFloors);},
-      preview:result=>{previewDocument=result?.document??null;const document=previewDocument??appliedDocument;if(document)adapter.refreshFurniture(document);element.dataset.furniturePreview=JSON.stringify(previewDocument?.furniture.find(f=>f.id===selectedRef.current?.id)??null);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);selectOutline();invalidate();},
+      preview:result=>{previewDocument=result?.document??null;const document=previewDocument??appliedDocument;if(document){adapter.refreshFurniture(document);updateLights(document);}element.dataset.furniturePreview=JSON.stringify(previewDocument?.furniture.find(f=>f.id===selectedRef.current?.id)??null);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);selectOutline();invalidate();},
       status:(phase,errors)=>{syncGhost();element.dataset.furnitureGesture=phase;if(phase!=='idle'){element.dataset.renderedGeneration='';onMessage(message(language.current,phase==='invalid'?'furnitureValuesInvalid':'furniture3dHelp'));if(errors?.[0])onMessage(editError(language.current,errors[0]));}invalidate();},
       committed:result=>onMessage(result.ok?message(language.current,result.changed?'furnitureApplied':'furnitureUnchanged'):editError(language.current,result.errors[0])),failed:fallback,
     });transformRef.current=transform;transform.setMode(modeRef.current,freeRef.current);teardown.push(()=>{transform?.dispose();transform=undefined;});
@@ -317,7 +328,8 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     animate();
     return cleanup;
     }catch{fallback();return cleanup;}
-  }, [store, onMessage,quality,lighting,assetSource]);
+  }, [store, onMessage,quality,assetSource]);
+  useLayoutEffect(()=>{lightingUpdate.current();},[lighting,nightLights]);
   useEffect(()=>{transformRef.current?.tick();selectionUpdate.current();if(!editablePick){transformRef.current?.setMode('orbit',freeRef.current);setFurnitureMode('orbit');}},[selectedPick,editablePick]);
   useEffect(()=>{clipRef.current();},[activeFloorId,showAbove]);
   useEffect(()=>{walkControl.current?.exit();},[activeFloorId]); // walking always starts again on the floor being edited
@@ -356,7 +368,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
       </div>
       <p className="walk-hint" role="status">{message(locale,'walkHint')}</p>
     </div>}
-    <div className="three-toggles"><label className="low-walls-toggle snap-toggle"><input type="checkbox" checked={lowWalls} onChange={e=>setLowWalls(e.target.checked)}/>{message(locale,'lowWalls')}</label><label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>{floorCount>1&&<label className="upper-floors-toggle snap-toggle"><input type="checkbox" checked={showAbove} onChange={e=>setShowAbove(e.target.checked)}/>{message(locale,'showUpperFloors')}</label>}</div>
+    <div className="three-toggles">{lighting==='night'&&<label className="snap-toggle"><input type="checkbox" checked={nightLights} onChange={e=>setNightLights(e.target.checked)}/>{message(locale,'nightLights')}</label>}<label className="low-walls-toggle snap-toggle"><input type="checkbox" checked={lowWalls} onChange={e=>setLowWalls(e.target.checked)}/>{message(locale,'lowWalls')}</label><label className="ceiling-toggle snap-toggle"><input type="checkbox" checked={ceilings} onChange={e=>setCeilings(e.target.checked)}/>{message(locale,'showCeilings')}</label>{floorCount>1&&<label className="upper-floors-toggle snap-toggle"><input type="checkbox" checked={showAbove} onChange={e=>setShowAbove(e.target.checked)}/>{message(locale,'showUpperFloors')}</label>}</div>
     {ceilingWarnings.length>0&&<div className="ceiling-warnings" role="status" tabIndex={0} aria-label={message(locale,'ceilingWarningDetails')}>{ceilingWarnings.map(w=><p key={w.roomIds.join(':')}>{message(locale,'ceilingHeightsDiffer',{a:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[0])?.name??w.roomIds[0],b:store.getSnapshot().document.rooms.find(r=>r.id===w.roomIds[1])?.name??w.roomIds[1],ha:w.heightsMm[0],hb:w.heightsMm[1]})}</p>)}</div>}
     {modelStatus.length>0&&<details className={modelStatus.every(m=>m.phase==='ready'&&!m.sizeMismatch&&!m.unsupportedFinish)?'furniture-models all-ready':'furniture-models'}><summary>{message(locale,'furnitureModels')}</summary><ul>{modelStatus.slice(currentModelPage*20,(currentModelPage+1)*20).map((m,i)=><li key={m.id} data-model-id={m.id} data-model-phase={m.phase}>{message(locale,'furnitureModelNumber',{n:currentModelPage*20+i+1})}: {message(locale,m.sizeMismatch?'furnitureModelSize':m.unsupportedFinish?'furnitureModelFinish':m.phase==='ready'?'furnitureModelReady':m.phase==='error'?'furnitureModelFailed':'furnitureModelLoading')}{m.phase==='loading'&&m.total?` ${Math.min(100,Math.floor(m.received/m.total*100))}%`:''}{m.retryable&&<button onClick={()=>retryModel.current(m.id)}>{message(locale,'furnitureModelRetry')}</button>}</li>)}</ul>{modelPages>1&&<nav aria-label={message(locale,'furnitureModelPages')}><button disabled={currentModelPage===0} onClick={()=>setModelPage(currentModelPage-1)}>{message(locale,'catalogPrevious')}</button><span>{message(locale,'catalogPage',{page:currentModelPage+1,pages:modelPages})}</span><button disabled={currentModelPage===modelPages-1} onClick={()=>setModelPage(currentModelPage+1)}>{message(locale,'catalogNext')}</button></nav>}</details>}
     <div className="canvas-hint">{message(locale, 'threeHint')}</div>
