@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_table_lamp",
+  "version": 1,
+  "name_en": "Table lamp, ceramic base",
+  "name_hi": "सिरेमिक बेस वाला टेबल लैंप",
+  "category": "lighting",
+  "tags": [
+    "table lamp",
+    "desk lamp",
+    "lamp",
+    "light",
+    "ceramic",
+    "sage",
+    "fabric shade",
+    "टेबल लैंप"
+  ],
+  "dims": {
+    "w": 260,
+    "d": 260,
+    "h": 450
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_table_lamp-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_table_lamp-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-20"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "foot",
+      "shape": "cylinder",
+      "center": [
+        0,
+        10,
+        0
+      ],
+      "size": [
+        110,
+        20,
+        110
+      ],
+      "color": "#9cae94",
+      "finish": "gloss",
+      "axis": "y",
+      "segments": 16
+    },
+    {
+      "name": "body",
+      "shape": "cylinder",
+      "center": [
+        0,
+        105,
+        0
+      ],
+      "size": [
+        170,
+        170,
+        170
+      ],
+      "color": "#9cae94",
+      "finish": "gloss",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "shoulder",
+      "shape": "cylinder",
+      "center": [
+        0,
+        200,
+        0
+      ],
+      "size": [
+        100,
+        20,
+        100
+      ],
+      "color": "#9cae94",
+      "finish": "gloss",
+      "axis": "y",
+      "segments": 16
+    },
+    {
+      "name": "neck",
+      "shape": "cylinder",
+      "center": [
+        0,
+        240,
+        0
+      ],
+      "size": [
+        34,
+        60,
+        34
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "shade",
+      "shape": "cylinder",
+      "center": [
+        0,
+        360,
+        0
+      ],
+      "size": [
+        260,
+        180,
+        260
+      ],
+      "color": "#efe9df",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    }
+  ]
+}

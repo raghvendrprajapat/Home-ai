@@ -1,0 +1,108 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_floor_lamp",
+  "version": 1,
+  "name_en": "Floor lamp with drum shade",
+  "name_hi": "ड्रम शेड वाला फ़र्श लैंप",
+  "category": "lighting",
+  "tags": [
+    "floor lamp",
+    "standing lamp",
+    "lamp",
+    "light",
+    "reading lamp",
+    "brass",
+    "fabric shade",
+    "फ़र्श लैंप"
+  ],
+  "dims": {
+    "w": 400,
+    "d": 400,
+    "h": 1600
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_floor_lamp-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_floor_lamp-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-20"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "base",
+      "shape": "cylinder",
+      "center": [
+        0,
+        12,
+        0
+      ],
+      "size": [
+        300,
+        24,
+        300
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "pole",
+      "shape": "cylinder",
+      "center": [
+        0,
+        674,
+        0
+      ],
+      "size": [
+        24,
+        1300,
+        24
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "collar",
+      "shape": "cylinder",
+      "center": [
+        0,
+        1300,
+        0
+      ],
+      "size": [
+        60,
+        40,
+        60
+      ],
+      "color": "#b08d57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "shade",
+      "shape": "cylinder",
+      "center": [
+        0,
+        1460,
+        0
+      ],
+      "size": [
+        400,
+        280,
+        400
+      ],
+      "color": "#efe9df",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    }
+  ]
+}

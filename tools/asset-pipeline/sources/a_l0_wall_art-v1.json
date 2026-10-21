@@ -1,0 +1,201 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_wall_art",
+  "version": 1,
+  "name_en": "Framed wall art, abstract",
+  "name_hi": "फ़्रेम वाली दीवार की तस्वीर (एब्स्ट्रैक्ट)",
+  "category": "decor",
+  "tags": [
+    "wall art",
+    "painting",
+    "picture",
+    "frame",
+    "framed print",
+    "abstract",
+    "wall decor",
+    "walnut frame",
+    "दीवार की तस्वीर"
+  ],
+  "dims": {
+    "w": 900,
+    "d": 40,
+    "h": 650
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_wall_art-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_art-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-20"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "frame-bottom",
+      "shape": "box",
+      "center": [
+        0,
+        15,
+        0
+      ],
+      "size": [
+        900,
+        30,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "frame-top",
+      "shape": "box",
+      "center": [
+        0,
+        635,
+        0
+      ],
+      "size": [
+        900,
+        30,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "frame-left",
+      "shape": "box",
+      "center": [
+        -435,
+        325,
+        0
+      ],
+      "size": [
+        30,
+        590,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "frame-right",
+      "shape": "box",
+      "center": [
+        435,
+        325,
+        0
+      ],
+      "size": [
+        30,
+        590,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "field-left",
+      "shape": "box",
+      "center": [
+        -240,
+        325,
+        8
+      ],
+      "size": [
+        360,
+        590,
+        24
+      ],
+      "color": "#e6dccb",
+      "finish": "matte"
+    },
+    {
+      "name": "field-top",
+      "shape": "box",
+      "center": [
+        180,
+        460,
+        8
+      ],
+      "size": [
+        480,
+        320,
+        24
+      ],
+      "color": "#9cae94",
+      "finish": "matte"
+    },
+    {
+      "name": "field-bottom",
+      "shape": "box",
+      "center": [
+        180,
+        165,
+        8
+      ],
+      "size": [
+        480,
+        270,
+        24
+      ],
+      "color": "#efe9df",
+      "finish": "matte"
+    },
+    {
+      "name": "sun",
+      "shape": "cylinder",
+      "center": [
+        -240,
+        400,
+        -5
+      ],
+      "size": [
+        300,
+        300,
+        2
+      ],
+      "color": "#b8704f",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 24
+    },
+    {
+      "name": "moon",
+      "shape": "cylinder",
+      "center": [
+        300,
+        520,
+        -5
+      ],
+      "size": [
+        120,
+        120,
+        2
+      ],
+      "color": "#d2a64e",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 24
+    },
+    {
+      "name": "line",
+      "shape": "box",
+      "center": [
+        200,
+        170,
+        -5
+      ],
+      "size": [
+        400,
+        12,
+        2
+      ],
+      "color": "#2f5d62",
+      "finish": "matte"
+    }
+  ]
+}

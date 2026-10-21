@@ -1,0 +1,160 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_coffee_table",
+  "version": 4,
+  "name_en": "Coffee table, marble top",
+  "name_hi": "मार्बल टॉप वाली छोटी बैठक मेज़",
+  "category": "tables",
+  "tags": [
+    "coffee table",
+    "centre table",
+    "center table",
+    "wooden",
+    "marble top",
+    "cane shelf",
+    "walnut",
+    "छोटी बैठक मेज़"
+  ],
+  "dims": {
+    "w": 1100,
+    "d": 600,
+    "h": 450
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_coffee_table-v4.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_coffee_table-v4.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-20"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        429,
+        0
+      ],
+      "size": [
+        1100,
+        30,
+        600
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 12,
+      "segments": 2
+    },
+    {
+      "name": "marble",
+      "shape": "box",
+      "center": [
+        0,
+        447,
+        0
+      ],
+      "size": [
+        1020,
+        6,
+        520
+      ],
+      "color": "#e9e5de",
+      "finish": "gloss"
+    },
+    {
+      "name": "leg-1",
+      "shape": "rounded",
+      "center": [
+        -485,
+        207,
+        -235
+      ],
+      "size": [
+        50,
+        414,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "leg-2",
+      "shape": "rounded",
+      "center": [
+        485,
+        207,
+        -235
+      ],
+      "size": [
+        50,
+        414,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "leg-3",
+      "shape": "rounded",
+      "center": [
+        -485,
+        207,
+        235
+      ],
+      "size": [
+        50,
+        414,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "leg-4",
+      "shape": "rounded",
+      "center": [
+        485,
+        207,
+        235
+      ],
+      "size": [
+        50,
+        414,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "shelf",
+      "shape": "rounded",
+      "center": [
+        0,
+        140,
+        0
+      ],
+      "size": [
+        920,
+        24,
+        420
+      ],
+      "color": "#cdb38b",
+      "finish": "matte",
+      "radius": 6,
+      "segments": 1
+    }
+  ]
+}

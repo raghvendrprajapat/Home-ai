@@ -34,13 +34,13 @@ async function placeAndRender(page:Page,chosen:Choice[],shot:string){
 }
 
 test('D72 L-shape sofa, TV unit, coffee table and accent armchair place their newest versions and load as real 3D models',async({page})=>{
- await placeAndRender(page,[['a_l0_sofa_l',1,2250,3850,0],['a_l0_tv_unit',1,2250,450,180],['a_l0_coffee_table',3,2250,2500,0],['a_l0_armchair',2,700,2300,90]],'modern-living-room-3d.png');
+ await placeAndRender(page,[['a_l0_sofa_l',1,2250,3850,0],['a_l0_tv_unit',1,2250,450,180],['a_l0_coffee_table',4,2250,2500,0],['a_l0_armchair',3,700,2300,90]],'modern-living-room-3d.png');
 });
 test('D72 king bed, sliding wardrobe, bedside table and dressing table place their newest versions and load as real 3D models',async({page})=>{
- await placeAndRender(page,[['a_l0_king_bed',2,6250,1300,180],['a_l0_wardrobe_sliding',1,6250,4500,0],['a_l0_nightstand',1,5100,450,180],['a_l0_dressing_table',2,7650,2600,270]],'modern-bedroom-3d.png');
+ await placeAndRender(page,[['a_l0_king_bed',2,6250,1300,180],['a_l0_wardrobe_sliding',2,6250,4500,0],['a_l0_nightstand',1,5100,450,180],['a_l0_dressing_table',2,7650,2600,270]],'modern-bedroom-3d.png');
 });
 test('D72 six-seat dining set, sideboard, shoe cabinet and plant place their newest versions and load as real 3D models',async({page})=>{
- await placeAndRender(page,[['a_l0_dining_set_6',2,2250,2500,0],['a_l0_low_cabinet',3,2250,350,180],['a_l0_shoe_rack',2,600,4600,0],['a_l0_planter',2,4000,4600,0]],'modern-dining-3d.png');
+ await placeAndRender(page,[['a_l0_dining_set_6',2,2250,2500,0],['a_l0_low_cabinet',3,2250,350,180],['a_l0_shoe_rack',2,600,4600,0],['a_l0_planter',3,4000,4600,0]],'modern-dining-3d.png');
 });
 
 // D76 M1 (setup only, no assertion changed): these tests were written for the plain fixture, "auto" quality resolving

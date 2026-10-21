@@ -1,0 +1,425 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_wardrobe_sliding",
+  "version": 2,
+  "name_en": "Sliding-door wardrobe",
+  "name_hi": "स्लाइडिंग दरवाज़े की अलमारी",
+  "category": "storage",
+  "tags": [
+    "wardrobe",
+    "almirah",
+    "sliding wardrobe",
+    "2 door",
+    "white",
+    "oak",
+    "स्लाइडिंग अलमारी"
+  ],
+  "dims": {
+    "w": 1800,
+    "d": 650,
+    "h": 2100
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v2.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wardrobe_sliding-v2.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-20"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "plinth",
+      "shape": "box",
+      "center": [
+        0,
+        40,
+        20
+      ],
+      "size": [
+        1760,
+        80,
+        570
+      ],
+      "color": "#3b342e",
+      "finish": "matte"
+    },
+    {
+      "name": "side-left",
+      "shape": "rounded",
+      "center": [
+        -891,
+        1090,
+        20
+      ],
+      "size": [
+        18,
+        2020,
+        610
+      ],
+      "color": "#ecebe7",
+      "finish": "satin",
+      "radius": 6,
+      "segments": 1
+    },
+    {
+      "name": "side-right",
+      "shape": "rounded",
+      "center": [
+        891,
+        1090,
+        20
+      ],
+      "size": [
+        18,
+        2020,
+        610
+      ],
+      "color": "#ecebe7",
+      "finish": "satin",
+      "radius": 6,
+      "segments": 1
+    },
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        2091,
+        20
+      ],
+      "size": [
+        1764,
+        18,
+        610
+      ],
+      "color": "#ecebe7",
+      "finish": "satin",
+      "radius": 6,
+      "segments": 1
+    },
+    {
+      "name": "back",
+      "shape": "box",
+      "center": [
+        0,
+        1086,
+        316
+      ],
+      "size": [
+        1764,
+        2010,
+        18
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "bottom",
+      "shape": "box",
+      "center": [
+        0,
+        89,
+        20
+      ],
+      "size": [
+        1764,
+        18,
+        610
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "track-top",
+      "shape": "box",
+      "center": [
+        0,
+        2085,
+        -305
+      ],
+      "size": [
+        1800,
+        30,
+        40
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "track-bottom",
+      "shape": "box",
+      "center": [
+        0,
+        85,
+        -305
+      ],
+      "size": [
+        1800,
+        10,
+        40
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "panel-front",
+      "shape": "box",
+      "center": [
+        -442,
+        1075,
+        -310
+      ],
+      "size": [
+        916,
+        1970,
+        18
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "panel-back",
+      "shape": "box",
+      "center": [
+        442,
+        1075,
+        -294
+      ],
+      "size": [
+        916,
+        1970,
+        18
+      ],
+      "color": "#ecebe7",
+      "finish": "satin"
+    },
+    {
+      "name": "front-stile",
+      "shape": "box",
+      "center": [
+        -888,
+        1075,
+        -322
+      ],
+      "size": [
+        24,
+        1970,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "front-handle",
+      "shape": "box",
+      "center": [
+        -4,
+        1075,
+        -322
+      ],
+      "size": [
+        40,
+        1970,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "front-rail-top",
+      "shape": "box",
+      "center": [
+        -442,
+        2048,
+        -322
+      ],
+      "size": [
+        916,
+        24,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "front-rail-bottom",
+      "shape": "box",
+      "center": [
+        -442,
+        102,
+        -322
+      ],
+      "size": [
+        916,
+        24,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "front-rail-1",
+      "shape": "box",
+      "center": [
+        -442,
+        766,
+        -322
+      ],
+      "size": [
+        916,
+        24,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "front-rail-2",
+      "shape": "box",
+      "center": [
+        -442,
+        1406,
+        -322
+      ],
+      "size": [
+        916,
+        24,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "front-inset",
+      "shape": "box",
+      "center": [
+        -444,
+        1086,
+        -320
+      ],
+      "size": [
+        852,
+        616,
+        2
+      ],
+      "color": "#c8a77e",
+      "finish": "satin"
+    },
+    {
+      "name": "back-stile",
+      "shape": "box",
+      "center": [
+        888,
+        1075,
+        -306
+      ],
+      "size": [
+        24,
+        1970,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "back-handle",
+      "shape": "box",
+      "center": [
+        4,
+        1075,
+        -306
+      ],
+      "size": [
+        40,
+        1970,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "back-rail-top",
+      "shape": "box",
+      "center": [
+        442,
+        2048,
+        -306
+      ],
+      "size": [
+        916,
+        24,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "back-rail-bottom",
+      "shape": "box",
+      "center": [
+        442,
+        102,
+        -306
+      ],
+      "size": [
+        916,
+        24,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "back-rail-1",
+      "shape": "box",
+      "center": [
+        442,
+        766,
+        -306
+      ],
+      "size": [
+        916,
+        24,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "back-rail-2",
+      "shape": "box",
+      "center": [
+        442,
+        1406,
+        -306
+      ],
+      "size": [
+        916,
+        24,
+        6
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "back-inset",
+      "shape": "box",
+      "center": [
+        444,
+        1086,
+        -304
+      ],
+      "size": [
+        852,
+        616,
+        2
+      ],
+      "color": "#c8a77e",
+      "finish": "satin"
+    }
+  ]
+}

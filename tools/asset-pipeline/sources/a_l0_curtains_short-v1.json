@@ -1,0 +1,375 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_curtains_short",
+  "version": 1,
+  "name_en": "Curtains with rod, window length",
+  "name_hi": "रॉड के साथ पर्दे (खिड़की तक)",
+  "category": "decor",
+  "tags": [
+    "curtains",
+    "parda",
+    "curtain",
+    "window curtains",
+    "short curtains",
+    "linen",
+    "beige",
+    "curtain rod",
+    "पर्दे"
+  ],
+  "dims": {
+    "w": 2100,
+    "d": 160,
+    "h": 1545
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_curtains_short-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_curtains_short-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural modern design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-20"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "rod",
+      "shape": "cylinder",
+      "center": [
+        0,
+        1520,
+        0
+      ],
+      "size": [
+        2040,
+        28,
+        28
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "axis": "x",
+      "segments": 12
+    },
+    {
+      "name": "finial-left",
+      "shape": "rounded",
+      "center": [
+        -1035,
+        1520,
+        0
+      ],
+      "size": [
+        30,
+        50,
+        50
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "radius": 12,
+      "segments": 1
+    },
+    {
+      "name": "finial-right",
+      "shape": "rounded",
+      "center": [
+        1035,
+        1520,
+        0
+      ],
+      "size": [
+        30,
+        50,
+        50
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal",
+      "radius": 12,
+      "segments": 1
+    },
+    {
+      "name": "bracket-left",
+      "shape": "box",
+      "center": [
+        -880,
+        1520,
+        40
+      ],
+      "size": [
+        20,
+        50,
+        80
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "bracket-right",
+      "shape": "box",
+      "center": [
+        880,
+        1520,
+        40
+      ],
+      "size": [
+        20,
+        50,
+        80
+      ],
+      "color": "#2b2b2b",
+      "finish": "metal"
+    },
+    {
+      "name": "fold-left-1",
+      "shape": "cylinder",
+      "center": [
+        -995,
+        755,
+        -35
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-left-2",
+      "shape": "cylinder",
+      "center": [
+        -915,
+        755,
+        -45
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-left-3",
+      "shape": "cylinder",
+      "center": [
+        -835,
+        755,
+        -35
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-left-4",
+      "shape": "cylinder",
+      "center": [
+        -755,
+        755,
+        -45
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-left-5",
+      "shape": "cylinder",
+      "center": [
+        -675,
+        755,
+        -35
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-left-6",
+      "shape": "cylinder",
+      "center": [
+        -595,
+        755,
+        -45
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "heading-left",
+      "shape": "rounded",
+      "center": [
+        -795,
+        1470,
+        -40
+      ],
+      "size": [
+        510,
+        80,
+        60
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "fold-right-1",
+      "shape": "cylinder",
+      "center": [
+        995,
+        755,
+        -35
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-right-2",
+      "shape": "cylinder",
+      "center": [
+        915,
+        755,
+        -45
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-right-3",
+      "shape": "cylinder",
+      "center": [
+        835,
+        755,
+        -35
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-right-4",
+      "shape": "cylinder",
+      "center": [
+        755,
+        755,
+        -45
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-right-5",
+      "shape": "cylinder",
+      "center": [
+        675,
+        755,
+        -35
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "fold-right-6",
+      "shape": "cylinder",
+      "center": [
+        595,
+        755,
+        -45
+      ],
+      "size": [
+        110,
+        1510,
+        70
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "heading-right",
+      "shape": "rounded",
+      "center": [
+        795,
+        1470,
+        -40
+      ],
+      "size": [
+        510,
+        80,
+        60
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    }
+  ]
+}
