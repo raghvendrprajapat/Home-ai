@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_round_dining_table",
+  "version": 1,
+  "name_en": "Round pedestal dining table",
+  "name_hi": "गोल पेडेस्टल डाइनिंग टेबल",
+  "category": "tables",
+  "tags": [
+    "dining table",
+    "round table",
+    "pedestal",
+    "four places",
+    "टेबल",
+    "खाना",
+    "गोल पेडेस्टल डाइनिंग टेबल"
+  ],
+  "dims": {
+    "w": 1100,
+    "d": 1100,
+    "h": 750
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_round_dining_table-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_round_dining_table-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-21"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "base",
+      "shape": "cylinder",
+      "center": [
+        0,
+        40,
+        0
+      ],
+      "size": [
+        650,
+        80,
+        650
+      ],
+      "color": "#b78a5b",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "column",
+      "shape": "cylinder",
+      "center": [
+        0,
+        395,
+        0
+      ],
+      "size": [
+        180,
+        670,
+        180
+      ],
+      "color": "#30373b",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "under-plate",
+      "shape": "cylinder",
+      "center": [
+        0,
+        702,
+        0
+      ],
+      "size": [
+        900,
+        16,
+        900
+      ],
+      "color": "#30373b",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "top",
+      "shape": "cylinder",
+      "center": [
+        0,
+        730,
+        0
+      ],
+      "size": [
+        1100,
+        40,
+        1100
+      ],
+      "color": "#b78a5b",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    }
+  ]
+}

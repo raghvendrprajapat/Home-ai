@@ -1,0 +1,213 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_double_bed",
+  "version": 3,
+  "name_en": "Double bed",
+  "name_hi": "दो लोगों का पलंग",
+  "category": "beds",
+  "tags": [
+    "bed",
+    "double bed",
+    "upholstered bed",
+    "4.5x6.5 feet",
+    "fabric",
+    "beige",
+    "दो लोगों का पलंग"
+  ],
+  "dims": {
+    "w": 1460,
+    "d": 2150,
+    "h": 1050
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_double_bed-v3.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_double_bed-v3.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural geometry by Claude Code for GharPlan; new material-packed version authored by Codex. Owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-21"
+  },
+  "parts": [
+    {
+      "name": "plinth",
+      "shape": "box",
+      "center": [
+        0,
+        30,
+        -45
+      ],
+      "size": [
+        1380,
+        60,
+        1980
+      ],
+      "color": "#3b342e",
+      "finish": "matte"
+    },
+    {
+      "name": "base",
+      "shape": "rounded",
+      "center": [
+        0,
+        210,
+        -45
+      ],
+      "size": [
+        1460,
+        300,
+        2060
+      ],
+      "color": "#b5a690",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "mattress",
+      "shape": "rounded",
+      "center": [
+        0,
+        470,
+        -45
+      ],
+      "size": [
+        1370,
+        220,
+        1980
+      ],
+      "color": "#efece6",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "headboard",
+      "shape": "rounded",
+      "center": [
+        0,
+        525,
+        1030
+      ],
+      "size": [
+        1460,
+        1050,
+        90
+      ],
+      "color": "#b5a690",
+      "finish": "matte",
+      "radius": 30,
+      "segments": 2
+    },
+    {
+      "name": "headboard-panel-1",
+      "shape": "rounded",
+      "center": [
+        -454,
+        730,
+        965
+      ],
+      "size": [
+        433,
+        520,
+        40
+      ],
+      "color": "#b5a690",
+      "finish": "matte",
+      "radius": 15,
+      "segments": 1
+    },
+    {
+      "name": "headboard-panel-2",
+      "shape": "rounded",
+      "center": [
+        -1,
+        730,
+        965
+      ],
+      "size": [
+        433,
+        520,
+        40
+      ],
+      "color": "#b5a690",
+      "finish": "matte",
+      "radius": 15,
+      "segments": 1
+    },
+    {
+      "name": "headboard-panel-3",
+      "shape": "rounded",
+      "center": [
+        452,
+        730,
+        965
+      ],
+      "size": [
+        433,
+        520,
+        40
+      ],
+      "color": "#b5a690",
+      "finish": "matte",
+      "radius": 15,
+      "segments": 1
+    },
+    {
+      "name": "blanket",
+      "shape": "rounded",
+      "center": [
+        0,
+        600,
+        -585
+      ],
+      "size": [
+        1400,
+        50,
+        900
+      ],
+      "color": "#56718a",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 2
+    },
+    {
+      "name": "pillow-1",
+      "shape": "rounded",
+      "center": [
+        -342,
+        640,
+        715
+      ],
+      "size": [
+        605,
+        140,
+        380
+      ],
+      "color": "#e8e2d6",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "pillow-2",
+      "shape": "rounded",
+      "center": [
+        342,
+        640,
+        715
+      ],
+      "size": [
+        605,
+        140,
+        380
+      ],
+      "color": "#e8e2d6",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    }
+  ],
+  "mergeByMaterial": true
+}

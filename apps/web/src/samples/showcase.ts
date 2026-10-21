@@ -21,7 +21,7 @@ export const SHOWCASE_FURNITURE:readonly Item[]=[
  ['fu_armchair','a_l0_armchair',3,3300,2900,270,800,820,820],
  ['fu_plant','a_l0_planter',3,4100,2150,0,450,420,1100],
  ['fu_rug','a_l0_rug',2,1300,3300,0,1600,1000,10],
- ['fu_bed','a_l0_king_bed',2,6500,1215,180,1900,2150,1100],
+ ['fu_bed','a_l0_king_bed',3,6500,1215,180,1900,2150,1100],
  ['fu_nightstand','a_l0_nightstand',1,5295,340,180,450,400,520],
  ['fu_wardrobe','a_l0_wardrobe_sliding',2,6250,4530,0,1800,650,2100],
  ['fu_plant_bed','a_l0_planter',3,7650,4600,0,450,420,1100],

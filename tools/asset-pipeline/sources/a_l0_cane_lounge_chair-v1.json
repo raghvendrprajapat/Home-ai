@@ -1,0 +1,514 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_cane_lounge_chair",
+  "version": 1,
+  "name_en": "Cane lounge chair",
+  "name_hi": "बेंत की आराम कुर्सी",
+  "category": "seating",
+  "tags": [
+    "cane",
+    "rattan style",
+    "lounge chair",
+    "accent chair",
+    "woven back",
+    "कुर्सी",
+    "बेंत",
+    "बेंत की आराम कुर्सी"
+  ],
+  "dims": {
+    "w": 760,
+    "d": 800,
+    "h": 900
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_cane_lounge_chair-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_cane_lounge_chair-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-21"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -320,
+        180,
+        -330
+      ],
+      "size": [
+        40,
+        360,
+        40
+      ],
+      "color": "#be9466",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        320,
+        180,
+        -330
+      ],
+      "size": [
+        40,
+        360,
+        40
+      ],
+      "color": "#be9466",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -320,
+        180,
+        320
+      ],
+      "size": [
+        40,
+        360,
+        40
+      ],
+      "color": "#be9466",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        320,
+        180,
+        320
+      ],
+      "size": [
+        40,
+        360,
+        40
+      ],
+      "color": "#be9466",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "seat-frame",
+      "shape": "box",
+      "center": [
+        0,
+        375,
+        -40
+      ],
+      "size": [
+        680,
+        50,
+        720
+      ],
+      "color": "#be9466",
+      "finish": "satin"
+    },
+    {
+      "name": "seat-cushion",
+      "shape": "rounded",
+      "center": [
+        0,
+        420,
+        -40
+      ],
+      "size": [
+        650,
+        120,
+        620
+      ],
+      "color": "#e7dcc8",
+      "finish": "matte",
+      "radius": 30,
+      "segments": 2
+    },
+    {
+      "name": "back-post-1",
+      "shape": "box",
+      "center": [
+        -340,
+        620,
+        350
+      ],
+      "size": [
+        40,
+        560,
+        60
+      ],
+      "color": "#be9466",
+      "finish": "satin"
+    },
+    {
+      "name": "back-post-2",
+      "shape": "box",
+      "center": [
+        340,
+        620,
+        350
+      ],
+      "size": [
+        40,
+        560,
+        60
+      ],
+      "color": "#be9466",
+      "finish": "satin"
+    },
+    {
+      "name": "back-top",
+      "shape": "box",
+      "center": [
+        0,
+        870,
+        370
+      ],
+      "size": [
+        760,
+        60,
+        60
+      ],
+      "color": "#be9466",
+      "finish": "satin"
+    },
+    {
+      "name": "back-bottom",
+      "shape": "box",
+      "center": [
+        0,
+        460,
+        370
+      ],
+      "size": [
+        700,
+        60,
+        50
+      ],
+      "color": "#be9466",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-1",
+      "shape": "box",
+      "center": [
+        -300,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-2",
+      "shape": "box",
+      "center": [
+        -240,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-3",
+      "shape": "box",
+      "center": [
+        -180,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-4",
+      "shape": "box",
+      "center": [
+        -120,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-5",
+      "shape": "box",
+      "center": [
+        -60,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-6",
+      "shape": "box",
+      "center": [
+        0,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-7",
+      "shape": "box",
+      "center": [
+        60,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-8",
+      "shape": "box",
+      "center": [
+        120,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-9",
+      "shape": "box",
+      "center": [
+        180,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-10",
+      "shape": "box",
+      "center": [
+        240,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-upright-11",
+      "shape": "box",
+      "center": [
+        300,
+        650,
+        370
+      ],
+      "size": [
+        20,
+        390,
+        18
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-weft-1",
+      "shape": "box",
+      "center": [
+        0,
+        520,
+        375
+      ],
+      "size": [
+        660,
+        12,
+        12
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-weft-2",
+      "shape": "box",
+      "center": [
+        0,
+        620,
+        375
+      ],
+      "size": [
+        660,
+        12,
+        12
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-weft-3",
+      "shape": "box",
+      "center": [
+        0,
+        720,
+        375
+      ],
+      "size": [
+        660,
+        12,
+        12
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "cane-weft-4",
+      "shape": "box",
+      "center": [
+        0,
+        820,
+        375
+      ],
+      "size": [
+        660,
+        12,
+        12
+      ],
+      "color": "#b78d56",
+      "finish": "satin"
+    },
+    {
+      "name": "arm-1",
+      "shape": "rounded",
+      "center": [
+        -350,
+        575,
+        -30
+      ],
+      "size": [
+        60,
+        50,
+        700
+      ],
+      "color": "#be9466",
+      "finish": "satin",
+      "radius": 15,
+      "segments": 2
+    },
+    {
+      "name": "arm-post-1",
+      "shape": "box",
+      "center": [
+        -350,
+        475,
+        -340
+      ],
+      "size": [
+        40,
+        250,
+        40
+      ],
+      "color": "#be9466",
+      "finish": "satin"
+    },
+    {
+      "name": "arm-2",
+      "shape": "rounded",
+      "center": [
+        350,
+        575,
+        -30
+      ],
+      "size": [
+        60,
+        50,
+        700
+      ],
+      "color": "#be9466",
+      "finish": "satin",
+      "radius": 15,
+      "segments": 2
+    },
+    {
+      "name": "arm-post-2",
+      "shape": "box",
+      "center": [
+        350,
+        475,
+        -340
+      ],
+      "size": [
+        40,
+        250,
+        40
+      ],
+      "color": "#be9466",
+      "finish": "satin"
+    }
+  ]
+}

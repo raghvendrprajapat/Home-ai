@@ -1,0 +1,107 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_storage_ottoman",
+  "version": 1,
+  "name_en": "Round storage ottoman",
+  "name_hi": "गोल स्टोरेज ओटोमन",
+  "category": "seating",
+  "tags": [
+    "ottoman",
+    "storage seat",
+    "round pouffe",
+    "footstool",
+    "बक्सा",
+    "बैठक",
+    "गोल स्टोरेज ओटोमन"
+  ],
+  "dims": {
+    "w": 750,
+    "d": 750,
+    "h": 450
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_storage_ottoman-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_storage_ottoman-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-21"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "base",
+      "shape": "cylinder",
+      "center": [
+        0,
+        80,
+        0
+      ],
+      "size": [
+        680,
+        160,
+        680
+      ],
+      "color": "#765039",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "body",
+      "shape": "cylinder",
+      "center": [
+        0,
+        270,
+        0
+      ],
+      "size": [
+        750,
+        300,
+        750
+      ],
+      "color": "#52696a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "lid-seam",
+      "shape": "cylinder",
+      "center": [
+        0,
+        402,
+        0
+      ],
+      "size": [
+        750,
+        8,
+        750
+      ],
+      "color": "#394c50",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "padded-lid",
+      "shape": "cylinder",
+      "center": [
+        0,
+        425,
+        0
+      ],
+      "size": [
+        750,
+        50,
+        750
+      ],
+      "color": "#52696a",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    }
+  ]
+}

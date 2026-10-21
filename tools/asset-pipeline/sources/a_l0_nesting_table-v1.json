@@ -1,0 +1,197 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_nesting_table",
+  "version": 1,
+  "name_en": "Nesting side tables, pair",
+  "name_hi": "नेस्टिंग साइड टेबल जोड़ी",
+  "category": "tables",
+  "tags": [
+    "nesting tables",
+    "side tables",
+    "round table",
+    "compact",
+    "टेबल",
+    "जोड़ी",
+    "नेस्टिंग साइड टेबल जोड़ी"
+  ],
+  "dims": {
+    "w": 950,
+    "d": 650,
+    "h": 480
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_nesting_table-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_nesting_table-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-21"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "large-top",
+      "shape": "cylinder",
+      "center": [
+        -150,
+        465,
+        0
+      ],
+      "size": [
+        650,
+        30,
+        650
+      ],
+      "color": "#b78a5b",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "small-top",
+      "shape": "cylinder",
+      "center": [
+        245,
+        345,
+        0
+      ],
+      "size": [
+        460,
+        30,
+        460
+      ],
+      "color": "#eadfc8",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "large-leg-1",
+      "shape": "cylinder",
+      "center": [
+        -350,
+        225,
+        -200
+      ],
+      "size": [
+        35,
+        450,
+        35
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "large-leg-2",
+      "shape": "cylinder",
+      "center": [
+        50,
+        225,
+        -200
+      ],
+      "size": [
+        35,
+        450,
+        35
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "large-leg-3",
+      "shape": "cylinder",
+      "center": [
+        -350,
+        225,
+        200
+      ],
+      "size": [
+        35,
+        450,
+        35
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "large-leg-4",
+      "shape": "cylinder",
+      "center": [
+        50,
+        225,
+        200
+      ],
+      "size": [
+        35,
+        450,
+        35
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "small-leg-1",
+      "shape": "cylinder",
+      "center": [
+        125,
+        165,
+        -120
+      ],
+      "size": [
+        35,
+        330,
+        35
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "small-leg-2",
+      "shape": "cylinder",
+      "center": [
+        365,
+        165,
+        -120
+      ],
+      "size": [
+        35,
+        330,
+        35
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "small-leg-3",
+      "shape": "cylinder",
+      "center": [
+        245,
+        165,
+        140
+      ],
+      "size": [
+        35,
+        330,
+        35
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    }
+  ]
+}

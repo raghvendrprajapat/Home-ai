@@ -46,7 +46,7 @@ test('FR-022 a selection that includes a wall cannot be coloured',async({page})=
 });
 test('FR-022 a finished catalog model still draws as the real 3D model (not the fallback box) with the same parts',async({page})=>{
   const panel=await start(page);
-  await openTool(page,'Furniture');await page.getByRole('button',{name:'Browse furniture',exact:true}).click();await page.getByRole('article',{name:'Original demo desk',exact:true}).getByRole('button',{name:'Place in drawing',exact:true}).click();
+  await openTool(page,'Furniture');await page.getByRole('button',{name:'Browse furniture',exact:true}).click();await page.getByRole('dialog',{name:'Furniture catalog',exact:true}).getByLabel('Search furniture',{exact:true}).fill('Original demo desk');await page.getByRole('article',{name:'Original demo desk',exact:true}).getByRole('button',{name:'Place in drawing',exact:true}).click();
   const place=page.getByRole('region',{name:'Place furniture',exact:true});await place.getByLabel('Furniture X position',{exact:true}).fill('1200 mm');await place.getByLabel('Furniture Y position',{exact:true}).fill('1500 mm');await place.getByRole('button',{name:'Add furniture',exact:true}).click();await saved(page);
   const id=(await backup(page) as Doc).furniture.at(-1)!.id;
   await openTool(page,'Draw');await panel.getByLabel(`Select furniture ${id}`,{exact:true}).check();await swatches(page).getByRole('button',{name:'Colour: Finish - teak',exact:true}).click();await saved(page);

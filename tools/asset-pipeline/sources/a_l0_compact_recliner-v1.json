@@ -1,0 +1,229 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_compact_recliner",
+  "version": 1,
+  "name_en": "Compact recliner, fixed pose",
+  "name_hi": "कॉम्पैक्ट रिक्लाइनर कुर्सी",
+  "category": "seating",
+  "tags": [
+    "recliner",
+    "armchair",
+    "reading chair",
+    "fixed pose",
+    "fabric",
+    "आराम कुर्सी",
+    "कॉम्पैक्ट रिक्लाइनर कुर्सी"
+  ],
+  "dims": {
+    "w": 900,
+    "d": 1000,
+    "h": 1040
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_compact_recliner-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_compact_recliner-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-21"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "foot-1",
+      "shape": "cylinder",
+      "center": [
+        -350,
+        20,
+        -350
+      ],
+      "size": [
+        50,
+        40,
+        50
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "foot-2",
+      "shape": "cylinder",
+      "center": [
+        350,
+        20,
+        -350
+      ],
+      "size": [
+        50,
+        40,
+        50
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "foot-3",
+      "shape": "cylinder",
+      "center": [
+        -350,
+        20,
+        350
+      ],
+      "size": [
+        50,
+        40,
+        50
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "foot-4",
+      "shape": "cylinder",
+      "center": [
+        350,
+        20,
+        350
+      ],
+      "size": [
+        50,
+        40,
+        50
+      ],
+      "color": "#30373b",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "base",
+      "shape": "box",
+      "center": [
+        0,
+        100,
+        0
+      ],
+      "size": [
+        780,
+        120,
+        860
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "spring-box",
+      "shape": "box",
+      "center": [
+        0,
+        260,
+        0
+      ],
+      "size": [
+        780,
+        240,
+        860
+      ],
+      "color": "#7f8f87",
+      "finish": "matte"
+    },
+    {
+      "name": "seat",
+      "shape": "rounded",
+      "center": [
+        0,
+        430,
+        -80
+      ],
+      "size": [
+        730,
+        180,
+        800
+      ],
+      "color": "#7f8f87",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "back",
+      "shape": "rounded",
+      "center": [
+        0,
+        760,
+        420
+      ],
+      "size": [
+        750,
+        560,
+        160
+      ],
+      "color": "#7f8f87",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "footrest",
+      "shape": "rounded",
+      "center": [
+        0,
+        270,
+        -450
+      ],
+      "size": [
+        720,
+        260,
+        100
+      ],
+      "color": "#7f8f87",
+      "finish": "matte",
+      "radius": 35,
+      "segments": 2
+    },
+    {
+      "name": "arm-1",
+      "shape": "rounded",
+      "center": [
+        -400,
+        480,
+        -30
+      ],
+      "size": [
+        100,
+        260,
+        900
+      ],
+      "color": "#7f8f87",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 2
+    },
+    {
+      "name": "arm-2",
+      "shape": "rounded",
+      "center": [
+        400,
+        480,
+        -30
+      ],
+      "size": [
+        100,
+        260,
+        900
+      ],
+      "color": "#7f8f87",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 2
+    }
+  ]
+}
