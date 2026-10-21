@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from 'react';
 import { createBlankProject, createTemplateProject, parseProject, ProjectStore, recoveryCopy, serializeProject, TEMPLATE_IDS } from '@gharplan/core-model';
 import type { ProjectDoc, RoomType, TemplateId } from '@gharplan/core-model';
 import { recover, sameHead } from '@gharplan/persistence';
@@ -17,6 +17,10 @@ import { cloud } from '../cloud/session';
 import { cloudCopy, markInSync, setLinked } from '../cloud/linked';
 import type { CloudProjectSummary } from '../cloud/api';
 
+import {createGalleryProject} from '../gallery/designs';
+import type {GalleryAsset,GalleryId} from '../gallery/designs';
+const DesignGallery=lazy(()=>import('../gallery/DesignGallery'));
+
 const nextId = () => `cp_${crypto.randomUUID().replaceAll('-', '')}`;
 const cloneDocument = (document: ReturnType<ProjectStore['getSnapshot']>['document']) => JSON.parse(serializeProject(document)) as ProjectDoc;
 export function AppShell({ inspection, session, onSession }: { inspection: StartupInspection; session: WorkspaceSession | null; onSession(session: WorkspaceSession | null): void }) {
@@ -24,7 +28,7 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
   const screen = !session && ui.screen === 'editor' ? 'projects' : ui.screen;
   const [projects, setProjects] = useState<ProjectMeta[]>([]), [listWarnings, setListWarnings] = useState(false), [loading, setLoading] = useState(false);
   const [error, setError] = useState<'operationFailed' | 'nameRequired' | 'leaveBlocked' | 'projectListFailed' | 'importInvalid' | 'importSize' | 'importEncoding' | 'importFuture' | 'importRead' | 'cloudLoadFailed' | null>(null), [busy, setBusy] = useState(false), [showTrash, setShowTrash] = useState(false);
-  const [modal, setModal] = useState<'create' | 'rename' | 'trash' | 'recover' | 'import' | 'cloud' | null>(null), [cloudChoice, setCloudChoice] = useState<ProjectDoc | null>(null), [target, setTarget] = useState<ProjectMeta | null>(null);
+  const [modal, setModal] = useState<'create' | 'rename' | 'trash' | 'recover' | 'import' | 'cloud' | 'gallery' | null>(null), [cloudChoice, setCloudChoice] = useState<ProjectDoc | null>(null), [target, setTarget] = useState<ProjectMeta | null>(null);
   const [imported, setImported] = useState<ProjectDoc | null>(null), [importCopyOnly, setImportCopyOnly] = useState(true);
   const fileInput = useRef<HTMLInputElement>(null), reading = useRef<AbortController | null>(null);
   useEffect(() => () => { reading.current?.abort(); }, []);
@@ -117,6 +121,11 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
     if (!await canLeave()) return;
     switchTo(await createWorkspace(inspection, document)); if (linkToCloud) setLinked(document.id, true);
   }); };
+  const useGallery = (design:GalleryId,assets:readonly GalleryAsset[]) => {void perform(async()=>{
+    if(!await canLeave())return;
+    const document=createGalleryProject({design,name:t(`gallery_${design}`),units:ui.units,now:new Date().toISOString(),nextId,floorName:t('groundFloor'),materialName:t('baseFinish'),roomName:(type:RoomType)=>t(`room_${type}`),hallName:t('room_hall')},assets);
+    switchTo(await createWorkspace(inspection,document));setModal(null);
+  });};
   const duplicate = (meta: ProjectMeta) => perform(async () => {
     if (!await canLeave()) return;
     const bundle = await inspection.storage?.readProject(meta.projectId); if (!bundle) throw new Error('Saved project is unavailable.');
@@ -156,14 +165,15 @@ export function AppShell({ inspection, session, onSession }: { inspection: Start
     {error && <p role="alert">{message(ui.locale, error)}</p>}
     {screen === 'settings' ? <section className="settings-card"><h2>{t('settings')}</h2><p>{t('settingsText')}</p>{language}<label className="field-label">{t('defaultUnits')}<select aria-label={t('defaultUnits')} value={ui.units} onChange={e => ui.setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label><DiagnosticSettings />{!ui.preferencesRemembered && <p role="alert">{t('preferenceWarning')}</p>}<button onClick={() => ui.setScreen(ui.returnTo)}>{t('back')}</button></section> : <section>
       <div className="project-list-heading"><div><h2>{showTrash ? t('trash') : t('projectList')}</h2><p>{t('projectListText')}</p></div><button className="primary-button" disabled={busy} onClick={() => { setName(t('unnamed')); setUnits(ui.units); setTemplate('blank'); setTarget(null); setModal('create'); setError(null); }}>{t('newProject')}</button></div>
-      <div className="project-list-actions"><button onClick={() => { setShowTrash(v => !v); }}>{showTrash ? t('showProjects') : t('showTrash')}</button><button disabled={loading || busy} onClick={() => { void refresh(); }}>{t('refresh')}</button></div>
+      <div className="project-list-actions"><button disabled={busy} onClick={()=>{setModal('gallery');setError(null);}}>{t('galleryTitle')}</button><button onClick={() => { setShowTrash(v => !v); }}>{showTrash ? t('showProjects') : t('showTrash')}</button><button disabled={loading || busy} onClick={() => { void refresh(); }}>{t('refresh')}</button></div>
       <button disabled={busy} onClick={() => fileInput.current?.click()}>{t('importDrawing')}</button><input ref={fileInput} type="file" accept=".json,application/json" hidden aria-label={t('chooseBackup')} onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; if (file) void selectImport(file); }} />{busy && <p role="status">{t('working')}</p>}
       {loading && <p role="status">{t('loadingProjects')}</p>}{listWarnings && <p role="alert">{t('damagedProjects')}</p>}
       <div className="project-cards" role="list">{projects.filter(p => !!p.trashedAt === showTrash).map(meta => <article className="project-card" key={meta.projectId} role="listitem" data-project-id={meta.projectId}><div className="project-thumb" aria-hidden="true">⌂</div><h3>{meta.name}</h3><p>{t('onDevice')}</p><div className="project-card-actions">{meta.trashedAt ? <button disabled={busy} onClick={() => { void perform(async () => { await inspection.storage!.setTrashed(meta, false); await refresh(); }); }}>{t('restore')}</button> : <><button disabled={busy} aria-label={t('openNamed', { name: meta.name })} onClick={() => { void open(meta); }}>{t('open')}</button><button disabled={busy} onClick={() => { setTarget(meta); setName(meta.name); setModal('rename'); setError(null); }}>{t('rename')}</button><button disabled={busy} onClick={() => { void duplicate(meta); }}>{t('duplicate')}</button><button disabled={busy} onClick={() => { setTarget(meta); setModal('trash'); setError(null); }}>{t('moveTrash')}</button></>}</div></article>)}</div>
       {!loading && !projects.some(p => !!p.trashedAt === showTrash) && <p>{showTrash ? t('emptyTrash') : t('noProjects')}</p>}
       {!showTrash && <CloudProjects locale={ui.locale} busy={busy} onOpen={summary => { void openCloud(summary); }} />}
     </section>}
-    {modal && <Dialog title={modal === 'create' ? t('newProject') : modal === 'rename' ? t('rename') : modal === 'trash' ? t('trash') : modal === 'import' ? t('importTitle') : modal === 'cloud' ? t('cloudProjects') : t('recoveryTitle')} busy={busy} onCancel={() => { setModal(null); setError(null); }}>
+    {modal && <Dialog className={modal==='gallery'?'gallery-dialog':''} title={modal==='gallery'?t('galleryTitle'):modal === 'create' ? t('newProject') : modal === 'rename' ? t('rename') : modal === 'trash' ? t('trash') : modal === 'import' ? t('importTitle') : modal === 'cloud' ? t('cloudProjects') : t('recoveryTitle')} busy={busy} onCancel={() => { setModal(null); setError(null); }}>
+      {modal==='gallery'&&<Suspense fallback={<p role="status">{t('galleryLoading')}</p>}><DesignGallery locale={ui.locale} units={ui.units} busy={busy} onUse={useGallery} onClose={()=>{setModal(null);setError(null);}}/></Suspense>}
       {modal === 'import' && imported && <><p>{t('importPreview', { name: imported.name, count: imported.rooms.length, units: imported.units === 'metric' ? t('metric') : t('imperial') })}</p>{importCopyOnly ? <p>{t('importConflict')}</p> : <button disabled={busy} onClick={() => { void acceptImport(false); }}>{t('importExact')}</button>}<button disabled={busy} onClick={() => { void acceptImport(true); }}>{t('importCopy')}</button></>}
       {(modal === 'create' || modal === 'rename') && <form onSubmit={e => { e.preventDefault(); void submit(); }}><label className="field-label">{t('projectName')}<input value={name} maxLength={120} required onChange={e => setName(e.target.value)} /></label>{modal === 'create' && <label className="field-label">{t('templateLabel')}<select aria-label={t('templateLabel')} value={template} onChange={e => setTemplate(e.target.value as 'blank' | TemplateId)}><option value="blank">{t('template_blank')}</option>{TEMPLATE_IDS.map(id => <option key={id} value={id}>{t(`template_${id}` as const)}</option>)}</select></label>}{modal === 'create' && <p>{t('templateHint')}</p>}{modal === 'create' && <label className="field-label">{t('units')}<select aria-label={t('units')} value={units} onChange={e => setUnits(e.target.value as 'metric' | 'imperial')}><option value="metric">{t('metric')}</option><option value="imperial">{t('imperial')}</option></select></label>}<button className="primary-button" disabled={busy} type="submit">{busy ? t('working') : modal === 'create' ? t('create') : t('saveName')}</button></form>}
       {modal === 'cloud' && cloudChoice && <><p>{t('cloudLocalExists', { name: cloudChoice.name })}</p>
