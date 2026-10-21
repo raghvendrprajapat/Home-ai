@@ -673,6 +673,84 @@
       }
     },
     {
+      "id": "a_l0_cane_lounge_chair",
+      "version": 1,
+      "name_en": "Cane lounge chair",
+      "name_hi": "बेंत की आराम कुर्सी",
+      "category": "seating",
+      "tags": [
+        "cane",
+        "rattan style",
+        "lounge chair",
+        "accent chair",
+        "woven back",
+        "कुर्सी",
+        "बेंत",
+        "बेंत की आराम कुर्सी"
+      ],
+      "dims": {
+        "w": 760,
+        "d": 800,
+        "h": 900
+      },
+      "sourceSha256": "0298f8f0510953fe9d2f83a5b326eb75b002bcf49194a12dc2e529750750855b",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_cane_lounge_chair-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_cane_lounge_chair-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/7cca6a72d881228a5b1162e65e17fb3574aaf61ed9b9b36399700b647e5b7381.glb",
+          "sha256": "7cca6a72d881228a5b1162e65e17fb3574aaf61ed9b9b36399700b647e5b7381",
+          "bytes": 44024,
+          "triangles": 1356
+        },
+        {
+          "level": 1,
+          "path": "blobs/7cca6a72d881228a5b1162e65e17fb3574aaf61ed9b9b36399700b647e5b7381.glb",
+          "sha256": "7cca6a72d881228a5b1162e65e17fb3574aaf61ed9b9b36399700b647e5b7381",
+          "bytes": 44024,
+          "triangles": 1356
+        }
+      ],
+      "thumb": {
+        "path": "blobs/0c9473cda005fc4f678ec016e7955a91707093e04e71edf30e3c984744601657.svg",
+        "sha256": "0c9473cda005fc4f678ec016e7955a91707093e04e71edf30e3c984744601657",
+        "bytes": 31886,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1356,
+        "bounds": {
+          "min": [
+            -0.3799999952316284,
+            0,
+            -0.4000000059604645
+          ],
+          "max": [
+            0.3799999952316284,
+            0.8999999761581421,
+            0.4000000059604645
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_coffee_table",
       "version": 1,
       "name_en": "Coffee table",
@@ -966,6 +1044,160 @@
             0.550000011920929,
             0.44999998807907104,
             0.30000001192092896
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_compact_almirah",
+      "version": 1,
+      "name_en": "Compact two-door almirah",
+      "name_hi": "कॉम्पैक्ट दो-दरवाज़े की अलमारी",
+      "category": "storage",
+      "tags": [
+        "almirah",
+        "wardrobe",
+        "closet",
+        "two doors",
+        "compact storage",
+        "अलमारी",
+        "कॉम्पैक्ट दो-दरवाज़े की अलमारी"
+      ],
+      "dims": {
+        "w": 900,
+        "d": 500,
+        "h": 1800
+      },
+      "sourceSha256": "4401972cb3975fe90025897588f8fd43428183d67e85b29052c29f55d29769b9",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_compact_almirah-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_compact_almirah-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/dc5bac8814bdd5499aa41309ad4a6c19c4dc3cb2ef93a23be3343d7cfba052e8.glb",
+          "sha256": "dc5bac8814bdd5499aa41309ad4a6c19c4dc3cb2ef93a23be3343d7cfba052e8",
+          "bytes": 12848,
+          "triangles": 228
+        },
+        {
+          "level": 1,
+          "path": "blobs/dc5bac8814bdd5499aa41309ad4a6c19c4dc3cb2ef93a23be3343d7cfba052e8.glb",
+          "sha256": "dc5bac8814bdd5499aa41309ad4a6c19c4dc3cb2ef93a23be3343d7cfba052e8",
+          "bytes": 12848,
+          "triangles": 228
+        }
+      ],
+      "thumb": {
+        "path": "blobs/c3f03eb6f3e41d58d041badddf35e91ecfd25f98e49b53d6b78ea68fa44906fc.svg",
+        "sha256": "c3f03eb6f3e41d58d041badddf35e91ecfd25f98e49b53d6b78ea68fa44906fc",
+        "bytes": 7971,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 228,
+        "bounds": {
+          "min": [
+            -0.44999998807907104,
+            0,
+            -0.25
+          ],
+          "max": [
+            0.44999998807907104,
+            1.7999999523162842,
+            0.25
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_compact_recliner",
+      "version": 1,
+      "name_en": "Compact recliner, fixed pose",
+      "name_hi": "कॉम्पैक्ट रिक्लाइनर कुर्सी",
+      "category": "seating",
+      "tags": [
+        "recliner",
+        "armchair",
+        "reading chair",
+        "fixed pose",
+        "fabric",
+        "आराम कुर्सी",
+        "कॉम्पैक्ट रिक्लाइनर कुर्सी"
+      ],
+      "dims": {
+        "w": 900,
+        "d": 1000,
+        "h": 1040
+      },
+      "sourceSha256": "922acf88f62350c54993076f36a117106c3f22688942ff44fefcd49475cd52c7",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_compact_recliner-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_compact_recliner-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/53a69dbe07abdea30c464868714078baa39774519b51d0357e13a3df9747bdec.glb",
+          "sha256": "53a69dbe07abdea30c464868714078baa39774519b51d0357e13a3df9747bdec",
+          "bytes": 44900,
+          "triangles": 1716
+        },
+        {
+          "level": 1,
+          "path": "blobs/53a69dbe07abdea30c464868714078baa39774519b51d0357e13a3df9747bdec.glb",
+          "sha256": "53a69dbe07abdea30c464868714078baa39774519b51d0357e13a3df9747bdec",
+          "bytes": 44900,
+          "triangles": 1716
+        }
+      ],
+      "thumb": {
+        "path": "blobs/3514def43476cae7ee90498a26c226d32f0c6c99d7c8ae837fa291dd8d1b3e21.svg",
+        "sha256": "3514def43476cae7ee90498a26c226d32f0c6c99d7c8ae837fa291dd8d1b3e21",
+        "bytes": 34979,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1716,
+        "bounds": {
+          "min": [
+            -0.44999998807907104,
+            0,
+            -0.5
+          ],
+          "max": [
+            0.44999998807907104,
+            1.0399999618530273,
+            0.5
           ]
         },
         "validator": {
@@ -2263,6 +2495,83 @@
       }
     },
     {
+      "id": "a_l0_double_bed",
+      "version": 3,
+      "name_en": "Double bed",
+      "name_hi": "दो लोगों का पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "double bed",
+        "upholstered bed",
+        "4.5x6.5 feet",
+        "fabric",
+        "beige",
+        "दो लोगों का पलंग"
+      ],
+      "dims": {
+        "w": 1460,
+        "d": 2150,
+        "h": 1050
+      },
+      "sourceSha256": "e38c43fa962f60a16076481ea4adb8e164cfab94c500cf0005ebe35b85a3a4fa",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_double_bed-v3.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_double_bed-v3.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural geometry by Claude Code for GharPlan; new material-packed version authored by Codex. Owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/62b49f887e922dc90e28d31b79227565468a380bd050d85e24421be12dbf3698.glb",
+          "sha256": "62b49f887e922dc90e28d31b79227565468a380bd050d85e24421be12dbf3698",
+          "bytes": 51824,
+          "triangles": 1944
+        },
+        {
+          "level": 1,
+          "path": "blobs/62b49f887e922dc90e28d31b79227565468a380bd050d85e24421be12dbf3698.glb",
+          "sha256": "62b49f887e922dc90e28d31b79227565468a380bd050d85e24421be12dbf3698",
+          "bytes": 51824,
+          "triangles": 1944
+        }
+      ],
+      "thumb": {
+        "path": "blobs/bb7ac5b777071720b9cbabf4d6706eb398167d33b629f92e942dd0b5b62f7d88.svg",
+        "sha256": "bb7ac5b777071720b9cbabf4d6706eb398167d33b629f92e942dd0b5b62f7d88",
+        "bytes": 39416,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1944,
+        "bounds": {
+          "min": [
+            -0.7300000190734863,
+            0,
+            -1.0750000476837158
+          ],
+          "max": [
+            0.7300000190734863,
+            1.0499999523162842,
+            1.0750000476837158
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_drawers",
       "version": 1,
       "name_en": "Chest of drawers",
@@ -2865,6 +3174,84 @@
       }
     },
     {
+      "id": "a_l0_king_bed",
+      "version": 3,
+      "name_en": "King bed",
+      "name_hi": "किंग पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "king size bed",
+        "upholstered bed",
+        "bed with headboard",
+        "6x6.5 feet",
+        "fabric",
+        "beige",
+        "किंग पलंग"
+      ],
+      "dims": {
+        "w": 1900,
+        "d": 2150,
+        "h": 1100
+      },
+      "sourceSha256": "5f628cf3baf5828bc2a8b6225f673f8a620f24895e247d3d9755b9d2c891d6ea",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_king_bed-v3.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_king_bed-v3.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural geometry by Claude Code for GharPlan; new material-packed version authored by Codex. Owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/d908606cc21053c524c0c92c95cd3364a54795608f494088fe2777e3e2654763.glb",
+          "sha256": "d908606cc21053c524c0c92c95cd3364a54795608f494088fe2777e3e2654763",
+          "bytes": 51824,
+          "triangles": 1944
+        },
+        {
+          "level": 1,
+          "path": "blobs/d908606cc21053c524c0c92c95cd3364a54795608f494088fe2777e3e2654763.glb",
+          "sha256": "d908606cc21053c524c0c92c95cd3364a54795608f494088fe2777e3e2654763",
+          "bytes": 51824,
+          "triangles": 1944
+        }
+      ],
+      "thumb": {
+        "path": "blobs/79226cad5d8edc042afb685932d10df8fc9a3898917abdb2ec092e31dcb2a217.svg",
+        "sha256": "79226cad5d8edc042afb685932d10df8fc9a3898917abdb2ec092e31dcb2a217",
+        "bytes": 39363,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1944,
+        "bounds": {
+          "min": [
+            -0.949999988079071,
+            0,
+            -1.0750000476837158
+          ],
+          "max": [
+            0.949999988079071,
+            1.100000023841858,
+            1.0750000476837158
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_kitchen_base",
       "version": 1,
       "name_en": "Kitchen base cabinet",
@@ -3152,6 +3539,83 @@
             0.75,
             0.800000011920929,
             0.20999999344348907
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_nesting_table",
+      "version": 1,
+      "name_en": "Nesting side tables, pair",
+      "name_hi": "नेस्टिंग साइड टेबल जोड़ी",
+      "category": "tables",
+      "tags": [
+        "nesting tables",
+        "side tables",
+        "round table",
+        "compact",
+        "टेबल",
+        "जोड़ी",
+        "नेस्टिंग साइड टेबल जोड़ी"
+      ],
+      "dims": {
+        "w": 950,
+        "d": 650,
+        "h": 480
+      },
+      "sourceSha256": "f5311cc5bd5225b2a486a2c42a5f0d18c37bfad85d547f36068b058ac968eee4",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_nesting_table-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_nesting_table-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/3016edb7ff5a6142ebfe81dcd48dfd7221736c45f9646d6cb1e5e9fb41eab9e5.glb",
+          "sha256": "3016edb7ff5a6142ebfe81dcd48dfd7221736c45f9646d6cb1e5e9fb41eab9e5",
+          "bytes": 19124,
+          "triangles": 528
+        },
+        {
+          "level": 1,
+          "path": "blobs/3016edb7ff5a6142ebfe81dcd48dfd7221736c45f9646d6cb1e5e9fb41eab9e5.glb",
+          "sha256": "3016edb7ff5a6142ebfe81dcd48dfd7221736c45f9646d6cb1e5e9fb41eab9e5",
+          "bytes": 19124,
+          "triangles": 528
+        }
+      ],
+      "thumb": {
+        "path": "blobs/28d76dadde1ca746799c56e19cb916a4d2ffa66736c4ca6cb26619fce44ae156.svg",
+        "sha256": "28d76dadde1ca746799c56e19cb916a4d2ffa66736c4ca6cb26619fce44ae156",
+        "bytes": 12822,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 528,
+        "bounds": {
+          "min": [
+            -0.4749999940395355,
+            0,
+            -0.32499998807907104
+          ],
+          "max": [
+            0.4749999940395355,
+            0.47999998927116394,
+            0.32499998807907104
           ]
         },
         "validator": {
@@ -3607,6 +4071,161 @@
             0.8100000023841858,
             1.100000023841858,
             1.0750000476837158
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_queen_bed",
+      "version": 3,
+      "name_en": "Queen bed",
+      "name_hi": "क्वीन पलंग",
+      "category": "beds",
+      "tags": [
+        "bed",
+        "queen size bed",
+        "upholstered bed",
+        "bed with headboard",
+        "5x6.5 feet",
+        "fabric",
+        "beige",
+        "क्वीन पलंग"
+      ],
+      "dims": {
+        "w": 1620,
+        "d": 2150,
+        "h": 1100
+      },
+      "sourceSha256": "e4f0843a6be25a3b40bb678cace332a8a2a97994458fbe7b467bc7b4ca730f90",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_queen_bed-v3.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_queen_bed-v3.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural geometry by Claude Code for GharPlan; new material-packed version authored by Codex. Owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/0b4b40975f27da54935d4443f61a0c6063e208f0f936b7c1480ab9992eda3cf6.glb",
+          "sha256": "0b4b40975f27da54935d4443f61a0c6063e208f0f936b7c1480ab9992eda3cf6",
+          "bytes": 51820,
+          "triangles": 1944
+        },
+        {
+          "level": 1,
+          "path": "blobs/0b4b40975f27da54935d4443f61a0c6063e208f0f936b7c1480ab9992eda3cf6.glb",
+          "sha256": "0b4b40975f27da54935d4443f61a0c6063e208f0f936b7c1480ab9992eda3cf6",
+          "bytes": 51820,
+          "triangles": 1944
+        }
+      ],
+      "thumb": {
+        "path": "blobs/caeb8f6b61c3d8a6668efaba59b5e368e2dc0c7fc2e8c9759bfe68e0c1702334.svg",
+        "sha256": "caeb8f6b61c3d8a6668efaba59b5e368e2dc0c7fc2e8c9759bfe68e0c1702334",
+        "bytes": 39361,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1944,
+        "bounds": {
+          "min": [
+            -0.8100000023841858,
+            0,
+            -1.0750000476837158
+          ],
+          "max": [
+            0.8100000023841858,
+            1.100000023841858,
+            1.0750000476837158
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_round_dining_table",
+      "version": 1,
+      "name_en": "Round pedestal dining table",
+      "name_hi": "गोल पेडेस्टल डाइनिंग टेबल",
+      "category": "tables",
+      "tags": [
+        "dining table",
+        "round table",
+        "pedestal",
+        "four places",
+        "टेबल",
+        "खाना",
+        "गोल पेडेस्टल डाइनिंग टेबल"
+      ],
+      "dims": {
+        "w": 1100,
+        "d": 1100,
+        "h": 750
+      },
+      "sourceSha256": "8773fa59d8835841f7b38eee7a9f70c5264fd7fec4f11bfb3f99ce9a4a858e63",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_round_dining_table-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_round_dining_table-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/1f890a7039ba61b07b73f94da73a9b0503ceb165370a0061d2d134b2da077e47.glb",
+          "sha256": "1f890a7039ba61b07b73f94da73a9b0503ceb165370a0061d2d134b2da077e47",
+          "bytes": 13644,
+          "triangles": 384
+        },
+        {
+          "level": 1,
+          "path": "blobs/1f890a7039ba61b07b73f94da73a9b0503ceb165370a0061d2d134b2da077e47.glb",
+          "sha256": "1f890a7039ba61b07b73f94da73a9b0503ceb165370a0061d2d134b2da077e47",
+          "bytes": 13644,
+          "triangles": 384
+        }
+      ],
+      "thumb": {
+        "path": "blobs/034f460b05c69c55078a51f1fa89d21e145acc2236aa3a4debf427060c3480d3.svg",
+        "sha256": "034f460b05c69c55078a51f1fa89d21e145acc2236aa3a4debf427060c3480d3",
+        "bytes": 8734,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 384,
+        "bounds": {
+          "min": [
+            -0.550000011920929,
+            0,
+            -0.550000011920929
+          ],
+          "max": [
+            0.550000011920929,
+            0.75,
+            0.550000011920929
           ]
         },
         "validator": {
@@ -4807,6 +5426,83 @@
             0.22499999403953552,
             0.41999998688697815,
             0.22499999403953552
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_storage_ottoman",
+      "version": 1,
+      "name_en": "Round storage ottoman",
+      "name_hi": "गोल स्टोरेज ओटोमन",
+      "category": "seating",
+      "tags": [
+        "ottoman",
+        "storage seat",
+        "round pouffe",
+        "footstool",
+        "बक्सा",
+        "बैठक",
+        "गोल स्टोरेज ओटोमन"
+      ],
+      "dims": {
+        "w": 750,
+        "d": 750,
+        "h": 450
+      },
+      "sourceSha256": "ee86f64875e9bc2910385041d3719aa7696753925be6ea607fcd6ef8f61d6c0d",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_storage_ottoman-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_storage_ottoman-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-21"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/7c6921c46bfc5a6e3291219efa25fc72e0e01791137778ee3899504f3da02af3.glb",
+          "sha256": "7c6921c46bfc5a6e3291219efa25fc72e0e01791137778ee3899504f3da02af3",
+          "bytes": 14392,
+          "triangles": 384
+        },
+        {
+          "level": 1,
+          "path": "blobs/7c6921c46bfc5a6e3291219efa25fc72e0e01791137778ee3899504f3da02af3.glb",
+          "sha256": "7c6921c46bfc5a6e3291219efa25fc72e0e01791137778ee3899504f3da02af3",
+          "bytes": 14392,
+          "triangles": 384
+        }
+      ],
+      "thumb": {
+        "path": "blobs/694ad2f5c17d700180e6251a23e8481ce95aa18a0928a45cfac785db5b445bf6.svg",
+        "sha256": "694ad2f5c17d700180e6251a23e8481ce95aa18a0928a45cfac785db5b445bf6",
+        "bytes": 8530,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 384,
+        "bounds": {
+          "min": [
+            -0.375,
+            0,
+            -0.375
+          ],
+          "max": [
+            0.375,
+            0.44999998807907104,
+            0.375
           ]
         },
         "validator": {

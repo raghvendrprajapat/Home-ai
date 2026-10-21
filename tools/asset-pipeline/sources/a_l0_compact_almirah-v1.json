@@ -1,0 +1,247 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_compact_almirah",
+  "version": 1,
+  "name_en": "Compact two-door almirah",
+  "name_hi": "कॉम्पैक्ट दो-दरवाज़े की अलमारी",
+  "category": "storage",
+  "tags": [
+    "almirah",
+    "wardrobe",
+    "closet",
+    "two doors",
+    "compact storage",
+    "अलमारी",
+    "कॉम्पैक्ट दो-दरवाज़े की अलमारी"
+  ],
+  "dims": {
+    "w": 900,
+    "d": 500,
+    "h": 1800
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_compact_almirah-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_compact_almirah-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Codex for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-21"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "plinth",
+      "shape": "box",
+      "center": [
+        0,
+        40,
+        0
+      ],
+      "size": [
+        900,
+        80,
+        500
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "top",
+      "shape": "box",
+      "center": [
+        0,
+        1780,
+        0
+      ],
+      "size": [
+        900,
+        40,
+        500
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "back",
+      "shape": "box",
+      "center": [
+        0,
+        920,
+        235
+      ],
+      "size": [
+        820,
+        1680,
+        30
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "bottom",
+      "shape": "box",
+      "center": [
+        0,
+        100,
+        0
+      ],
+      "size": [
+        820,
+        40,
+        460
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "side-1",
+      "shape": "box",
+      "center": [
+        -430,
+        920,
+        0
+      ],
+      "size": [
+        40,
+        1680,
+        500
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "side-2",
+      "shape": "box",
+      "center": [
+        430,
+        920,
+        0
+      ],
+      "size": [
+        40,
+        1680,
+        500
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "door-1",
+      "shape": "box",
+      "center": [
+        -210,
+        945,
+        -210
+      ],
+      "size": [
+        405,
+        1610,
+        20
+      ],
+      "color": "#99a493",
+      "finish": "matte"
+    },
+    {
+      "name": "door-2",
+      "shape": "box",
+      "center": [
+        210,
+        945,
+        -210
+      ],
+      "size": [
+        405,
+        1610,
+        20
+      ],
+      "color": "#99a493",
+      "finish": "matte"
+    },
+    {
+      "name": "shelf-1",
+      "shape": "box",
+      "center": [
+        0,
+        600,
+        30
+      ],
+      "size": [
+        820,
+        20,
+        400
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "shelf-2",
+      "shape": "box",
+      "center": [
+        0,
+        1100,
+        30
+      ],
+      "size": [
+        820,
+        20,
+        400
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "shelf-3",
+      "shape": "box",
+      "center": [
+        0,
+        1400,
+        30
+      ],
+      "size": [
+        820,
+        20,
+        400
+      ],
+      "color": "#e7e3d9",
+      "finish": "matte"
+    },
+    {
+      "name": "handle-1",
+      "shape": "cylinder",
+      "center": [
+        -35,
+        930,
+        -235
+      ],
+      "size": [
+        12,
+        180,
+        30
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "handle-2",
+      "shape": "cylinder",
+      "center": [
+        35,
+        930,
+        -235
+      ],
+      "size": [
+        12,
+        180,
+        30
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    }
+  ]
+}
