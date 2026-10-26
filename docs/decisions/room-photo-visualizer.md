@@ -1,4 +1,4 @@
-# D85 — Room photo visualizer (Phase 1 offline; Phase 2 planned)
+# D85/D86 — Room photo visualizer (Phase 1 offline; Phase 2 AI)
 
 Owner, 2026-10-26: after Claude's architecture review the owner said "Okey now do work"; Claude Code is the builder again for this work (Codex does not run concurrently). Goal: after seeing the home in 3D, a customer tries paint, tiles/laminate/wallpaper or wall art on a photo of their **real** room.
 
@@ -28,21 +28,48 @@ Phase 1 (this change) is fully offline and deterministic: no network upload, no 
 
 **Result.** Before/after compare slider (`role="slider"`, 0–100, arrows ±2, Page keys ±10, Home/End, drag anywhere on the frame) and "Compare options" between two kept options. "Save image": the web saves a JPEG download (`gharplan-room-photo.jpg`); where the browser can share files, "Share image" opens the phone share sheet. The Android app reuses the verified native PNG save of the plan/3D image exports (`exportNativePng`), because the native plugin accepts only checked PNG files; so on Android the saved image is PNG, not JPEG. Saved images carry a small "GharPlan preview · approximate" corner label; the screen shows the clean result. The preview-only note stays visible in the panel and in the visualizer.
 
-**Provider boundary** (`surface-provider.ts`): `SurfaceEditProvider { kind: 'stand-in' | 'server'; render(request, signal): Promise<SurfaceEditResult> }`. Only the stand-in exists. The view takes a `provider` prop (default stand-in), so Phase 2 can plug in without UI changes.
+**Provider boundary** (`surface-provider.ts`): `SurfaceEditProvider { kind: 'stand-in' | 'server'; render(request, signal): Promise<SurfaceEditResult> }`. The view takes a `provider` prop (default stand-in). D86 adds the `'server'` provider below; the stand-in stays the default.
 
-## Phase 2: planned design (not built yet)
+## Phase 2 (D86): AI previews, as built
 
-Owner decisions (2026-10-26, recorded after Phase 1 was built): AI spending is allowed; the whole app may spend at most **US$3 per month** on AI (a server kill-switch stops AI calls at that limit); every signed-in account gets **3 free AI previews per month**; the provider is **fal.ai** (GPT-Image-2.5 `flare` edit at server-enforced `medium` quality, SAM-2 tap-to-select), replacing D76's Gemini choice for this feature; the owner permits a consent screen and a privacy-policy update, and room photos sent for processing are deleted automatically after 7 days. Phase 2 is built in its own task. Until it ships, no photo leaves the device.
+Owner decisions (2026-10-26): AI spending is allowed; the whole app may spend at most **US$3 per calendar month (UTC)** on AI (server kill-switch); every signed-in account gets **3 free AI previews per month**; provider **fal.ai** (GPT-Image-2.5 `flare` edit at server-forced `medium` quality, SAM-2 tap-to-select), replacing D76's Gemini for this feature only; consent screen and privacy-policy update; uploads and results deleted after **7 days**. No purchases (billing stays gated). Not signed in → no AI; the offline engine above stays the default and works without any network.
 
-- **Server-only secret.** Supabase Edge Functions hold the provider key (Supabase secrets); never in the app bundle, logs or chat.
-- **Functions.** `submit` (validate, reserve credits, upload to a private bucket, start the async job), `webhook` (provider callback with signature check; store output; settle or refund), `segment` (SAM-2 tap-to-select returning a mask).
-- **Credits ledger.** Append-only reserve → settle on success / refund on failure or timeout; the balance is derived from the ledger; idempotency key per request.
-- **Server allowlist.** Model, quality (server-enforced `medium`), output size and prompt template are fixed on the server; the client cannot choose a more expensive option.
-- **Storage.** Private bucket, signed short-lived URLs, short retention with automatic deletion; account deletion (FR-043) removes them.
-- **Local composite.** The AI output is composited on the device inside the same mask, so pixels outside the chosen area remain the person's own photo, byte for byte.
-- **Async jobs.** Jobs survive app backgrounding; the app polls/resumes on app resume and shows pending/failed/refunded states.
-- **CORS** limited to `https://localhost` (Capacitor Android) and the Vercel domain.
-- **Memory.** Upload the working-size image only (≤ 1536×1024 JPEG), decode one result at a time, keep options as compressed blobs.
+**Money and limits** (`server/supabase/migrations/20261026000000_room_photo_ai.sql`).
+- `ai.settings` (one row, only the service role or the owner in the SQL editor can change it): `enabled` (kill switch), `monthly_cap_usd` 3, `free_previews_per_month` 3, `est_edit_usd` **0.08**, `est_segment_usd` **0.01**, `segment_daily_limit` 20. fal bills the edit model by tokens and publishes no per-image price, so each call reserves a deliberately conservative *estimate*; the owner should lower or raise `est_edit_usd` after reading the real cost in fal's usage page (setup guide step 9).
+- `ai.jobs` (RLS: a person reads only their own rows; no client writes). The brief's `ai_settings`/`ai_jobs` live in a private `ai` schema: it is not exposed through the REST API, and the existing SEC-009 test pins six tables in `public`.
+- `reserve_ai_job(client_job_id, kind, folder?)`: signed-in only; idempotent per (account, client_job_id) — the same key always answers the same job and never takes a second preview or a second share of the cap; checks `enabled`, the person's 3 edit jobs this month (not refunded/failed), the 20 taps today, and *this month's estimated spend + the new estimate ≤ cap*, all under a `FOR UPDATE` lock on the settings row, so two parallel reservations cannot both take the last slot (tested with two real sessions).
+- States: `reserved` → `submitting` (claimed exactly once; a second submit can never pay fal again) → `running` → `succeeded` | `refunded` (nothing charged: frees the preview and the money) | `failed` (fal may have charged: the person gets the preview back, the money still counts). Stale jobs expire: reserved > 15 min → refunded; submitting > 15 min or running > 60 min → failed. A late webhook can still turn `failed` into `succeeded`.
+- `ai_quota()` returns previews left, taps left and paused flags — never money. Service-only: `claim_ai_job`, `start_ai_job`, `finish_ai_job`, `ai_job_for_webhook`, `ai_expired_paths`, `mark_ai_purged`.
+- Storage: private bucket `room-photos` (JPEG/PNG, 5 MB each). Policies let a signed-in person upload, read, replace and delete only under `<user id>/…` and never write in `<user id>/results/`. Plain PostgreSQL (CI) has no `storage` schema, so this part is guarded and skipped there; the setup guide has the manual fallback.
+- Account deletion: job rows stay (with no owner) so the month's spending still counts; their files are listed for deletion at once.
+
+**Edge Functions** (`server/supabase/functions/`, Deno on Supabase). All logic lives in `_shared/*.ts` with web-standard APIs only and injected "ports", so Vitest runs the same code; each `*/index.ts` is three lines. `server/supabase/config.toml` sets `verify_jwt = false` for all four because each checks its caller itself (Supabase Auth `getUser` for the two app functions — works with both legacy and new API keys; fal's signature for the webhook; the service-role key for cleanup). Run the Supabase CLI with `--workdir server`.
+- `room-ai-submit`: request check (files only directly in `<uid>/<clientJobId>/`, `photo.jpg`, `mask.png`, ≤ 3 `ref-N.jpg`, known material kind, `#rrggbb` colour, surface wall/floor/other) → reserve as the user → the uploads exist with the right type and size (storage listing) → claim → 10-minute signed URLs → `POST https://queue.fal.run/openai/gpt-image-2.5/flare/edit?fal_webhook=<SUPABASE_URL>/functions/v1/room-ai-webhook?job=<id>` with `Authorization: Key FAL_KEY`, `X-Fal-Store-IO: 0`, `X-Fal-Object-Lifecycle-Preference: {"expiration_duration_seconds":3600}` and the fixed body `{prompt, image_urls:[photo, …refs], mask_url, quality:'medium', num_images:1, output_format:'jpeg', image_size:'auto', enable_safety_checker:true}` → `start_ai_job`. fal refuses → refunded; no answer → failed.
+- Prompt: a fixed English template; only a cleaned label (letters, digits, spaces and `#,.()'-`, ≤ 40 characters) and a `#rrggbb` colour are inserted; ≤ 1000 characters.
+- `room-ai-webhook`: Ed25519 check exactly as fal documents (message = request_id\nuser_id\ntimestamp\nhex(sha256(raw body)); keys from `https://rest.fal.ai/.well-known/jwks.json`, cached 12 h, one refetch on failure at most every 5 minutes; |now − timestamp| ≤ 300 s); bad signature → 401 and nothing changes. A valid delivery is answered 200 at once and settled in the background (`EdgeRuntime.waitUntil`): the image is downloaded only from `https://fal.media`/`*.fal.media` (no redirects, ≤ 15 MB, JPEG), stored as `<owner>/results/<job>.jpg`, the job succeeds; ERROR → refunded. Then the room photo and references are deleted; the mask stays so the app can finish a preview after being closed.
+- `room-ai-segment`: one tap → reserve a `segment` job → `https://fal.run/fal-ai/sam2/image` with one positive point → mask fetched from the allowlisted host and returned as base64.
+- `room-ai-cleanup` (service key only; owner schedules it daily): deletes job folders and results older than 7 days or of deleted accounts, plus any bucket object older than 7 days (from `storage.objects` when present), then marks the jobs purged.
+- CORS: only `ALLOWED_ORIGINS` (https origins) and `https://localhost` (Capacitor). Secrets only from environment variables; logs carry job ids and outcomes, never keys, tokens, signed URLs or bodies.
+
+**App** (`apps/web/src/visualizer/server-surface.ts`, `ai-image.ts`, `ai-codec.ts`, `AiConsent.tsx`; `cloud/api.ts` `roomAi`).
+- The AI block appears only when the build has cloud settings: signed out it says how to get previews; signed in it shows "AI previews left this month: N of 3" or "AI is paused for this month", a "This area is" choice and "Make AI preview (uses 1)". The visualizer never loads the cloud library for someone who never signed in (the Phase 1 "nothing leaves the device" e2e check still passes unchanged).
+- Consent (versioned, per device and account in `localStorage`) before the first preview or tap; links the privacy policy.
+- Flow: reserve → upload the working-size photo (JPEG ≤ 1536×1024), the mask as an 8-bit greyscale PNG at exactly the photo's size (white = change, black = keep, soft edge greys) and at most one reference (pattern ≤ 512 px or picture ≤ 1024 px) with the person's own session → submit → poll `get_ai_job` (2, 2, 3, 3, 4, 5 then 6 s; about 3 minutes; woken at once on Capacitor `resume` and tab visibility) → download the result as a Blob → scale to the working size → **composite on the device**: out = photo·(255−m)/255 + AI·m/255 inside the mask; every pixel with m = 0 is copied byte for byte → kept as option "AI". The app then deletes the mask and result from storage.
+- Never an automatic retry of a paid call. "Try again" (network/result problems) and "Keep waiting" (timeout) reuse the same clientJobId, so the server answers the same job. A job still running when the visualizer closes is remembered per account; opening the same photo again finishes it with the mask kept on the server.
+- Tap to select (AI): the photo is uploaded once per visualizer session; each tap's mask becomes one `union` mask step (undoable; only ever adds).
+- Privacy policy `apps/web/public/privacy.html` (English + Hindi; contact = the Google Play support email, as on `delete-account.html`; no invented company details); linked from the consent, Cloud saving and Settings; `delete-account.html` now mentions AI files.
+
+**Tests (builder's own, not independent).** Vitest: fal body/prompt/allowlist/CORS/validation, Ed25519 signatures with generated keys (valid, tampered, wrong key, ±300 s, rotation refetch, rate limit), the four handlers with fake Supabase/fal, the client provider flow (reserve → upload → submit → poll → composite, cap, used up, signed out, refund, timeout, no double submit, resume), mask PNG bytes, composite property (outside-mask pixels identical), consent/quota UI. SQL on PostgreSQL 16: RLS, idempotency, 3/month, refund, failed, cap (exactly US$3 passes, more is refused), kill switch, taps, stale expiry, cleanup, account deletion, service-only functions, plus two-session races (last preview, same key, cap across accounts). Browser e2e against a stand-in for Supabase: consent → uploads → job → composite exact outside the mask, tap-to-select + Undo, privacy page at 412 px and 1280 px.
+
+**Risks and open checks.**
+- **No live fal call was made.** Field names, the mask convention and the webhook signature follow fal's documentation of 2026-10-26; the first real run must be watched (setup guide step 8).
+- The real cost per preview is unknown; the cap is only as good as `est_edit_usd`. Check fal's usage page after the first previews and adjust.
+- `image_size: 'auto'` may return a different aspect ratio than the photo (for example 3:2 for a 4:3 photo); the app stretches it back to the photo size, so content inside the area may shift slightly. Pending a live check.
+- If fal moves result files to another host, results fail closed (job `failed`, preview given back); the owner can set `FAL_MEDIA_HOSTS`.
+- An answer lost between fal and `room-ai-submit` is treated as `failed` (preview back, money counted); a late webhook still delivers it.
+- Storage policies and the bucket use Supabase's `storage` schema, which CI cannot test; check them once in the real project (setup guide step 8).
+- Android without `VITE_PUBLIC_APP_URL` opens the bundled privacy page inside the app (Back returns, the visualizer is closed).
+- The legal text of `privacy.html` is the builder's factual draft; **the owner must review it** before release.
 
 ## Risks
 
@@ -53,9 +80,10 @@ Owner decisions (2026-10-26, recorded after Phase 1 was built): AI spending is a
 
 ## What is NOT done
 
-- No server provider, no AI, no upload, no backend, no credits (Phase 2 above).
+- Phase 2 (D86) is built but has not run against the real fal.ai service or the owner's Supabase project.
 - No pinch-zoom on the photo; no automatic wall/floor detection.
 - Android saves PNG (native plugin limit), not JPEG; Web Share is used only where the browser supports sharing files (Android WebView does not).
 - Results and options are not saved in the project and are lost when the visualizer closes.
 - No real Low/Mid phone testing, no performance claim for phones, no final Claude review (D36/D63 gates remain).
+- No purchases of extra AI previews (billing stays gated).
 - All tests are the builder's own (Claude Code), not independent fixtures.
