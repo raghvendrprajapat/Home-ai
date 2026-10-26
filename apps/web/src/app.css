@@ -867,3 +867,69 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .gallery-card button { margin-top:auto; width:100%; }
 .gallery-plan { display:block; width:100%; height:14rem; background:#f3f4ee; border-radius:.5rem; }
 @media(max-width:760px) { .gallery-cards { grid-template-columns:1fr; } .gallery-dialog { padding:1rem; } }
+
+/* D85 Room photo: the tool panel, then the full-screen visualizer (photo stage + controls; a column on phones). */
+.viz-note { font-size:12px; line-height:1.5; color:#5d4a26; background:#fff4dd; border-radius:8px; padding:8px 10px; }
+.room-photo-panel > p { margin-bottom:10px; }
+.viz-file { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+.viz-dialog { position:fixed; inset:0; width:100%; height:100%; max-width:none; max-height:none; margin:0; padding:0; border:0; background:#f4f5ef; color:#283e34; overflow:hidden; }
+.viz-dialog[open] { display:flex; flex-direction:column; }
+.viz-dialog::backdrop { background:#10251b; }
+.viz-head { flex:none; display:flex; align-items:center; justify-content:space-between; gap:8px; min-height:56px; padding:4px 8px 4px 16px; background:#fff; border-bottom:1px solid #dfe5dc; }
+.viz-head h2 { font-size:18px; letter-spacing:0; }
+.viz-body { flex:1 1 auto; min-height:0; display:flex; }
+.viz-stage { flex:1 1 auto; min-width:0; min-height:0; display:flex; align-items:center; justify-content:center; background:#1f2722; overflow:hidden; }
+.viz-stage-note { color:#fff; font-size:14px; }
+.viz-frame, .viz-compare { position:relative; flex:none; }
+.viz-canvas { position:absolute; inset:0; width:100%; height:100%; display:block; }
+.viz-overlay { touch-action:none; cursor:crosshair; }
+.viz-corner { position:absolute; width:16px; height:16px; margin:-8px 0 0 -8px; border-radius:50%; background:#ff8a3d; border:2px solid #fff; box-shadow:0 1px 4px #0008; pointer-events:none; }
+.viz-compare { touch-action:none; cursor:ew-resize; user-select:none; -webkit-user-select:none; }
+.viz-layer { position:absolute; inset:0; }
+.viz-divider { position:absolute; top:0; bottom:0; width:48px; margin-left:-24px; display:flex; align-items:center; justify-content:center; cursor:ew-resize; }
+.viz-divider::before { content:""; position:absolute; top:0; bottom:0; left:23px; width:2px; background:#fff; box-shadow:0 0 4px #0008; }
+.viz-knob { position:relative; width:32px; height:32px; border-radius:50%; background:#fff; border:2px solid #34563f; box-shadow:0 2px 8px #0006; }
+.viz-divider:focus-visible { outline:3px solid #c5905d; outline-offset:-3px; }
+.viz-tag { position:absolute; top:8px; max-width:40%; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; padding:2px 8px; border-radius:10px; background:#000a; color:#fff; font-size:12px; pointer-events:none; }
+.viz-tag-left { left:8px; } .viz-tag-right { right:8px; }
+.viz-controls { flex:none; width:360px; overflow-y:auto; overscroll-behavior:contain; padding:12px 16px 24px; background:#fff; border-left:1px solid #dfe5dc; }
+.viz-controls h3 { font-size:15px; margin:16px 0 4px; }
+.viz-controls p { font-size:13px; line-height:1.5; margin-top:6px; }
+.viz-controls label { display:block; margin-top:10px; font-size:13px; color:#4a5e51; }
+.viz-controls label.ai-check { display:flex; align-items:center; gap:8px; min-height:48px; margin-top:4px; }
+.viz-controls label.ai-check input { width:20px; height:20px; }
+.viz-controls input[type=range] { display:block; width:100%; min-height:48px; margin:0; }
+.viz-controls input[type=text], .viz-controls input[type=file], .viz-controls select { display:block; width:100%; min-height:48px; margin-top:4px; padding:8px 10px; border:1px solid #d5ddd6; border-radius:8px; background:#fbfcf9; }
+.viz-controls .primary-button { margin-top:12px; justify-content:center; font-weight:600; }
+.viz-controls .viz-upload { display:flex; width:100%; justify-content:center; margin-top:8px; }
+.viz-controls button { display:inline-flex; align-items:center; gap:6px; }
+.viz-tools, .viz-row, .viz-view { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+.viz-view { margin-top:12px; }
+.viz-tools button[aria-pressed=true], .viz-view button[aria-pressed=true], .viz-finishes button[aria-pressed=true] { background:#34563f; color:#fff; border-color:#34563f; }
+.viz-swatches { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+.viz-swatch { width:48px; height:48px; border-radius:50%; border:2px solid #d5ddd6; padding:0; }
+.viz-swatch:hover:not(:disabled) { border-color:#7f9a86; }
+.viz-swatch[aria-pressed=true] { outline:3px solid #34563f; outline-offset:2px; }
+.viz-colour input[type=color] { display:block; width:96px; height:48px; margin-top:4px; padding:2px; border:1px solid #d5ddd6; border-radius:8px; background:#fff; }
+.viz-finishes { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+.viz-finishes button { font-size:13px; padding:6px 10px; }
+.viz-chip { flex:none; width:18px; height:18px; border-radius:4px; border:1px solid #0002; }
+.viz-subhead { font-weight:600; }
+.viz-variants { list-style:none; margin:6px 0 0; padding:0; display:flex; flex-direction:column; gap:6px; }
+.viz-variants li { display:flex; align-items:center; gap:8px; }
+.viz-variants img { flex:none; width:64px; height:44px; object-fit:cover; border-radius:6px; background:#eee; }
+.viz-variants span { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:13px; }
+.viz-pair { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+@media (max-width:760px) {
+  .viz-head { min-height:52px; }
+  .viz-body { flex-direction:column; }
+  /* The photo's own shape sets the stage height, so the controls get the rest of the screen. */
+  .viz-stage { flex:0 0 auto; width:100%; aspect-ratio:var(--viz-aspect,4 / 3); max-height:56%; min-height:160px; }
+  .viz-controls { width:auto; flex:1 1 48%; min-height:0; border-left:0; border-top:1px solid #dfe5dc; padding:8px 16px 24px; }
+  .viz-controls h3 { margin-top:12px; }
+}
+/* D85: seven tools on the narrowest phones (360 px): no side padding or gaps, so every label keeps whole words. */
+@media (max-width:400px) {
+  .tool-rail { gap:0; padding:4px 2px; }
+  .tool-button { padding:6px 0; }
+}
