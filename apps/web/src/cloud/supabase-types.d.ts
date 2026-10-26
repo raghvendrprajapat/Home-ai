@@ -7,7 +7,14 @@ export interface PostgrestResult { data: unknown; error: { message?: string } | 
 export interface Query extends PromiseLike<PostgrestResult> {
   select(columns: string): Query; is(column: string, value: null): Query; eq(column: string, value: string | number): Query; order(column: string, options: { ascending: boolean }): Query; limit(count: number): Query;
 }
+export interface StorageBucket {
+  upload(path: string, file: Blob, options?: { contentType?: string; upsert?: boolean }): Promise<{ data: unknown; error: { message?: string } | null }>;
+  download(path: string): Promise<{ data: Blob | null; error: { message?: string } | null }>;
+  remove(paths: string[]): Promise<{ data: unknown; error: { message?: string } | null }>;
+}
 export interface SupabaseClient {
+  storage: { from(bucket: string): StorageBucket };
+  functions: { invoke(name: string, options: { body: unknown }): Promise<{ data: unknown; error: { name?: string; message?: string; context?: { status?: number } } | null }> };
   auth: {
     getSession(): Promise<{ data: { session: SupabaseSession | null } }>;
     onAuthStateChange(callback: (event: string, session: SupabaseSession | null) => void): unknown;

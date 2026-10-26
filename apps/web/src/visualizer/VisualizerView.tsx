@@ -1,10 +1,11 @@
-import {useCallback,useEffect,useLayoutEffect,useRef,useState} from 'react';
+import {useCallback,useEffect,useLayoutEffect,useRef,useState,useSyncExternalStore} from 'react';
 import type {CSSProperties,KeyboardEvent,PointerEvent,ReactNode} from 'react';
 import {createPortal} from 'react-dom';
 import {message} from '../i18n/messages';
 import type {Locale,MessageArgs,MessageKey} from '../i18n/messages';
 import {surfaceLibrary,surfaceMaterialName,surfaceTextureLibrary} from '../editor/material-library';
 import {Icon} from '../ui/Icon';
+import {Capacitor} from '@capacitor/core';
 import {CompareSlider} from './CompareSlider';
 import {orderQuad} from './homography';
 import type {Point} from './homography';
@@ -19,11 +20,22 @@ import {standInSurface} from './surface-provider';
 import type {SurfaceEditProvider,SurfaceEditResult} from './surface-provider';
 import {addVariant,MAX_VARIANTS,nextLetter,variantLabel} from './variants';
 import type {Variant} from './variants';
+import type {AiQuota} from '../cloud/api';
+import {CLOUD_OFF,cloudWasUsed,noSubscription} from '../cloud/session';
+import type {CloudSession} from '../cloud/session';
+import {AiConsent} from './AiConsent';
+import {browserCodec} from './ai-codec';
+import {createRoomAi,giveConsent,hasConsent,loadPending,newClientJobId,RoomAiError,savePending,Waker} from './server-surface';
+import type {AiPhase,AiProblem,AiSurfaceRequest,RoomAi} from './server-surface';
 
-type AreaTool='brush'|'erase'|'corners';
+type AreaTool='brush'|'erase'|'corners'|'ai-tap';
 type Mode='paint'|'pattern'|'picture';
 type Stage='area'|'result'|'compare';
-type Pattern={readonly name:string;readonly pixels:Pixels};
+/** `en` is the English name sent to the AI prompt (the server allows only a short cleaned label). */
+type Pattern={readonly name:string;readonly en:string;readonly pixels:Pixels};
+type AiNote=Readonly<{kind:'phase';phase:AiPhase}|{kind:'done';kept:boolean}|{kind:'problem';code:AiProblem;again:boolean}|{kind:'resuming'}|{kind:'other-photo'}>;
+type TapNote='busy'|'added'|'nothing'|AiProblem|null;
+const cloudOff=()=>CLOUD_OFF;
 /** Mask overlay colour (a clear blue that reads on walls, floors and wood alike), drawn at half the mask alpha. */
 const OVERLAY:Rgb=[40,120,255];
 /** App finishes offered as patterns: the D76/D82 colour maps already shipped for the 3D view (same-origin files). */
@@ -48,7 +60,7 @@ function PixelCanvas({pixels,label,testId}:{pixels:Pixels;label:string;testId?:s
  * paint, a pattern or a picture, see before/after, keep up to four options, save or share the image. All state lives
  * here and dies with the view; nothing is written to the project store or saved with the drawing.
  */
-export default function VisualizerView({file,locale,onClose,provider=standInSurface}:{file:File;locale:Locale;onClose(problem?:PhotoProblem):void;provider?:SurfaceEditProvider}):ReactNode{
+export default function VisualizerView({file,locale,onClose,provider=standInSurface,cloud=null}:{file:File;locale:Locale;onClose(problem?:PhotoProblem):void;provider?:SurfaceEditProvider;cloud?:CloudSession|null}):ReactNode{
  const t=<K extends MessageKey>(key:K,...args:MessageArgs<K>)=>message(locale,key,...args);
  const dialog=useRef<HTMLDialogElement>(null),stageRef=useRef<HTMLDivElement>(null),overlay=useRef<HTMLCanvasElement>(null),patternInput=useRef<HTMLInputElement>(null),pictureInput=useRef<HTMLInputElement>(null);
  const [photo,setPhoto]=useState<Pixels|null>(null),history=useRef<MaskHistory|null>(null),[maskVersion,setMaskVersion]=useState(0);
@@ -62,13 +74,37 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  const [saveState,setSaveState]=useState<SaveOutcome|'busy'|null>(null),[shareable]=useState(canShareImages);
  const render=useRef<AbortController|null>(null),referenceTicket=useRef(0),variantsRef=useRef<Variant[]>([]);
  variantsRef.current=variants;
+ // D86 AI (server provider): only with cloud set up and a signed-in person; the offline engine above stays the default.
+ const cloudState=useSyncExternalStore(cloud?.subscribe??noSubscription,cloud?.getSnapshot??cloudOff),userId=cloudState.status==='signed-in'?cloudState.user?.id??null:null;
+ const [waker]=useState(()=>new Waker()),[roomAi,setRoomAi]=useState<RoomAi|null>(null),[quota,setQuota]=useState<AiQuota|'loading'|'failed'|null>(null);
+ const [surface,setSurface]=useState<'wall'|'floor'|'other'>('wall'),[aiBusy,setAiBusy]=useState(false),[aiNote,setAiNote]=useState<AiNote|null>(null),[tapNote,setTapNote]=useState<TapNote>(null);
+ const [consent,setConsent]=useState<(()=>void)|null>(null),aiRun=useRef<AbortController|null>(null),aiAttempt=useRef<AiSurfaceRequest|null>(null),tapRun=useRef<AbortController|null>(null);
+ const photoKey=`${file.name}:${file.size}:${file.lastModified}`;
 
  // Open as a modal over the editor; Escape (the dialog's cancel) closes it.
  useEffect(()=>{const d=dialog.current!;if(!d.open)d.showModal();return()=>{if(d.open)d.close();};},[]);
  // Decode the photo once; a failure closes the view and the panel says why.
  const closeRef=useRef(onClose);closeRef.current=onClose;
  useEffect(()=>{let live=true;preparePhoto(file).then(p=>{if(!live)return;history.current=new MaskHistory(p.width,p.height);setPhoto(p);},e=>{if(live)closeRef.current((e instanceof Error?e.message:'decode') as PhotoProblem);});return()=>{live=false;};},[file]);
- useEffect(()=>()=>{render.current?.abort();for(const v of variantsRef.current)URL.revokeObjectURL(v.url);},[]);
+ useEffect(()=>()=>{render.current?.abort();aiRun.current?.abort();tapRun.current?.abort();for(const v of variantsRef.current)URL.revokeObjectURL(v.url);},[]);
+ // Someone who signed in before reconnects quietly; anyone else never loads the cloud library from here.
+ useEffect(()=>{let used:boolean;try{used=cloudWasUsed(globalThis.localStorage??null,location.search);}catch{used=false;}if(cloud&&used&&cloud.getSnapshot().status==='idle')void cloud.ensure();},[cloud]);
+ useEffect(()=>{
+  if(!cloud||!userId){setRoomAi(null);return;}
+  let live=true,made:RoomAi|null=null;
+  void cloud.ensure().then(api=>{if(!live||!api)return;made=createRoomAi({api:api.roomAi,userId,codec:browserCodec,waker});setRoomAi(made);});
+  return()=>{live=false;made?.close();setRoomAi(null);};
+ },[cloud,userId,waker]);
+ const refreshQuota=useCallback(async(ai:RoomAi)=>{const q=await ai.quota();setQuota(q??'failed');},[]);
+ useEffect(()=>{if(!roomAi||!photo)return;setQuota('loading');void refreshQuota(roomAi);},[roomAi,photo,refreshQuota]);
+ // A waiting AI preview checks again at once when the app or tab comes back to the front.
+ useEffect(()=>{
+  if(!roomAi)return;
+  const visible=()=>{if(document.visibilityState==='visible')waker.wake();};document.addEventListener('visibilitychange',visible);
+  let remove:(()=>void)|null=null,live=true;
+  if(Capacitor.isNativePlatform())void import('@capacitor/app').then(({App})=>App.addListener('resume',()=>waker.wake())).then(handle=>{if(live)remove=()=>{void handle.remove();};else void handle.remove();}).catch(()=>undefined);
+  return()=>{live=false;document.removeEventListener('visibilitychange',visible);remove?.();};
+ },[roomAi,waker]);
  // The stage area decides the shown photo size; pointer maths uses the shown box.
  useLayoutEffect(()=>{const el=stageRef.current;if(!el)return;const measure=()=>setBox({width:el.clientWidth,height:el.clientHeight});measure();if(typeof ResizeObserver==='undefined'){window.addEventListener('resize',measure);return()=>window.removeEventListener('resize',measure);}const o=new ResizeObserver(measure);o.observe(el);return()=>o.disconnect();},[photo]);
  const shown=photo&&box.width>0?fitSize(box.width-16,box.height-16,photo.width,photo.height):null;
@@ -91,6 +127,7 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  const pixelAt=(event:PointerEvent<HTMLCanvasElement>):Point=>toPixel(event.clientX,event.clientY,event.currentTarget.getBoundingClientRect(),photo!.width,photo!.height);
  const down=(event:PointerEvent<HTMLCanvasElement>)=>{
   const h=history.current;if(!h||!photo||busy)return;event.preventDefault();const p=pixelAt(event);
+  if(tool==='ai-tap'){void tapAt(p);return;}
   if(tool==='corners'){
    const next=[...corners,p];if(next.length<4){setCorners(next);setCornerNote(null);return;}
    const quad=orderQuad(next);setCorners([]);
@@ -114,9 +151,9 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  const clear=()=>{const h=history.current;if(!h||h.isEmpty()&&!h.plane())return;h.apply({kind:'clear'});changed();};
 
  // Pattern and picture references are decoded on the device; the last one chosen wins.
- const loadPattern=async(name:string,blob:Promise<Blob>)=>{
+ const loadPattern=async(name:string,en:string,blob:Promise<Blob>)=>{
   const ticket=++referenceTicket.current;setPatternNote('loading');
-  try{const pixels=await prepareReference(await blob,512);if(ticket===referenceTicket.current){setPattern({name,pixels});setPatternNote(null);}}
+  try{const pixels=await prepareReference(await blob,512);if(ticket===referenceTicket.current){setPattern({name,en,pixels});setPatternNote(null);}}
   catch{if(ticket===referenceTicket.current)setPatternNote('failed');}
  };
  const finishBlob=async(file:string)=>{const base=new URL(import.meta.env.BASE_URL,window.location.href),response=await fetch(new URL(`textures/${file}/color.jpg`,base));if(!response.ok)throw new Error('pattern');return response.blob();};
@@ -133,13 +170,75 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
   catch{if(!controller.signal.aborted)setStatus({key:'vizRenderFailed'});}
   finally{if(render.current===controller){render.current=null;setBusy(false);}}
  };
+ /** Keeps pixels as a compressed option; false when four are already kept. */
+ const keepPixels=async(pixels:Pixels,label:string):Promise<boolean>=>{
+  if(variantsRef.current.length>=MAX_VARIANTS)return false;
+  const blob=await encodeResult(pixels,'image/jpeg'),url=URL.createObjectURL(blob),next=addVariant(variantsRef.current,{id:crypto.randomUUID(),label,blob,url});
+  if(!next){URL.revokeObjectURL(url);return false;}
+  variantsRef.current=next;setVariants(next);
+  if(next.length===2){setPairA(next[0]!.id);setPairB(next[1]!.id);}
+  return true;
+ };
  const keep=async()=>{
   if(!result)return;if(variants.length>=MAX_VARIANTS){setStatus({key:'vizKeepFull'});return;}
-  const blob=await encodeResult(result,'image/jpeg'),url=URL.createObjectURL(blob),label=variantLabel(optionName,nextLetter(variantsRef.current,t('vizOption')));
-  const next=addVariant(variantsRef.current,{id:crypto.randomUUID(),label,blob,url});
-  if(!next){URL.revokeObjectURL(url);setStatus({key:'vizKeepFull'});return;}
-  setVariants(next);setOptionName('');
-  if(next.length===2){setPairA(next[0]!.id);setPairB(next[1]!.id);}
+  if(await keepPixels(result,variantLabel(optionName,nextLetter(variantsRef.current,t('vizOption')))))setOptionName('');else setStatus({key:'vizKeepFull'});
+ };
+ // D86 AI preview. A first tap makes a new clientJobId; "Try again" and "Keep waiting" reuse the same request, so the
+ // server answers the same job and never takes a second preview.
+ const showAiResult=async(out:SurfaceEditResult)=>{
+  setResult(out);setStage('result');setSaveState(null);
+  const label=variantsRef.current.some(v=>v.label===t('roomAiOption'))?nextLetter(variantsRef.current,t('roomAiOption')):t('roomAiOption');
+  setAiNote({kind:'done',kept:await keepPixels(out,label)});
+ };
+ const showAiResultRef=useRef(showAiResult);showAiResultRef.current=showAiResult;
+ const aiFailed=(error:unknown)=>{
+  const problem=error instanceof RoomAiError?error:new RoomAiError('UNEXPECTED');
+  if(!problem.again){aiAttempt.current=null;if(userId)savePending(userId,null);}
+  setAiNote({kind:'problem',code:problem.code,again:problem.again});
+ };
+ const withConsent=(run:()=>void)=>{if(!userId)return;if(hasConsent(userId))run();else setConsent(()=>run);};
+ const makeAi=async(again:boolean)=>{
+  const h=history.current;if(!photo||!h||aiBusy||!roomAi||!userId)return;
+  let request=again?aiAttempt.current:null;
+  if(!request){
+   if(h.isEmpty()){setStatus({key:'vizNeedArea'});return;}
+   const references=mode==='pattern'?pattern&&[pattern.pixels]:mode==='picture'?picture&&[picture]:[];
+   if(!references){setStatus({key:mode==='pattern'?'vizNeedPattern':'vizNeedPicture'});return;}
+   const m=material();if(!m)return;
+   const paintEntry=PAINTS.find(e=>e.material.baseColor.toLowerCase()===paint.toLowerCase());
+   const label=mode==='paint'?paintEntry?surfaceMaterialName(paintEntry.material,'en'):'custom colour':mode==='pattern'?pattern!.en:'uploaded artwork';
+   request={photo,mask:new Uint8Array(h.mask),plane:h.plane(),material:m,ai:{clientJobId:newClientJobId(),label,colour:mode==='paint'?paint:null,surface,kind:mode,references}};
+   aiAttempt.current=request;
+  }
+  const controller=new AbortController(),user=userId,hints=request.ai!;aiRun.current?.abort();aiRun.current=controller;setAiBusy(true);setStatus(null);
+  try{
+   const out=await roomAi.provider.render({...request,ai:{...hints,onPhase:phase=>setAiNote({kind:'phase',phase}),onJob:jobId=>savePending(user,{jobId,clientJobId:hints.clientJobId,photoKey,createdAt:Date.now()})}},controller.signal);
+   if(controller.signal.aborted)return;
+   aiAttempt.current=null;savePending(user,null);await showAiResult(out);
+  }catch(error){if(!controller.signal.aborted)aiFailed(error);}
+  finally{if(aiRun.current===controller){aiRun.current=null;setAiBusy(false);void refreshQuota(roomAi);}}
+ };
+ // A preview started before the visualizer was closed is finished here when the same photo is opened again.
+ const resumed=useRef(false);
+ useEffect(()=>{
+  if(!roomAi||!photo||!userId||resumed.current)return;resumed.current=true;
+  const pending=loadPending(userId);if(!pending)return;
+  if(pending.photoKey!==photoKey){setAiNote({kind:'other-photo'});return;}
+  const controller=new AbortController();aiRun.current=controller;setAiBusy(true);setAiNote({kind:'resuming'});
+  void roomAi.finishEarlier(pending,photo,controller.signal).then(async out=>{if(controller.signal.aborted)return;savePending(userId,null);await showAiResultRef.current(out);},
+   error=>{if(controller.signal.aborted)return;if(!(error instanceof RoomAiError&&error.code==='TIMEOUT'))savePending(userId,null);setAiNote({kind:'problem',code:error instanceof RoomAiError?error.code:'UNEXPECTED',again:false});})
+   .finally(()=>{if(aiRun.current===controller){aiRun.current=null;setAiBusy(false);}});
+ },[roomAi,photo,userId,photoKey]);
+ /** Tap to select (AI): one tap → the surface around it is added to the area as one undoable step. */
+ const tapAt=async(point:Point)=>{
+  const h=history.current;if(!photo||!h||!roomAi||tapRun.current)return;
+  const controller=new AbortController();tapRun.current=controller;setTapNote('busy');
+  try{
+   const selection=await roomAi.segment(photo,point,controller.signal);if(controller.signal.aborted)return;
+   if(!selection){setTapNote('nothing');return;}
+   const dirty=h.apply({kind:'union',box:selection.box,data:selection.data});drawOverlay(dirty);setMaskVersion(v=>v+1);setTapNote('added');
+  }catch(error){if(!controller.signal.aborted)setTapNote(error instanceof RoomAiError?error.code:'UNEXPECTED');}
+  finally{if(tapRun.current===controller)tapRun.current=null;void refreshQuota(roomAi);}
  };
  const remove=(id:string)=>{
   const v=variants.find(x=>x.id===id);if(v)URL.revokeObjectURL(v.url);
@@ -156,7 +255,7 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  };
  const h=history.current,a=variants.find(v=>v.id===pairA),b=variants.find(v=>v.id===pairB&&v.id!==pairA);
  const frame={width:shown?.width??0,height:shown?.height??0};
- return createPortal(<dialog ref={dialog} className="viz-dialog" aria-label={t('toolPhoto')} onKeyDown={key} onCancel={event=>{event.preventDefault();onClose();}}>
+ return createPortal(<dialog ref={dialog} className="viz-dialog" aria-label={t('toolPhoto')} onKeyDown={key} onCancel={event=>{event.preventDefault();if(consent)setConsent(null);else onClose();}}>
   <header className="viz-head"><h2>{t('toolPhoto')}</h2><button className="icon-button" aria-label={t('vizClose')} onClick={()=>onClose()}><Icon name="close"/></button></header>
   <div className="viz-body">
    <div ref={stageRef} className="viz-stage" data-stage={stage} style={photo?{['--viz-aspect' as string]:`${photo.width} / ${photo.height}`} as CSSProperties:undefined}>
@@ -181,8 +280,10 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
       <h3>{t('vizStepArea')}</h3><p>{t('vizAreaHelp')}</p>
       <div className="viz-tools" role="group" aria-label={t('vizAreaTools')}>
        {(['brush','erase','corners'] as const).map(id=><button key={id} aria-pressed={tool===id} onClick={()=>{setTool(id);setCorners([]);setCornerNote(null);setStage('area');}}>{t(id==='brush'?'vizBrush':id==='erase'?'vizEraser':'vizCorners')}</button>)}
+       {roomAi&&<button aria-pressed={tool==='ai-tap'} onClick={()=>withConsent(()=>{setTool('ai-tap');setCorners([]);setCornerNote(null);setStage('area');setTapNote(null);})}>{t('roomAiTap')}</button>}
       </div>
-      {tool!=='corners'&&<label>{t('vizBrushSize')}<input type="range" min={6} max={80} step={2} value={brush} aria-label={t('vizBrushSize')} onChange={event=>setBrush(Number(event.target.value))}/></label>}
+      {tool==='ai-tap'&&roomAi&&<p role="status" data-testid="ai-tap-note">{tapNote==='busy'?t('roomAiTapping'):tapNote==='added'?t('roomAiTapAdded'):tapNote==='nothing'?t('roomAiTapNothing'):tapNote?t(`roomAiProblem_${tapNote}`):t('roomAiTapHelp',{left:quota&&typeof quota==='object'?quota.segmentsLeft:'…'})}</p>}
+      {(tool==='brush'||tool==='erase')&&<label>{t('vizBrushSize')}<input type="range" min={6} max={80} step={2} value={brush} aria-label={t('vizBrushSize')} onChange={event=>setBrush(Number(event.target.value))}/></label>}
       {tool==='corners'&&cornerNote!=='set'&&<p role="status">{t('vizCornerNext',{n:corners.length+1})}</p>}
       {cornerNote==='bad'&&<p role="alert">{t('vizCornersBad')}</p>}
       {cornerNote==='set'&&<p role="status">{t('vizCornersSet')}</p>}
@@ -203,9 +304,9 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
       </>}
       {mode==='pattern'&&<>
        <button className="viz-upload" onClick={()=>patternInput.current?.click()}>{t('vizPatternUpload')}</button>
-       <input ref={patternInput} className="viz-file" type="file" accept="image/*" tabIndex={-1} aria-hidden="true" onChange={event=>{const f=event.target.files?.[0];if(f)void loadPattern(t('vizPatternYours'),Promise.resolve(f));event.target.value='';}}/>
+       <input ref={patternInput} className="viz-file" type="file" accept="image/*" tabIndex={-1} aria-hidden="true" onChange={event=>{const f=event.target.files?.[0];if(f)void loadPattern(t('vizPatternYours'),'uploaded sample',Promise.resolve(f));event.target.value='';}}/>
        <p className="viz-subhead">{t('vizPatternFinishes')}</p>
-       <div className="viz-finishes">{FINISHES.map(f=>{const entry=[...surfaceLibrary,...surfaceTextureLibrary].find(e=>e.material.id===f.id)!,name=surfaceMaterialName(entry.material,locale);return <button key={f.id} aria-pressed={pattern?.name===name} onClick={()=>{void loadPattern(name,finishBlob(f.file));}}><span className="viz-chip" style={{backgroundColor:entry.material.baseColor}} aria-hidden="true"/>{name}</button>;})}</div>
+       <div className="viz-finishes">{FINISHES.map(f=>{const entry=[...surfaceLibrary,...surfaceTextureLibrary].find(e=>e.material.id===f.id)!,name=surfaceMaterialName(entry.material,locale);return <button key={f.id} aria-pressed={pattern?.name===name} onClick={()=>{void loadPattern(name,surfaceMaterialName(entry.material,'en'),finishBlob(f.file));}}><span className="viz-chip" style={{backgroundColor:entry.material.baseColor}} aria-hidden="true"/>{name}</button>;})}</div>
        {patternNote==='loading'&&<p role="status">{t('vizPatternLoading')}</p>}
        {patternNote==='failed'&&<p role="alert">{t('vizPatternFailed')}</p>}
        {pattern&&patternNote!=='loading'&&<p role="status">{t('vizPatternChosen',{name:pattern.name})}</p>}
@@ -223,6 +324,17 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
       </>}
       <button className="primary-button" disabled={busy} onClick={()=>{void show();}}>{t('vizShow')}</button>
       {status&&<p role={status.key==='vizRenderFailed'||status.key==='vizKeepFull'||status.key.startsWith('vizNeed')?'alert':'status'}>{status.key==='vizRendered'?t('vizRendered',{ms:status.ms}):t(status.key)}</p>}
+      {cloud&&<div className="viz-ai" data-testid="viz-ai">
+       <h4>{t('roomAiTitle')}</h4>
+       {!userId?<p className="structure-note">{t('roomAiSignIn')}</p>:!roomAi||quota==='loading'?<p role="status">{t('roomAiChecking')}</p>:<>
+        <p>{t('roomAiIntro')}</p>
+        {quota==='failed'||quota===null?<p role="status">{t('roomAiQuotaFailed')}</p>:quota.paused?<p role="status" className="viz-ai-quota">{t('roomAiPaused')}</p>:<p className="viz-ai-quota" data-testid="ai-quota">{t('roomAiLeft',{left:quota.previewsLeft,total:quota.previewsPerMonth})}</p>}
+        <label>{t('roomAiSurface')}<select value={surface} aria-label={t('roomAiSurface')} onChange={event=>setSurface(event.target.value as 'wall'|'floor'|'other')}>{(['wall','floor','other'] as const).map(id=><option key={id} value={id}>{t(`roomAiSurface_${id}`)}</option>)}</select></label>
+        <button className="primary-button" disabled={aiBusy||typeof quota==='object'&&quota!==null&&(quota.paused||quota.previewsLeft<1)} onClick={()=>withConsent(()=>{void makeAi(false);})}>{t('roomAiMake')}</button>
+        {aiNote?.kind==='problem'&&aiNote.again&&<button disabled={aiBusy} onClick={()=>{void makeAi(true);}}>{t(aiNote.code==='TIMEOUT'?'roomAiKeepWaiting':'roomAiTryAgain')}</button>}
+        {aiNote&&<p role={aiNote.kind==='problem'?'alert':'status'} data-testid="ai-note">{aiNote.kind==='phase'?t(`roomAiPhase_${aiNote.phase}`):aiNote.kind==='done'?t(aiNote.kept?'roomAiDone':'roomAiDoneNotKept'):aiNote.kind==='resuming'?t('roomAiResuming'):aiNote.kind==='other-photo'?t('roomAiPendingOther'):t(`roomAiProblem_${aiNote.code}`)}</p>}
+       </>}
+      </div>}
      </section>
      {result&&<section className="viz-section" aria-label={t('vizStepResult')}>
       <h3>{t('vizStepResult')}</h3>
@@ -245,5 +357,6 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
     </>}
    </div>
   </div>
+  {consent&&userId&&<AiConsent locale={locale} previews={quota&&typeof quota==='object'?quota.previewsPerMonth:3} onAgree={()=>{giveConsent(userId);const run=consent;setConsent(null);run();}} onCancel={()=>setConsent(null)}/>}
  </dialog>,document.body);
 }

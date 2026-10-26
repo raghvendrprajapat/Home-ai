@@ -6,8 +6,9 @@ import type {Point,Quad} from './homography';
  * perspective plane. Undo/Redo replays recorded operations from a baked base, so memory stays at two masks plus at
  * most MAX_MASK_OPS small operation records. Visualizer-only state: never part of the project.
  */
-export type MaskOp=Readonly<{kind:'brush'|'erase';radius:number;points:readonly Point[]}>|Readonly<{kind:'quad';quad:Quad}>|Readonly<{kind:'clear'}>;
 export interface DirtyRect {readonly x0:number;readonly y0:number;readonly x1:number;readonly y1:number}
+/** D86 'union' adds a selection from "Tap to select (AI)": its bounding box and one byte per box pixel (max-combined). */
+export type MaskOp=Readonly<{kind:'brush'|'erase';radius:number;points:readonly Point[]}>|Readonly<{kind:'quad';quad:Quad}>|Readonly<{kind:'clear'}>|Readonly<{kind:'union';box:DirtyRect;data:Uint8Array}>;
 export const MAX_MASK_OPS=40,MIN_BRUSH_RADIUS=1,MAX_BRUSH_RADIUS=400;
 
 const clampInt=(v:number,lo:number,hi:number)=>Math.max(lo,Math.min(hi,Math.floor(v)));
@@ -44,6 +45,12 @@ export function fillQuad(mask:Uint8Array,width:number,height:number,q:Quad):Dirt
 /** Draws one recorded operation onto the mask. */
 export function rasterize(mask:Uint8Array,width:number,height:number,op:MaskOp):DirtyRect|undefined{
  if(op.kind==='clear'){mask.fill(0);return {x0:0,y0:0,x1:width,y1:height};}
+ if(op.kind==='union'){
+  const {x0,y0,x1,y1}=op.box,w=x1-x0;
+  if(x0<0||y0<0||x1>width||y1>height||w<1||y1<=y0||op.data.length!==w*(y1-y0))return undefined;
+  for(let y=y0;y<y1;y++)for(let x=x0;x<x1;x++){const v=op.data[(y-y0)*w+x-x0]!,i=y*width+x;if(v>mask[i]!)mask[i]=v;}
+  return op.box;
+ }
  if(op.kind==='quad')return fillQuad(mask,width,height,op.quad);
  const pts=op.points;if(!pts.length)return undefined;
  let dirty:DirtyRect|undefined;

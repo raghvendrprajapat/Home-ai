@@ -1,0 +1,19 @@
+# Supabase CLI settings for GharPlan (D86). This repository keeps its Supabase files in server/supabase, so run the
+# CLI with `--workdir server` from the repository root (see docs/setup/room-photo-ai.md).
+project_id = "gharplan"
+
+# Every Room photo function checks its caller itself, so the gateway's own JWT check is switched off:
+# - room-ai-submit and room-ai-segment accept only a signed-in user (checked with Supabase Auth in the function);
+# - room-ai-webhook accepts only deliveries with a valid fal.ai signature (fal cannot sign in to Supabase);
+# - room-ai-cleanup accepts only the service-role key.
+[functions.room-ai-submit]
+verify_jwt = false
+
+[functions.room-ai-segment]
+verify_jwt = false
+
+[functions.room-ai-webhook]
+verify_jwt = false
+
+[functions.room-ai-cleanup]
+verify_jwt = false
