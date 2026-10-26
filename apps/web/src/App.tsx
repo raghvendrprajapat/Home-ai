@@ -12,6 +12,7 @@ import {AiFurniturePanel} from './ai/AiFurniturePanel';
 import {CopilotPanel} from './ai/CopilotPanel';
 import {standInCopilot} from './ai/copilot';
 import {PhotoPlanPanel} from './ai/PhotoPlanPanel';
+import {RoomPhotoPanel} from './visualizer/RoomPhotoPanel';
 import {standInAi} from './ai/stand-in';
 import {FurnitureControls} from './editor/FurnitureControls';
 import {CameraControls} from './editor/CameraControls';
@@ -45,7 +46,7 @@ import type { MessageArgs, MessageKey } from './i18n/messages';
 import { useUi } from './ui/state';
 import { Icon } from './ui/Icon';
 import { useNarrow } from './ui/useNarrow';
-type ToolId='draw'|'openings'|'furniture'|'materials'|'copilot'|'project';
+type ToolId='draw'|'openings'|'furniture'|'materials'|'photo'|'copilot'|'project';
 import './app.css';
 function EngineLoadError() {
   const { locale } = useUi();
@@ -140,7 +141,7 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
   const ghostItem=scopedPrecision?.result.ok?scopedPrecision.result.document.furniture.find(item=>item.id===ghostId):undefined;
   const ghostAdvisory=ghostItem&&scopedPrecision?.result.ok?advisories.check(scopedPrecision.result.document,ghostItem):undefined;
   const ghost:FurnitureGhost|undefined=ghostItem&&scopedPrecision?.result.ok&&ghostAdvisory?{tag:placement&&scopedPrecision.owner==='furniture'?placement.intent.tag:store.asyncTag(),item:ghostItem,warning:ghostAdvisory.overlap,advisory:ghostAdvisory}:undefined;
-  const tools:readonly {id:ToolId;label:string}[]=[{id:'draw',label:t('toolDraw')},{id:'openings',label:t('toolOpenings')},{id:'furniture',label:t('toolFurniture')},{id:'materials',label:t('toolMaterials')},{id:'copilot',label:t('toolCopilot')},{id:'project',label:t('toolProject')}];
+  const tools:readonly {id:ToolId;label:string}[]=[{id:'draw',label:t('toolDraw')},{id:'openings',label:t('toolOpenings')},{id:'furniture',label:t('toolFurniture')},{id:'materials',label:t('toolMaterials')},{id:'photo',label:t('toolPhoto')},{id:'copilot',label:t('toolCopilot')},{id:'project',label:t('toolProject')}];
   // Escape inside a panel first cancels an unfinished preview or drawing (the editors listen on window); only Escape with
   // nothing pending closes the panel.
   const hasDraft=()=>!!precision||!!placement||drawing.getSnapshot().mode!=='select'||!!drawing.getSnapshot().anchor;
@@ -196,6 +197,8 @@ export function App({ session, navigation, onOpenDocument }: { session?: Workspa
           {placement&&<FurniturePlacementControls advisories={advisories} key={placement.intent.id} store={store} intent={placement.intent} label={ui.locale==='hi'?placement.name_hi:placement.name_en} locale={ui.locale} onPreview={furniturePreview} onCancel={cancelPlacement} onAdded={id=>{cancelPlacement();selectEntities([{kind:'furniture',id}]);setMessage(t('placementAdded'));}}/>}
           <FurnitureControls onEditStart={startFurnitureEdit} advisories={advisories} cancelToken={furnitureCancel} onPreview={furnitureEditPreview} store={store} selected={selectedFurniture} onSelect={id=>selectEntities(id?[{kind:'furniture',id}]:[])} locale={ui.locale} onMessage={setMessage}/></>)}
         {panel('materials',<SurfaceControls store={store} locale={ui.locale} view={view} picked={activePick} onSelect={choosePick} onEditStart={()=>{drawing.setMode('select');cancelPrecision();}} onMessage={setMessage}/>)}
+        {/* D85: the Room photo visualizer gets no store, so it cannot change the drawing. */}
+        {panel('photo',<RoomPhotoPanel locale={ui.locale}/>)}
         {panel('copilot',<><CopilotPanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInCopilot} ai={standInAi} catalog={signal=>assetSource.catalog(signal)} onOpenDocument={onOpenDocument?document=>onOpenDocument(document,false):undefined}/>
           <AiFurniturePanel store={store} locale={ui.locale} selectedRoomId={activePick?.kind==='room'?activePick.id:undefined} provider={standInAi} catalog={signal=>assetSource.catalog(signal)} onPlace={(asset,centre)=>{drawing.setMode('select');cancelPrecision();setTool('furniture');try{setPlacement({intent:beginPlacement(store,asset,centre),name_en:asset.name_en,name_hi:asset.name_hi});}catch{setMessage(t('furnitureValuesInvalid'));}}}/>
           <PhotoPlanPanel locale={ui.locale} provider={standInAi} units={snapshot.document.units} onUnderlay={setUnderlay} onOpen={document=>onOpenDocument?.(document,false)}/></>)}
