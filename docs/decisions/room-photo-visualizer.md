@@ -2,7 +2,7 @@
 
 Owner, 2026-10-26: after Claude's architecture review the owner said "Okey now do work"; Claude Code is the builder again for this work (Codex does not run concurrently). Goal: after seeing the home in 3D, a customer tries paint, tiles/laminate/wallpaper or wall art on a photo of their **real** room.
 
-Phase 1 (this change) is fully offline and deterministic: no network upload, no backend, no AI call, no new dependency, no cost. Phase 2 (server AI) is a planned design only and stays gated (see below).
+Phase 1 (this change) is fully offline and deterministic: no network upload, no backend, no AI call, no new dependency, no cost. Phase 2 (server AI) is a planned design built in a separate task (see below for the owner's decisions).
 
 ## Phase 1: what is built
 
@@ -30,9 +30,9 @@ Phase 1 (this change) is fully offline and deterministic: no network upload, no 
 
 **Provider boundary** (`surface-provider.ts`): `SurfaceEditProvider { kind: 'stand-in' | 'server'; render(request, signal): Promise<SurfaceEditResult> }`. Only the stand-in exists. The view takes a `provider` prop (default stand-in), so Phase 2 can plug in without UI changes.
 
-## Phase 2: planned design (not built, gated)
+## Phase 2: planned design (not built yet)
 
-Gated on owner decisions: monthly AI budget, provider choice (the D76 note named Google Gemini; this plan names fal.ai GPT-Image-2.5 edit and SAM-2), free-credit amount, consent and the privacy-policy update. Until then no photo leaves the device.
+Owner decisions (2026-10-26, recorded after Phase 1 was built): AI spending is allowed; the whole app may spend at most **US$3 per month** on AI (a server kill-switch stops AI calls at that limit); every signed-in account gets **3 free AI previews per month**; the provider is **fal.ai** (GPT-Image-2.5 `flare` edit at server-enforced `medium` quality, SAM-2 tap-to-select), replacing D76's Gemini choice for this feature; the owner permits a consent screen and a privacy-policy update, and room photos sent for processing are deleted automatically after 7 days. Phase 2 is built in its own task. Until it ships, no photo leaves the device.
 
 - **Server-only secret.** Supabase Edge Functions hold the provider key (Supabase secrets); never in the app bundle, logs or chat.
 - **Functions.** `submit` (validate, reserve credits, upload to a private bucket, start the async job), `webhook` (provider callback with signature check; store output; settle or refund), `segment` (SAM-2 tap-to-select returning a mask).
