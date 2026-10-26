@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GharPlan privacy policy</title>
+<meta name="description" content="What GharPlan does with your drawings, your account and the room photos you use for AI previews.">
+<!-- D86: written by the builder from what the app actually does. The owner must review this text (and add any
+     legally required details) before a public release. No company name, address or personal email is invented here. -->
+<style>
+  :root { color-scheme: light dark; --ink: #1d2a24; --muted: #51605a; --paper: #f7f8f5; --line: #d7e0da; }
+  @media (prefers-color-scheme: dark) { :root { --ink: #e8eee9; --muted: #b3c0b8; --paper: #121815; --line: #2c3a33; } }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Noto Sans Devanagari", sans-serif; }
+  main { max-width: 42rem; margin: 0 auto; padding: 24px 16px 48px; }
+  h1 { font-size: 1.6rem; margin: 0 0 4px; } h2 { font-size: 1.15rem; margin-top: 2rem; border-top: 1px solid var(--line); padding-top: 1.25rem; }
+  p.lead, .note { color: var(--muted); } ol, ul { padding-left: 1.3rem; } li { margin: 4px 0; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+  <h1>GharPlan privacy policy</h1>
+  <p class="lead">GharPlan is a home-planning app for the web and Android. This page explains, in plain words, what the app keeps, what it sends, to whom, and for how long. Last updated: 26 October 2026.</p>
+
+  <h2>On your device</h2>
+  <ul>
+    <li>Your drawings are saved on your phone or in your browser. You can use GharPlan without an account; then nothing about your drawings leaves your device.</li>
+    <li>The <strong>Room photo</strong> tool works on your device: the photo is shrunk and opened on the device and is not saved in your drawing. Location and camera details inside the photo are removed when it is opened. Nothing is sent unless you choose an AI feature (see below).</li>
+  </ul>
+
+  <h2>Optional Google sign-in and cloud saving</h2>
+  <ul>
+    <li>If you sign in with Google, the app receives your Google account's email address, name and an account number through our sign-in and database service, Supabase.</li>
+    <li>Drawings you choose to save in the cloud, their recent versions and the view-only links you create are stored in our Supabase project. Only you can open your cloud drawings.</li>
+    <li>Anyone who has a view-only link you created can view that drawing. You can switch a link off at any time.</li>
+  </ul>
+
+  <h2>AI room previews (optional)</h2>
+  <p>AI previews and "Tap to select (AI)" are available only to signed-in accounts and only after you agree on the screen shown before the first use.</p>
+  <ul>
+    <li><strong>What is sent:</strong> your room photo (at most 1536 × 1024 pixels, without location data), the area you chose, up to three reference pictures (for example a tile, a pattern or an artwork) and a short description of the material. For "Tap to select", the photo and the point you tapped.</li>
+    <li><strong>Who processes it:</strong> the files are stored in a private storage area of our Supabase project and sent through our server to <strong>fal.ai</strong>, which runs an OpenAI image model (for previews) or the SAM 2 model (for tap-to-select) to make the result. These providers process the files to make your result under their own terms. The app asks fal.ai not to keep the request in its request history and to delete its output files after one hour.</li>
+    <li><strong>How long it is kept:</strong> the room photo and reference pictures are deleted from our storage as soon as the preview is ready. The chosen area and the AI result are deleted automatically after 7 days at the latest (the app deletes them sooner once it has shown the result).</li>
+    <li><strong>Records:</strong> for each AI request we keep a small record (time, type, status and an estimated cost) to apply the free monthly limit and the app's spending limit. It contains no picture.</li>
+    <li>Your photos and AI results are not used for marketing and are not sold.</li>
+  </ul>
+
+  <h2>Optional error reports</h2>
+  <p>If the app build includes error reporting and you allow it in Settings, the app sends fixed error codes (for example "render-crash") to Sentry. Drawings, names, sizes, photos and error text are not included. Like any network request, it may show your IP address to that service. Error reports are off unless you turn them on.</p>
+
+  <h2>What we do not do</h2>
+  <ul>
+    <li>No advertising, no selling of your data, and no use of your drawings or photos for marketing.</li>
+  </ul>
+
+  <h2>Deleting your data</h2>
+  <ul>
+    <li>Delete drawings saved only on your device from the app's Projects screen, or by clearing the app's data.</li>
+    <li>To delete your account and everything in GharPlan's cloud, follow <a href="delete-account.html">Delete your GharPlan account</a>. Room photo files of a deleted account are removed by the next daily cleanup. The small AI request records are kept without your account number.</li>
+    <li>Backup copies kept by our hosting provider expire on the provider's own schedule.</li>
+  </ul>
+
+  <h2>Contact</h2>
+  <p>Write to the support email address shown on GharPlan's Google Play listing.</p>
+
+  <h2 lang="hi">GharPlan निजता नीति (हिंदी सार)</h2>
+  <ul lang="hi">
+    <li>आपकी ड्रॉइंग आपके फ़ोन या ब्राउज़र में सेव होती हैं। बिना अकाउंट के इस्तेमाल करने पर ड्रॉइंग आपके डिवाइस से बाहर नहीं जातीं।</li>
+    <li><strong>कमरे की फ़ोटो</strong> टूल डिवाइस पर ही चलता है; फ़ोटो ड्रॉइंग में सेव नहीं होती और उसकी लोकेशन जानकारी हटा दी जाती है। जब तक आप AI सुविधा न चुनें, कुछ नहीं भेजा जाता।</li>
+    <li>Google से साइन इन करने पर ऐप को आपका ईमेल, नाम और अकाउंट नंबर हमारी सेवा Supabase के ज़रिए मिलता है। क्लाउड में सेव की गई ड्रॉइंग, उनके हाल के संस्करण और व्यू-ओनली लिंक हमारे Supabase प्रोजेक्ट में रहते हैं। लिंक वाला कोई भी व्यक्ति वह ड्रॉइंग देख सकता है; आप लिंक कभी भी बंद कर सकते हैं।</li>
+    <li><strong>AI झलक</strong> सिर्फ़ साइन-इन अकाउंट को और पहली बार सहमति देने के बाद मिलती है। आपकी कमरे की फ़ोटो (अधिकतम 1536 × 1024, लोकेशन के बिना), चुनी गई जगह, अधिकतम तीन नमूना तस्वीरें और सामग्री का छोटा विवरण हमारे सर्वर से <strong>fal.ai</strong> को भेजे जाते हैं, जो OpenAI का इमेज मॉडल (झलक के लिए) या SAM 2 मॉडल (छूकर चुनने के लिए) चलाता है। ये सेवाएँ अपनी शर्तों के तहत सिर्फ़ नतीजा बनाने के लिए फ़ाइलें इस्तेमाल करती हैं।</li>
+    <li>झलक बनते ही कमरे की फ़ोटो और नमूना तस्वीरें हमारे स्टोरेज से हटा दी जाती हैं; चुनी गई जगह और AI नतीजा ज़्यादा से ज़्यादा 7 दिन में अपने-आप हट जाते हैं। हर AI अनुरोध का एक छोटा रिकॉर्ड (समय, प्रकार, स्थिति और अनुमानित ख़र्च) मुफ़्त सीमा और ऐप की ख़र्च सीमा के लिए रखा जाता है; इसमें कोई तस्वीर नहीं होती।</li>
+    <li>आपकी फ़ोटो और AI नतीजे मार्केटिंग में इस्तेमाल नहीं होते और बेचे नहीं जाते। ऐप में कोई विज्ञापन नहीं है।</li>
+    <li>वैकल्पिक त्रुटि रिपोर्ट सिर्फ़ आपकी अनुमति से तय त्रुटि कोड Sentry को भेजती हैं; ड्रॉइंग, नाम, नाप और फ़ोटो शामिल नहीं होते।</li>
+    <li>अकाउंट और क्लाउड का सारा डेटा हटाने के लिए <a href="delete-account.html">अपना GharPlan अकाउंट हटाएँ</a> पेज देखें। हटाए गए अकाउंट की कमरे की फ़ोटो वाली फ़ाइलें अगली रोज़ाना सफ़ाई में हट जाती हैं।</li>
+    <li>संपर्क: Google Play पेज पर दिया गया सपोर्ट ईमेल।</li>
+  </ul>
+</main>
+</body>
+</html>

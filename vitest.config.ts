@@ -8,6 +8,7 @@ export default defineConfig({
     include: [
       'apps/web/src/**/*.test.{ts,tsx}',
       'packages/*/src/**/*.test.{ts,tsx}',
+      'server/supabase/functions/**/*.test.ts',
     ],
     restoreMocks: true,
     passWithNoTests: false,

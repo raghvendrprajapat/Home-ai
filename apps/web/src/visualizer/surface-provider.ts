@@ -3,10 +3,10 @@ import type {SurfaceEditRequest} from './surface-engine';
 import type {Pixels} from './photo-prep';
 
 /**
- * D85 Room photo provider boundary. Phase 1 ships only the offline 'stand-in' engine below. Phase 2 (gated on the
- * owner's AI budget, provider, free credits and privacy-policy permission) may add a 'server' provider that sends the
- * request to the app's own server, which holds the AI key; its answer would still be composited locally inside the
- * same mask, so pixels outside the chosen area stay the person's own.
+ * D85 Room photo provider boundary. The offline 'stand-in' engine below is the default and works without any network.
+ * D86 (Phase 2) adds the 'server' provider in server-surface.ts: the request goes to the app's own Supabase Edge
+ * Functions, which hold the AI key; the answer is composited locally inside the same mask, so pixels outside the
+ * chosen area stay the person's own.
  */
 export interface SurfaceEditResult extends Pixels {
  /** Pixels whose colour changed. */
@@ -15,7 +15,7 @@ export interface SurfaceEditResult extends Pixels {
  readonly ms:number;
 }
 export interface SurfaceEditProvider {
- /** 'stand-in' runs offline on the device; 'server' is reserved for the Phase 2 server provider (not built). */
+ /** 'stand-in' runs offline on the device; 'server' is the D86 AI provider (signed-in people only). */
  readonly kind:'stand-in'|'server';
  render(request:SurfaceEditRequest,signal:AbortSignal):Promise<SurfaceEditResult>;
 }

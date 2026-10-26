@@ -11,6 +11,7 @@ import type { CloudSession } from './session';
 import { cloudCopy, isLinked, setLinked, takeInSync } from './linked';
 import { SharePanel } from './SharePanel';
 import { AccountPanel } from './AccountPanel';
+import { PrivacyLink } from '../ui/PrivacyLink';
 const cloudOff = () => CLOUD_OFF;
 
 const idleState: CloudSaveState = { phase: 'idle', serverRevision: 0, ackedGeneration: null }, idleSaver = { getSnapshot: () => idleState, subscribe: () => () => undefined };
@@ -94,12 +95,14 @@ export function CloudPanel({ store, locale, flush, onOpenDocument, cloud = defau
         <button onClick={() => { void cloud.ensure().then(api => api?.signOut()); }}>{message(locale, 'cloudSignOut')}</button>
       </div>
       <AccountPanel cloud={cloud} user={user} locale={locale} onDeleted={text => { setLinkedState(false); setNotice(text); }} />
+      <p className="privacy-row"><PrivacyLink locale={locale} /></p>
       {linked && <SharePanel key={`share:${projectId}`} projectId={projectId} cloud={cloud} locale={locale} available={state.serverRevision > 0} />}
       {linked && saver && <VersionHistory key={projectId} store={store} saver={saver} state={state} cloud={cloud} locale={locale} onOpenCopy={revision => { void openCloudCopy(revision); }} onNotice={setNotice} />}
     </> : <>
       <p data-testid="cloud-status" data-phase={session.status === 'loading' ? 'connecting' : 'signed-out'}>{session.status === 'loading' ? message(locale, 'cloudConnecting') : message(locale, 'cloudSignInHelp')}</p>
       <button className="primary-button" disabled={busy || session.status === 'loading'} onClick={() => { void signIn(); }}>{message(locale, 'cloudSignIn')}</button>
       {(failed || session.status === 'failed' || session.signInFailed) && <p role="alert">{message(locale, 'cloudConnectFailed')}</p>}
+      <p className="privacy-row"><PrivacyLink locale={locale} /></p>
     </>}
   </section>;
 }

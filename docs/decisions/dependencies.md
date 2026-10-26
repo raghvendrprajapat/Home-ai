@@ -1,5 +1,16 @@
 # PH0-T01 dependency register
 
+## D86 Room photo AI Edge Functions (2026-10-26, recorded before use)
+
+| Dependency | Exact version | License / primary evidence | Purpose |
+|---|---|---|---|
+| @supabase/supabase-js (as `npm:@supabase/supabase-js@2.117.2` in Supabase Edge Functions) | 2.117.2 | MIT; same package and version already recorded below for the app | Inside `server/supabase/functions/*/index.ts` only: checks the caller's sign-in, calls the D86 database functions and the private `room-photos` storage bucket with the service role |
+| fal.ai HTTP API (`queue.fal.run`, `fal.run`, `rest.fal.ai` JWKS, `*.fal.media` results) | n/a (web service) | Commercial service under the owner's fal account and fal's terms; model `openai/gpt-image-2.5/flare/edit` and `fal-ai/sam2/image` | AI room previews and tap-to-select. Called with plain `fetch` from the Edge Functions; the fal SDK is **not** used |
+
+No new package enters the app bundle or the lockfile. The Edge Functions use only web-standard APIs (fetch, WebCrypto
+Ed25519, streams) plus the one pinned `npm:` import above; Deno and the Supabase Edge Runtime are the owner's hosting.
+The FAL_KEY and the service-role key live only in Supabase secrets.
+
 ## FR-031 Android Google sign-in (2026-10-18, recorded before installation)
 
 | Dependency | Exact version | License / primary evidence | Purpose |

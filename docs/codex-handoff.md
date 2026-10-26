@@ -66,9 +66,9 @@ Claude will not push to `decor-models` again.
   - Every asset and texture needs a rights record. No GPL/AGPL, no non-commercial assets, nothing from Planner 5D.
   - **No fridge, toilet, basin or other appliances/sanitaryware** (owner, 2026-10-20) unless the owner changes this.
 - **AI:**
-  - No live AI or AI-render call of any kind until the owner sets a monthly cost limit (D76).
-  - Customer plans or photos go to an AI only after consent and a privacy-policy update.
-  - Provider choice is Google Gemini.
+  - No live AI or AI-render call of any kind until the owner sets a monthly cost limit (D76). D86 (2026-10-26): the owner set it for Room photo AI only: US$3 per calendar month for the whole app, enforced by the server (`ai.settings`), 3 free previews per signed-in account per month.
+  - Customer plans or photos go to an AI only after consent and a privacy-policy update (D86 adds both for Room photo AI: in-app consent and `privacy.html`).
+  - Provider choice is Google Gemini, except Room photo AI, which uses fal.ai (owner, D85/D86).
   - Keys stay on the server only; never in code, logs or chat.
 - **Builder honesty:** Claude-authored tests are the builder's own tests. Do not present them, or your own, as independent fixtures.
 - **Merging:** one task per branch/PR. Never merge red CI. Merge with the 40-character `expectedHeadSha`. Every PR body ends with the 4-part Owner summary.

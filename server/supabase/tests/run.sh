@@ -14,3 +14,6 @@ run -f "$here/bootstrap.sql" >/dev/null
 for migration in "$root"/server/supabase/migrations/*.sql; do run -f "$migration" >/dev/null; done
 run -f "$here/cloud_projects.test.sql" 2>&1 | sed 's/^psql:[^ ]* NOTICE:  //' | grep -v '^$'
 PGDATABASE="$db" bash "$here/concurrency.sh"
+# D86 Room photo AI: quotas, the monthly cap, the job lifecycle and its own race tests.
+run -f "$here/room_ai.test.sql" 2>&1 | sed 's/^psql:[^ ]* NOTICE:  //' | grep -v '^$'
+PGDATABASE="$db" bash "$here/room_ai_concurrency.sh"
