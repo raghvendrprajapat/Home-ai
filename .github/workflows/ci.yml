@@ -19,8 +19,8 @@ jobs:
   check:
     name: Check
     runs-on: ubuntu-24.04
-    # D76: the furnished sample loads real models in many browser tests; 15 minutes cut the full run off at test 184/189.
-    timeout-minutes: 35
+    # D88: browser tests moved to the sharded "Browser tests" job; this job keeps lint, types, unit tests and the build.
+    timeout-minutes: 25
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -45,15 +45,42 @@ jobs:
         run: pnpm check
       - name: Build web application
         run: pnpm build
+
+  browser:
+    name: Browser tests (${{ matrix.shard }}/3)
+    runs-on: ubuntu-24.04
+    # D88: the full browser suite took ~31 of the old 35 minutes in one job; three shards run side by side.
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3]
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .node-version
+          package-manager-cache: false
+      - name: Set up pnpm
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+        with:
+          run_install: false
+          cache: false
+      - name: Install locked dependencies
+        run: pnpm install --frozen-lockfile
       - name: Install pinned Playwright Chromium
         run: pnpm exec playwright install --with-deps chromium
       - name: Browser recovery and onboarding tests
-        run: pnpm e2e
+        run: pnpm e2e --shard=${{ matrix.shard }}/3
       - name: Retain browser failure evidence
         if: always()
         uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
-          name: browser-evidence-${{ github.sha }}
+          name: browser-evidence-${{ github.sha }}-${{ matrix.shard }}
           retention-days: 7
           if-no-files-found: ignore
           path: |
