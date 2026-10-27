@@ -46,3 +46,14 @@ export async function shareResult(pixels:Pixels,label:string,title:string):Promi
  try{await navigator.share({files:[file],title});return 'shared';}
  catch(e){return e instanceof DOMException&&e.name==='AbortError'?'cancelled':'failed';}
 }
+/** D87: a small JPEG (at most 160 px on the long side) of an image, for the "Recent room photos" list. */
+export const THUMB_EDGE=160;
+export async function thumbnailJpeg(image:Blob):Promise<Blob>{
+ const bitmap=await createImageBitmap(image),canvas=document.createElement('canvas');
+ try{
+  const s=Math.min(1,THUMB_EDGE/Math.max(bitmap.width,bitmap.height));canvas.width=Math.max(1,Math.round(bitmap.width*s));canvas.height=Math.max(1,Math.round(bitmap.height*s));
+  const ctx=canvas.getContext('2d');if(!ctx)throw new Error('image-context');
+  ctx.imageSmoothingQuality='high';ctx.drawImage(bitmap,0,0,canvas.width,canvas.height);
+  return await toBlob(canvas,'image/jpeg',.8);
+ }finally{bitmap.close();canvas.width=canvas.height=0;}
+}

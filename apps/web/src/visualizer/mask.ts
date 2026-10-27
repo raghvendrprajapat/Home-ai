@@ -68,7 +68,7 @@ export function maskBounds(mask:Uint8Array,width:number,height:number):DirtyRect
 export class MaskHistory {
  readonly mask:Uint8Array;
  private readonly base:Uint8Array;private basePlane:Quad|null=null;
- private ops:MaskOp[]=[];private cursor=0;
+ private ops:MaskOp[]=[];private cursor=0;private loaded=false;
  constructor(readonly width:number,readonly height:number,private readonly maxOps=MAX_MASK_OPS){
   if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1)throw new Error('mask-size');
   this.mask=new Uint8Array(width*height);this.base=new Uint8Array(width*height);
@@ -76,6 +76,8 @@ export class MaskHistory {
  get canUndo():boolean{return this.cursor>0;}
  get canRedo():boolean{return this.cursor<this.ops.length;}
  get size():number{return this.cursor;}
+ /** D87: something can be cleared: a recorded step, or a loaded (reopened) area or plane. */
+ get canClear():boolean{return this.cursor>0||this.loaded;}
  /** The perspective plane: the newest four-corner quad since the last Clear, if any. */
  plane():Quad|null{
   for(let i=this.cursor-1;i>=0;i--){const op=this.ops[i]!;if(op.kind==='quad')return op.quad;if(op.kind==='clear')return null;}
@@ -95,5 +97,39 @@ export class MaskHistory {
  undo():boolean{if(!this.canUndo)return false;this.cursor--;this.replay();return true;}
  redo():boolean{if(!this.canRedo)return false;rasterize(this.mask,this.width,this.height,this.ops[this.cursor]!);this.cursor++;return true;}
  isEmpty():boolean{return !this.mask.some(v=>v>0);}
+ /** D87: starts again from a saved mask and plane (a reopened session); there are no undo steps before it. */
+ load(mask:Uint8Array,plane:Quad|null):void{
+  if(mask.length!==this.mask.length)throw new Error('mask-size');
+  this.base.set(mask);this.basePlane=plane;this.ops=[];this.cursor=0;this.mask.set(mask);this.loaded=plane!==null||mask.some(v=>v>0);
+ }
+ /** D87: redraws the mask from its recorded steps, dropping a live stroke that was never recorded (a pinch began). */
+ redraw():void{this.replay();}
  private replay(){this.mask.set(this.base);for(let i=0;i<this.cursor;i++)rasterize(this.mask,this.width,this.height,this.ops[i]!);}
+}
+
+/**
+ * D87 saved sessions: the mask as runs (value byte, then the run length as a little-endian base-128 number). Brushed
+ * areas are long runs of 0 and 255 with short soft edges, so a 1536×1024 mask usually takes a few KB, and decoding
+ * gives back every byte exactly.
+ */
+export function encodeMask(mask:Uint8Array):Uint8Array{
+ const out:number[]=[];
+ for(let i=0;i<mask.length;){
+  const v=mask[i]!;let n=1;while(i+n<mask.length&&mask[i+n]===v)n++;
+  out.push(v);let rest=n;do{const b=rest%128;rest=Math.floor(rest/128);out.push(rest?b|128:b);}while(rest);
+  i+=n;
+ }
+ return Uint8Array.from(out);
+}
+/** The mask from encodeMask; throws 'mask-data' unless the runs fill exactly `length` bytes. */
+export function decodeMask(data:Uint8Array,length:number):Uint8Array{
+ const mask=new Uint8Array(length);let at=0,i=0;
+ while(i<data.length){
+  const v=data[i++]!;let n=0,shift=1,b:number;
+  do{if(i>=data.length||shift>2**35)throw new Error('mask-data');b=data[i++]!;n+=(b&127)*shift;shift*=128;}while(b&128);
+  if(n<1||at+n>length)throw new Error('mask-data');
+  mask.fill(v,at,at+n);at+=n;
+ }
+ if(at!==length)throw new Error('mask-data');
+ return mask;
 }

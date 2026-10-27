@@ -1,6 +1,6 @@
 import {describe,expect,it} from 'vitest';
 import fc from 'fast-check';
-import {fillQuad,insideQuad,maskBounds,MaskHistory,rasterize,strokeSegment} from './mask';
+import {decodeMask,encodeMask,fillQuad,insideQuad,maskBounds,MaskHistory,rasterize,strokeSegment} from './mask';
 import type {MaskOp} from './mask';
 import type {Quad} from './homography';
 
@@ -66,5 +66,43 @@ describe('D85 mask history',()=>{
    const n=Math.min(back,list.length);for(let i=0;i<n;i++)hist.undo();for(let i=0;i<n;i++)hist.redo();
    expect(hist.mask).toEqual(final);expect(hist.plane()).toEqual(plane);
   }),{numRuns:120});
+ });
+});
+
+// D87 Claude-authored builder tests.
+describe('D87 saved masks',()=>{
+ it('runs: value byte then a base-128 length, decoded byte for byte',()=>{
+  // 3 zeros, 1 × 128, 200 × 255: 200 = 72 + 1·128 → bytes 200, 1 (72 | 128 = 200).
+  const m=new Uint8Array([0,0,0,128,...new Array<number>(200).fill(255)]);
+  expect(Array.from(encodeMask(m))).toEqual([0,3,128,1,255,200,1]);
+  expect(decodeMask(encodeMask(m),m.length)).toEqual(m);
+  expect(encodeMask(new Uint8Array(0)).length).toBe(0);expect(decodeMask(new Uint8Array(0),0)).toEqual(new Uint8Array(0));
+  // A full 1536×1024 empty mask is one run: value 0 and 1 572 864 = 3 base-128 digits.
+  expect(encodeMask(new Uint8Array(1536*1024)).length).toBe(4);
+ });
+ it('refuses damaged data: too short, too long, a zero run or a cut length',()=>{
+  expect(()=>decodeMask(Uint8Array.from([0,3]),4)).toThrow('mask-data');
+  expect(()=>decodeMask(Uint8Array.from([0,5]),4)).toThrow('mask-data');
+  expect(()=>decodeMask(Uint8Array.from([0,0,9,4]),4)).toThrow('mask-data');
+  expect(()=>decodeMask(Uint8Array.from([0,128]),4)).toThrow('mask-data');
+ });
+ it('property: any mask survives encode → decode exactly',()=>{
+  fc.assert(fc.property(fc.uint8Array({maxLength:3000}),fc.array(fc.tuple(fc.integer({min:0,max:255}),fc.integer({min:1,max:400})),{maxLength:20}),(noise,runs)=>{
+   const m=Uint8Array.from([...noise,...runs.flatMap(([v,n])=>new Array<number>(n).fill(v))]);
+   expect(decodeMask(encodeMask(m),m.length)).toEqual(m);
+  }),{numRuns:300});
+ });
+ it('a loaded mask and plane are the new start: undo cannot go before them, Clear then Undo brings them back',()=>{
+  const h=new MaskHistory(10,8),saved=new Uint8Array(80);saved.fill(255,20,40);saved[41]=77;
+  expect(h.canClear).toBe(false);h.load(saved,RECT);expect(h.canClear).toBe(true);
+  expect(h.mask).toEqual(saved);expect(h.plane()).toEqual(RECT);expect(h.canUndo).toBe(false);expect(h.canRedo).toBe(false);
+  h.apply({kind:'clear'});expect(h.isEmpty()).toBe(true);expect(h.plane()).toBeNull();
+  h.undo();expect(h.mask).toEqual(saved);expect(h.plane()).toEqual(RECT);
+  expect(()=>h.load(new Uint8Array(3),null)).toThrow('mask-size');
+ });
+ it('redraw drops a live stroke that was never recorded',()=>{
+  const h=new MaskHistory(21,21);h.apply({kind:'brush',radius:2,points:[[5,5]]});const kept=new Uint8Array(h.mask);
+  strokeSegment(h.mask,21,21,'brush',3,[15,15],[18,18]);expect(h.mask).not.toEqual(kept);
+  h.redraw();expect(h.mask).toEqual(kept);
  });
 });

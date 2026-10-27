@@ -9,11 +9,11 @@ import {Capacitor} from '@capacitor/core';
 import {CompareSlider} from './CompareSlider';
 import {orderQuad} from './homography';
 import type {Point} from './homography';
-import {MaskHistory,strokeSegment} from './mask';
+import {decodeMask,encodeMask,MaskHistory,strokeSegment} from './mask';
 import type {DirtyRect} from './mask';
-import {fitSize,preparePhoto,prepareReference,toPixel} from './photo-prep';
+import {fitSize,preparePhoto,prepareReference} from './photo-prep';
 import type {Pixels,PhotoProblem} from './photo-prep';
-import {canShareImages,encodeResult,saveResult,shareResult} from './result-export';
+import {canShareImages,encodeResult,saveResult,shareResult,thumbnailJpeg} from './result-export';
 import type {SaveOutcome} from './result-export';
 import type {Rgb,SurfaceMaterial} from './surface-engine';
 import {standInSurface} from './surface-provider';
@@ -27,6 +27,10 @@ import {AiConsent} from './AiConsent';
 import {browserCodec} from './ai-codec';
 import {createRoomAi,giveConsent,hasConsent,loadPending,newClientJobId,RoomAiError,savePending,Waker} from './server-surface';
 import type {AiPhase,AiProblem,AiSurfaceRequest,RoomAi} from './server-surface';
+import {SessionError} from './room-sessions';
+import type {RoomSession,RoomSessions} from './room-sessions';
+import {brushRadius,FIT_VIEW,isZoomed,MAX_ZOOM,pixelToScreen,screenToPixel,TAP_SLOP,viewTransform,wheelFactor,ZOOM_STEP,ZoomGestures,zoomAt} from './view-zoom';
+import type {ZoomView} from './view-zoom';
 
 type AreaTool='brush'|'erase'|'corners'|'ai-tap';
 type Mode='paint'|'pattern'|'picture';
@@ -44,6 +48,9 @@ const FINISHES:readonly {id:string;file:string}[]=[
  {id:'m_marble_white',file:'marble_white'},{id:'m_marble_charcoal',file:'marble_charcoal'},{id:'m_wallpaper_linen',file:'wallpaper_linen'},
 ];
 const PAINTS=surfaceLibrary.filter(e=>e.material.id.startsWith('m_paint_')||e.material.id==='m_ext');
+const bytesOf=async(blob:Blob)=>new Uint8Array(await blob.arrayBuffer());
+const jpegBlob=(bytes:Uint8Array)=>new Blob([bytes as Uint8Array<ArrayBuffer>],{type:'image/jpeg'});
+const typing=(target:EventTarget|null)=>target instanceof HTMLInputElement||target instanceof HTMLSelectElement||target instanceof HTMLTextAreaElement||target instanceof HTMLElement&&target.getAttribute('role')==='slider';
 const hexRgb=(hex:string):Rgb=>{const v=/^#([0-9a-f]{6})$/i.exec(hex)?.[1]??'cccccc';return [parseInt(v.slice(0,2),16),parseInt(v.slice(2,4),16),parseInt(v.slice(4,6),16)];};
 
 /** A canvas showing pixels at their own size (CSS scales it); redrawn when the pixels change. */
@@ -59,8 +66,10 @@ function PixelCanvas({pixels,label,testId}:{pixels:Pixels;label:string;testId?:s
  * D85 Room photo visualizer (Phase 1, offline). A full-screen modal over the editor: choose an area on the photo, pick
  * paint, a pattern or a picture, see before/after, keep up to four options, save or share the image. All state lives
  * here and dies with the view; nothing is written to the project store or saved with the drawing.
+ * D87: pinch/wheel zoom and pan of the photo; when an option is kept the session is saved on this device only
+ * (`sessions`, never the project), and a saved `session` reopens with its photo, area and kept options.
  */
-export default function VisualizerView({file,locale,onClose,provider=standInSurface,cloud=null}:{file:File;locale:Locale;onClose(problem?:PhotoProblem):void;provider?:SurfaceEditProvider;cloud?:CloudSession|null}):ReactNode{
+export default function VisualizerView({file,locale,onClose,provider=standInSurface,cloud=null,session=null,sessions=null,onSessionSaved}:{file:File;locale:Locale;onClose(problem?:PhotoProblem):void;provider?:SurfaceEditProvider;cloud?:CloudSession|null;session?:RoomSession|null;sessions?:RoomSessions|null;onSessionSaved?():void}):ReactNode{
  const t=<K extends MessageKey>(key:K,...args:MessageArgs<K>)=>message(locale,key,...args);
  const dialog=useRef<HTMLDialogElement>(null),stageRef=useRef<HTMLDivElement>(null),overlay=useRef<HTMLCanvasElement>(null),patternInput=useRef<HTMLInputElement>(null),pictureInput=useRef<HTMLInputElement>(null);
  const [photo,setPhoto]=useState<Pixels|null>(null),history=useRef<MaskHistory|null>(null),[maskVersion,setMaskVersion]=useState(0);
@@ -85,7 +94,20 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  useEffect(()=>{const d=dialog.current!;if(!d.open)d.showModal();return()=>{if(d.open)d.close();};},[]);
  // Decode the photo once; a failure closes the view and the panel says why.
  const closeRef=useRef(onClose);closeRef.current=onClose;
- useEffect(()=>{let live=true;preparePhoto(file).then(p=>{if(!live)return;history.current=new MaskHistory(p.width,p.height);setPhoto(p);},e=>{if(live)closeRef.current((e instanceof Error?e.message:'decode') as PhotoProblem);});return()=>{live=false;};},[file]);
+ const sessionRef=useRef(session);
+ useEffect(()=>{let live=true;preparePhoto(file).then(async p=>{
+  if(!live)return;const h=new MaskHistory(p.width,p.height),saved=sessionRef.current;
+  // D87: a reopened session gets back its exact area, plane and kept options; the newest option shows as the result.
+  if(saved){
+   if(saved.width!==p.width||saved.height!==p.height)throw new Error('decode');
+   h.load(decodeMask(saved.mask,p.width*p.height),saved.plane);
+   const newest=saved.options.at(-1),shownResult=newest?await preparePhoto(new File([jpegBlob(newest.jpeg)],'option.jpg',{type:'image/jpeg'})):null;if(!live)return;
+   const kept=saved.options.map(o=>{const blob=jpegBlob(o.jpeg);return {id:o.id,label:o.label,blob,url:URL.createObjectURL(blob)};});
+   variantsRef.current=kept;setVariants(kept);if(kept.length>=2){setPairA(kept[0]!.id);setPairB(kept[1]!.id);}
+   if(shownResult){setResult({...shownResult,changed:0,ms:0});setStage('result');}
+  }
+  history.current=h;setPhoto(p);
+ }).catch(e=>{if(live)closeRef.current((e instanceof Error&&['type','size','small','decode'].includes(e.message)?e.message:'decode') as PhotoProblem);});return()=>{live=false;};},[file]);
  useEffect(()=>()=>{render.current?.abort();aiRun.current?.abort();tapRun.current?.abort();for(const v of variantsRef.current)URL.revokeObjectURL(v.url);},[]);
  // Someone who signed in before reconnects quietly; anyone else never loads the cloud library from here.
  useEffect(()=>{let used:boolean;try{used=cloudWasUsed(globalThis.localStorage??null,location.search);}catch{used=false;}if(cloud&&used&&cloud.getSnapshot().status==='idle')void cloud.ensure();},[cloud]);
@@ -108,6 +130,29 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  // The stage area decides the shown photo size; pointer maths uses the shown box.
  useLayoutEffect(()=>{const el=stageRef.current;if(!el)return;const measure=()=>setBox({width:el.clientWidth,height:el.clientHeight});measure();if(typeof ResizeObserver==='undefined'){window.addEventListener('resize',measure);return()=>window.removeEventListener('resize',measure);}const o=new ResizeObserver(measure);o.observe(el);return()=>o.disconnect();},[photo]);
  const shown=photo&&box.width>0?fitSize(box.width-16,box.height-16,photo.width,photo.height):null;
+ // D87 zoom and pan. The view is shared by the area, result and compare stages (they all show the same photo frame).
+ const frameRef=useRef<HTMLDivElement>(null),[view,setView]=useState<ZoomView>(FIT_VIEW),viewRef=useRef(view),gestures=useRef(new ZoomGestures()),[moveMode,setMoveMode]=useState(false);
+ viewRef.current=view;
+ const frameRect=()=>frameRef.current!.getBoundingClientRect();
+ const zoomBy=(factor:number)=>{const el=frameRef.current;if(!el)return;const w=el.clientWidth,ht=el.clientHeight;setView(v=>zoomAt(v,factor,w/2,ht/2,w,ht));};
+ const local=(event:PointerEvent<HTMLElement>):[number,number]=>{const r=frameRect();return [event.clientX-r.left,event.clientY-r.top];};
+ // Capture phase: a pan or a second finger is taken here, before the drawing layer or the compare divider sees it.
+ const zoomDown=(event:PointerEvent<HTMLDivElement>)=>{
+  if(!gestures.current.down(event.pointerId,local(event),viewRef.current,moveMode||event.shiftKey||event.button===1))return;
+  event.stopPropagation();event.preventDefault();cancelStroke();
+  try{event.currentTarget.setPointerCapture(event.pointerId);}catch{/* synthetic or already lifted pointer */}
+ };
+ const zoomMove=(event:PointerEvent<HTMLDivElement>)=>{const r=frameRect(),next=gestures.current.move(event.pointerId,[event.clientX-r.left,event.clientY-r.top],r.width,r.height);if(next){event.stopPropagation();setView(next);}};
+ const zoomUp=(event:PointerEvent<HTMLDivElement>)=>{if(gestures.current.up(event.pointerId,viewRef.current))event.stopPropagation();};
+ const zoomHandlers={onPointerDownCapture:zoomDown,onPointerMoveCapture:zoomMove,onPointerUpCapture:zoomUp,onPointerCancelCapture:zoomUp};
+ // The wheel needs a non-passive listener so a trackpad pinch (ctrl + wheel) zooms the photo, not the page.
+ const frameShown=!!(photo&&shown);
+ useEffect(()=>{
+  const el=frameRef.current;if(!el)return;
+  const wheel=(event:WheelEvent)=>{event.preventDefault();const r=el.getBoundingClientRect();setView(v=>zoomAt(v,wheelFactor(event.deltaY,event.deltaMode),event.clientX-r.left,event.clientY-r.top,r.width,r.height));};
+  el.addEventListener('wheel',wheel,{passive:false});return()=>el.removeEventListener('wheel',wheel);
+ },[frameShown,stage]);
+ const zoomed:CSSProperties=frameShown?{transform:viewTransform(view,shown!.width,shown!.height)}:{};
 
  /** Paints the mask overlay for a rectangle of the photo (all of it by default). */
  const drawOverlay=useCallback((rect?:DirtyRect)=>{
@@ -123,19 +168,17 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  useLayoutEffect(()=>{const c=overlay.current;if(!c||!photo||stage!=='area')return;if(c.width!==photo.width||c.height!==photo.height){c.width=photo.width;c.height=photo.height;overlayStale.current=true;}if(overlayStale.current){overlayStale.current=false;drawOverlay();}},[photo,stage,drawOverlay,maskVersion]);
 
  // Brush / Eraser strokes draw live, then become one undoable step; "4 corners" collects taps.
- const stroke=useRef<{id:number;kind:'brush'|'erase';radius:number;points:Point[]}|null>(null);
- const pixelAt=(event:PointerEvent<HTMLCanvasElement>):Point=>toPixel(event.clientX,event.clientY,event.currentTarget.getBoundingClientRect(),photo!.width,photo!.height);
+ // D87: pointer → working pixel goes through the zoom view (pure `screenToPixel`); the brush keeps its size on screen.
+ // Corners and AI taps count on release, so a press that becomes a pinch or a drag never places a corner.
+ const stroke=useRef<{id:number;kind:'brush'|'erase';radius:number;points:Point[]}|null>(null),tap=useRef<{id:number;x:number;y:number;p:Point}|null>(null);
+ const pixelAt=(event:PointerEvent<HTMLElement>):Point=>{const r=frameRect();return screenToPixel(event.clientX-r.left,event.clientY-r.top,viewRef.current,r.width,r.height,photo!.width,photo!.height);};
+ /** A second finger arrived: the stroke in progress is dropped (never recorded) and the mask is redrawn without it. */
+ const cancelStroke=()=>{tap.current=null;if(!stroke.current)return;stroke.current=null;history.current?.redraw();overlayStale.current=false;drawOverlay();};
  const down=(event:PointerEvent<HTMLCanvasElement>)=>{
-  const h=history.current;if(!h||!photo||busy)return;event.preventDefault();const p=pixelAt(event);
-  if(tool==='ai-tap'){void tapAt(p);return;}
-  if(tool==='corners'){
-   const next=[...corners,p];if(next.length<4){setCorners(next);setCornerNote(null);return;}
-   const quad=orderQuad(next);setCorners([]);
-   if(!quad){setCornerNote('bad');return;}
-   const dirty=h.apply({kind:'quad',quad});setCornerNote('set');drawOverlay(dirty);setMaskVersion(v=>v+1);return;
-  }
-  const rect=event.currentTarget.getBoundingClientRect(),radius=Math.max(1,brush*photo.width/Math.max(1,rect.width));
-  event.currentTarget.setPointerCapture?.(event.pointerId);
+  const h=history.current;if(!h||!photo||busy||stroke.current)return;event.preventDefault();const p=pixelAt(event);
+  if(tool==='ai-tap'||tool==='corners'){tap.current={id:event.pointerId,x:event.clientX,y:event.clientY,p};return;}
+  const radius=brushRadius(brush,viewRef.current,frameRect().width,photo.width);
+  try{event.currentTarget.setPointerCapture(event.pointerId);}catch{/* synthetic or already lifted pointer */}
   stroke.current={id:event.pointerId,kind:tool==='erase'?'erase':'brush',radius,points:[p]};
   drawOverlay(strokeSegment(h.mask,h.width,h.height,stroke.current.kind,radius,p,p));
  };
@@ -144,7 +187,19 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
   const p=pixelAt(event),last=s.points.at(-1)!;if(Math.hypot(p[0]-last[0],p[1]-last[1])<1)return;
   s.points.push(p);drawOverlay(strokeSegment(h.mask,h.width,h.height,s.kind,s.radius,last,p));
  };
- const up=(event:PointerEvent<HTMLCanvasElement>)=>{const s=stroke.current,h=history.current;if(!s||!h||s.id!==event.pointerId)return;stroke.current=null;h.apply({kind:s.kind,radius:s.radius,points:s.points},true);setMaskVersion(v=>v+1);};
+ const tapped=(p:Point)=>{
+  const h=history.current;if(!h)return;
+  if(tool==='ai-tap'){void tapAt(p);return;}
+  const next=[...corners,p];if(next.length<4){setCorners(next);setCornerNote(null);return;}
+  const quad=orderQuad(next);setCorners([]);
+  if(!quad){setCornerNote('bad');return;}
+  const dirty=h.apply({kind:'quad',quad});setCornerNote('set');drawOverlay(dirty);setMaskVersion(v=>v+1);
+ };
+ const up=(event:PointerEvent<HTMLCanvasElement>)=>{
+  const t=tap.current;
+  if(t&&t.id===event.pointerId){tap.current=null;if(event.type==='pointerup'&&Math.hypot(event.clientX-t.x,event.clientY-t.y)<=TAP_SLOP)tapped(t.p);return;}
+  const s=stroke.current,h=history.current;if(!s||!h||s.id!==event.pointerId)return;stroke.current=null;h.apply({kind:s.kind,radius:s.radius,points:s.points},true);setMaskVersion(v=>v+1);
+ };
  const changed=()=>{overlayStale.current=true;setCorners([]);setCornerNote(null);setMaskVersion(v=>v+1);};
  const undo=()=>{if(history.current?.undo())changed();};
  const redo=()=>{if(history.current?.redo())changed();};
@@ -170,6 +225,23 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
   catch{if(!controller.signal.aborted)setStatus({key:'vizRenderFailed'});}
   finally{if(render.current===controller){render.current=null;setBusy(false);}}
  };
+ // D87: the session is saved on this device after each kept (or removed) option. Saves run one after another; the
+ // photo is encoded to JPEG once per visualizer (a reopened session reuses its stored bytes, so they never drift).
+ const sessionId=useRef(session?.id??crypto.randomUUID()),photoJpeg=useRef<Uint8Array|null>(session?.photo??null),saveChain=useRef<Promise<void>>(Promise.resolve()),savedOnce=useRef(!!session);
+ const [sessionNote,setSessionNote]=useState<'saved'|'quota'|'failed'|null>(null);
+ const persist=()=>{
+  const h=history.current;if(!sessions||!photo||!h)return;
+  const mask=encodeMask(h.mask),plane=h.plane(),kept=[...variantsRef.current],savedAt=Date.now();savedOnce.current=true;
+  saveChain.current=saveChain.current.then(async()=>{
+   try{
+    const photoBytes=photoJpeg.current??=await bytesOf(await encodeResult(photo,'image/jpeg'));
+    const options=await Promise.all(kept.map(async v=>({id:v.id,label:v.label,jpeg:await bytesOf(v.blob)})));
+    const thumb=await bytesOf(await thumbnailJpeg(kept.at(-1)?.blob??jpegBlob(photoBytes)));
+    await sessions.save({id:sessionId.current,savedAt,width:photo.width,height:photo.height,photo:photoBytes,mask,plane,options},thumb);
+    setSessionNote('saved');onSessionSaved?.();
+   }catch(error){setSessionNote(error instanceof SessionError&&error.code==='quota'?'quota':'failed');}
+  });
+ };
  /** Keeps pixels as a compressed option; false when four are already kept. */
  const keepPixels=async(pixels:Pixels,label:string):Promise<boolean>=>{
   if(variantsRef.current.length>=MAX_VARIANTS)return false;
@@ -177,6 +249,7 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
   if(!next){URL.revokeObjectURL(url);return false;}
   variantsRef.current=next;setVariants(next);
   if(next.length===2){setPairA(next[0]!.id);setPairB(next[1]!.id);}
+  persist();
   return true;
  };
  const keep=async()=>{
@@ -243,13 +316,20 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  const remove=(id:string)=>{
   const v=variants.find(x=>x.id===id);if(v)URL.revokeObjectURL(v.url);
   const next=variants.filter(x=>x.id!==id),a=next.some(x=>x.id===pairA)?pairA:next[0]?.id??'',b=next.some(x=>x.id===pairB)&&pairB!==a?pairB:next.find(x=>x.id!==a)?.id??'';
-  setVariants(next);setPairA(a);setPairB(b);if(next.length<2&&stage==='compare')setStage(result?'result':'area');
+  variantsRef.current=next;setVariants(next);setPairA(a);setPairB(b);if(next.length<2&&stage==='compare')setStage(result?'result':'area');
+  if(savedOnce.current)persist();
  };
  const save=async(share:boolean)=>{if(!result||saveState==='busy')return;setSaveState('busy');try{setSaveState(share?await shareResult(result,t('vizWatermark'),t('toolPhoto')):await saveResult(result,t('vizWatermark')));}catch{setSaveState('failed');}};
 
  const key=(event:KeyboardEvent<HTMLDialogElement>)=>{
   // The editor listens on window for its own shortcuts (Undo of the drawing, tool keys); none may reach it from here.
   event.stopPropagation();
+  // D87: + / − / 0 zoom the photo (not while typing or on a slider).
+  if(!event.ctrlKey&&!event.metaKey&&!event.altKey&&photo&&!typing(event.target)){
+   if(event.key==='+'||event.key==='='){event.preventDefault();zoomBy(ZOOM_STEP);return;}
+   if(event.key==='-'){event.preventDefault();zoomBy(1/ZOOM_STEP);return;}
+   if(event.key==='0'){event.preventDefault();setView(FIT_VIEW);return;}
+  }
   if(!(event.ctrlKey||event.metaKey)||event.target instanceof HTMLInputElement)return;
   const k=event.key.toLowerCase();if(k==='z'){event.preventDefault();if(event.shiftKey)redo();else undo();}if(k==='y'){event.preventDefault();redo();}
  };
@@ -260,15 +340,26 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
   <div className="viz-body">
    <div ref={stageRef} className="viz-stage" data-stage={stage} style={photo?{['--viz-aspect' as string]:`${photo.width} / ${photo.height}`} as CSSProperties:undefined}>
     {!photo&&<p role="status" className="viz-stage-note">{t('vizOpening')}</p>}
-    {photo&&shown&&stage==='area'&&<div className="viz-frame" style={frame}>
-     <PixelCanvas pixels={photo} label={t('vizOriginal')} testId="viz-photo"/>
-     <canvas ref={overlay} className="viz-canvas viz-overlay" data-testid="viz-mask" data-tool={tool} aria-label={t('vizPhotoArea')} role="img" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}/>
-     {corners.map(([x,y],i)=><span key={i} className="viz-corner" style={{left:`${x/photo.width*100}%`,top:`${y/photo.height*100}%`}} aria-hidden="true"/>)}
+    {photo&&shown&&<div ref={frameRef} className="viz-frame" style={frame} data-testid="viz-frame" data-zoom={view.scale.toFixed(3)} data-move={moveMode||undefined} {...zoomHandlers}>
+     {stage==='area'&&<>
+      <div className="viz-zoomed" style={zoomed}>
+       <PixelCanvas pixels={photo} label={t('vizOriginal')} testId="viz-photo"/>
+       <canvas ref={overlay} className="viz-canvas viz-overlay" data-testid="viz-mask" data-tool={tool} aria-label={t('vizPhotoArea')} role="img" onPointerDown={down} onPointerMove={move} onPointerUp={up} onPointerCancel={up}/>
+      </div>
+      {corners.map(([x,y],i)=>{const [cx,cy]=pixelToScreen(x,y,view,shown.width,shown.height,photo.width,photo.height);return <span key={i} className="viz-corner" style={{left:cx,top:cy}} aria-hidden="true"/>;})}
+     </>}
+     {stage==='result'&&result&&<CompareSlider testId="viz-compare" style={{width:'100%',height:'100%'}} contentStyle={zoomed} label={t('vizDivider')} leftLabel={t('vizBefore')} rightLabel={t('vizAfter')} left={<PixelCanvas pixels={photo} label={t('vizOriginal')}/>} right={<PixelCanvas pixels={result} label={t('vizChanged')} testId="viz-result"/>}/>}
+     {stage==='compare'&&a&&b&&<CompareSlider testId="viz-options" style={{width:'100%',height:'100%'}} contentStyle={zoomed} label={t('vizOptionDivider')} leftLabel={a.label} rightLabel={b.label} left={<img className="viz-canvas" src={a.url} alt={a.label}/>} right={<img className="viz-canvas" src={b.url} alt={b.label}/>}/>}
+     <span className="viz-zoom-level" role="status" data-testid="viz-zoom-level">{t('vizZoomLevel',{zoom:view.scale.toFixed(1)})}</span>
     </div>}
-    {photo&&shown&&stage==='result'&&result&&<CompareSlider testId="viz-compare" style={frame} label={t('vizDivider')} leftLabel={t('vizBefore')} rightLabel={t('vizAfter')} left={<PixelCanvas pixels={photo} label={t('vizOriginal')}/>} right={<PixelCanvas pixels={result} label={t('vizChanged')} testId="viz-result"/>}/>}
-    {photo&&shown&&stage==='compare'&&a&&b&&<CompareSlider testId="viz-options" style={frame} label={t('vizOptionDivider')} leftLabel={a.label} rightLabel={b.label} left={<img className="viz-canvas" src={a.url} alt={a.label}/>} right={<img className="viz-canvas" src={b.url} alt={b.label}/>}/>}
    </div>
    <div className="viz-controls">
+    {photo&&<div className="viz-zoombar" role="group" aria-label={t('vizZoomControls')}>
+     <button className="viz-zoom-button" aria-label={t('vizZoomOut')} title={t('vizZoomOut')} disabled={!isZoomed(view)} onClick={()=>zoomBy(1/ZOOM_STEP)}>−</button>
+     <button className="viz-zoom-button" aria-label={t('vizZoomIn')} title={t('vizZoomIn')} disabled={view.scale>=MAX_ZOOM-1e-9} onClick={()=>zoomBy(ZOOM_STEP)}>+</button>
+     <button aria-label={t('vizZoomFitLabel')} disabled={!isZoomed(view)} onClick={()=>setView(FIT_VIEW)}>{t('vizZoomFit')}</button>
+     <button aria-pressed={moveMode} onClick={()=>setMoveMode(m=>!m)}>{t('vizMovePhoto')}</button>
+    </div>}
     <p className="viz-note">{t('vizPreviewNote')}</p>
     {photo&&<>
      <div className="viz-view" role="group" aria-label={t('vizView')}>
@@ -277,7 +368,7 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
       <button aria-pressed={stage==='compare'} disabled={variants.length<2} onClick={()=>setStage('compare')}>{t('vizViewCompare')}</button>
      </div>
      <section className="viz-section" aria-label={t('vizStepArea')}>
-      <h3>{t('vizStepArea')}</h3><p>{t('vizAreaHelp')}</p>
+      <h3>{t('vizStepArea')}</h3><p>{t('vizAreaHelp')}</p><p className="structure-note">{t('vizZoomHelp')}</p>
       <div className="viz-tools" role="group" aria-label={t('vizAreaTools')}>
        {(['brush','erase','corners'] as const).map(id=><button key={id} aria-pressed={tool===id} onClick={()=>{setTool(id);setCorners([]);setCornerNote(null);setStage('area');}}>{t(id==='brush'?'vizBrush':id==='erase'?'vizEraser':'vizCorners')}</button>)}
        {roomAi&&<button aria-pressed={tool==='ai-tap'} onClick={()=>withConsent(()=>{setTool('ai-tap');setCorners([]);setCornerNote(null);setStage('area');setTapNote(null);})}>{t('roomAiTap')}</button>}
@@ -290,7 +381,7 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
       <div className="viz-row">
        <button disabled={!h?.canUndo} onClick={undo} data-version={maskVersion}>{t('vizUndoArea')}</button>
        <button disabled={!h?.canRedo} onClick={redo}>{t('vizRedoArea')}</button>
-       <button disabled={!h?.size} onClick={clear}>{t('vizClearArea')}</button>
+       <button disabled={!h?.canClear} onClick={clear}>{t('vizClearArea')}</button>
       </div>
      </section>
      <section className="viz-section" aria-label={t('vizStepMaterial')}>
@@ -349,6 +440,7 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
        <p className="viz-subhead">{t('vizKept',{count:variants.length})}</p>
        <ul className="viz-variants">{variants.map(v=><li key={v.id}><img src={v.url} alt="" width={64} height={44}/><span>{v.label}</span><button className="icon-button" aria-label={t('vizDeleteOption',{label:v.label})} onClick={()=>remove(v.id)}><Icon name="close"/></button></li>)}</ul>
       </>}
+      {sessionNote&&<p role={sessionNote==='saved'?'status':'alert'} data-testid="viz-session-note">{t(sessionNote==='saved'?'vizSessionSaved':`vizSession_${sessionNote}`)}</p>}
       {variants.length>=2?<div className="viz-pair">
        <label>{t('vizCompareFirst')}<select value={pairA} aria-label={t('vizCompareFirst')} onChange={event=>{setPairA(event.target.value);setStage('compare');}}>{variants.map(v=><option key={v.id} value={v.id}>{v.label}</option>)}</select></label>
        <label>{t('vizCompareSecond')}<select value={pairB} aria-label={t('vizCompareSecond')} onChange={event=>{setPairB(event.target.value);setStage('compare');}}>{variants.map(v=><option key={v.id} value={v.id}>{v.label}</option>)}</select></label>
