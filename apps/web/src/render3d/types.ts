@@ -34,4 +34,6 @@ export interface ThreeControlsApi {
  reset():void;
  focus(entityId:string):void;
  capture(edge:1000|2000,copy:(canvas:HTMLCanvasElement)=>Uint8ClampedArray):import('./capture').CapturedPixels;
+ /** D89: tiled, supersampled picture of the current view at a preset size; the live view and its buffers are unchanged. */
+ picture(request:{preset:import('./picture').PicturePreset;nativeSave:boolean},options:{signal:AbortSignal;onProgress(fraction:number):void}):Promise<import('./picture').PicturePlan&{canvas:HTMLCanvasElement;generation:number}>;
 }
