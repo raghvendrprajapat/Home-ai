@@ -110,3 +110,8 @@ Owner, 2026-10-27: finish the app's core before any backend; the AI part stays a
 - No real Low/Mid phone testing, no performance claim for phones, no final Claude review (D36/D63 gates remain).
 - No purchases of extra AI previews (billing stays gated).
 - All tests are the builder's own (Claude Code), not independent fixtures.
+
+
+## D90: provider change, recorded for later (owner, 2026-10-27)
+
+The owner will not use fal.ai. When the backend is built (Firebase + Vercel, paused until the core app is finished), the D86 server logic is ported to Vercel Functions and the provider adapter is swapped: AI previews call the **OpenAI** image edit API directly with `OPENAI_API_KEY` (Vercel environment variable, server only); the mask becomes an alpha PNG (transparent = edit) of exactly the first image's size; OpenAI answers synchronously, so the function time limit and a client-side wait/cancel flow must be designed. Tap-to-select (SAM-2) needs a separately chosen host with its own key (Meta offers no official hosted SAM API as far as we know; SAM-2 itself is Apache-2.0); host and price are unverified. Until then the brush and 4-corner tools are the selection method. The server-enforced guardrails stay: medium quality, one image, compressed uploads, credits and the monthly cap.

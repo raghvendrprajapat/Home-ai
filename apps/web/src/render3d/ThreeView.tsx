@@ -22,6 +22,7 @@ import type {CameraPose,Bounds3} from './camera';
 import {deviceHints,profiles,pixelRatio,resolveQuality} from './quality';
 import type {QualityChoice} from './quality';
 import {captureFrame} from './capture';
+import {captureLens,contentExtent,pictureScale,pictureShadowSize,planPictureSize,renderPictureTiles} from './picture';
 import {advance,buildWalkWorld,walkPose,walkStart} from './walk';
 import {floorSnapshot} from '../editor/floor-scope';
 import type {WalkInput,WalkState,WalkWorld} from './walk';
@@ -73,6 +74,8 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
   const [ceilings,setCeilings]=useState(false),[ceilingWarnings,setCeilingWarnings]=useState<CeilingWarning[]>([]);
   const poseRef=useRef<CameraPose|null>(null),apiCallback=useRef(onControlsReady);apiCallback.current=onControlsReady;
   const adapterRef=useRef<SceneAdapter|null>(null),invalidateRef=useRef<()=>void>(()=>{});
+  // D89: anything that changes how the scene looks bumps this, so an HD picture never mixes two looks.
+  const sceneVersion=useRef(0);
   const host = useRef<HTMLDivElement>(null), mount = useRef<HTMLDivElement>(null), fit = useRef<() => void>(() => undefined);
   const [status, setStatus] = useState<'building3d' | 'updating3d' | 'threeUnavailable' | 'threeLost' | 'threeFailed' | 'threePrevious' | null>('building3d');
   const language = useRef(locale); language.current = locale;
@@ -109,7 +112,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     const scene = new THREE.Scene(); scene.background = new THREE.Color('#f1f2ee');
     const shaderTextures=new ShaderTextures();teardown.push(()=>shaderTextures.close());
     const assetBase=new URL(import.meta.env.BASE_URL,window.location.href);
-    const adapter = new SceneAdapter(tier,uniforms=>shaderTextures.observe(uniforms),{baseUrl:assetBase,onReady:()=>{if(!disposed){publishTextures();invalidate();}}});teardown.push(()=>{adapter.dispose();element.dataset.resourceStats=JSON.stringify(adapter.resourceStats);});adapterRef.current=adapter;adapter.setCeilingsVisible(ceilings);scene.add(adapter.group);
+    const adapter = new SceneAdapter(tier,uniforms=>shaderTextures.observe(uniforms),{baseUrl:assetBase,onReady:()=>{if(!disposed){sceneVersion.current++;publishTextures();invalidate();}}});teardown.push(()=>{adapter.dispose();element.dataset.resourceStats=JSON.stringify(adapter.resourceStats);});adapterRef.current=adapter;adapter.setCeilingsVisible(ceilings);scene.add(adapter.group);
     const outline=new SelectionOutline();scene.add(outline.group);teardown.push(()=>{outline.dispose();element.dataset.selectionResources=JSON.stringify(outline.resourceStats);selectionUpdate.current=()=>{};});
     const ghost=new PlacementGhost();scene.add(ghost.group);teardown.push(()=>{ghost.dispose();element.dataset.placementResources=JSON.stringify(ghost.resourceStats);ghostUpdate.current=()=>{};});
     const hemisphere=new THREE.HemisphereLight('#ffffff', '#87987b', 2.1);scene.add(hemisphere);
@@ -124,7 +127,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     teardown.push(()=>sun.shadow.dispose());
     const pointLights=new BoundedPointLights(scene);teardown.push(()=>{pointLights.close();element.dataset.lampSources='[]';element.dataset.pointLights='0';});
     const updateLights=(document=previewDocument??appliedDocument??store.getSnapshot().document)=>{
-      if(disposed)return;
+      if(disposed)return;sceneVersion.current++;
       const mode=lightingRef.current,settings=mood(mode,scene.environment!==null);
       (scene.background as THREE.Color).set(settings.background);sun.color.set(settings.sunColor);sun.intensity=settings.sun;hemisphere.intensity=settings.hemisphere;scene.environmentIntensity=settings.environment;
       pointLights.set(mode==='night'&&!nightLightsRef.current?[]:lightSources(document,tier,mode,floorRef.current??document.floors[0]!.id,pipelineRef.current?.lowWallsMm));
@@ -138,6 +141,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     camera.position.set(8, 9, 12);
     controls.enableDamping = true; controls.dampingFactor = 0.09; controls.minDistance = 1; controls.maxDistance = 200;
     controls.maxPolarAngle = 85*Math.PI/180;
+    let pictureActive=false;
     let needsRender = true, lost = false, bundle: SceneBundle | undefined, first = true, generation = -1, sceneState:'pending'|'current'|'stale'|'failed'='pending';
     const invalidate = () => { needsRender = true; };
     // D76: true statements about the live scene for the acceptance tests (textures and the HDRI's half-float PMREM).
@@ -148,7 +152,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
     clipRef.current=updateClip;teardown.push(store.subscribe(updateClip));
     let appliedTag='';let appliedDocument:ReturnType<ProjectStore['getSnapshot']>['document']|null=null,previewDocument:ReturnType<ProjectStore['getSnapshot']>['document']|null=null,transform:FurniturePointer|undefined;
     const effectiveDocument=()=>previewDocument??store.getSnapshot().document;
-    const syncModels=()=>{if(disposed)return;try{if(sceneState==='current'&&!lost&&appliedTag===JSON.stringify(store.asyncTag()))adapter.refreshFurniture(effectiveDocument());setModelStatus(models?.getSnapshot()??[]);element.dataset.modelAttached=JSON.stringify(models?.renderingStats.ids??[]);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);element.dataset.modelResources=JSON.stringify(models?.resourceStats??null);invalidate();}catch{fallback();}};
+    const syncModels=()=>{if(disposed)return;sceneVersion.current++;try{if(sceneState==='current'&&!lost&&appliedTag===JSON.stringify(store.asyncTag()))adapter.refreshFurniture(effectiveDocument());setModelStatus(models?.getSnapshot()??[]);element.dataset.modelAttached=JSON.stringify(models?.renderingStats.ids??[]);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);element.dataset.modelResources=JSON.stringify(models?.resourceStats??null);invalidate();}catch{fallback();}};
     const models:FurnitureAssets|undefined=assetSource?new FurnitureAssets(assetSource,tier==='low'?1:0,syncModels,uniforms=>shaderTextures.observe(uniforms)):undefined;
     if(models){adapter.furnitureAssets=models;adapter.group.add(models.group);retryModel.current=id=>models.retry(id);teardown.push(()=>{models.close();retryModel.current=()=>{};element.dataset.modelResources=JSON.stringify(models.resourceStats);});}
 
@@ -254,7 +258,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
       pending: () => {if(disposed)return;transform?.cancel();gesture.cancel();outline.group.visible=false;setSelectionAdvisory(null);element.dataset.furnitureOverlap='false';sceneState='pending';syncGhost();element.dataset.sceneState=sceneState;setCeilingWarnings([]);adapter.group.visible = false; element.dataset.renderedGeneration = ''; setStatus('updating3d'); pendingCallback.current?.(); invalidate(); },
       ready: result => {
         if(disposed)return;try{
-        bundle = result;appliedDocument=store.getSnapshot().document; sceneState='current';appliedTag=JSON.stringify(store.asyncTag());generation=store.getSnapshot().localGeneration;element.dataset.sceneState=sceneState;element.dataset.invalidation=JSON.stringify(result.invalidation??null);adapter.setLowWalls(pipelineRef.current?.lowWallsMm);adapter.apply(result, store.getSnapshot().document);setModelStatus(models?.getSnapshot()??[]);element.dataset.modelResources=JSON.stringify(models?.resourceStats??null);element.dataset.modelAttached=JSON.stringify(models?.renderingStats.ids??[]);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);setCeilingWarnings(result.ceilingWarnings??[]);element.dataset.ceilingCount=String(result.meshes.filter(m=>m.category==='ceiling').length);element.dataset.structureMeshes=JSON.stringify(result.meshes.filter(m=>m.category==='stair'||m.category==='roof').map(m=>m.id).sort()); adapter.group.visible = true; generation = store.getSnapshot().localGeneration;updateLights();const placement=sunPlacement(bundle.bounds,store.getSnapshot().document.floors[0]!.elevation/1000);sun.position.fromArray(placement.position);sun.target.position.fromArray(placement.target);sun.shadow.camera.left=-placement.coverage;sun.shadow.camera.right=placement.coverage;sun.shadow.camera.top=placement.coverage;sun.shadow.camera.bottom=-placement.coverage;sun.shadow.camera.updateProjectionMatrix();element.dataset.shadowCoverage=placement.partial?'central':'full';
+        sceneVersion.current++;bundle = result;appliedDocument=store.getSnapshot().document; sceneState='current';appliedTag=JSON.stringify(store.asyncTag());generation=store.getSnapshot().localGeneration;element.dataset.sceneState=sceneState;element.dataset.invalidation=JSON.stringify(result.invalidation??null);adapter.setLowWalls(pipelineRef.current?.lowWallsMm);adapter.apply(result, store.getSnapshot().document);setModelStatus(models?.getSnapshot()??[]);element.dataset.modelResources=JSON.stringify(models?.resourceStats??null);element.dataset.modelAttached=JSON.stringify(models?.renderingStats.ids??[]);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);setCeilingWarnings(result.ceilingWarnings??[]);element.dataset.ceilingCount=String(result.meshes.filter(m=>m.category==='ceiling').length);element.dataset.structureMeshes=JSON.stringify(result.meshes.filter(m=>m.category==='stair'||m.category==='roof').map(m=>m.id).sort()); adapter.group.visible = true; generation = store.getSnapshot().localGeneration;updateLights();const placement=sunPlacement(bundle.bounds,store.getSnapshot().document.floors[0]!.elevation/1000);sun.position.fromArray(placement.position);sun.target.position.fromArray(placement.target);sun.shadow.camera.left=-placement.coverage;sun.shadow.camera.right=placement.coverage;sun.shadow.camera.top=placement.coverage;sun.shadow.camera.bottom=-placement.coverage;sun.shadow.camera.updateProjectionMatrix();element.dataset.shadowCoverage=placement.partial?'central':'full';
         element.dataset.meshChanges = JSON.stringify(adapter.lastChanges); element.dataset.vertexCount = String(result.stats.vertices);
         element.dataset.meshesBuilt = String(result.stats.meshesBuilt);
         if(first){first=false;if(initialPose){applyPose(initialPose);controls.update();guard();}else fit.current();}
@@ -269,7 +273,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
       selected:()=>selectedRef.current?.kind==='furniture'?selectedRef.current.id:undefined,
       start:()=>{gesture.cancel();editStartRef.current?.();},
       hit:client=>{const r=renderer.domElement.getBoundingClientRect(),ray=new THREE.Raycaster();ray.setFromCamera(new THREE.Vector2((client[0]-r.left)/r.width*2-1,1-(client[1]-r.top)/r.height*2),camera);return furnitureRayHit(ray,adapter.group,store.getSnapshot().document,adapter.hiddenFloors);},
-      preview:result=>{previewDocument=result?.document??null;const document=previewDocument??appliedDocument;if(document){adapter.refreshFurniture(document);updateLights(document);}element.dataset.furniturePreview=JSON.stringify(previewDocument?.furniture.find(f=>f.id===selectedRef.current?.id)??null);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);selectOutline();invalidate();},
+      preview:result=>{sceneVersion.current++;previewDocument=result?.document??null;const document=previewDocument??appliedDocument;if(document){adapter.refreshFurniture(document);updateLights(document);}element.dataset.furniturePreview=JSON.stringify(previewDocument?.furniture.find(f=>f.id===selectedRef.current?.id)??null);element.dataset.modelScene=JSON.stringify(models?.renderingStats??null);selectOutline();invalidate();},
       status:(phase,errors)=>{syncGhost();element.dataset.furnitureGesture=phase;if(phase!=='idle'){element.dataset.renderedGeneration='';onMessage(message(language.current,phase==='invalid'?'furnitureValuesInvalid':'furniture3dHelp'));if(errors?.[0])onMessage(editError(language.current,errors[0]));}invalidate();},
       committed:result=>onMessage(result.ok?message(language.current,result.changed?'furnitureApplied':'furnitureUnchanged'):editError(language.current,result.errors[0])),failed:fallback,
     });transformRef.current=transform;transform.setMode(modeRef.current,freeRef.current);teardown.push(()=>{transform?.dispose();transform=undefined;});
@@ -317,12 +321,38 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
         applyPose(fitted.pose);controls.update();guard();invalidate();if(fitted.capped)onMessage(message(language.current,'cameraFitCapped'));
       },
       capture:(edge,copy)=>{
-        if(transform?.active||disposed||lost||recovery.active||sceneState!=='current'||generation!==store.getSnapshot().localGeneration||!bundle||!bundle.meshes.length&&!store.getSnapshot().document.furniture.length)throw new Error('capture-unavailable');
+        if(pictureActive||transform?.active||disposed||lost||recovery.active||sceneState!=='current'||generation!==store.getSnapshot().localGeneration||!bundle||!bundle.meshes.length&&!store.getSnapshot().document.furniture.length)throw new Error('capture-unavailable');
         const aspect=camera.aspect,width=aspect>=1?edge:Math.max(1,Math.round(edge*aspect)),height=aspect>=1?Math.max(1,Math.round(edge/aspect)):edge;
         const selectionVisible=outline.group.visible,ghostVisible=ghost.group.visible;outline.group.visible=false;ghost.group.visible=false;
         try{return captureFrame(renderer,scene,camera,width,height,generation,tier,gpu,copy);}
         catch(e){if(e instanceof Error&&e.message==='capture-restore')fallback();throw e;}
         finally{if(!disposed){outline.group.visible=selectionVisible;ghost.group.visible=ghostVisible;}invalidate();}
+      },
+      picture:async(request,options)=>{
+        const doc=store.getSnapshot().document;
+        if(pictureActive||transform?.active||previewDocument||disposed||lost||recovery.active||sceneState!=='current'||generation!==store.getSnapshot().localGeneration||!bundle||!bundle.meshes.length&&!doc.furniture.length)throw new Error('capture-unavailable');
+        const plan=planPictureSize(request.preset,{gpu,tier,nativeSave:request.nativeSave}),startGeneration=generation,startVersion=sceneVersion.current;
+        // Same position, direction and look as the live camera; only the lens follows the picture's shape (never stretched).
+        camera.updateMatrixWorld();const shot=camera.clone(),bounds=visibleBounds(),inverse=shot.matrixWorldInverse;
+        const corners=bounds?[0,1,2,3,4,5,6,7].map(i=>new THREE.Vector3(bounds[i&1?3:0],bounds[i&2?4:1],bounds[i&4?5:2]).applyMatrix4(inverse).toArray()):[];
+        const lens=captureLens({position:camera.position.toArray(),target:controls.target.toArray(),fov:camera.fov,aspect:camera.aspect},plan.width,plan.height,contentExtent(corners,camera.near));
+        shot.fov=lens.fov;shot.aspect=lens.aspect;shot.updateProjectionMatrix();element.dataset.pictureLens=JSON.stringify({fov:Math.round(lens.fov*1000)/1000,aspect:Math.round(lens.aspect*10000)/10000,fit:lens.fit});
+        const output=document.createElement('canvas');output.width=plan.width;output.height=plan.height;const context=output.getContext('2d',{alpha:false});if(!context){output.width=output.height=0;throw new Error('image-context');}
+        context.imageSmoothingEnabled=true;context.imageSmoothingQuality='high';
+        const liveShadow=sun.shadow.mapSize.clone(),autoShadows=renderer.shadowMap.autoUpdate,sharpShadow=pictureShadowSize(tier,gpu);let selectionVisible=false,ghostVisible=false,firstTile=true;
+        pictureActive=true;element.dataset.pictureState='rendering';
+        try{
+          if(sharpShadow>liveShadow.x)sun.shadow.mapSize.set(sharpShadow,sharpShadow);
+          await renderPictureTiles({renderer,scene,camera:shot,width:plan.width,height:plan.height,scale:pictureScale(plan.width,plan.height,tier),signal:options.signal,
+            check:()=>{if(disposed||lost||recovery.active)throw new Error('capture-context');if(sceneState!=='current'||transform?.active||previewDocument||generation!==startGeneration||store.getSnapshot().localGeneration!==startGeneration||sceneVersion.current!==startVersion)throw new Error('capture-changed');},
+            begin:()=>{selectionVisible=outline.group.visible;ghostVisible=ghost.group.visible;outline.group.visible=false;ghost.group.visible=false;},
+            // One shadow pass for the whole picture: the scene cannot change during it (check above).
+            copy:(tile,source)=>{context.drawImage(source,tile.sx,tile.sy,tile.sw,tile.sh,tile.ox,tile.oy,tile.w,tile.h);if(firstTile){firstTile=false;renderer.shadowMap.autoUpdate=false;}},
+            end:()=>{if(disposed)return;outline.group.visible=selectionVisible;ghost.group.visible=ghostVisible;try{if(!lost&&!renderer.getContext().isContextLost())renderer.render(scene,camera);}catch{fallback();throw new Error('capture-restore');}invalidate();},
+            onProgress:(done,total)=>options.onProgress(done/total)});
+          return {...plan,canvas:output,generation:startGeneration};
+        }catch(e){output.width=output.height=0;throw e;}
+        finally{pictureActive=false;if(!disposed){sun.shadow.mapSize.copy(liveShadow);renderer.shadowMap.autoUpdate=autoShadows;renderer.shadowMap.needsUpdate=true;element.dataset.pictureState='';invalidate();}}
       },
     });
     animate();
@@ -337,7 +367,7 @@ export default function ThreeView({ activeFloorId,advisories:providedAdvisories,
   useEffect(()=>{ghostUpdate.current();},[placementPreview]);
   useEffect(()=>{try{localStorage.setItem(LOW_WALLS_KEY,lowWalls?'1':'0');}catch{/* the choice lasts for this view only */}},[lowWalls]);
   useEffect(()=>{if(host.current)host.current.dataset.lowWalls=String(lowWalls);if(!walking)pipelineRef.current?.setLowWalls(lowWalls?LOW_WALL_MM:undefined);},[lowWalls,walking]);
-  useEffect(()=>{adapterRef.current?.setCeilingsVisible(ceilings);if(host.current)host.current.dataset.ceilingsVisible=String(ceilings);invalidateRef.current();},[ceilings]);
+  useEffect(()=>{sceneVersion.current++;adapterRef.current?.setCeilingsVisible(ceilings);if(host.current)host.current.dataset.ceilingsVisible=String(ceilings);invalidateRef.current();},[ceilings]);
   useEffect(() => { fit.current(); }, [fitRequest]);
   useEffect(() => { host.current?.querySelector('canvas')?.setAttribute('aria-label', message(locale, 'canvas3d')); }, [locale]);
   useEffect(() => { if (orbit.current){transformRef.current?.cancel();orbit.current.autoRotate = autoOrbit;} }, [autoOrbit]);
