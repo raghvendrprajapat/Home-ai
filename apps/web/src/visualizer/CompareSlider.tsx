@@ -14,16 +14,17 @@ export function sliderKey(value:number,key:string):number|undefined{
 /**
  * D85 before/after (or option A/B) comparison. Both layers fill the same frame; the right-hand layer shows to the right
  * of the divider. The divider is a keyboard slider (role slider, 0–100) and follows a drag anywhere on the frame.
+ * D87: `contentStyle` (the zoom transform) moves both pictures together; the divider stays in frame coordinates.
  */
-export function CompareSlider({left,right,leftLabel,rightLabel,label,style,testId}:{left:ReactNode;right:ReactNode;leftLabel:string;rightLabel:string;label:string;style?:CSSProperties;testId?:string}){
+export function CompareSlider({left,right,leftLabel,rightLabel,label,style,contentStyle,testId}:{left:ReactNode;right:ReactNode;leftLabel:string;rightLabel:string;label:string;style?:CSSProperties;contentStyle?:CSSProperties;testId?:string}){
  const [value,setValue]=useState(50),frame=useRef<HTMLDivElement>(null),drag=useRef<number|null>(null);
  const move=(event:PointerEvent<HTMLDivElement>)=>{if(drag.current!==event.pointerId)return;setValue(sliderFromPointer(event.clientX,event.currentTarget.getBoundingClientRect()));};
  const key=(event:KeyboardEvent<HTMLDivElement>)=>{const next=sliderKey(value,event.key);if(next===undefined)return;event.preventDefault();setValue(next);};
  return <div ref={frame} className="viz-compare" style={style} data-testid={testId} data-split={value}
   onPointerDown={event=>{drag.current=event.pointerId;event.currentTarget.setPointerCapture?.(event.pointerId);setValue(sliderFromPointer(event.clientX,event.currentTarget.getBoundingClientRect()));}}
   onPointerMove={move} onPointerUp={()=>{drag.current=null;}} onPointerCancel={()=>{drag.current=null;}}>
-  <div className="viz-layer">{left}</div>
-  <div className="viz-layer" style={{clipPath:`inset(0 0 0 ${value}%)`}}>{right}</div>
+  <div className="viz-layer"><div className="viz-zoomed" style={contentStyle}>{left}</div></div>
+  <div className="viz-layer" style={{clipPath:`inset(0 0 0 ${value}%)`}}><div className="viz-zoomed" style={contentStyle}>{right}</div></div>
   <span className="viz-tag viz-tag-left" aria-hidden="true">{leftLabel}</span><span className="viz-tag viz-tag-right" aria-hidden="true">{rightLabel}</span>
   <div className="viz-divider" style={{left:`${value}%`}} role="slider" tabIndex={0} aria-label={label} aria-valuemin={0} aria-valuemax={100} aria-valuenow={value} aria-valuetext={`${value}%`} onKeyDown={key}><span className="viz-knob" aria-hidden="true"/></div>
  </div>;

@@ -1,4 +1,4 @@
-# D85/D86 — Room photo visualizer (Phase 1 offline; Phase 2 AI)
+# D85/D86/D87 — Room photo visualizer (Phase 1 offline; Phase 2 AI; polish)
 
 Owner, 2026-10-26: after Claude's architecture review the owner said "Okey now do work"; Claude Code is the builder again for this work (Codex does not run concurrently). Goal: after seeing the home in 3D, a customer tries paint, tiles/laminate/wallpaper or wall art on a photo of their **real** room.
 
@@ -71,6 +71,29 @@ Owner decisions (2026-10-26): AI spending is allowed; the whole app may spend at
 - Android without `VITE_PUBLIC_APP_URL` opens the bundled privacy page inside the app (Back returns, the visualizer is closed).
 - The legal text of `privacy.html` is the builder's factual draft; **the owner must review it** before release.
 
+## D87 polish: zoom on the photo and room photos kept on the device
+
+Owner, 2026-10-27: finish the app's core before any backend; the AI part stays as built (hidden when cloud is not configured). No server code changed. Claude Code builder; Codex does not run concurrently.
+
+**Zoom and pan** (`view-zoom.ts`, pure, no DOM). The shown frame keeps its fitted size; the photo layer inside it is moved by a CSS transform `translate(x·W, y·H) scale(s)` with `s` from 1 (fit) to 6 and `x`, `y` stored as fractions of the frame, so a phone rotation keeps the same part in view. The view is always clamped so the photo covers the frame (`x ∈ [1 − s, 0]`). `screenToPixel`/`pixelToScreen` map a frame point to a working-size pixel and back; brush, eraser, 4-corner and AI taps all go through `screenToPixel`, and the brush radius in photo pixels is `size · photoWidth / (frameWidth · s)`, so the brush keeps its size on screen. One view is shared by the Area, Before/after and Compare stages; the compare divider stays in frame coordinates (both pictures move together inside their clipped layers), so the slider works the same when zoomed.
+- Touch: two fingers pinch (scale follows finger distance; the photo point under the start midpoint follows the midpoint, so a two-finger drag also pans), computed from the gesture start each time so it never drifts. A finger left after a pinch pans until all fingers lift.
+- **Two fingers never draw.** The first finger starts a live stroke; when a second finger lands, that stroke is dropped (never recorded) and the mask is redrawn from its recorded steps (`MaskHistory.redraw`). Corners and AI taps now count on release and only if the press moved ≤ 10 CSS px, so a press that turns into a pinch or drag never places a corner.
+- Desktop: wheel (and trackpad pinch, which arrives as ctrl + wheel; a non-passive listener stops the page from zooming) zooms about the cursor; Shift + drag, the middle button or the **Move photo** toggle pans; `+`, `−`, `0` keys zoom (not while typing or on a slider). Space was not used, because Space presses the focused button for keyboard users.
+- Controls: a sticky bar at the top of the controls with −, +, **Fit** and **Move photo** (each ≥ 48 px; one row at 360 px) and a small "Zoom 2.3×" badge on the photo.
+
+**Room photos kept on the device** (`room-sessions.ts`). When the person keeps an option (or an AI preview is kept automatically), the session is saved: the working-size photo as JPEG (encoded once per visualizer at quality 0.9; a reopened session reuses its stored bytes), the chosen area as a run-length mask (`encodeMask`: value byte + base-128 run length, a few KB; decoding is byte-exact), the four-corner plane and up to 4 kept options (their JPEG bytes and labels). Removing an option updates the saved session. Each save also stores a ≤ 160 px JPEG thumbnail of the newest option in a separate summary record, so the list never loads photos.
+- Storage: its own IndexedDB database `gharplan-room-photos` (stores `summaries` and `sessions`, written together in one transaction), separate from drawings; nothing goes into the project document or the workspace (architecture rule 1 holds: the visualizer still never sees the store). Bytes are stored as `Uint8Array`, not Blobs (older Android WebViews handle Blobs in IndexedDB poorly).
+- Bounded: at most **10** sessions; saving an eleventh removes the oldest (never the one just saved). A full device (`QuotaExceededError`, also when it aborts the transaction) shows "This device is out of space, so this room photo was not saved. Delete older room photos in the Room photo panel." and keeps the earlier sessions; nothing is deleted automatically to make room.
+- No storage (no IndexedDB, blocked, a private mode that refuses storage): the store opens as `null`, and the Recent list and auto-save simply do not appear.
+- The panel shows **Recent room photos** (newest first: thumbnail, date and time, "N options"), a delete button per photo and **Delete all** with a confirm step. Reopening decodes the stored photo and the newest option (shown as the result), loads the mask and plane as the new starting point (`MaskHistory.load`: no undo before it; Clear and then Undo bring it back) and restores the kept options with their labels. A damaged or missing record says "This room photo could not be opened. You can delete it."
+- The store code loads as its own small chunk (`room-sessions`, 3.14 kB / 1.28 kB gzip) from the panel; only the panel's list UI and strings are in the main bundle. Measured `pnpm build` before → after: main `index` 538.88 → 541.22 kB (166.94 → 167.67 kB gzip); `VisualizerView` 44.16 → 52.50 kB (15.43 → 18.14 kB gzip); CSS 36.51 → 38.18 kB; build-gate initial JS 247 191 → 248 686 gzip bytes (limit 600 000).
+
+**Privacy.** No change to `privacy.html` in D87: the owner decided (2026-10-27) that the privacy page is written only when the app is ready to go live. Before release it must mention that kept room photos stay only on the device until deleted.
+
+**Tests (builder's own, not independent).** Vitest: zoom maths with hand-worked values (centre/corner zoom, limits, edge clamp, pinch scale and midpoint, brush radius, wheel), fast-check properties (screen → pixel → screen is the identity for any view; a zoom keeps the point under the cursor when not clamped), gesture classification and the pointer tracker (second finger → pinch, leftover finger pans, then drawing again); mask RLE examples, damaged-data refusal and an encode/decode property; `MaskHistory.load`/`redraw`; the session store over an in-memory port **and over fake-indexeddb** (save, newest-first list, byte-for-byte reopen, replace, delete one/all, 10-session eviction, damaged record, quota from `put` and from a transaction abort, no/denied IndexedDB → null); jsdom UI for the Recent list (dates, option counts, delete, Delete all confirm/cancel, reopen restores options/area/stage, missing record message in Hindi, hidden without storage). Playwright `tests/e2e/room-photo-polish.spec.ts` at 1280×800 and 360×800: a real two-finger touch pinch (Chrome DevTools touch events) zooms and leaves the mask empty although the first finger had started a live stroke; wheel zoom; zoom 2.25× then a brushed line lands exactly where the zoom maths says (inside/outside checks at the stroke ends and edges, and the spot an unzoomed stroke would have hit is untouched), the result is exact mint inside and the original grey outside; the divider works by keys and drag while zoomed; Move photo and Shift + drag pan without moving the divider; Keep saves; close → Recent shows "1 option" → reopen: the option's JPEG bytes are identical, the result canvas equals the stored option decoded, the photo canvas equals the stored photo decoded and the area overlay is identical to before closing; delete removes it from IndexedDB.
+
+**What D87 does not do.** No automatic wall/floor detection; no export/import of saved room photos; sessions are not synced or backed up (device only, by design); saved room photos count toward the browser/app storage and are lost if the app's data is cleared; zoom is not remembered when a session is reopened (it opens at Fit). Real Low/Mid phone checks of pinch feel, memory and IndexedDB size remain pending gates.
+
 ## Risks
 
 - One photo cannot give true colour or scale: camera white balance, exposure and screen differences change colours; "pattern size" is visual, not millimetres. The note says so on every screen and in saved images.
@@ -81,9 +104,9 @@ Owner decisions (2026-10-26): AI spending is allowed; the whole app may spend at
 ## What is NOT done
 
 - Phase 2 (D86) is built but has not run against the real fal.ai service or the owner's Supabase project.
-- No pinch-zoom on the photo; no automatic wall/floor detection.
+- No automatic wall/floor detection. (Pinch-zoom was added in D87.)
 - Android saves PNG (native plugin limit), not JPEG; Web Share is used only where the browser supports sharing files (Android WebView does not).
-- Results and options are not saved in the project and are lost when the visualizer closes.
+- Results and options are not saved in the project. Since D87, kept options are saved on the device (Recent room photos, last 10); a shown but not kept result is still lost when the visualizer closes.
 - No real Low/Mid phone testing, no performance claim for phones, no final Claude review (D36/D63 gates remain).
 - No purchases of extra AI previews (billing stays gated).
 - All tests are the builder's own (Claude Code), not independent fixtures.
