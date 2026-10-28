@@ -26,12 +26,18 @@ export function allowedOrigins(raw: string | undefined): string[] {
 
 /**
  * Whether a browser origin may call. Besides the list, the deployment's own address is accepted (a same-origin call
- * from the web app, including Vercel preview addresses) — but only over https.
+ * from the web app, including Vercel preview addresses) — but only an https origin whose host is the host this
+ * request was sent to (the request URL's host or the Host header; a browser cannot set either for another site).
  */
-export function originAllowed(origin: string | null, allowed: readonly string[], requestUrl: string): boolean {
+export function originAllowed(origin: string | null, allowed: readonly string[], requestUrl: string, hostHeader: string | null = null): boolean {
   if (!origin) return false;
   if (allowed.includes(origin)) return true;
-  try { const own = new URL(requestUrl); return own.protocol === 'https:' && own.origin === origin; } catch { return false; }
+  try {
+    const from = new URL(origin);
+    if (from.protocol !== 'https:' || from.origin !== origin) return false;
+    const hosts = [new URL(requestUrl).host, hostHeader?.trim().toLowerCase() ?? ''].filter(Boolean);
+    return hosts.includes(from.host);
+  } catch { return false; }
 }
 
 /** CORS headers for an allowed origin; none at all for any other origin (the browser then blocks the answer). */

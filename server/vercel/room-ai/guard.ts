@@ -51,7 +51,7 @@ export type Need = 'openai' | 'fal';
 export interface Passed { readonly bytes: Uint8Array; readonly reply: (body: unknown, status?: number) => Response; readonly key: string }
 
 export async function gate(request: Request, deps: Deps, need: Need, bodyLimit: number): Promise<Passed | Response> {
-  const env = deps.env(), origin = request.headers.get('Origin'), ok = originAllowed(origin, allowedOrigins(env.ALLOWED_ORIGINS), request.url);
+  const env = deps.env(), origin = request.headers.get('Origin'), ok = originAllowed(origin, allowedOrigins(env.ALLOWED_ORIGINS), request.url, request.headers.get('Host'));
   const cors = corsHeaders(origin, ok), reply = (body: unknown, status = 200) => json(body, status, cors);
   if (request.method === 'OPTIONS') return new Response(null, { status: ok ? 204 : 403, headers: cors });
   if (request.method !== 'POST') return reply({ ok: false, code: 'INVALID_REQUEST' }, 405);

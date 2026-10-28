@@ -55,6 +55,10 @@ describe('CORS and origins', () => {
     expect(originAllowed('https://a.example.com', list, 'https://x.vercel.app/api/room-ai/edit')).toBe(true);
     expect(originAllowed('https://x.vercel.app', list, 'https://x.vercel.app/api/room-ai/edit')).toBe(true);
     expect(originAllowed('http://x.vercel.app', list, 'http://x.vercel.app/api/room-ai/edit')).toBe(false);
+    // The platform may hand the function an internal URL; the Host header then identifies the deployment.
+    expect(originAllowed('https://x.vercel.app', list, 'http://localhost:3000/api/room-ai/edit', 'x.vercel.app')).toBe(true);
+    expect(originAllowed('https://evil.example.com', list, 'http://localhost:3000/api/room-ai/edit', 'x.vercel.app')).toBe(false);
+    expect(originAllowed('https://x.vercel.app/path', list, 'https://x.vercel.app/api/room-ai/edit')).toBe(false);
     expect(originAllowed('https://evil.example.com', list, 'https://x.vercel.app/api/room-ai/edit')).toBe(false);
     expect(originAllowed(null, list, 'https://x.vercel.app/api/room-ai/edit')).toBe(false);
     expect(corsHeaders('https://evil.example.com', false)).toEqual({ Vary: 'Origin' });

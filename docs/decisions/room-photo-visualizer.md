@@ -130,7 +130,7 @@ ready to go live. Claude Code builder; D86 code is kept unchanged and is simply 
   `POST /api/room-ai/edit` (maxDuration 300 s in `vercel.json`) and `POST /api/room-ai/segment` (120 s). The entry
   files only call the pure, tested code in `server/vercel/room-ai/` (lint, typecheck and Vitest include it).
 - Every call passes, in this order: CORS preflight → POST only → allowed origin (ALLOWED_ORIGINS, plus
-  `https://localhost` for the Capacitor app, plus the deployment's own https address, so preview URLs work) → server
+  `https://localhost` for the Capacitor app, plus an https origin whose host is the host the request was sent to — the deployment's own address, so preview URLs work) → server
   configured (keys present and AI_ACCESS_CODE at least 8 characters, else 503 `NOT_SET_UP`) → wrong-code lockout
   (10 wrong codes per 10 minutes per instance → 429) → access code in header `X-Room-AI-Code`, compared timing-safe
   (both values hashed with SHA-256, all 32 bytes compared; 401 `WRONG_CODE`) → per-instance rate limit (edit 6/min,
