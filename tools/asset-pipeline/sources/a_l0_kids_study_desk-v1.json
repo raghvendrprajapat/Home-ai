@@ -1,0 +1,230 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_kids_study_desk",
+  "version": 1,
+  "name_en": "Kids' study table with shelf",
+  "name_hi": "बच्चों की पढ़ाई की मेज़ (शेल्फ़ के साथ)",
+  "category": "tables",
+  "tags": [
+    "kids study table",
+    "children desk",
+    "study desk",
+    "homework",
+    "drawers",
+    "shelf",
+    "मेज़",
+    "पढ़ाई"
+  ],
+  "dims": {
+    "w": 900,
+    "d": 500,
+    "h": 1050
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_kids_study_desk-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_kids_study_desk-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        588,
+        0
+      ],
+      "size": [
+        900,
+        24,
+        500
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "panel-left",
+      "shape": "box",
+      "center": [
+        -441,
+        288,
+        -2
+      ],
+      "size": [
+        18,
+        576,
+        464
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "pedestal",
+      "shape": "box",
+      "center": [
+        300,
+        288,
+        -2
+      ],
+      "size": [
+        300,
+        576,
+        464
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "drawer-1",
+      "shape": "box",
+      "center": [
+        300,
+        470,
+        -242
+      ],
+      "size": [
+        292,
+        170,
+        16
+      ],
+      "color": "#9cc9b4",
+      "finish": "matte"
+    },
+    {
+      "name": "drawer-2",
+      "shape": "box",
+      "center": [
+        300,
+        285,
+        -242
+      ],
+      "size": [
+        292,
+        170,
+        16
+      ],
+      "color": "#f2b8a0",
+      "finish": "matte"
+    },
+    {
+      "name": "drawer-3",
+      "shape": "box",
+      "center": [
+        300,
+        100,
+        -242
+      ],
+      "size": [
+        292,
+        170,
+        16
+      ],
+      "color": "#9cc9b4",
+      "finish": "matte"
+    },
+    {
+      "name": "modesty",
+      "shape": "box",
+      "center": [
+        -141,
+        426,
+        222
+      ],
+      "size": [
+        582,
+        300,
+        16
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "hutch-back",
+      "shape": "box",
+      "center": [
+        0,
+        825,
+        241
+      ],
+      "size": [
+        900,
+        450,
+        18
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "hutch-side-left",
+      "shape": "box",
+      "center": [
+        -441,
+        825,
+        150
+      ],
+      "size": [
+        18,
+        450,
+        200
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "hutch-side-right",
+      "shape": "box",
+      "center": [
+        441,
+        825,
+        150
+      ],
+      "size": [
+        18,
+        450,
+        200
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "hutch-shelf",
+      "shape": "box",
+      "center": [
+        0,
+        840,
+        141
+      ],
+      "size": [
+        864,
+        18,
+        182
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "hutch-top",
+      "shape": "box",
+      "center": [
+        0,
+        1041,
+        150
+      ],
+      "size": [
+        900,
+        18,
+        200
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    }
+  ]
+}

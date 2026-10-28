@@ -1,0 +1,181 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_computer_desk",
+  "version": 1,
+  "name_en": "Computer desk with keyboard tray",
+  "name_hi": "कीबोर्ड ट्रे वाली कंप्यूटर डेस्क",
+  "category": "tables",
+  "tags": [
+    "computer desk",
+    "work from home",
+    "office desk",
+    "keyboard tray",
+    "cpu",
+    "मेज़",
+    "कंप्यूटर"
+  ],
+  "dims": {
+    "w": 1200,
+    "d": 600,
+    "h": 750
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_computer_desk-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_computer_desk-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        738,
+        0
+      ],
+      "size": [
+        1200,
+        24,
+        600
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "panel-left",
+      "shape": "box",
+      "center": [
+        -588,
+        363,
+        0
+      ],
+      "size": [
+        24,
+        726,
+        560
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "panel-right",
+      "shape": "box",
+      "center": [
+        588,
+        363,
+        0
+      ],
+      "size": [
+        24,
+        726,
+        560
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "cpu-divider",
+      "shape": "box",
+      "center": [
+        288,
+        363,
+        0
+      ],
+      "size": [
+        24,
+        726,
+        560
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "cpu-shelf",
+      "shape": "box",
+      "center": [
+        438,
+        90,
+        0
+      ],
+      "size": [
+        276,
+        18,
+        560
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "modesty",
+      "shape": "box",
+      "center": [
+        0,
+        540,
+        271
+      ],
+      "size": [
+        1152,
+        360,
+        18
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tray",
+      "shape": "box",
+      "center": [
+        -20,
+        660,
+        -60
+      ],
+      "size": [
+        520,
+        18,
+        400
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "runner-left",
+      "shape": "box",
+      "center": [
+        -289,
+        688,
+        -60
+      ],
+      "size": [
+        18,
+        76,
+        400
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "runner-right",
+      "shape": "box",
+      "center": [
+        249,
+        688,
+        -60
+      ],
+      "size": [
+        18,
+        76,
+        400
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    }
+  ]
+}

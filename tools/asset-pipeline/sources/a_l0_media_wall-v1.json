@@ -1,0 +1,585 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_media_wall",
+  "version": 1,
+  "name_en": "TV wall unit with shelves",
+  "name_hi": "शेल्फ़ वाली टीवी वॉल यूनिट",
+  "category": "storage",
+  "tags": [
+    "tv unit",
+    "tv wall",
+    "media wall",
+    "entertainment unit",
+    "wall unit",
+    "shelves",
+    "fluted panel",
+    "टीवी",
+    "टीवी यूनिट"
+  ],
+  "dims": {
+    "w": 2400,
+    "d": 450,
+    "h": 2100
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_media_wall-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_media_wall-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "carcass",
+      "shape": "box",
+      "center": [
+        0,
+        260,
+        -1
+      ],
+      "size": [
+        2400,
+        400,
+        412
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "plinth",
+      "shape": "box",
+      "center": [
+        0,
+        30,
+        0
+      ],
+      "size": [
+        2360,
+        60,
+        400
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "door-1",
+      "shape": "box",
+      "center": [
+        -900,
+        260,
+        -216
+      ],
+      "size": [
+        596,
+        392,
+        18
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "door-2",
+      "shape": "box",
+      "center": [
+        -300,
+        260,
+        -216
+      ],
+      "size": [
+        596,
+        392,
+        18
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "door-3",
+      "shape": "box",
+      "center": [
+        300,
+        260,
+        -216
+      ],
+      "size": [
+        596,
+        392,
+        18
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "door-4",
+      "shape": "box",
+      "center": [
+        900,
+        260,
+        -216
+      ],
+      "size": [
+        596,
+        392,
+        18
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "back-board",
+      "shape": "box",
+      "center": [
+        0,
+        1280,
+        215
+      ],
+      "size": [
+        2400,
+        1640,
+        20
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "panel",
+      "shape": "box",
+      "center": [
+        0,
+        1280,
+        200
+      ],
+      "size": [
+        1360,
+        1640,
+        10
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-1",
+      "shape": "box",
+      "center": [
+        -605,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-2",
+      "shape": "box",
+      "center": [
+        -495,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-3",
+      "shape": "box",
+      "center": [
+        -385,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-4",
+      "shape": "box",
+      "center": [
+        -275,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-5",
+      "shape": "box",
+      "center": [
+        -165,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-6",
+      "shape": "box",
+      "center": [
+        -55,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-7",
+      "shape": "box",
+      "center": [
+        55,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-8",
+      "shape": "box",
+      "center": [
+        165,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-9",
+      "shape": "box",
+      "center": [
+        275,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-10",
+      "shape": "box",
+      "center": [
+        385,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-11",
+      "shape": "box",
+      "center": [
+        495,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "flute-12",
+      "shape": "box",
+      "center": [
+        605,
+        1280,
+        187
+      ],
+      "size": [
+        40,
+        1640,
+        16
+      ],
+      "color": "#9b6a47",
+      "finish": "satin"
+    },
+    {
+      "name": "tower-left-outer",
+      "shape": "box",
+      "center": [
+        -1190,
+        1280,
+        55
+      ],
+      "size": [
+        20,
+        1640,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-left-inner",
+      "shape": "box",
+      "center": [
+        -710,
+        1280,
+        55
+      ],
+      "size": [
+        20,
+        1640,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-left-shelf-1",
+      "shape": "box",
+      "center": [
+        -950,
+        860,
+        55
+      ],
+      "size": [
+        460,
+        20,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-left-shelf-2",
+      "shape": "box",
+      "center": [
+        -950,
+        1260,
+        55
+      ],
+      "size": [
+        460,
+        20,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-left-shelf-3",
+      "shape": "box",
+      "center": [
+        -950,
+        1660,
+        55
+      ],
+      "size": [
+        460,
+        20,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-left-top",
+      "shape": "box",
+      "center": [
+        -950,
+        2090,
+        55
+      ],
+      "size": [
+        500,
+        20,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-right-outer",
+      "shape": "box",
+      "center": [
+        1190,
+        1280,
+        55
+      ],
+      "size": [
+        20,
+        1640,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-right-inner",
+      "shape": "box",
+      "center": [
+        710,
+        1280,
+        55
+      ],
+      "size": [
+        20,
+        1640,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-right-shelf-1",
+      "shape": "box",
+      "center": [
+        950,
+        860,
+        55
+      ],
+      "size": [
+        460,
+        20,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-right-shelf-2",
+      "shape": "box",
+      "center": [
+        950,
+        1260,
+        55
+      ],
+      "size": [
+        460,
+        20,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-right-shelf-3",
+      "shape": "box",
+      "center": [
+        950,
+        1660,
+        55
+      ],
+      "size": [
+        460,
+        20,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "tower-right-top",
+      "shape": "box",
+      "center": [
+        950,
+        2090,
+        55
+      ],
+      "size": [
+        500,
+        20,
+        300
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "vase-left",
+      "shape": "cylinder",
+      "center": [
+        -950,
+        970,
+        80
+      ],
+      "size": [
+        120,
+        200,
+        120
+      ],
+      "color": "#b5653f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 16
+    },
+    {
+      "name": "vase-right",
+      "shape": "cylinder",
+      "center": [
+        950,
+        1370,
+        80
+      ],
+      "size": [
+        120,
+        200,
+        120
+      ],
+      "color": "#b5653f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 16
+    }
+  ]
+}

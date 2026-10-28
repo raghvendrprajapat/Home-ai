@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_wall_shelf",
+  "version": 1,
+  "name_en": "Study wall shelf",
+  "name_hi": "दीवार पर लगने वाली स्टडी शेल्फ़",
+  "category": "storage",
+  "tags": [
+    "wall shelf",
+    "study shelf",
+    "bookshelf",
+    "floating shelf",
+    "books",
+    "wall mounted",
+    "शेल्फ़",
+    "किताबें"
+  ],
+  "dims": {
+    "w": 900,
+    "d": 250,
+    "h": 900
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_wall_shelf-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_shelf-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "bottom",
+      "shape": "box",
+      "center": [
+        0,
+        9,
+        0
+      ],
+      "size": [
+        900,
+        18,
+        250
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "top",
+      "shape": "box",
+      "center": [
+        0,
+        891,
+        0
+      ],
+      "size": [
+        900,
+        18,
+        250
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "side-left",
+      "shape": "box",
+      "center": [
+        -441,
+        450,
+        0
+      ],
+      "size": [
+        18,
+        864,
+        250
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "side-right",
+      "shape": "box",
+      "center": [
+        441,
+        450,
+        0
+      ],
+      "size": [
+        18,
+        864,
+        250
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "middle",
+      "shape": "box",
+      "center": [
+        0,
+        450,
+        0
+      ],
+      "size": [
+        864,
+        18,
+        250
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "divider-low",
+      "shape": "box",
+      "center": [
+        -120,
+        230,
+        0
+      ],
+      "size": [
+        18,
+        424,
+        250
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "divider-high",
+      "shape": "box",
+      "center": [
+        150,
+        670,
+        0
+      ],
+      "size": [
+        18,
+        424,
+        250
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "book-1",
+      "shape": "box",
+      "center": [
+        -400,
+        138,
+        -10
+      ],
+      "size": [
+        30,
+        240,
+        180
+      ],
+      "color": "#3e4f6e",
+      "finish": "matte"
+    },
+    {
+      "name": "book-2",
+      "shape": "box",
+      "center": [
+        -365,
+        123,
+        -10
+      ],
+      "size": [
+        34,
+        210,
+        180
+      ],
+      "color": "#b5653f",
+      "finish": "matte"
+    },
+    {
+      "name": "book-3",
+      "shape": "box",
+      "center": [
+        -330,
+        143,
+        -10
+      ],
+      "size": [
+        28,
+        250,
+        180
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte"
+    },
+    {
+      "name": "book-4",
+      "shape": "box",
+      "center": [
+        -298,
+        128,
+        -10
+      ],
+      "size": [
+        30,
+        220,
+        180
+      ],
+      "color": "#3e4f6e",
+      "finish": "matte"
+    },
+    {
+      "name": "book-5",
+      "shape": "box",
+      "center": [
+        -266,
+        113,
+        -10
+      ],
+      "size": [
+        26,
+        190,
+        180
+      ],
+      "color": "#b5653f",
+      "finish": "matte"
+    },
+    {
+      "name": "book-flat-1",
+      "shape": "box",
+      "center": [
+        300,
+        474,
+        -10
+      ],
+      "size": [
+        220,
+        30,
+        170
+      ],
+      "color": "#3e4f6e",
+      "finish": "matte"
+    },
+    {
+      "name": "book-flat-2",
+      "shape": "box",
+      "center": [
+        300,
+        504,
+        -10
+      ],
+      "size": [
+        200,
+        30,
+        160
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte"
+    },
+    {
+      "name": "vase",
+      "shape": "cylinder",
+      "center": [
+        -300,
+        539,
+        -20
+      ],
+      "size": [
+        90,
+        160,
+        90
+      ],
+      "color": "#f3f0ea",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 16
+    }
+  ]
+}

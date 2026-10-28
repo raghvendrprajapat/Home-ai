@@ -1,0 +1,379 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_crockery_unit",
+  "version": 1,
+  "name_en": "Crockery unit with glass doors",
+  "name_hi": "काँच के दरवाज़ों वाली क्रॉकरी अलमारी",
+  "category": "storage",
+  "tags": [
+    "crockery unit",
+    "crockery cabinet",
+    "display cabinet",
+    "glass doors",
+    "dining storage",
+    "क्रॉकरी",
+    "अलमारी"
+  ],
+  "dims": {
+    "w": 1200,
+    "d": 420,
+    "h": 1950
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_crockery_unit-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_crockery_unit-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "lower-carcass",
+      "shape": "box",
+      "center": [
+        0,
+        480,
+        15
+      ],
+      "size": [
+        1200,
+        800,
+        390
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "plinth",
+      "shape": "box",
+      "center": [
+        0,
+        40,
+        15
+      ],
+      "size": [
+        1160,
+        80,
+        370
+      ],
+      "color": "#5b3a26",
+      "finish": "satin"
+    },
+    {
+      "name": "lower-door-left",
+      "shape": "box",
+      "center": [
+        -300,
+        480,
+        -189
+      ],
+      "size": [
+        596,
+        792,
+        18
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "lower-door-right",
+      "shape": "box",
+      "center": [
+        300,
+        480,
+        -189
+      ],
+      "size": [
+        596,
+        792,
+        18
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "counter",
+      "shape": "box",
+      "center": [
+        0,
+        895,
+        0
+      ],
+      "size": [
+        1200,
+        30,
+        420
+      ],
+      "color": "#5b3a26",
+      "finish": "satin"
+    },
+    {
+      "name": "niche-side-left",
+      "shape": "box",
+      "center": [
+        -591,
+        1080,
+        9
+      ],
+      "size": [
+        18,
+        340,
+        402
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "niche-side-right",
+      "shape": "box",
+      "center": [
+        591,
+        1080,
+        9
+      ],
+      "size": [
+        18,
+        340,
+        402
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "niche-back",
+      "shape": "box",
+      "center": [
+        0,
+        1080,
+        201
+      ],
+      "size": [
+        1164,
+        340,
+        18
+      ],
+      "color": "#5b3a26",
+      "finish": "satin"
+    },
+    {
+      "name": "upper-carcass",
+      "shape": "box",
+      "center": [
+        0,
+        1600,
+        45
+      ],
+      "size": [
+        1200,
+        700,
+        330
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "upper-door-left",
+      "shape": "box",
+      "center": [
+        -300,
+        1600,
+        -129
+      ],
+      "size": [
+        596,
+        692,
+        18
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "upper-door-right",
+      "shape": "box",
+      "center": [
+        300,
+        1600,
+        -129
+      ],
+      "size": [
+        596,
+        692,
+        18
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "glass-left",
+      "shape": "box",
+      "center": [
+        -300,
+        1600,
+        -140
+      ],
+      "size": [
+        500,
+        600,
+        4
+      ],
+      "color": "#bcd0d4",
+      "finish": "gloss"
+    },
+    {
+      "name": "glass-right",
+      "shape": "box",
+      "center": [
+        300,
+        1600,
+        -140
+      ],
+      "size": [
+        500,
+        600,
+        4
+      ],
+      "color": "#bcd0d4",
+      "finish": "gloss"
+    },
+    {
+      "name": "glass-shelf-left-1",
+      "shape": "box",
+      "center": [
+        -300,
+        1450,
+        -143
+      ],
+      "size": [
+        500,
+        8,
+        2
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "glass-shelf-left-2",
+      "shape": "box",
+      "center": [
+        -300,
+        1750,
+        -143
+      ],
+      "size": [
+        500,
+        8,
+        2
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "glass-shelf-right-1",
+      "shape": "box",
+      "center": [
+        300,
+        1450,
+        -143
+      ],
+      "size": [
+        500,
+        8,
+        2
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "glass-shelf-right-2",
+      "shape": "box",
+      "center": [
+        300,
+        1750,
+        -143
+      ],
+      "size": [
+        500,
+        8,
+        2
+      ],
+      "color": "#9a6a43",
+      "finish": "satin"
+    },
+    {
+      "name": "handle-lower-left",
+      "shape": "cylinder",
+      "center": [
+        -40,
+        700,
+        -204
+      ],
+      "size": [
+        16,
+        160,
+        12
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "handle-lower-right",
+      "shape": "cylinder",
+      "center": [
+        40,
+        700,
+        -204
+      ],
+      "size": [
+        16,
+        160,
+        12
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "handle-upper-left",
+      "shape": "cylinder",
+      "center": [
+        -40,
+        1400,
+        -146
+      ],
+      "size": [
+        16,
+        160,
+        16
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "handle-upper-right",
+      "shape": "cylinder",
+      "center": [
+        40,
+        1400,
+        -146
+      ],
+      "size": [
+        16,
+        160,
+        16
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "y",
+      "segments": 12
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_floor_cushion",
+  "version": 1,
+  "name_en": "Square floor cushion",
+  "name_hi": "चौकोर ज़मीन की गद्दी",
+  "category": "seating",
+  "tags": [
+    "floor cushion",
+    "gaddi",
+    "seat cushion",
+    "floor seating",
+    "pouf",
+    "गद्दी",
+    "ज़मीन पर बैठक"
+  ],
+  "dims": {
+    "w": 600,
+    "d": 600,
+    "h": 170
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_floor_cushion-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_floor_cushion-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "cushion",
+      "shape": "rounded",
+      "center": [
+        0,
+        80,
+        0
+      ],
+      "size": [
+        600,
+        160,
+        600
+      ],
+      "color": "#b5653f",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "stitch-x",
+      "shape": "box",
+      "center": [
+        0,
+        161,
+        0
+      ],
+      "size": [
+        420,
+        2,
+        24
+      ],
+      "color": "#efe3c8",
+      "finish": "matte"
+    },
+    {
+      "name": "stitch-z",
+      "shape": "box",
+      "center": [
+        0,
+        161,
+        0
+      ],
+      "size": [
+        24,
+        2,
+        420
+      ],
+      "color": "#efe3c8",
+      "finish": "matte"
+    },
+    {
+      "name": "button",
+      "shape": "cylinder",
+      "center": [
+        0,
+        165,
+        0
+      ],
+      "size": [
+        40,
+        10,
+        40
+      ],
+      "color": "#efe3c8",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 16
+    }
+  ]
+}

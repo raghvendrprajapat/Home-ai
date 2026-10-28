@@ -1,0 +1,341 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_rocking_chair",
+  "version": 1,
+  "name_en": "Wooden rocking chair",
+  "name_hi": "झूलने वाली लकड़ी की कुर्सी",
+  "category": "seating",
+  "tags": [
+    "rocking chair",
+    "rocker",
+    "wooden chair",
+    "easy chair",
+    "cushion",
+    "कुर्सी",
+    "झूलने वाली कुर्सी"
+  ],
+  "dims": {
+    "w": 640,
+    "d": 900,
+    "h": 1000
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_rocking_chair-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_rocking_chair-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "runner-left",
+      "shape": "cylinder",
+      "center": [
+        -290,
+        70,
+        0
+      ],
+      "size": [
+        30,
+        140,
+        900
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "x",
+      "segments": 24
+    },
+    {
+      "name": "runner-right",
+      "shape": "cylinder",
+      "center": [
+        290,
+        70,
+        0
+      ],
+      "size": [
+        30,
+        140,
+        900
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "x",
+      "segments": 24
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -290,
+        250,
+        -170
+      ],
+      "size": [
+        36,
+        300,
+        36
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        290,
+        250,
+        -170
+      ],
+      "size": [
+        36,
+        300,
+        36
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -290,
+        250,
+        190
+      ],
+      "size": [
+        36,
+        300,
+        36
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        290,
+        250,
+        190
+      ],
+      "size": [
+        36,
+        300,
+        36
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "seat",
+      "shape": "rounded",
+      "center": [
+        0,
+        420,
+        10
+      ],
+      "size": [
+        620,
+        40,
+        480
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 15,
+      "segments": 1
+    },
+    {
+      "name": "arm-post-left",
+      "shape": "cylinder",
+      "center": [
+        -290,
+        540,
+        -200
+      ],
+      "size": [
+        30,
+        200,
+        30
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "arm-post-right",
+      "shape": "cylinder",
+      "center": [
+        290,
+        540,
+        -200
+      ],
+      "size": [
+        30,
+        200,
+        30
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "arm-left",
+      "shape": "rounded",
+      "center": [
+        -290,
+        655,
+        -20
+      ],
+      "size": [
+        60,
+        30,
+        520
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 12,
+      "segments": 1
+    },
+    {
+      "name": "arm-right",
+      "shape": "rounded",
+      "center": [
+        290,
+        655,
+        -20
+      ],
+      "size": [
+        60,
+        30,
+        520
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 12,
+      "segments": 1
+    },
+    {
+      "name": "back-post-left",
+      "shape": "cylinder",
+      "center": [
+        -270,
+        720,
+        235
+      ],
+      "size": [
+        36,
+        560,
+        36
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "back-post-right",
+      "shape": "cylinder",
+      "center": [
+        270,
+        720,
+        235
+      ],
+      "size": [
+        36,
+        560,
+        36
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "back-panel",
+      "shape": "rounded",
+      "center": [
+        0,
+        700,
+        240
+      ],
+      "size": [
+        540,
+        420,
+        24
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "head-rail",
+      "shape": "rounded",
+      "center": [
+        0,
+        975,
+        240
+      ],
+      "size": [
+        600,
+        50,
+        40
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin",
+      "radius": 15,
+      "segments": 1
+    },
+    {
+      "name": "seat-cushion",
+      "shape": "rounded",
+      "center": [
+        0,
+        470,
+        -5
+      ],
+      "size": [
+        540,
+        60,
+        430
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 2
+    },
+    {
+      "name": "back-cushion",
+      "shape": "rounded",
+      "center": [
+        0,
+        700,
+        198
+      ],
+      "size": [
+        460,
+        360,
+        60
+      ],
+      "color": "#d8cdb9",
+      "finish": "matte",
+      "radius": 25,
+      "segments": 2
+    }
+  ]
+}

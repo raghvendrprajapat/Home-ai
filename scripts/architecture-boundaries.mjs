@@ -24,7 +24,7 @@ export function boundaryViolation(filename, dependency) {
   const specifier = slash(dependency);
   // Six consumer tests read shipped catalog/SVG/GLB files (D83 adds decoded furniture/immutable-bed comparisons);
   // this exact-file exception admits no production Node import or arbitrary test filesystem access.
-  if (test && ['apps/web/src/catalog/catalog.test.ts', 'apps/web/src/catalog/api.test.ts', 'apps/web/src/catalog/modern-furniture.test.ts', 'apps/web/src/samples/showcase.test.ts', 'apps/web/src/catalog/furniture-symbols.test.ts', 'apps/web/src/catalog/furniture-wave.test.ts'].includes(relative) && specifier === 'node:fs/promises') return null;
+  if (test && ['apps/web/src/catalog/catalog.test.ts', 'apps/web/src/catalog/api.test.ts', 'apps/web/src/catalog/modern-furniture.test.ts', 'apps/web/src/samples/showcase.test.ts', 'apps/web/src/catalog/furniture-symbols.test.ts', 'apps/web/src/catalog/furniture-wave.test.ts', 'apps/web/src/catalog/catalog-wave-d91.test.ts'].includes(relative) && specifier === 'node:fs/promises') return null;
   if (specifier.startsWith('/') || /^[A-Za-z][A-Za-z\d+.-]*:/.test(specifier))
     return 'Rooted or URL module imports bypass public package boundaries; use an admitted bare or relative specifier.';
   if (/^@gharplan\//.test(specifier) && specifier.split('/').length !== 2)

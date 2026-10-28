@@ -1,0 +1,222 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_folding_dining_table",
+  "version": 1,
+  "name_en": "Drop-leaf folding dining table",
+  "name_hi": "मोड़ने वाली डाइनिंग मेज़",
+  "category": "tables",
+  "tags": [
+    "folding dining table",
+    "drop leaf",
+    "extendable",
+    "small dining",
+    "space saving",
+    "4 seater",
+    "मेज़",
+    "डाइनिंग"
+  ],
+  "dims": {
+    "w": 1000,
+    "d": 390,
+    "h": 760
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_folding_dining_table-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_folding_dining_table-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "top",
+      "shape": "rounded",
+      "center": [
+        0,
+        745,
+        0
+      ],
+      "size": [
+        1000,
+        30,
+        350
+      ],
+      "color": "#b78a5b",
+      "finish": "satin",
+      "radius": 10,
+      "segments": 1
+    },
+    {
+      "name": "leaf-front",
+      "shape": "box",
+      "center": [
+        0,
+        560,
+        -185
+      ],
+      "size": [
+        980,
+        340,
+        20
+      ],
+      "color": "#b78a5b",
+      "finish": "satin"
+    },
+    {
+      "name": "leaf-back",
+      "shape": "box",
+      "center": [
+        0,
+        560,
+        185
+      ],
+      "size": [
+        980,
+        340,
+        20
+      ],
+      "color": "#b78a5b",
+      "finish": "satin"
+    },
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -440,
+        365,
+        -80
+      ],
+      "size": [
+        40,
+        730,
+        40
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        440,
+        365,
+        -80
+      ],
+      "size": [
+        40,
+        730,
+        40
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -440,
+        365,
+        80
+      ],
+      "size": [
+        40,
+        730,
+        40
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        440,
+        365,
+        80
+      ],
+      "size": [
+        40,
+        730,
+        40
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "stretcher-front",
+      "shape": "box",
+      "center": [
+        0,
+        150,
+        -80
+      ],
+      "size": [
+        840,
+        30,
+        20
+      ],
+      "color": "#6b4630",
+      "finish": "satin"
+    },
+    {
+      "name": "stretcher-back",
+      "shape": "box",
+      "center": [
+        0,
+        150,
+        80
+      ],
+      "size": [
+        840,
+        30,
+        20
+      ],
+      "color": "#6b4630",
+      "finish": "satin"
+    },
+    {
+      "name": "stretcher-left",
+      "shape": "box",
+      "center": [
+        -440,
+        150,
+        0
+      ],
+      "size": [
+        20,
+        30,
+        160
+      ],
+      "color": "#6b4630",
+      "finish": "satin"
+    },
+    {
+      "name": "stretcher-right",
+      "shape": "box",
+      "center": [
+        440,
+        150,
+        0
+      ],
+      "size": [
+        20,
+        30,
+        160
+      ],
+      "color": "#6b4630",
+      "finish": "satin"
+    }
+  ]
+}

@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_baithak",
+  "version": 1,
+  "name_en": "Baithak floor seating (gadda and masnad)",
+  "name_hi": "बैठक (गद्दा और मसनद)",
+  "category": "seating",
+  "tags": [
+    "baithak",
+    "floor seating",
+    "gadda",
+    "masnad",
+    "bolster",
+    "floor mattress",
+    "बैठक",
+    "गद्दा",
+    "मसनद",
+    "ज़मीन पर बैठक"
+  ],
+  "dims": {
+    "w": 1800,
+    "d": 750,
+    "h": 520
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_baithak-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_baithak-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "gadda",
+      "shape": "rounded",
+      "center": [
+        0,
+        60,
+        0
+      ],
+      "size": [
+        1800,
+        120,
+        750
+      ],
+      "color": "#e6dcc6",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 2
+    },
+    {
+      "name": "masnad-left",
+      "shape": "rounded",
+      "center": [
+        -445,
+        320,
+        275
+      ],
+      "size": [
+        880,
+        400,
+        200
+      ],
+      "color": "#8c3b2e",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "masnad-right",
+      "shape": "rounded",
+      "center": [
+        445,
+        320,
+        275
+      ],
+      "size": [
+        880,
+        400,
+        200
+      ],
+      "color": "#8c3b2e",
+      "finish": "matte",
+      "radius": 60,
+      "segments": 2
+    },
+    {
+      "name": "bolster-left",
+      "shape": "cylinder",
+      "center": [
+        -795,
+        220,
+        -110
+      ],
+      "size": [
+        200,
+        200,
+        500
+      ],
+      "color": "#8c3b2e",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 16
+    },
+    {
+      "name": "bolster-right",
+      "shape": "cylinder",
+      "center": [
+        795,
+        220,
+        -110
+      ],
+      "size": [
+        200,
+        200,
+        500
+      ],
+      "color": "#8c3b2e",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 16
+    }
+  ]
+}

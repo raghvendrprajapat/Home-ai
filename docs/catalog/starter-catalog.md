@@ -122,6 +122,37 @@ Original designs by Claude Code in the same schemaVersion 3 profile, with the ne
 
 The catalog now lists 42 items (78 published versions). Pictures and window-length curtains hang on a wall: place them, then type their height in "Furniture elevation" (for example 1300 mm for a picture, 760 mm for window-length curtains); placement starts at 0 mm.
 
+## D91 catalog wave (2026-10-27)
+
+Twenty new original items by Claude Code in the schemaVersion 3 profile, every one with `mergeByMaterial` (one draw call per material) and the same project-original app-use rights record (checked 2026-10-27; nothing copied from Planner 5D or anywhere else). Sizes are typical for furniture sold in India, chosen by Claude Code, not measured from a specific product: a diwan of 6 ft × 2.6 ft, a baithak gadda of 6 ft × 2.5 ft, a single bed for a 36 × 75 in mattress, a 1300 mm baby cot, kids' furniture at a 600 mm desk height, a 2400 mm TV wall unit, a 4 ft crockery unit and an 8 ft × 2.5 ft runner. No fans, appliances, TV sets or sanitaryware; the pooja unit is a plain wooden shelf unit with no religious imagery.
+
+| ID | English / Hindi | Category | W × D × H (mm) | Triangles | Parts / meshes | Source |
+|---|---|---|---|---:|---|---|
+| a_l0_diwan@1 | Diwan with bolsters / गाव तकियों वाला दीवान | seating | 1850 × 800 × 750 | 1328 | 10 / 3 | [a_l0_diwan-v1.json](../../tools/asset-pipeline/sources/a_l0_diwan-v1.json) |
+| a_l0_baithak@1 | Baithak floor seating (gadda and masnad) / बैठक (गद्दा और मसनद) | seating | 1800 × 750 × 520 | 1028 | 5 / 2 | [a_l0_baithak-v1.json](../../tools/asset-pipeline/sources/a_l0_baithak-v1.json) |
+| a_l0_shoe_bench@1 | Shoe rack bench with cushion / गद्दी वाली जूते रखने की बेंच | seating | 1000 × 350 × 480 | 444 | 13 / 2 | [a_l0_shoe_bench-v1.json](../../tools/asset-pipeline/sources/a_l0_shoe_bench-v1.json) |
+| a_l0_rocking_chair@1 | Wooden rocking chair / झूलने वाली लकड़ी की कुर्सी | seating | 640 × 900 × 1000 | 1716 | 17 / 2 | [a_l0_rocking_chair-v1.json](../../tools/asset-pipeline/sources/a_l0_rocking_chair-v1.json) |
+| a_l0_floor_cushion@1 | Square floor cushion / चौकोर ज़मीन की गद्दी | seating | 600 × 600 × 170 | 388 | 4 / 2 | [a_l0_floor_cushion-v1.json](../../tools/asset-pipeline/sources/a_l0_floor_cushion-v1.json) |
+| a_l0_media_wall@1 | TV wall unit with shelves / शेल्फ़ वाली टीवी वॉल यूनिट | storage | 2400 × 450 × 2100 | 512 | 34 / 5 | [a_l0_media_wall-v1.json](../../tools/asset-pipeline/sources/a_l0_media_wall-v1.json) |
+| a_l0_crockery_unit@1 | Crockery unit with glass doors / काँच के दरवाज़ों वाली क्रॉकरी अलमारी | storage | 1200 × 420 × 1950 | 396 | 21 / 4 | [a_l0_crockery_unit-v1.json](../../tools/asset-pipeline/sources/a_l0_crockery_unit-v1.json) |
+| a_l0_wall_shelf@1 | Study wall shelf / दीवार पर लगने वाली स्टडी शेल्फ़ | storage | 900 × 250 × 900 | 232 | 15 / 5 | [a_l0_wall_shelf-v1.json](../../tools/asset-pipeline/sources/a_l0_wall_shelf-v1.json) |
+| a_l0_kids_wardrobe@1 | Kids' wardrobe with drawers / बच्चों की दराज़ वाली अलमारी | storage | 900 × 520 × 1500 | 328 | 10 / 4 | [a_l0_kids_wardrobe-v1.json](../../tools/asset-pipeline/sources/a_l0_kids_wardrobe-v1.json) |
+| a_l0_pooja_unit@1 | Pooja unit with doors / दरवाज़ों वाला पूजा यूनिट (मंदिर) | storage | 600 × 400 × 1200 | 240 | 14 / 3 | [a_l0_pooja_unit-v1.json](../../tools/asset-pipeline/sources/a_l0_pooja_unit-v1.json) |
+| a_l0_storage_single_bed@1 | Single bed with storage drawers / दराज़ वाला सिंगल पलंग | beds | 1000 × 2050 × 900 | 1028 | 9 / 6 | [a_l0_storage_single_bed-v1.json](../../tools/asset-pipeline/sources/a_l0_storage_single_bed-v1.json) |
+| a_l0_baby_cot@1 | Baby cot with rails / बेबी कॉट (बच्चों का पलंग) | beds | 700 × 1300 × 950 | 1308 | 31 / 3 | [a_l0_baby_cot-v1.json](../../tools/asset-pipeline/sources/a_l0_baby_cot-v1.json) |
+| a_l0_kids_study_desk@1 | Kids' study table with shelf / बच्चों की पढ़ाई की मेज़ (शेल्फ़ के साथ) | tables | 900 × 500 × 1050 | 240 | 12 / 4 | [a_l0_kids_study_desk-v1.json](../../tools/asset-pipeline/sources/a_l0_kids_study_desk-v1.json) |
+| a_l0_folding_dining_table@1 | Drop-leaf folding dining table / मोड़ने वाली डाइनिंग मेज़ | tables | 1000 × 390 × 760 | 372 | 11 / 2 | [a_l0_folding_dining_table-v1.json](../../tools/asset-pipeline/sources/a_l0_folding_dining_table-v1.json) |
+| a_l0_computer_desk@1 | Computer desk with keyboard tray / कीबोर्ड ट्रे वाली कंप्यूटर डेस्क | tables | 1200 × 600 × 750 | 204 | 9 / 3 | [a_l0_computer_desk-v1.json](../../tools/asset-pipeline/sources/a_l0_computer_desk-v1.json) |
+| a_l0_wall_mirror@1 | Round wall mirror / गोल दीवार शीशा | decor | 600 × 30 × 600 | 192 | 2 / 2 | [a_l0_wall_mirror-v1.json](../../tools/asset-pipeline/sources/a_l0_wall_mirror-v1.json) |
+| a_l0_wall_clock@1 | Wall clock / दीवार घड़ी | decor | 350 × 40 × 350 | 328 | 9 / 3 | [a_l0_wall_clock-v1.json](../../tools/asset-pipeline/sources/a_l0_wall_clock-v1.json) |
+| a_l0_tall_plant@1 | Tall indoor plant in pot / गमले में लंबा पौधा | decor | 870 × 870 × 1700 | 2752 | 57 / 6 | [a_l0_tall_plant-v1.json](../../tools/asset-pipeline/sources/a_l0_tall_plant-v1.json) |
+| a_l0_round_rug@1 | Round rug with medallion / गोल गलीचा (बीच में डिज़ाइन) | rugs | 1500 × 1500 × 12 | 288 | 3 / 3 | [a_l0_round_rug-v1.json](../../tools/asset-pipeline/sources/a_l0_round_rug-v1.json) |
+| a_l0_runner_rug@1 | Hallway runner rug / लंबा रनर गलीचा | rugs | 2400 × 750 × 12 | 84 | 7 / 4 | [a_l0_runner_rug-v1.json](../../tools/asset-pipeline/sources/a_l0_runner_rug-v1.json) |
+
+- The folding dining table is shown folded (1000 × 390 mm, both leaves hanging); opened it is about 1000 × 1210 mm for 4–6 people.
+- The wall mirror, wall clock and study wall shelf hang on a wall: place them, then type their height in "Furniture elevation" (for example 1500 mm for the mirror's bottom edge).
+- The catalog now lists 68 items (107 published versions) on three pages (24/24/20).
+
 All LOD0/LOD1 pairs currently share the same already-small GLB; no simplification/compression claim. No downloaded/proprietary art, electrical fixtures, textures or entitlement/cloud-delivery adapter is added. Canonical furniture pins ID/version and nominal dimensions; user scaling/elevation/rotation remain the existing commands. Physical-device performance, aesthetic/accessibility review and all D36 gates remain pending.
 
 Change an existing asset by adding a new version, never by editing an accepted source/blob under the same ID/version. Rebuild via pnpm assets:build, then run assets:check and assets:versions. See the PH4-T05 verification and decision records for actual validator/hash/paging/placement/Undo evidence.

@@ -1,0 +1,187 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_storage_single_bed",
+  "version": 1,
+  "name_en": "Single bed with storage drawers",
+  "name_hi": "दराज़ वाला सिंगल पलंग",
+  "category": "beds",
+  "tags": [
+    "single bed",
+    "storage bed",
+    "drawers",
+    "kids room",
+    "guest room",
+    "पलंग",
+    "दराज़"
+  ],
+  "dims": {
+    "w": 1000,
+    "d": 2050,
+    "h": 900
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_storage_single_bed-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_storage_single_bed-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "headboard",
+      "shape": "box",
+      "center": [
+        0,
+        450,
+        1000
+      ],
+      "size": [
+        1000,
+        900,
+        50
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "base",
+      "shape": "box",
+      "center": [
+        -10,
+        210,
+        -25
+      ],
+      "size": [
+        980,
+        300,
+        2000
+      ],
+      "color": "#8a5a3a",
+      "finish": "satin"
+    },
+    {
+      "name": "plinth",
+      "shape": "box",
+      "center": [
+        0,
+        30,
+        -50
+      ],
+      "size": [
+        940,
+        60,
+        1900
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "drawer-foot",
+      "shape": "box",
+      "center": [
+        490,
+        210,
+        -460
+      ],
+      "size": [
+        20,
+        220,
+        880
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "drawer-head",
+      "shape": "box",
+      "center": [
+        490,
+        210,
+        440
+      ],
+      "size": [
+        20,
+        220,
+        880
+      ],
+      "color": "#e9e6df",
+      "finish": "matte"
+    },
+    {
+      "name": "pad",
+      "shape": "rounded",
+      "center": [
+        0,
+        660,
+        955
+      ],
+      "size": [
+        900,
+        380,
+        40
+      ],
+      "color": "#868a90",
+      "finish": "matte",
+      "radius": 20,
+      "segments": 2
+    },
+    {
+      "name": "mattress",
+      "shape": "rounded",
+      "center": [
+        0,
+        460,
+        -45
+      ],
+      "size": [
+        920,
+        200,
+        1940
+      ],
+      "color": "#f4f1ea",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 2
+    },
+    {
+      "name": "pillow",
+      "shape": "rounded",
+      "center": [
+        0,
+        620,
+        720
+      ],
+      "size": [
+        620,
+        120,
+        360
+      ],
+      "color": "#f4f1ea",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 2
+    },
+    {
+      "name": "blanket",
+      "shape": "rounded",
+      "center": [
+        0,
+        575,
+        -485
+      ],
+      "size": [
+        960,
+        30,
+        1040
+      ],
+      "color": "#5d7a8c",
+      "finish": "matte",
+      "radius": 12,
+      "segments": 1
+    }
+  ]
+}
