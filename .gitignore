@@ -12,3 +12,5 @@ dist-e2e/
 playwright-report/
 test-results/
 acceptance-report/
+dist-e2e-aitest/
+ai-test-report/

@@ -11,7 +11,7 @@ import type {Pixels} from './photo-prep';
 export type SaveOutcome='requested'|'verified'|'cancelled'|'failed'|'shared';
 export const RESULT_JPEG_QUALITY=.9;
 
-const toBlob=(canvas:HTMLCanvasElement,type:string,quality?:number)=>new Promise<Blob>((resolve,reject)=>{
+export const toBlob=(canvas:HTMLCanvasElement,type:string,quality?:number)=>new Promise<Blob>((resolve,reject)=>{
  const timer=setTimeout(()=>reject(new Error('image-timeout')),8000);
  try{canvas.toBlob(b=>{clearTimeout(timer);if(b&&b.size>0)resolve(b);else reject(new Error('image-encode'));},type,quality);}catch(e){clearTimeout(timer);reject(e);}
 });

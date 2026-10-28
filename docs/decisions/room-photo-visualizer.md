@@ -115,3 +115,139 @@ Owner, 2026-10-27: finish the app's core before any backend; the AI part stays a
 ## D90: provider change, recorded for later (owner, 2026-10-27)
 
 The owner will not use fal.ai. When the backend is built (Firebase + Vercel, paused until the core app is finished), the D86 server logic is ported to Vercel Functions and the provider adapter is swapped: AI previews call the **OpenAI** image edit API directly with `OPENAI_API_KEY` (Vercel environment variable, server only); the mask becomes an alpha PNG (transparent = edit) of exactly the first image's size; OpenAI answers synchronously, so the function time limit and a client-side wait/cancel flow must be designed. Tap-to-select (SAM-2) needs a separately chosen host with its own key (Meta offers no official hosted SAM API as far as we know; SAM-2 itself is Apache-2.0); host and price are unverified. Until then the brush and 4-corner tools are the selection method. The server-enforced guardrails stay: medium quality, one image, compressed uploads, credits and the monthly cap.
+
+## D92: AI test mode (access code, no backend) (owner, 2026-10-28)
+
+**Owner decisions.** AI should work now, before any backend (login and database are postponed; the backend will later
+be Firebase + Vercel, D90). Only someone who knows the **access code** may use AI. Owner update (same day): there are no
+other testers; the owner is the only AI user, so the app and the guide speak of "your private AI code" (the code is still
+needed because the `/api` addresses are public). Customers get per-user
+credits later with the backend. Previews and blending: **OpenAI direct** (`OPENAI_API_KEY`, model
+`gpt-image-2.5-flare`, `/v1/images/edits`). Tap to select: **Meta SAM-2 via fal.ai** (`FAL_KEY`, `fal-ai/sam2/image`).
+Secrets only in Vercel Environment Variables, read only by server code. No work on `privacy.html` until the app is
+ready to go live. Claude Code builder; D86 code is kept unchanged and is simply not used in a test-mode build.
+
+**Design.**
+- Two Vercel Functions in the root `api/` folder (Node.js runtime, Web-standard `export default { fetch }`):
+  `POST /api/room-ai/edit` (maxDuration 300 s in `vercel.json`) and `POST /api/room-ai/segment` (120 s). The entry
+  files only call the pure, tested code in `server/vercel/room-ai/` (lint, typecheck and Vitest include it).
+- Every call passes, in this order: CORS preflight → POST only → allowed origin (ALLOWED_ORIGINS, plus
+  `https://localhost` for the Capacitor app, plus an https origin whose host is the host the request was sent to — the deployment's own address, so preview URLs work) → server
+  configured (keys present and AI_ACCESS_CODE at least 8 characters, else 503 `NOT_SET_UP`) → wrong-code lockout
+  (10 wrong codes per 10 minutes per instance → 429) → access code in header `X-Room-AI-Code`, compared timing-safe
+  (both values hashed with SHA-256, all 32 bytes compared; 401 `WRONG_CODE`) → per-instance rate limit (edit 6/min,
+  segment 30/min → 429 `BUSY`) → body read with a hard byte limit while streaming (edit 4.2 MB, segment 3 MB → 413).
+- **Edit** body (multipart): `room` PNG, `mask` PNG with alpha, 0–3 `reference` JPEG/PNG (each ≤ 800 KB, ≤ 2048 px),
+  `kind` (paint/pattern/picture), `surface` (wall/floor/other), `label` (cleaned to ≤ 40 letters/digits/simple marks),
+  `colour` (#rrggbb). Types are decided by magic bytes; sizes are read from the PNG IHDR / JPEG SOF; room and mask must
+  have the same size, both multiples of 16, long side ≤ 1536, ≥ 655 360 pixels, aspect ≤ 3:1. The OpenAI form is
+  fixed: `model=gpt-image-2.5-flare`, `image[]` = room FIRST then references, `mask`, a fixed prompt template (only
+  the cleaned label, colour and surface are inserted; no free text), `quality=medium` (always: the default is `auto`),
+  `n=1`, `size=<room size>`, `output_format=jpeg`, `output_compression=85`. Time limit 280 s. Answer
+  `{ok, image: base64 JPEG, width, height}`; the base64 is limited to 3.2 MB of JPEG so the response stays under
+  Vercel's 4.5 MB. Errors: `moderation_blocked`/`image_generation_user_error` → 422 `BLOCKED`; `insufficient_quota`/
+  `billing_hard_limit_reached` → 402 `BUDGET`; other 429 → `BUSY`; OpenAI 401/403 → 503 `NOT_SET_UP`; timeout → 504;
+  anything else → 502. **Nothing is retried** by the server or the app.
+- **Why the room is a PNG, not a JPEG:** OpenAI's guide says "The image to edit and mask must be of the same format and
+  size". A JPEG room with a PNG mask is not documented as accepted, so the safe choice is PNG for both. A busy photo is
+  large as PNG; the app steps the size down (×0.85, never below 655 360 pixels) until room + mask + references fit
+  4.15 MB, otherwise it says "too large".
+- **Segment** body: `room` (JPEG ≤ 2.4 MB, ≤ 4096 px) and the point `x`, `y`. The photo is uploaded to fal's CDN with
+  the documented two-step REST upload (initiate → PUT to `upload_url`; `file_url` must be https on `fal.media` or a
+  subdomain), then `fal.run/fal-ai/sam2/image` with `prompts:[{label:1,x,y}]`, `sync_mode:true`, `output_format:png`.
+  The mask comes back inline (data URI); a URL answer is downloaded only from https `*.fal.media`. Headers on every fal
+  call: `X-Fal-Store-IO: 0`, `X-Fal-No-Retry: 1`, `X-Fal-Object-Lifecycle-Preference: {"expiration_duration_seconds":3600}`.
+- Logs: only event, status, code, step, timings and sizes; never images, prompts, keys or the access code (tested).
+- **App** (`test-mode.ts`, `test-surface.ts`, `ai-prep.ts`, `AiCodePrompt.tsx`): on only with the public build flag
+  `VITE_ROOM_AI_TEST_MODE=1`; the web calls its own `/api`; the Android build needs `VITE_API_BASE_URL` (https web
+  address). The AI section then reads "AI preview · AI test mode" and the D86 account section is not shown. First use
+  asks for the private AI code (password field, kept in this device's localStorage, **Forget code** removes it; a 401
+  forgets it and asks again with "That AI code is not right"), then the consent (test wording below, stored per
+  device). The photo is stretched (never cropped) to the AI size (`aiSize`: multiples of 16, ≤ 1536, ≥ 655 360 px,
+  ≤ 3:1; property-tested against the server's own check); the mask is converted to an RGBA PNG of exactly that size,
+  alpha 0 wherever any covered working pixel is chosen (so a thin line is never lost), 255 elsewhere; references are
+  JPEG ≤ 1024 px (q 0.85, then 0.7). Upload by XMLHttpRequest with a percent bar (where no progress event arrives,
+  the wait message appears after 2.5 s), a **Cancel** button (AbortController) and "The AI is working. This can take
+  up to 2 minutes. Keep this screen open." The app waits at most 295 s. The answer is scaled back to the working size
+  and composited **only inside our own mask** (`compositeInMask`, D86): every pixel outside is byte-identical to the
+  photo. The result is kept as option "AI". One preview at a time (button disabled + a provider guard), no automatic
+  retry. **Tap to select (AI)** posts the photo and the point and adds the answer as one undoable `union` step.
+- **Consent text in test mode** (only the provider and retention wording differs from D86, and it states what is
+  true without our own storage): the photo, area and references go to OpenAI for previews; the photo and the tapped
+  point go to fal.ai (Meta SAM-2) for tap-to-select; GharPlan's own server stores none of these; OpenAI says it does not
+  train on this data and may keep it up to 30 days for abuse monitoring; fal.ai is asked to delete the upload after
+  1 hour and not to keep the request; test mode is only for the owner, with the private AI code, and is paid from the owner's OpenAI account.
+  The D86 consent text is unchanged.
+- **Build guard** (`vite.config.ts` → `publicEnvProblems`): the build stops if any `VITE_` variable is named like a
+  server secret (contains OPENAI, ACCESS_CODE, or FAL as a word) or its value looks like an OpenAI key (`sk-…`) or a
+  fal key (`uuid:hex`). The message names the variable, never its value.
+
+**Verified facts and sources (fetched with curl on 2026-10-28).**
+- OpenAI image-generation guide (developers.openai.com/api/docs/guides/image-generation.md): mask applies to the first
+  image, must have an alpha channel, transparent = edit, "same format and size"; custom sizes multiples of 16, aspect
+  1:3…3:1, total pixels 655 360 … 8 294 400; quality default `auto`; `output_compression` 0–100 for jpeg/webp; jpeg is
+  faster; `moderation_blocked` errors. API reference (…/reference/resources/images/methods/edit): `quality` low…max/auto
+  (default auto), `n`, `size` WIDTHxHEIGHT, `output_format`, `output_compression`, models incl. `gpt-image-2.5-flare`
+  (the default would be `-sunburst`). "Your data" (…/guides/your-data.md): `/v1/images/edits` data is not used for
+  training, abuse-monitoring retention 30 days, no application state.
+- Vercel (vercel.com/docs …/functions/runtimes/node-js.md, functions-api-reference.md, project-configuration/
+  vercel-json.md, functions/limitations.md): one function per file in the root `api/`, TypeScript supported, the
+  Web-standard `export default { fetch }` handler; `"type": "module"` needed without a framework (the root
+  package.json has it); `functions` glob config with `maxDuration`; Hobby max duration 300 s; request and response body
+  max 4.5 MB (413 `FUNCTION_PAYLOAD_TOO_LARGE`); request cancellation is opt-in (not enabled: a cancelled phone does not
+  stop a call already sent to OpenAI anyway).
+- fal (fal.ai/docs/llms-full.txt, fal.ai/models/fal-ai/sam2/image/llms.txt): inputs are URLs and only "some models"
+  accept data URIs (not stated for SAM-2 → we upload); REST upload initiate + PUT; CDN files are forever and public
+  unless the lifecycle header sets an expiry; `X-Fal-Store-IO: 0` disables the 90-day request history;
+  `X-Fal-No-Retry`; SAM-2 fields `image_url`, `prompts`, `apply_mask`, `sync_mode` (data URI answer), `output_format`;
+  output `image.url`.
+
+**Not verified (safe choice taken).**
+- No live OpenAI, fal or Vercel deployment call was made (no keys exist in this environment). The first real use must be
+  watched (owner guide, last step).
+- That Vercel compiles `api/room-ai/*.ts` importing `../../server/vercel/room-ai/*.js` (the `.js`-suffix TypeScript
+  ESM convention). It runs locally under Node 24's type stripping with a `.js → .ts` resolve hook (harness output in
+  the PR); the owner guide's smoke check (`/api/room-ai/edit` answering JSON 401/503) proves it after the first deploy.
+- The meaning of `output_compression=85` (the docs say "compression level"; 85 is used as a JPEG-quality-like value as
+  the owner brief asked). If results look blocky, raise it in `server/vercel/room-ai/openai.ts`.
+- The fal `upload_url` host is not documented; it is accepted when https without credentials. `file_url` and results
+  must be on `fal.media`.
+- `insufficient_quota` / `billing_hard_limit_reached` as the codes for a used-up OpenAI budget (taken from OpenAI's
+  usual error codes, not re-verified for this endpoint); anything unknown maps to "did not work".
+
+**What is not reliable without a backend.**
+- The in-memory limits (6 previews/min, 30 taps/min, 10 wrong codes/10 min) are **per function instance**; Vercel can
+  run several instances and restarts them at any time. They only slow a burst. The real spend control in test mode is
+  the secret access code plus the monthly **budget limits the owner sets in the OpenAI and fal dashboards (if
+  available)**. There is no per-user count and no monthly cap of our own (the D86 US$3 cap lives in Supabase and is
+  not used here).
+- If the code leaks, anyone who has it can spend: change AI_ACCESS_CODE (and redeploy) to lock everyone out.
+- A cancelled or lost answer may still have been paid at OpenAI (the request was already sent); the app says so.
+- `privacy.html` still describes the D86 flow (fal, 7-day storage). By owner decision it is not changed until the app
+  is ready to go live; test mode is limited to the owner's own use with the private code. Before any customer uses AI, the privacy page must
+  describe OpenAI and fal as above.
+
+**How it is replaced later.** When the Firebase + Vercel backend exists, the same two functions keep their request
+checks and provider code; the access-code step is replaced by a signed-in user's token and a per-user credit
+reservation (idempotent per tap, refund on provider failure, monthly cap), as designed in D86. The app keeps the same
+`test-surface` flow (one POST, local composite); only the header and the error codes for "no credits" change.
+
+**Tests (builder's own, not independent).** Vitest `server/vercel/room-ai/room-ai.test.ts`: timing-safe code check
+(digest of both values, exact match only), 401/503/429 lockout, CORS/preflight/origins, streaming body limit 413,
+magic-byte types and sizes, size rules, a property test that every app-prepared size passes the server check, form
+checks (types, sizes, counts, picture needs a reference, label cleaning), the exact OpenAI form (model, quality=medium,
+n=1, jpeg 85, size, room first, mask), prompt template, error mapping, one provider call per request and no retry,
+logs free of keys/code/image, fal headers/body/host allowlist/data URI, upload → SAM-2 → mask, evil-host masks never
+downloaded. `ai-prep.test.ts`: hand-worked AI sizes and a property test (multiples of 16, limits, shape within 4 %),
+alpha mask exactly transparent where our mask is chosen (property) and block coverage when resizing, RGBA PNG bytes,
+test-mode config, build guard. `test-surface.test.ts`: one POST with code header and fields, mask PNG at the AI size,
+phases and progress fallback, composite inside the mask (and a property: outside pixels identical whatever the AI
+returns), NEED_CODE/WRONG_CODE, all error statuses, network, cancel, timeout, one at a time, size step-down and
+TOO_BIG, segment. `room-ai-test-ui.test.tsx` (jsdom): flag off → nothing; code prompt → consent wording → area check;
+consent and code asked once; Forget code; Not now/Escape; Hindi. Playwright `tests/e2e-ai-test/room-ai-test.spec.ts`
+(own config `playwright.ai-test.config.ts`, build with the flag, port 4186; `/api/room-ai/*` answered by `page.route`)
+at 1280×800 and 412×915: code → consent → waiting (+ Cancel) → result only inside the brushed area (outside
+byte-identical), request contents (code, fields, room PNG 992×672, RGBA mask transparent on the stroke); wrong code →
+message → right code; Cancel; tap-to-select union + Undo. `tests/e2e/room-photo-ai-test-off.spec.ts`: with the flag off
+there is no test-mode UI and no `/api/room-ai` request. A Node harness ran the real `api/` entry files: 503/204/403/
+401/413/400 with zero provider calls.

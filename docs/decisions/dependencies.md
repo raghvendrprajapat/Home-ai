@@ -11,6 +11,18 @@ No new package enters the app bundle or the lockfile. The Edge Functions use onl
 Ed25519, streams) plus the one pinned `npm:` import above; Deno and the Supabase Edge Runtime are the owner's hosting.
 The FAL_KEY and the service-role key live only in Supabase secrets.
 
+## D92 AI test mode Vercel Functions (2026-10-28, recorded before use)
+
+| Dependency | Exact version | License / primary evidence | Purpose |
+|---|---|---|---|
+| OpenAI Images API (`POST https://api.openai.com/v1/images/edits`, model `gpt-image-2.5-flare`) | n/a (web service) | Commercial service under the owner's OpenAI account and OpenAI's terms; facts from developers.openai.com (image-generation guide, API reference, "Your data"), fetched 2026-10-28 | AI room previews in test mode. Called with plain `fetch` + `FormData` from `server/vercel/room-ai/edit.ts`; the OpenAI SDK is **not** used |
+| fal.ai HTTP API (`rest.fal.ai/storage/upload/initiate`, `fal.run/fal-ai/sam2/image`, `*.fal.media`) | n/a (web service) | Commercial service under the owner's fal account and fal's terms; model `fal-ai/sam2/image` (Meta SAM-2, Apache-2.0); facts from fal.ai/docs, fetched 2026-10-28 | Tap to select (AI) in test mode. Plain `fetch` from `server/vercel/room-ai/segment.ts`; the fal SDK is **not** used |
+| Vercel Functions, Node.js runtime (`api/room-ai/*.ts`, Web-standard `fetch` export) | the project's Node 24 | The owner's Vercel hosting (Hobby: 300 s max duration, 4.5 MB request/response) | Runs the two functions; no `@vercel/node` or other package is installed |
+
+No new package enters the app bundle, the functions or the lockfile. The functions use only web-standard APIs
+(fetch, FormData, Blob, streams, Web Crypto). OPENAI_API_KEY, FAL_KEY and AI_ACCESS_CODE live only in Vercel's
+server-side Environment Variables.
+
 ## FR-031 Android Google sign-in (2026-10-18, recorded before installation)
 
 | Dependency | Exact version | License / primary evidence | Purpose |
