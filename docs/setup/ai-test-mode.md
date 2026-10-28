@@ -1,18 +1,20 @@
 # AI test mode: owner setup guide (D92)
 
-This turns on **AI preview** and **Tap to select (AI)** in the Room photo tool for **you and your testers only**.
-Nobody can use AI without the **access code** that you make up. There is no login and no database yet; per-user
+This turns on **AI preview** and **Tap to select (AI)** in the Room photo tool for **you only**.
+Nobody can use AI without your **private AI code** (the access code you make up). The code is needed even though you
+are the only user, because the app's AI addresses on the internet are public: without the code anyone could use them
+and spend your money. There is no login and no database yet; per-user
 credits for customers come later with the backend.
 
 Until you finish these steps nothing changes: the app works exactly as now and the offline Room photo preview keeps
 working. You do not need to read or change any code.
 
-**Golden rule:** keys and the access code go only into the OpenAI website, the fal.ai website and Vercel's
+**Golden rule:** keys and your AI code go only into the OpenAI website, the fal.ai website and Vercel's
 Environment Variables page. Never paste a key into chat (including Claude or Codex), into GitHub, or into a file in
-the project. (You give the access code to testers yourself, privately, for example on WhatsApp.)
+the project. Keep your AI code to yourself.
 
 **Money:** every AI preview is paid from your OpenAI account and every tap-to-select from your fal account. The app
-cannot count each tester's use yet, so the budget limits in steps 1 and 2 are your real safety net.
+has no monthly limit of its own yet, so the budget limits in steps 1 and 2 are your real safety net.
 
 About 30 minutes.
 
@@ -35,10 +37,11 @@ About 30 minutes.
 
 (If you only want AI previews, you can skip fal. "Tap to select (AI)" then says that AI is not set up.)
 
-## 3. Make up an access code
+## 3. Make up your private AI code
 
 Make up a code of **at least 8 characters** that is hard to guess, for example `chai-garden-4721`. Write it in your
-password manager. Give it **only** to the people who should test AI. If it leaks, change it (step 4) and redeploy.
+password manager. **Keep it to yourself** (do not send it to anyone). If you think someone else knows it, change it
+(step 4) and redeploy.
 
 ## 4. Add the settings in Vercel
 
@@ -50,7 +53,7 @@ password manager. Give it **only** to the people who should test AI. If it leaks
 |---|---|
 | `OPENAI_API_KEY` | your OpenAI key from step 1 |
 | `FAL_KEY` | your fal key from step 2 |
-| `AI_ACCESS_CODE` | your access code from step 3 |
+| `AI_ACCESS_CODE` | your private AI code from step 3 |
 | `ALLOWED_ORIGINS` | your web address, for example `https://gharplan.vercel.app` (several addresses: separate with commas) |
 | `VITE_ROOM_AI_TEST_MODE` | `1` |
 
@@ -72,7 +75,7 @@ password manager. Give it **only** to the people who should test AI. If it leaks
 1. Open the app address on the phone. Open **Room photo**, choose a room photo.
 2. In section 2 ("Choose the material") you should now see **AI preview** with a yellow **AI test mode** label.
 3. With the brush, paint over a wall. Choose a paint colour. Choose "This area is: A wall".
-4. Tap **Make AI preview**. It asks for the **access code**: type it, tap **Use this code**.
+4. Tap **Make AI preview**. It asks for **your private AI code**: type it, tap **Use this code**. (This phone remembers it.)
 5. Read the **Before you use AI** box and tap **I agree, continue**.
 6. You see "Sending the photo… %", then "The AI is working. This can take up to 2 minutes." Keep the screen open.
    You can tap **Cancel AI preview** (if the photo was already sent, that preview may still be charged).
@@ -80,7 +83,7 @@ password manager. Give it **only** to the people who should test AI. If it leaks
    option **AI**.
 8. Try **Tap to select (AI)**: tap a wall; it is added to the area. "Undo area change" removes it.
 9. Try a wrong code once: tap **Forget code**, then **Make AI preview**, type a wrong code. You should see
-   "That access code is not right." (A wrong code costs nothing.)
+   "That AI code is not right." (A wrong code costs nothing.) Then type the right code again.
 10. Check the cost after the first previews: OpenAI → **Usage**; fal → **Usage/Billing**. Tell Claude roughly what one
     preview cost, so the plan for customer credits uses real numbers.
 
@@ -97,7 +100,7 @@ calls from `https://localhost`; the server already allows that address.
   section disappears.
 - **Stop all AI calls at once:** delete or change `AI_ACCESS_CODE` and redeploy. Every AI request is then refused
   ("not set up" or "code not right"), and nothing is charged.
-- **Lock out one tester:** not possible with one shared code. Change the code and give the new one only to the others.
+- **Code leaked:** change `AI_ACCESS_CODE` in Vercel, redeploy, then type the new code on your phone.
 
 ## What to know
 
@@ -105,5 +108,5 @@ calls from `https://localhost`; the server already allows that address.
   not train on it); fal is asked to delete the uploaded photo after 1 hour.
 - The server limits (6 previews a minute, 30 taps a minute, 10 wrong codes in 10 minutes) are only a speed bump: Vercel
   may run several copies of the server. Your OpenAI/fal budget limits are the real limit.
-- The privacy page is not updated yet (your decision: only when the app goes live). Use AI test mode only with testers
-  who know this, not with customers.
+- The privacy page is not updated yet (your decision: only when the app goes live). AI test mode is for your own
+  testing only, not for customers.

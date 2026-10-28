@@ -41,7 +41,7 @@ export class Window {
 }
 /**
  * Per-instance, in-memory limits. NOT reliable: Vercel may run many instances and restarts them at any time, so
- * these only slow down a burst from one tester or a code-guessing loop. The real spend control in test mode is the
+ * these only slow down a burst or a code-guessing loop. The real spend control in test mode is the
  * secret access code plus the budget limits the owner sets in the OpenAI and fal dashboards (where available).
  */
 export interface Limits { readonly edit: Window; readonly segment: Window; readonly wrongCode: Window }

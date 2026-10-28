@@ -119,7 +119,9 @@ The owner will not use fal.ai. When the backend is built (Firebase + Vercel, pau
 ## D92: AI test mode (access code, no backend) (owner, 2026-10-28)
 
 **Owner decisions.** AI should work now, before any backend (login and database are postponed; the backend will later
-be Firebase + Vercel, D90). Only the owner and testers who know an **access code** may use AI; customers get per-user
+be Firebase + Vercel, D90). Only someone who knows the **access code** may use AI. Owner update (same day): there are no
+other testers; the owner is the only AI user, so the app and the guide speak of "your private AI code" (the code is still
+needed because the `/api` addresses are public). Customers get per-user
 credits later with the backend. Previews and blending: **OpenAI direct** (`OPENAI_API_KEY`, model
 `gpt-image-2.5-flare`, `/v1/images/edits`). Tap to select: **Meta SAM-2 via fal.ai** (`FAL_KEY`, `fal-ai/sam2/image`).
 Secrets only in Vercel Environment Variables, read only by server code. No work on `privacy.html` until the app is
@@ -159,8 +161,8 @@ ready to go live. Claude Code builder; D86 code is kept unchanged and is simply 
 - **App** (`test-mode.ts`, `test-surface.ts`, `ai-prep.ts`, `AiCodePrompt.tsx`): on only with the public build flag
   `VITE_ROOM_AI_TEST_MODE=1`; the web calls its own `/api`; the Android build needs `VITE_API_BASE_URL` (https web
   address). The AI section then reads "AI preview · AI test mode" and the D86 account section is not shown. First use
-  asks for the access code (password field, kept in this device's localStorage, **Forget code** removes it; a 401
-  forgets it and asks again with "That access code is not right"), then the consent (test wording below, stored per
+  asks for the private AI code (password field, kept in this device's localStorage, **Forget code** removes it; a 401
+  forgets it and asks again with "That AI code is not right"), then the consent (test wording below, stored per
   device). The photo is stretched (never cropped) to the AI size (`aiSize`: multiples of 16, ≤ 1536, ≥ 655 360 px,
   ≤ 3:1; property-tested against the server's own check); the mask is converted to an RGBA PNG of exactly that size,
   alpha 0 wherever any covered working pixel is chosen (so a thin line is never lost), 255 elsewhere; references are
@@ -174,7 +176,7 @@ ready to go live. Claude Code builder; D86 code is kept unchanged and is simply 
   true without our own storage): the photo, area and references go to OpenAI for previews; the photo and the tapped
   point go to fal.ai (Meta SAM-2) for tap-to-select; GharPlan's own server stores none of these; OpenAI says it does not
   train on this data and may keep it up to 30 days for abuse monitoring; fal.ai is asked to delete the upload after
-  1 hour and not to keep the request; test mode is only for testers with the owner's code and costs the owner money.
+  1 hour and not to keep the request; test mode is only for the owner, with the private AI code, and is paid from the owner's OpenAI account.
   The D86 consent text is unchanged.
 - **Build guard** (`vite.config.ts` → `publicEnvProblems`): the build stops if any `VITE_` variable is named like a
   server secret (contains OPENAI, ACCESS_CODE, or FAL as a word) or its value looks like an OpenAI key (`sk-…`) or a
@@ -217,12 +219,12 @@ ready to go live. Claude Code builder; D86 code is kept unchanged and is simply 
 - The in-memory limits (6 previews/min, 30 taps/min, 10 wrong codes/10 min) are **per function instance**; Vercel can
   run several instances and restarts them at any time. They only slow a burst. The real spend control in test mode is
   the secret access code plus the monthly **budget limits the owner sets in the OpenAI and fal dashboards (if
-  available)**. There is no per-tester count and no monthly cap of our own (the D86 US$3 cap lives in Supabase and is
+  available)**. There is no per-user count and no monthly cap of our own (the D86 US$3 cap lives in Supabase and is
   not used here).
-- A shared access code cannot be withdrawn from one tester: change AI_ACCESS_CODE (and redeploy) to lock everyone out.
+- If the code leaks, anyone who has it can spend: change AI_ACCESS_CODE (and redeploy) to lock everyone out.
 - A cancelled or lost answer may still have been paid at OpenAI (the request was already sent); the app says so.
 - `privacy.html` still describes the D86 flow (fal, 7-day storage). By owner decision it is not changed until the app
-  is ready to go live; test mode is limited to testers with the code. Before any customer uses AI, the privacy page must
+  is ready to go live; test mode is limited to the owner's own use with the private code. Before any customer uses AI, the privacy page must
   describe OpenAI and fal as above.
 
 **How it is replaced later.** When the Firebase + Vercel backend exists, the same two functions keep their request

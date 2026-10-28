@@ -6,7 +6,7 @@ import type {SurfaceEditRequest} from './surface-engine';
 import type {SurfaceEditProvider,SurfaceEditResult} from './surface-provider';
 
 /**
- * D92 AI test mode: the 'server' SurfaceEditProvider for testers with the owner's access code (no account, no
+ * D92 AI test mode: the 'server' SurfaceEditProvider for the owner with the private AI code (no account, no
  * database). One AI preview = ONE POST to /api/room-ai/edit (the app's own Vercel Function, which holds the OpenAI
  * key): the photo stretched to an OpenAI size (PNG), our mask as an alpha PNG of exactly that size (transparent =
  * change), at most 3 compressed reference pictures and the material fields. The answer (a JPEG) is scaled back to

@@ -5,7 +5,7 @@ import {createTestAi,fetchTransport,problemForStatus,TestAiError} from './test-s
 import type {TestAiHints,TestAiRequest,TestCodec,Transport} from './test-surface';
 
 // D92 AI test mode, client provider flow against a mocked fetch (no network, no canvas). Claude-authored builder tests.
-const W=40,H=30,BASE='https://app.example.test/api',CODE='tester-code-2026';
+const W=40,H=30,BASE='https://app.example.test/api',CODE='owner-code-2026';
 const photo:Pixels={width:W,height:H,data:Uint8ClampedArray.from({length:W*H*4},(_,i)=>i%4===3?255:(i*7)%256)};
 const aiPixels:Pixels={width:W,height:H,data:new Uint8ClampedArray(W*H*4).fill(222)};
 const JPEG=new Uint8Array([0xff,0xd8,0xff,0xe0,1,2,3]),JPEG_B64=btoa(String.fromCharCode(...JPEG));

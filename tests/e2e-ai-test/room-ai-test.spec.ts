@@ -7,7 +7,7 @@ import {openTool} from '../e2e/helpers/tools';
 // D92 AI test mode (build flag VITE_ROOM_AI_TEST_MODE=1) against an in-test stand-in for the app's own
 // /api/room-ai/* functions (page.route). No request ever reaches OpenAI or fal.ai: the "AI result" is a solid red JPEG
 // made in the page, so the local composite can be checked. Claude-authored builder test, not an independent fixture.
-const W=600,H=400,AI=[200,30,30],CODE='tester-code-2026';
+const W=600,H=400,AI=[200,30,30],CODE='owner-code-2026';
 // aiSize(600, 400): s = √(655360/240000) = 1.6525 → 991.5 × 661.0 → 992 × 656 = 650 752 < 655 360 → 992 × 672.
 const AIW=992,AIH=672;
 test.beforeEach(async({page})=>{await page.addInitScript(()=>{Object.defineProperty(navigator,'deviceMemory',{configurable:true,get:()=>2});try{localStorage.setItem('gharplan-e2e-sample','fixture');localStorage.setItem('gharplan-low-walls','0');}catch{/* opaque origins have no storage */}});});
@@ -92,10 +92,10 @@ for(const [label,viewport] of [['desktop 1280x800',{width:1280,height:800}],['ph
   await view.getByLabel('This area is',{exact:true}).selectOption('wall');
   await view.getByRole('button',{name:'Paint - mint green',exact:true}).click();
   await view.getByRole('button',{name:'Make AI preview',exact:true}).click();
-  // 1. The access code, before anything is sent.
+  // 1. The private AI code, before anything is sent.
   const prompt=view.getByTestId('ai-code');await expect(prompt).toBeVisible();
   await page.screenshot({path:shot(`code-prompt-${w}.png`)});
-  await prompt.getByLabel('Access code',{exact:true}).fill(CODE);
+  await prompt.getByLabel('Private AI code',{exact:true}).fill(CODE);
   await prompt.getByRole('button',{name:'Use this code',exact:true}).click();
   // 2. Consent with the test-mode providers.
   const consent=view.getByTestId('ai-consent');await expect(consent).toContainText('to OpenAI');
@@ -139,18 +139,18 @@ for(const [label,viewport] of [['desktop 1280x800',{width:1280,height:800}],['ph
  });
 }
 
-test('D92 a wrong access code is explained and asked again; the right one then works',async({page})=>{
+test('D92 a wrong AI code is explained and asked again; the right one then works',async({page})=>{
  const api=new FakeApi(await picture(page,'ai'),await picture(page,'tap')),{view}=await visualizer(page,api,{width:412,height:915});
  await brushLine(page,view);
  await view.getByRole('button',{name:'Make AI preview',exact:true}).click();
- await view.getByTestId('ai-code').getByLabel('Access code',{exact:true}).fill('wrong-code-123');
+ await view.getByTestId('ai-code').getByLabel('Private AI code',{exact:true}).fill('wrong-code-123');
  await view.getByTestId('ai-code').getByRole('button',{name:'Use this code',exact:true}).click();
  await view.getByTestId('ai-consent').getByRole('button',{name:'I agree, continue',exact:true}).click();
  const prompt=view.getByTestId('ai-code');
- await expect(prompt.getByTestId('ai-code-wrong')).toHaveText('That access code is not right. Check it and type it again.');
+ await expect(prompt.getByTestId('ai-code-wrong')).toHaveText('That AI code is not right. Check it and type it again.');
  expect(await page.evaluate(()=>localStorage.getItem('gharplan.roomAi.testCode'))).toBeNull();
  await page.screenshot({path:shot('wrong-code-412.png')});
- await prompt.getByLabel('Access code',{exact:true}).fill(CODE);
+ await prompt.getByLabel('Private AI code',{exact:true}).fill(CODE);
  await prompt.getByRole('button',{name:'Use this code',exact:true}).click();
  await expect(view.getByTestId('ai-consent')).toHaveCount(0);// consent is asked once per device
  await expect(view.getByTestId('ai-test-note')).toHaveText('AI preview ready. It was kept as an option.',{timeout:20000});
@@ -177,7 +177,7 @@ test('D92 Cancel stops the wait; nothing is retried',async({page})=>{
 test('D92 Tap to select (AI) unions the found surface as one undoable area step',async({page})=>{
  const api=new FakeApi(await picture(page,'ai'),await picture(page,'tap')),{view}=await visualizer(page,api,{width:1280,height:800});
  await view.getByRole('button',{name:'Tap to select (AI)',exact:true}).click();
- await view.getByTestId('ai-code').getByLabel('Access code',{exact:true}).fill(CODE);
+ await view.getByTestId('ai-code').getByLabel('Private AI code',{exact:true}).fill(CODE);
  await view.getByTestId('ai-code').getByRole('button',{name:'Use this code',exact:true}).click();
  await view.getByTestId('ai-consent').getByRole('button',{name:'I agree, continue',exact:true}).click();
  await expect(view.getByTestId('ai-tap-note')).toHaveText('Tap a wall, floor or object; AI adds it to the area.');

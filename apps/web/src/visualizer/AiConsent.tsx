@@ -8,7 +8,7 @@ import {PrivacyLink} from '../ui/PrivacyLink';
  * is not used for marketing, and the privacy policy. Stored per device and account (server-surface.ts giveConsent).
  * D92 `mode="test"` (AI test mode): the same dialog with the test-mode providers (OpenAI for previews, fal.ai for
  * tap-to-select), what is really kept (nothing on GharPlan's server; the providers' own retention) and the
- * testers-only note. Stored per device (test-mode.ts giveTestConsent).
+ * owner-only note. Stored per device (test-mode.ts giveTestConsent).
  */
 export function AiConsent({locale,previews=3,mode='account',onAgree,onCancel}:{locale:Locale;previews?:number;mode?:'account'|'test';onAgree():void;onCancel():void}){
  const agree=useRef<HTMLButtonElement>(null);

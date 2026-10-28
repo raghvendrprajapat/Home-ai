@@ -29,7 +29,7 @@ export function jpeg(width: number, height: number, padding = 0): Uint8Array {
 export const blob = (bytes: Uint8Array, type: string) => new Blob([bytes as Uint8Array<ArrayBuffer>], { type });
 
 export const ORIGIN = 'https://gharplan.example.app';
-export const CODE = 'tester-code-2026';
+export const CODE = 'owner-code-2026';
 export const KEYS = { openai: 'test-openai-key-not-real', fal: 'test-fal-key-not-real' };
 export const env = (over: Partial<RoomAiEnv> = {}): RoomAiEnv => ({ OPENAI_API_KEY: KEYS.openai, FAL_KEY: KEYS.fal, AI_ACCESS_CODE: CODE, ALLOWED_ORIGINS: ORIGIN, ...over });
 export interface Logged { event: string; data: Readonly<Record<string, string | number | boolean>> }

@@ -6,7 +6,7 @@
 
 /** The Capacitor Android app always calls from this origin; it is allowed in addition to ALLOWED_ORIGINS. */
 export const CAPACITOR_ORIGIN = 'https://localhost';
-/** Header that carries the tester's access code. Never logged, never echoed. */
+/** Header that carries the owner's private access code. Never logged, never echoed. */
 export const CODE_HEADER = 'X-Room-AI-Code';
 
 /** ALLOWED_ORIGINS: comma-separated bare https origins of the web app (for example https://gharplan.vercel.app). */

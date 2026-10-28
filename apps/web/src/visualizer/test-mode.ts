@@ -1,6 +1,6 @@
 /**
- * D92 AI test mode configuration (owner, 2026-10-28): AI works before any backend, but only for people who know the
- * owner's access code. Turned on by the PUBLIC build flag VITE_ROOM_AI_TEST_MODE=1. The web app calls its own
+ * D92 AI test mode configuration (owner, 2026-10-28): AI works before any backend, but only for the owner, who knows the
+ * private access code. Turned on by the PUBLIC build flag VITE_ROOM_AI_TEST_MODE=1. The web app calls its own
  * address (`/api`); the Android app has no server of its own, so its build also needs VITE_API_BASE_URL = the web
  * app's https address. The secrets (OPENAI_API_KEY, FAL_KEY, AI_ACCESS_CODE) live only in Vercel's server-side
  * environment; build variables that look like them are refused by vite.config.ts (`publicEnvProblems`).
@@ -37,7 +37,7 @@ export function publicEnvProblems(env:Readonly<Record<string,string|undefined>>)
  return problems;
 }
 
-/** The access code is kept on this device only (so testers type it once); "Forget code" removes it. */
+/** The private AI code is kept on this device only (typed once); "Forget code" removes it. */
 const CODE_KEY='gharplan.roomAi.testCode';
 export const MAX_CODE_LENGTH=200;
 export function loadCode():string|null{try{const v=globalThis.localStorage?.getItem(CODE_KEY)??null;return v&&v.length<=MAX_CODE_LENGTH?v:null;}catch{return null;}}
