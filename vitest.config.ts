@@ -9,6 +9,7 @@ export default defineConfig({
       'apps/web/src/**/*.test.{ts,tsx}',
       'packages/*/src/**/*.test.{ts,tsx}',
       'server/supabase/functions/**/*.test.ts',
+      'server/vercel/**/*.test.ts',
     ],
     restoreMocks: true,
     passWithNoTests: false,

@@ -4,6 +4,7 @@
   "installCommand": "npm install -g pnpm@11.19.0 && pnpm install --frozen-lockfile",
   "buildCommand": "pnpm build",
   "outputDirectory": "apps/web/dist",
+  "functions": { "api/room-ai/edit.ts": { "maxDuration": 300 }, "api/room-ai/segment.ts": { "maxDuration": 120 } },
   "rewrites": [{ "source": "/perf", "destination": "/index.html" }],
   "headers": [
     { "source": "/assets/(.*)", "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }] },

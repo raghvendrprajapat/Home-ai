@@ -24,7 +24,11 @@ import type {AiQuota} from '../cloud/api';
 import {CLOUD_OFF,cloudWasUsed,noSubscription} from '../cloud/session';
 import type {CloudSession} from '../cloud/session';
 import {AiConsent} from './AiConsent';
-import {browserCodec} from './ai-codec';
+import {AiCodePrompt} from './AiCodePrompt';
+import {browserCodec,browserTestCodec} from './ai-codec';
+import {createTestAi,TestAiError,xhrTransport} from './test-surface';
+import type {TestAi,TestAiProblem,TestPhase} from './test-surface';
+import {forgetCode,giveTestConsent,hasTestConsent,loadCode,saveCode,testModeConfig} from './test-mode';
 import {createRoomAi,giveConsent,hasConsent,loadPending,newClientJobId,RoomAiError,savePending,Waker} from './server-surface';
 import type {AiPhase,AiProblem,AiSurfaceRequest,RoomAi} from './server-surface';
 import {SessionError} from './room-sessions';
@@ -38,7 +42,13 @@ type Stage='area'|'result'|'compare';
 /** `en` is the English name sent to the AI prompt (the server allows only a short cleaned label). */
 type Pattern={readonly name:string;readonly en:string;readonly pixels:Pixels};
 type AiNote=Readonly<{kind:'phase';phase:AiPhase}|{kind:'done';kept:boolean}|{kind:'problem';code:AiProblem;again:boolean}|{kind:'resuming'}|{kind:'other-photo'}>;
-type TapNote='busy'|'added'|'nothing'|AiProblem|null;
+type TapNote='busy'|'added'|'nothing'|AiProblem|`test:${TestAiProblem}`|null;
+type TestNote=Readonly<{kind:'phase';phase:TestPhase;percent?:number}|{kind:'done';kept:boolean}|{kind:'problem';code:TestAiProblem}|{kind:'cancelled'}|{kind:'forgotten'}>;
+/** D92 AI test mode from the public build flags (null when off): same-origin /api on the web, VITE_API_BASE_URL on Android. */
+function defaultTestAi():TestAi|null{
+ const config=testModeConfig(import.meta.env,Capacitor.isNativePlatform(),location.origin);
+ return config?createTestAi({base:config.base,codec:browserTestCodec,transport:xhrTransport,code:loadCode}):null;
+}
 const cloudOff=()=>CLOUD_OFF;
 /** Mask overlay colour (a clear blue that reads on walls, floors and wood alike), drawn at half the mask alpha. */
 const OVERLAY:Rgb=[40,120,255];
@@ -68,8 +78,10 @@ function PixelCanvas({pixels,label,testId}:{pixels:Pixels;label:string;testId?:s
  * here and dies with the view; nothing is written to the project store or saved with the drawing.
  * D87: pinch/wheel zoom and pan of the photo; when an option is kept the session is saved on this device only
  * (`sessions`, never the project), and a saved `session` reopens with its photo, area and kept options.
+ * D92: with the public flag VITE_ROOM_AI_TEST_MODE=1 the AI section is "AI test mode" (`testAi`): the access code,
+ * then consent, then one call to the app's own /api function; the D86 account AI is not used in such a build.
  */
-export default function VisualizerView({file,locale,onClose,provider=standInSurface,cloud=null,session=null,sessions=null,onSessionSaved}:{file:File;locale:Locale;onClose(problem?:PhotoProblem):void;provider?:SurfaceEditProvider;cloud?:CloudSession|null;session?:RoomSession|null;sessions?:RoomSessions|null;onSessionSaved?():void}):ReactNode{
+export default function VisualizerView({file,locale,onClose,provider=standInSurface,cloud=null,session=null,sessions=null,onSessionSaved,testAi:testAiProp}:{file:File;locale:Locale;onClose(problem?:PhotoProblem):void;provider?:SurfaceEditProvider;cloud?:CloudSession|null;session?:RoomSession|null;sessions?:RoomSessions|null;onSessionSaved?():void;testAi?:TestAi|null}):ReactNode{
  const t=<K extends MessageKey>(key:K,...args:MessageArgs<K>)=>message(locale,key,...args);
  const dialog=useRef<HTMLDialogElement>(null),stageRef=useRef<HTMLDivElement>(null),overlay=useRef<HTMLCanvasElement>(null),patternInput=useRef<HTMLInputElement>(null),pictureInput=useRef<HTMLInputElement>(null);
  const [photo,setPhoto]=useState<Pixels|null>(null),history=useRef<MaskHistory|null>(null),[maskVersion,setMaskVersion]=useState(0);
@@ -89,6 +101,9 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  const [surface,setSurface]=useState<'wall'|'floor'|'other'>('wall'),[aiBusy,setAiBusy]=useState(false),[aiNote,setAiNote]=useState<AiNote|null>(null),[tapNote,setTapNote]=useState<TapNote>(null);
  const [consent,setConsent]=useState<(()=>void)|null>(null),aiRun=useRef<AbortController|null>(null),aiAttempt=useRef<AiSurfaceRequest|null>(null),tapRun=useRef<AbortController|null>(null);
  const photoKey=`${file.name}:${file.size}:${file.lastModified}`;
+ // D92 AI test mode state: the device's access code, the code prompt, the running preview (one at a time).
+ const [testAi]=useState(()=>testAiProp===undefined?defaultTestAi():testAiProp),[testCode,setTestCode]=useState<string|null>(()=>testAi?loadCode():null);
+ const [codeAsk,setCodeAsk]=useState<{run:()=>void;wrong:boolean}|null>(null),[testNote,setTestNote]=useState<TestNote|null>(null),[testBusy,setTestBusy]=useState(false),testRun=useRef<AbortController|null>(null);
 
  // Open as a modal over the editor; Escape (the dialog's cancel) closes it.
  useEffect(()=>{const d=dialog.current!;if(!d.open)d.showModal();return()=>{if(d.open)d.close();};},[]);
@@ -108,15 +123,15 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
   }
   history.current=h;setPhoto(p);
  }).catch(e=>{if(live)closeRef.current((e instanceof Error&&['type','size','small','decode'].includes(e.message)?e.message:'decode') as PhotoProblem);});return()=>{live=false;};},[file]);
- useEffect(()=>()=>{render.current?.abort();aiRun.current?.abort();tapRun.current?.abort();for(const v of variantsRef.current)URL.revokeObjectURL(v.url);},[]);
+ useEffect(()=>()=>{render.current?.abort();aiRun.current?.abort();tapRun.current?.abort();testRun.current?.abort();for(const v of variantsRef.current)URL.revokeObjectURL(v.url);},[]);
  // Someone who signed in before reconnects quietly; anyone else never loads the cloud library from here.
  useEffect(()=>{let used:boolean;try{used=cloudWasUsed(globalThis.localStorage??null,location.search);}catch{used=false;}if(cloud&&used&&cloud.getSnapshot().status==='idle')void cloud.ensure();},[cloud]);
  useEffect(()=>{
-  if(!cloud||!userId){setRoomAi(null);return;}
+  if(!cloud||!userId||testAi){setRoomAi(null);return;}
   let live=true,made:RoomAi|null=null;
   void cloud.ensure().then(api=>{if(!live||!api)return;made=createRoomAi({api:api.roomAi,userId,codec:browserCodec,waker});setRoomAi(made);});
   return()=>{live=false;made?.close();setRoomAi(null);};
- },[cloud,userId,waker]);
+ },[cloud,userId,waker,testAi]);
  const refreshQuota=useCallback(async(ai:RoomAi)=>{const q=await ai.quota();setQuota(q??'failed');},[]);
  useEffect(()=>{if(!roomAi||!photo)return;setQuota('loading');void refreshQuota(roomAi);},[roomAi,photo,refreshQuota]);
  // A waiting AI preview checks again at once when the app or tab comes back to the front.
@@ -304,15 +319,55 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  },[roomAi,photo,userId,photoKey]);
  /** Tap to select (AI): one tap → the surface around it is added to the area as one undoable step. */
  const tapAt=async(point:Point)=>{
-  const h=history.current;if(!photo||!h||!roomAi||tapRun.current)return;
+  const h=history.current,segmenter=testAi??roomAi;if(!photo||!h||!segmenter||tapRun.current)return;
   const controller=new AbortController();tapRun.current=controller;setTapNote('busy');
   try{
-   const selection=await roomAi.segment(photo,point,controller.signal);if(controller.signal.aborted)return;
+   const selection=await segmenter.segment(photo,point,controller.signal);if(controller.signal.aborted)return;
    if(!selection){setTapNote('nothing');return;}
    const dirty=h.apply({kind:'union',box:selection.box,data:selection.data});drawOverlay(dirty);setMaskVersion(v=>v+1);setTapNote('added');
-  }catch(error){if(!controller.signal.aborted)setTapNote(error instanceof RoomAiError?error.code:'UNEXPECTED');}
-  finally{if(tapRun.current===controller)tapRun.current=null;void refreshQuota(roomAi);}
+  }catch(error){
+   if(controller.signal.aborted)return;
+   if(error instanceof TestAiError){
+    setTapNote(`test:${error.code}`);
+    // A refused or missing code: forget it and ask again; the person then taps once more.
+    if(error.code==='WRONG_CODE'||error.code==='NEED_CODE'){forgetCode();setTestCode(null);setCodeAsk({run:()=>setTapNote(null),wrong:error.code==='WRONG_CODE'});}
+   }else setTapNote(error instanceof RoomAiError?error.code:'UNEXPECTED');
+  }
+  finally{if(tapRun.current===controller)tapRun.current=null;if(roomAi)void refreshQuota(roomAi);}
  };
+ /** D92: the access code first (once per device), then the test-mode consent (once per device), then `run`. */
+ const withTestAccess=(run:()=>void)=>{
+  if(!testAi)return;
+  if(!loadCode()){setCodeAsk({run:()=>withTestAccess(run),wrong:false});return;}
+  if(hasTestConsent())run();else setConsent(()=>run);
+ };
+ const acceptCode=(code:string)=>{const ask=codeAsk;saveCode(code);setTestCode(code);setCodeAsk(null);setTestNote(null);if(ask)withTestAccess(ask.run);};
+ const forgetTestCode=()=>{forgetCode();setTestCode(null);setTestNote({kind:'forgotten'});};
+ /** D92 AI preview in test mode: one paid call, never retried automatically; the person may cancel while waiting. */
+ const makeTestAi=async()=>{
+  const h=history.current;if(!photo||!h||!testAi||testRun.current)return;
+  if(h.isEmpty()){setStatus({key:'vizNeedArea'});return;}
+  const references=mode==='pattern'?pattern&&[pattern.pixels]:mode==='picture'?picture&&[picture]:[];
+  if(!references){setStatus({key:mode==='pattern'?'vizNeedPattern':'vizNeedPicture'});return;}
+  const m=material();if(!m)return;
+  const paintEntry=PAINTS.find(e=>e.material.baseColor.toLowerCase()===paint.toLowerCase());
+  const label=mode==='paint'?paintEntry?surfaceMaterialName(paintEntry.material,'en'):'custom colour':mode==='pattern'?pattern!.en:'uploaded artwork';
+  const controller=new AbortController();testRun.current=controller;setTestBusy(true);setStatus(null);setTestNote({kind:'phase',phase:'preparing'});
+  try{
+   const out=await testAi.provider.render({photo,mask:new Uint8Array(h.mask),plane:h.plane(),material:m,test:{label,colour:mode==='paint'?paint:null,surface,kind:mode,references,
+    onPhase:(phase,percent)=>{if(!controller.signal.aborted)setTestNote(percent===undefined?{kind:'phase',phase}:{kind:'phase',phase,percent});}}},controller.signal);
+   if(controller.signal.aborted)return;
+   setResult(out);setStage('result');setSaveState(null);
+   const optionLabel=variantsRef.current.some(v=>v.label===t('roomAiOption'))?nextLetter(variantsRef.current,t('roomAiOption')):t('roomAiOption');
+   setTestNote({kind:'done',kept:await keepPixels(out,optionLabel)});
+  }catch(error){
+   if(controller.signal.aborted)return;
+   const code=error instanceof TestAiError?error.code:'UNEXPECTED';
+   if(code==='WRONG_CODE'||code==='NEED_CODE'){forgetCode();setTestCode(null);setTestNote(null);setCodeAsk({run:()=>{void makeTestAi();},wrong:code==='WRONG_CODE'});return;}
+   setTestNote({kind:'problem',code});
+  }finally{if(testRun.current===controller){testRun.current=null;setTestBusy(false);}}
+ };
+ const cancelTestAi=()=>{const c=testRun.current;if(!c)return;testRun.current=null;c.abort();setTestBusy(false);setTestNote({kind:'cancelled'});};
  const remove=(id:string)=>{
   const v=variants.find(x=>x.id===id);if(v)URL.revokeObjectURL(v.url);
   const next=variants.filter(x=>x.id!==id),a=next.some(x=>x.id===pairA)?pairA:next[0]?.id??'',b=next.some(x=>x.id===pairB)&&pairB!==a?pairB:next.find(x=>x.id!==a)?.id??'';
@@ -335,7 +390,7 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
  };
  const h=history.current,a=variants.find(v=>v.id===pairA),b=variants.find(v=>v.id===pairB&&v.id!==pairA);
  const frame={width:shown?.width??0,height:shown?.height??0};
- return createPortal(<dialog ref={dialog} className="viz-dialog" aria-label={t('toolPhoto')} onKeyDown={key} onCancel={event=>{event.preventDefault();if(consent)setConsent(null);else onClose();}}>
+ return createPortal(<dialog ref={dialog} className="viz-dialog" aria-label={t('toolPhoto')} onKeyDown={key} onCancel={event=>{event.preventDefault();if(codeAsk)setCodeAsk(null);else if(consent)setConsent(null);else onClose();}}>
   <header className="viz-head"><h2>{t('toolPhoto')}</h2><button className="icon-button" aria-label={t('vizClose')} onClick={()=>onClose()}><Icon name="close"/></button></header>
   <div className="viz-body">
    <div ref={stageRef} className="viz-stage" data-stage={stage} style={photo?{['--viz-aspect' as string]:`${photo.width} / ${photo.height}`} as CSSProperties:undefined}>
@@ -371,9 +426,9 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
       <h3>{t('vizStepArea')}</h3><p>{t('vizAreaHelp')}</p><p className="structure-note">{t('vizZoomHelp')}</p>
       <div className="viz-tools" role="group" aria-label={t('vizAreaTools')}>
        {(['brush','erase','corners'] as const).map(id=><button key={id} aria-pressed={tool===id} onClick={()=>{setTool(id);setCorners([]);setCornerNote(null);setStage('area');}}>{t(id==='brush'?'vizBrush':id==='erase'?'vizEraser':'vizCorners')}</button>)}
-       {roomAi&&<button aria-pressed={tool==='ai-tap'} onClick={()=>withConsent(()=>{setTool('ai-tap');setCorners([]);setCornerNote(null);setStage('area');setTapNote(null);})}>{t('roomAiTap')}</button>}
+       {(roomAi||testAi)&&<button aria-pressed={tool==='ai-tap'} onClick={()=>(testAi?withTestAccess:withConsent)(()=>{setTool('ai-tap');setCorners([]);setCornerNote(null);setStage('area');setTapNote(null);})}>{t('roomAiTap')}</button>}
       </div>
-      {tool==='ai-tap'&&roomAi&&<p role="status" data-testid="ai-tap-note">{tapNote==='busy'?t('roomAiTapping'):tapNote==='added'?t('roomAiTapAdded'):tapNote==='nothing'?t('roomAiTapNothing'):tapNote?t(`roomAiProblem_${tapNote}`):t('roomAiTapHelp',{left:quota&&typeof quota==='object'?quota.segmentsLeft:'…'})}</p>}
+      {tool==='ai-tap'&&(roomAi||testAi)&&<p role="status" data-testid="ai-tap-note">{tapNote==='busy'?t('roomAiTapping'):tapNote==='added'?t('roomAiTapAdded'):tapNote==='nothing'?t('roomAiTapNothing'):tapNote?.startsWith('test:')?t(`roomAiTestProblem_${tapNote.slice(5) as TestAiProblem}`):tapNote?t(`roomAiProblem_${tapNote as AiProblem}`):testAi?t('roomAiTestTapHelp'):t('roomAiTapHelp',{left:quota&&typeof quota==='object'?quota.segmentsLeft:'…'})}</p>}
       {(tool==='brush'||tool==='erase')&&<label>{t('vizBrushSize')}<input type="range" min={6} max={80} step={2} value={brush} aria-label={t('vizBrushSize')} onChange={event=>setBrush(Number(event.target.value))}/></label>}
       {tool==='corners'&&cornerNote!=='set'&&<p role="status">{t('vizCornerNext',{n:corners.length+1})}</p>}
       {cornerNote==='bad'&&<p role="alert">{t('vizCornersBad')}</p>}
@@ -415,7 +470,17 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
       </>}
       <button className="primary-button" disabled={busy} onClick={()=>{void show();}}>{t('vizShow')}</button>
       {status&&<p role={status.key==='vizRenderFailed'||status.key==='vizKeepFull'||status.key.startsWith('vizNeed')?'alert':'status'}>{status.key==='vizRendered'?t('vizRendered',{ms:status.ms}):t(status.key)}</p>}
-      {cloud&&<div className="viz-ai" data-testid="viz-ai">
+      {testAi&&<div className="viz-ai" data-testid="viz-ai-test">
+       <h4>{t('roomAiTitle')}<span className="viz-ai-test-badge">{t('roomAiTestTitle')}</span></h4>
+       <p>{t('roomAiTestIntro')}</p>
+       <label>{t('roomAiSurface')}<select value={surface} aria-label={t('roomAiSurface')} onChange={event=>setSurface(event.target.value as 'wall'|'floor'|'other')}>{(['wall','floor','other'] as const).map(id=><option key={id} value={id}>{t(`roomAiSurface_${id}`)}</option>)}</select></label>
+       <button className="primary-button" disabled={testBusy} onClick={()=>withTestAccess(()=>{void makeTestAi();})}>{t('roomAiTestMake')}</button>
+       {testBusy&&<button onClick={cancelTestAi}>{t('roomAiTestCancel')}</button>}
+       {testNote&&<p role={testNote.kind==='problem'?'alert':'status'} data-testid="ai-test-note">{testNote.kind==='phase'?testNote.phase==='uploading'?t('roomAiTestPhase_uploading',{percent:testNote.percent??0}):t(`roomAiTestPhase_${testNote.phase}`):testNote.kind==='done'?t(testNote.kept?'roomAiTestDone':'roomAiTestDoneNotKept'):testNote.kind==='cancelled'?t('roomAiTestCancelled'):testNote.kind==='forgotten'?t('roomAiTestForgotten'):t(`roomAiTestProblem_${testNote.code}`)}</p>}
+       {testNote?.kind==='phase'&&testNote.phase==='uploading'&&<progress className="viz-ai-progress" max={100} value={testNote.percent??0} aria-label={t('roomAiTestPhase_uploading',{percent:testNote.percent??0})}/>}
+       {testCode&&!testBusy&&<button onClick={forgetTestCode}>{t('roomAiTestForget')}</button>}
+      </div>}
+      {cloud&&!testAi&&<div className="viz-ai" data-testid="viz-ai">
        <h4>{t('roomAiTitle')}</h4>
        {!userId?<p className="structure-note">{t('roomAiSignIn')}</p>:!roomAi||quota==='loading'?<p role="status">{t('roomAiChecking')}</p>:<>
         <p>{t('roomAiIntro')}</p>
@@ -449,6 +514,8 @@ export default function VisualizerView({file,locale,onClose,provider=standInSurf
     </>}
    </div>
   </div>
-  {consent&&userId&&<AiConsent locale={locale} previews={quota&&typeof quota==='object'?quota.previewsPerMonth:3} onAgree={()=>{giveConsent(userId);const run=consent;setConsent(null);run();}} onCancel={()=>setConsent(null)}/>}
+  {consent&&testAi&&<AiConsent locale={locale} mode="test" onAgree={()=>{giveTestConsent();const run=consent;setConsent(null);run();}} onCancel={()=>setConsent(null)}/>}
+  {consent&&!testAi&&userId&&<AiConsent locale={locale} previews={quota&&typeof quota==='object'?quota.previewsPerMonth:3} onAgree={()=>{giveConsent(userId);const run=consent;setConsent(null);run();}} onCancel={()=>setConsent(null)}/>}
+  {codeAsk&&testAi&&<AiCodePrompt locale={locale} wrong={codeAsk.wrong} onUse={acceptCode} onCancel={()=>setCodeAsk(null)}/>}
  </dialog>,document.body);
 }

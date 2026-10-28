@@ -962,4 +962,9 @@ label:has(> input[type="checkbox"]) { min-height:48px; display:flex; align-items
 .viz-consent-card h3 { font-size:17px; margin:0 0 4px; }
 .viz-consent-card p { font-size:14px; line-height:1.5; margin-top:8px; }
 .viz-consent-card .viz-row button { min-height:48px; }
+/* D92 AI test mode */
+.viz-ai-test-badge { display:inline-block; margin-left:6px; padding:1px 8px; border-radius:10px; background:#fdf0d5; color:#6b4a00; font-size:12px; font-weight:600; vertical-align:middle; }
+.viz-consent-card label { display:block; margin-top:10px; font-size:13px; color:#4a5e51; }
+.viz-consent-card input[type=password] { display:block; width:100%; min-height:48px; margin-top:4px; padding:8px 10px; font-size:16px; border:1px solid #aebcb2; border-radius:8px; box-sizing:border-box; }
+.viz-ai-progress { display:block; width:100%; height:8px; margin-top:6px; accent-color:#34563f; }
 .privacy-link { display:inline-flex; align-items:center; min-height:48px; color:#2c5d8a; text-decoration:underline; }

@@ -22,15 +22,20 @@ function chunk(type:string,data:Uint8Array):Uint8Array{
  view.setUint32(0,data.length);for(let i=0;i<4;i++)out[4+i]=type.charCodeAt(i);out.set(data,8);view.setUint32(8+data.length,crc32(out,4,8+data.length));
  return out;
 }
-/** The mask as a greyscale PNG (colour type 0, 8 bits, filter 0 on every row), zlib-compressed by the browser. */
-export async function encodeMaskPng(mask:Uint8Array,width:number,height:number):Promise<Blob>{
- if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1||mask.length!==width*height)throw new Error('mask-size');
- const raw=new Uint8Array((width+1)*height);
- for(let y=0;y<height;y++)raw.set(mask.subarray(y*width,(y+1)*width),y*(width+1)+1);
- const header=new Uint8Array(13),view=new DataView(header.buffer);view.setUint32(0,width);view.setUint32(4,height);header[8]=8;header[9]=0;
+/**
+ * An 8-bit PNG from raw samples (filter 0 on every row), zlib-compressed by the browser. `channels` 1 = greyscale
+ * (colour type 0), 4 = RGBA (colour type 6).
+ */
+export async function encodePng(samples:Uint8Array,width:number,height:number,channels:1|4):Promise<Blob>{
+ if(!Number.isSafeInteger(width)||!Number.isSafeInteger(height)||width<1||height<1||samples.length!==width*height*channels)throw new Error('mask-size');
+ const row=width*channels,raw=new Uint8Array((row+1)*height);
+ for(let y=0;y<height;y++)raw.set(samples.subarray(y*row,(y+1)*row),y*(row+1)+1);
+ const header=new Uint8Array(13),view=new DataView(header.buffer);view.setUint32(0,width);view.setUint32(4,height);header[8]=8;header[9]=channels===4?6:0;
  const parts=[new Uint8Array(PNG_SIGNATURE),chunk('IHDR',header),chunk('IDAT',await streamBytes(raw,new CompressionStream('deflate'))),chunk('IEND',new Uint8Array(0))];
  return new Blob(parts as Uint8Array<ArrayBuffer>[],{type:'image/png'});
 }
+/** The mask as a greyscale PNG (colour type 0, 8 bits, filter 0 on every row), zlib-compressed by the browser. */
+export const encodeMaskPng=(mask:Uint8Array,width:number,height:number):Promise<Blob>=>encodePng(mask,width,height,1);
 /** Reads back a PNG written by encodeMaskPng (greyscale, 8 bits, filter 0); anything else gives null. */
 export async function decodeMaskPng(bytes:Uint8Array):Promise<{width:number;height:number;mask:Uint8Array}|null>{
  try{
