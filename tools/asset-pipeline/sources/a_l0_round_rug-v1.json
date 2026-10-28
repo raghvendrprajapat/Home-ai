@@ -1,0 +1,89 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_round_rug",
+  "version": 1,
+  "name_en": "Round rug with medallion",
+  "name_hi": "गोल गलीचा (बीच में डिज़ाइन)",
+  "category": "rugs",
+  "tags": [
+    "round rug",
+    "circular rug",
+    "carpet",
+    "dhurrie",
+    "गलीचा",
+    "दरी",
+    "गोल"
+  ],
+  "dims": {
+    "w": 1500,
+    "d": 1500,
+    "h": 12
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_round_rug-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_round_rug-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "border",
+      "shape": "cylinder",
+      "center": [
+        0,
+        4,
+        0
+      ],
+      "size": [
+        1500,
+        8,
+        1500
+      ],
+      "color": "#3e4f6e",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "field",
+      "shape": "cylinder",
+      "center": [
+        0,
+        5,
+        0
+      ],
+      "size": [
+        1320,
+        10,
+        1320
+      ],
+      "color": "#efe3c8",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    },
+    {
+      "name": "medallion",
+      "shape": "cylinder",
+      "center": [
+        0,
+        6,
+        0
+      ],
+      "size": [
+        700,
+        12,
+        700
+      ],
+      "color": "#b5653f",
+      "finish": "matte",
+      "axis": "y",
+      "segments": 24
+    }
+  ]
+}

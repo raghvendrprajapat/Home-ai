@@ -302,6 +302,164 @@
       }
     },
     {
+      "id": "a_l0_baby_cot",
+      "version": 1,
+      "name_en": "Baby cot with rails",
+      "name_hi": "बेबी कॉट (बच्चों का पलंग)",
+      "category": "beds",
+      "tags": [
+        "baby cot",
+        "crib",
+        "cradle",
+        "nursery",
+        "infant bed",
+        "पलंग",
+        "पालना",
+        "बच्चों का पलंग"
+      ],
+      "dims": {
+        "w": 700,
+        "d": 1300,
+        "h": 950
+      },
+      "sourceSha256": "fa4fccf096eccd48ef04638009b96ab0fc8a52457ba18793993357344e1bea5f",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_baby_cot-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_baby_cot-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/f53643aeee54398839d4d485f57b5fcb3bcd4a172f561d539464e61d17a7d084.glb",
+          "sha256": "f53643aeee54398839d4d485f57b5fcb3bcd4a172f561d539464e61d17a7d084",
+          "bytes": 42056,
+          "triangles": 1308
+        },
+        {
+          "level": 1,
+          "path": "blobs/f53643aeee54398839d4d485f57b5fcb3bcd4a172f561d539464e61d17a7d084.glb",
+          "sha256": "f53643aeee54398839d4d485f57b5fcb3bcd4a172f561d539464e61d17a7d084",
+          "bytes": 42056,
+          "triangles": 1308
+        }
+      ],
+      "thumb": {
+        "path": "blobs/b912f984ad846af98acbde4b8002bdc9020d2e5ae76bf6a655d7956bef4b62b4.svg",
+        "sha256": "b912f984ad846af98acbde4b8002bdc9020d2e5ae76bf6a655d7956bef4b62b4",
+        "bytes": 32328,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1308,
+        "bounds": {
+          "min": [
+            -0.3499999940395355,
+            0,
+            -0.6499999761581421
+          ],
+          "max": [
+            0.3499999940395355,
+            0.949999988079071,
+            0.6499999761581421
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_baithak",
+      "version": 1,
+      "name_en": "Baithak floor seating (gadda and masnad)",
+      "name_hi": "बैठक (गद्दा और मसनद)",
+      "category": "seating",
+      "tags": [
+        "baithak",
+        "floor seating",
+        "gadda",
+        "masnad",
+        "bolster",
+        "floor mattress",
+        "बैठक",
+        "गद्दा",
+        "मसनद",
+        "ज़मीन पर बैठक"
+      ],
+      "dims": {
+        "w": 1800,
+        "d": 750,
+        "h": 520
+      },
+      "sourceSha256": "35d996100058a27ab44fa423102398928f9a929bfed12c60919daf4639501d29",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_baithak-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_baithak-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/d1dde4def1b8c86f21c71a14731eb714c646383f83c998f1e7c2e47a31020372.glb",
+          "sha256": "d1dde4def1b8c86f21c71a14731eb714c646383f83c998f1e7c2e47a31020372",
+          "bytes": 26832,
+          "triangles": 1028
+        },
+        {
+          "level": 1,
+          "path": "blobs/d1dde4def1b8c86f21c71a14731eb714c646383f83c998f1e7c2e47a31020372.glb",
+          "sha256": "d1dde4def1b8c86f21c71a14731eb714c646383f83c998f1e7c2e47a31020372",
+          "bytes": 26832,
+          "triangles": 1028
+        }
+      ],
+      "thumb": {
+        "path": "blobs/292699104be2b46f7b17a7269ad8df1c6bf41dc12052b3147be7af0664e04b2a.svg",
+        "sha256": "292699104be2b46f7b17a7269ad8df1c6bf41dc12052b3147be7af0664e04b2a",
+        "bytes": 20666,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1028,
+        "bounds": {
+          "min": [
+            -0.8999999761581421,
+            0,
+            -0.375
+          ],
+          "max": [
+            0.8999999761581421,
+            0.5199999809265137,
+            0.375
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_bench",
       "version": 1,
       "name_en": "Entry bench",
@@ -1210,6 +1368,83 @@
       }
     },
     {
+      "id": "a_l0_computer_desk",
+      "version": 1,
+      "name_en": "Computer desk with keyboard tray",
+      "name_hi": "कीबोर्ड ट्रे वाली कंप्यूटर डेस्क",
+      "category": "tables",
+      "tags": [
+        "computer desk",
+        "work from home",
+        "office desk",
+        "keyboard tray",
+        "cpu",
+        "मेज़",
+        "कंप्यूटर"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 600,
+        "h": 750
+      },
+      "sourceSha256": "89d9b3e1215bfa4078cb121872a66b2c3d7228722dfa65cfcab4a7cfe24c3403",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_computer_desk-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_computer_desk-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/158a995fc9ceed3ffcfeff6541ce5ed5056d8de07761ddc36109152aa7657f0a.glb",
+          "sha256": "158a995fc9ceed3ffcfeff6541ce5ed5056d8de07761ddc36109152aa7657f0a",
+          "bytes": 10904,
+          "triangles": 204
+        },
+        {
+          "level": 1,
+          "path": "blobs/158a995fc9ceed3ffcfeff6541ce5ed5056d8de07761ddc36109152aa7657f0a.glb",
+          "sha256": "158a995fc9ceed3ffcfeff6541ce5ed5056d8de07761ddc36109152aa7657f0a",
+          "bytes": 10904,
+          "triangles": 204
+        }
+      ],
+      "thumb": {
+        "path": "blobs/c42e91b107165ee065cf2462a0de5f6eeb8234d96be29f0cfec6d16b133bc0e6.svg",
+        "sha256": "c42e91b107165ee065cf2462a0de5f6eeb8234d96be29f0cfec6d16b133bc0e6",
+        "bytes": 6459,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 204,
+        "bounds": {
+          "min": [
+            -0.6000000238418579,
+            0,
+            -0.30000001192092896
+          ],
+          "max": [
+            0.6000000238418579,
+            0.75,
+            0.30000001192092896
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_console_table",
       "version": 1,
       "name_en": "Console table",
@@ -1423,6 +1658,83 @@
             0.6000000238418579,
             0.800000011920929,
             0.17499999701976776
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_crockery_unit",
+      "version": 1,
+      "name_en": "Crockery unit with glass doors",
+      "name_hi": "काँच के दरवाज़ों वाली क्रॉकरी अलमारी",
+      "category": "storage",
+      "tags": [
+        "crockery unit",
+        "crockery cabinet",
+        "display cabinet",
+        "glass doors",
+        "dining storage",
+        "क्रॉकरी",
+        "अलमारी"
+      ],
+      "dims": {
+        "w": 1200,
+        "d": 420,
+        "h": 1950
+      },
+      "sourceSha256": "8938091b4c2a74de1b47f7ab09d055f17e8d980503c96ade395b6d0e80352680",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_crockery_unit-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_crockery_unit-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/0b0f73b9fb6f8c7e64d49861cf1943ab8b837bd544979a3987e87325bcb19c10.glb",
+          "sha256": "0b0f73b9fb6f8c7e64d49861cf1943ab8b837bd544979a3987e87325bcb19c10",
+          "bytes": 20696,
+          "triangles": 396
+        },
+        {
+          "level": 1,
+          "path": "blobs/0b0f73b9fb6f8c7e64d49861cf1943ab8b837bd544979a3987e87325bcb19c10.glb",
+          "sha256": "0b0f73b9fb6f8c7e64d49861cf1943ab8b837bd544979a3987e87325bcb19c10",
+          "bytes": 20696,
+          "triangles": 396
+        }
+      ],
+      "thumb": {
+        "path": "blobs/22585f74ff72337637897d4c34fa5e327c1d27723246ece9c7ff44898df837ca.svg",
+        "sha256": "22585f74ff72337637897d4c34fa5e327c1d27723246ece9c7ff44898df837ca",
+        "bytes": 12897,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 396,
+        "bounds": {
+          "min": [
+            -0.6000000238418579,
+            0,
+            -0.20999999344348907
+          ],
+          "max": [
+            0.6000000238418579,
+            1.9500000476837158,
+            0.20999999344348907
           ]
         },
         "validator": {
@@ -2345,6 +2657,83 @@
       }
     },
     {
+      "id": "a_l0_diwan",
+      "version": 1,
+      "name_en": "Diwan with bolsters",
+      "name_hi": "गाव तकियों वाला दीवान",
+      "category": "seating",
+      "tags": [
+        "diwan",
+        "divan",
+        "settee",
+        "bolsters",
+        "living room",
+        "दीवान",
+        "तकिया"
+      ],
+      "dims": {
+        "w": 1850,
+        "d": 800,
+        "h": 750
+      },
+      "sourceSha256": "7caa7a7a7f0c97cad37dbbdd1423488497173b9fac7f309a52ef895d2a4798b3",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_diwan-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_diwan-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/6a203ccaaf1659ca31ef95b5178bddcbef499de59ac6693ca6b9adc179ade8cf.glb",
+          "sha256": "6a203ccaaf1659ca31ef95b5178bddcbef499de59ac6693ca6b9adc179ade8cf",
+          "bytes": 36612,
+          "triangles": 1328
+        },
+        {
+          "level": 1,
+          "path": "blobs/6a203ccaaf1659ca31ef95b5178bddcbef499de59ac6693ca6b9adc179ade8cf.glb",
+          "sha256": "6a203ccaaf1659ca31ef95b5178bddcbef499de59ac6693ca6b9adc179ade8cf",
+          "bytes": 36612,
+          "triangles": 1328
+        }
+      ],
+      "thumb": {
+        "path": "blobs/381f64417080d05fa3f1525ddb46a037cf2539353bdeff879a1359d7216ef7c0.svg",
+        "sha256": "381f64417080d05fa3f1525ddb46a037cf2539353bdeff879a1359d7216ef7c0",
+        "bytes": 27930,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1328,
+        "bounds": {
+          "min": [
+            -0.925000011920929,
+            0,
+            -0.4000000059604645
+          ],
+          "max": [
+            0.925000011920929,
+            0.75,
+            0.4000000059604645
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_double_bed",
       "version": 1,
       "name_en": "Double bed",
@@ -2872,6 +3261,83 @@
       }
     },
     {
+      "id": "a_l0_floor_cushion",
+      "version": 1,
+      "name_en": "Square floor cushion",
+      "name_hi": "चौकोर ज़मीन की गद्दी",
+      "category": "seating",
+      "tags": [
+        "floor cushion",
+        "gaddi",
+        "seat cushion",
+        "floor seating",
+        "pouf",
+        "गद्दी",
+        "ज़मीन पर बैठक"
+      ],
+      "dims": {
+        "w": 600,
+        "d": 600,
+        "h": 170
+      },
+      "sourceSha256": "cfd342f9ea221020ec22a9593812762d8088a6ed65163c012a6510558328b5e9",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_floor_cushion-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_floor_cushion-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/fece1d6e030a93ec001b6422136b0d61d29d8f234b305f28dfcc34ff29839c56.glb",
+          "sha256": "fece1d6e030a93ec001b6422136b0d61d29d8f234b305f28dfcc34ff29839c56",
+          "bytes": 12224,
+          "triangles": 388
+        },
+        {
+          "level": 1,
+          "path": "blobs/fece1d6e030a93ec001b6422136b0d61d29d8f234b305f28dfcc34ff29839c56.glb",
+          "sha256": "fece1d6e030a93ec001b6422136b0d61d29d8f234b305f28dfcc34ff29839c56",
+          "bytes": 12224,
+          "triangles": 388
+        }
+      ],
+      "thumb": {
+        "path": "blobs/70730d39e02f484eea5cf606d3d9b8fb1a00b6716d86f271e67dca001a381459.svg",
+        "sha256": "70730d39e02f484eea5cf606d3d9b8fb1a00b6716d86f271e67dca001a381459",
+        "bytes": 8479,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 388,
+        "bounds": {
+          "min": [
+            -0.30000001192092896,
+            0,
+            -0.30000001192092896
+          ],
+          "max": [
+            0.30000001192092896,
+            0.17000000178813934,
+            0.30000001192092896
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_floor_lamp",
       "version": 1,
       "name_en": "Floor lamp with drum shade",
@@ -2950,6 +3416,84 @@
       }
     },
     {
+      "id": "a_l0_folding_dining_table",
+      "version": 1,
+      "name_en": "Drop-leaf folding dining table",
+      "name_hi": "मोड़ने वाली डाइनिंग मेज़",
+      "category": "tables",
+      "tags": [
+        "folding dining table",
+        "drop leaf",
+        "extendable",
+        "small dining",
+        "space saving",
+        "4 seater",
+        "मेज़",
+        "डाइनिंग"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 390,
+        "h": 760
+      },
+      "sourceSha256": "9efaff87b9ebdb46f798fcec1d760b5008a62c0aa9035a3809897615b8d62727",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_folding_dining_table-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_folding_dining_table-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/0d4708f9591263f8b128244d350357074d3cdc4b4e45b04df275f64786bd2a17.glb",
+          "sha256": "0d4708f9591263f8b128244d350357074d3cdc4b4e45b04df275f64786bd2a17",
+          "bytes": 14704,
+          "triangles": 372
+        },
+        {
+          "level": 1,
+          "path": "blobs/0d4708f9591263f8b128244d350357074d3cdc4b4e45b04df275f64786bd2a17.glb",
+          "sha256": "0d4708f9591263f8b128244d350357074d3cdc4b4e45b04df275f64786bd2a17",
+          "bytes": 14704,
+          "triangles": 372
+        }
+      ],
+      "thumb": {
+        "path": "blobs/e6f570a5806091f697400fbb236ffa49e47b45461287cd3f70c69bba76450415.svg",
+        "sha256": "e6f570a5806091f697400fbb236ffa49e47b45461287cd3f70c69bba76450415",
+        "bytes": 10094,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 372,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -0.19499999284744263
+          ],
+          "max": [
+            0.5,
+            0.7599999904632568,
+            0.19499999284744263
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_island",
       "version": 1,
       "name_en": "Kitchen island",
@@ -3011,6 +3555,162 @@
             0.6,
             0.9,
             0.4
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_kids_study_desk",
+      "version": 1,
+      "name_en": "Kids' study table with shelf",
+      "name_hi": "बच्चों की पढ़ाई की मेज़ (शेल्फ़ के साथ)",
+      "category": "tables",
+      "tags": [
+        "kids study table",
+        "children desk",
+        "study desk",
+        "homework",
+        "drawers",
+        "shelf",
+        "मेज़",
+        "पढ़ाई"
+      ],
+      "dims": {
+        "w": 900,
+        "d": 500,
+        "h": 1050
+      },
+      "sourceSha256": "1f26fbe7a773e8a16b2bb35649255bb2166faacd4f89c3fcdbc6226fc44a8d38",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_kids_study_desk-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_kids_study_desk-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/6c2966e62d86f3b6f0241c66bd5a94429880a94b2d714da7a18716cba7aae6d7.glb",
+          "sha256": "6c2966e62d86f3b6f0241c66bd5a94429880a94b2d714da7a18716cba7aae6d7",
+          "bytes": 13664,
+          "triangles": 240
+        },
+        {
+          "level": 1,
+          "path": "blobs/6c2966e62d86f3b6f0241c66bd5a94429880a94b2d714da7a18716cba7aae6d7.glb",
+          "sha256": "6c2966e62d86f3b6f0241c66bd5a94429880a94b2d714da7a18716cba7aae6d7",
+          "bytes": 13664,
+          "triangles": 240
+        }
+      ],
+      "thumb": {
+        "path": "blobs/94528ee094ebadcfef00e4ddd9db6c7d230f9b3eb45bf3fdc94096c1fcce4e68.svg",
+        "sha256": "94528ee094ebadcfef00e4ddd9db6c7d230f9b3eb45bf3fdc94096c1fcce4e68",
+        "bytes": 7893,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 240,
+        "bounds": {
+          "min": [
+            -0.44999998807907104,
+            0,
+            -0.25
+          ],
+          "max": [
+            0.44999998807907104,
+            1.0499999523162842,
+            0.25
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_kids_wardrobe",
+      "version": 1,
+      "name_en": "Kids' wardrobe with drawers",
+      "name_hi": "बच्चों की दराज़ वाली अलमारी",
+      "category": "storage",
+      "tags": [
+        "kids wardrobe",
+        "children",
+        "wardrobe",
+        "almirah",
+        "drawers",
+        "pastel",
+        "बच्चों की अलमारी",
+        "अलमारी"
+      ],
+      "dims": {
+        "w": 900,
+        "d": 520,
+        "h": 1500
+      },
+      "sourceSha256": "e88fc0506be359bf21c978e654018f37406229cc45faa356eb44653dce70b0a5",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_kids_wardrobe-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_kids_wardrobe-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/1b6cc09fe287543ca84228625d11e617debb437373aab9ce226970813e97a707.glb",
+          "sha256": "1b6cc09fe287543ca84228625d11e617debb437373aab9ce226970813e97a707",
+          "bytes": 15428,
+          "triangles": 328
+        },
+        {
+          "level": 1,
+          "path": "blobs/1b6cc09fe287543ca84228625d11e617debb437373aab9ce226970813e97a707.glb",
+          "sha256": "1b6cc09fe287543ca84228625d11e617debb437373aab9ce226970813e97a707",
+          "bytes": 15428,
+          "triangles": 328
+        }
+      ],
+      "thumb": {
+        "path": "blobs/ac2e0492f13da07dd0673ff9f72ebdc96d8b8286a6bff1d1f62e83f96bae8b87.svg",
+        "sha256": "ac2e0492f13da07dd0673ff9f72ebdc96d8b8286a6bff1d1f62e83f96bae8b87",
+        "bytes": 9152,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 328,
+        "bounds": {
+          "min": [
+            -0.44999998807907104,
+            0,
+            -0.25999999046325684
+          ],
+          "max": [
+            0.44999998807907104,
+            1.5,
+            0.25999999046325684
           ]
         },
         "validator": {
@@ -3551,6 +4251,85 @@
       }
     },
     {
+      "id": "a_l0_media_wall",
+      "version": 1,
+      "name_en": "TV wall unit with shelves",
+      "name_hi": "शेल्फ़ वाली टीवी वॉल यूनिट",
+      "category": "storage",
+      "tags": [
+        "tv unit",
+        "tv wall",
+        "media wall",
+        "entertainment unit",
+        "wall unit",
+        "shelves",
+        "fluted panel",
+        "टीवी",
+        "टीवी यूनिट"
+      ],
+      "dims": {
+        "w": 2400,
+        "d": 450,
+        "h": 2100
+      },
+      "sourceSha256": "6333a1c3d8d85598b12d979bf39fa150aa33e71e44805e77abcb745786597371",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_media_wall-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_media_wall-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/2bfaf54c18ed3c3b1824312a72465fb3c943c1ea662a66ea0b2d73e07b2ce61b.glb",
+          "sha256": "2bfaf54c18ed3c3b1824312a72465fb3c943c1ea662a66ea0b2d73e07b2ce61b",
+          "bytes": 29140,
+          "triangles": 512
+        },
+        {
+          "level": 1,
+          "path": "blobs/2bfaf54c18ed3c3b1824312a72465fb3c943c1ea662a66ea0b2d73e07b2ce61b.glb",
+          "sha256": "2bfaf54c18ed3c3b1824312a72465fb3c943c1ea662a66ea0b2d73e07b2ce61b",
+          "bytes": 29140,
+          "triangles": 512
+        }
+      ],
+      "thumb": {
+        "path": "blobs/f0886215229d5657fcb906968a9f23223d4cca953c973b5673ebf7f03b383f1f.svg",
+        "sha256": "f0886215229d5657fcb906968a9f23223d4cca953c973b5673ebf7f03b383f1f",
+        "bytes": 18079,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 512,
+        "bounds": {
+          "min": [
+            -1.2000000476837158,
+            0,
+            -0.22499999403953552
+          ],
+          "max": [
+            1.2000000476837158,
+            2.0999999046325684,
+            0.22499999403953552
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_nesting_table",
       "version": 1,
       "name_en": "Nesting side tables, pair",
@@ -3932,6 +4711,84 @@
       }
     },
     {
+      "id": "a_l0_pooja_unit",
+      "version": 1,
+      "name_en": "Pooja unit with doors",
+      "name_hi": "दरवाज़ों वाला पूजा यूनिट (मंदिर)",
+      "category": "storage",
+      "tags": [
+        "pooja unit",
+        "puja",
+        "mandir",
+        "temple unit",
+        "prayer shelf",
+        "wooden",
+        "पूजा",
+        "मंदिर"
+      ],
+      "dims": {
+        "w": 600,
+        "d": 400,
+        "h": 1200
+      },
+      "sourceSha256": "0a769aa285aee6b2e2d2bf797cfb19f4e99722898ebb8cd87060a4747d0fe075",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_pooja_unit-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_pooja_unit-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/7b1d7f94e4b416b394e0bcd22743c7d451ef703248e4d86ed8c396b6fecd50bf.glb",
+          "sha256": "7b1d7f94e4b416b394e0bcd22743c7d451ef703248e4d86ed8c396b6fecd50bf",
+          "bytes": 13584,
+          "triangles": 240
+        },
+        {
+          "level": 1,
+          "path": "blobs/7b1d7f94e4b416b394e0bcd22743c7d451ef703248e4d86ed8c396b6fecd50bf.glb",
+          "sha256": "7b1d7f94e4b416b394e0bcd22743c7d451ef703248e4d86ed8c396b6fecd50bf",
+          "bytes": 13584,
+          "triangles": 240
+        }
+      ],
+      "thumb": {
+        "path": "blobs/e09581d3a4b7cfa7e7b19ffd079cf9265d36b79ed4be3539242e99d091d1cccf.svg",
+        "sha256": "e09581d3a4b7cfa7e7b19ffd079cf9265d36b79ed4be3539242e99d091d1cccf",
+        "bytes": 8076,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 240,
+        "bounds": {
+          "min": [
+            -0.30000001192092896,
+            0,
+            -0.20000000298023224
+          ],
+          "max": [
+            0.30000001192092896,
+            1.2000000476837158,
+            0.20000000298023224
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_queen_bed",
       "version": 1,
       "name_en": "Queen bed",
@@ -4161,6 +5018,83 @@
       }
     },
     {
+      "id": "a_l0_rocking_chair",
+      "version": 1,
+      "name_en": "Wooden rocking chair",
+      "name_hi": "झूलने वाली लकड़ी की कुर्सी",
+      "category": "seating",
+      "tags": [
+        "rocking chair",
+        "rocker",
+        "wooden chair",
+        "easy chair",
+        "cushion",
+        "कुर्सी",
+        "झूलने वाली कुर्सी"
+      ],
+      "dims": {
+        "w": 640,
+        "d": 900,
+        "h": 1000
+      },
+      "sourceSha256": "154e5f8c8bd7a1b69016a72bebc02668237b80dfb9a5738808c6e0e04fdc69ca",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_rocking_chair-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_rocking_chair-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/e0d133e2bb773d48a61c7d58f86424f951cb01b6e1d9949a5bd8554094bc5700.glb",
+          "sha256": "e0d133e2bb773d48a61c7d58f86424f951cb01b6e1d9949a5bd8554094bc5700",
+          "bytes": 48496,
+          "triangles": 1716
+        },
+        {
+          "level": 1,
+          "path": "blobs/e0d133e2bb773d48a61c7d58f86424f951cb01b6e1d9949a5bd8554094bc5700.glb",
+          "sha256": "e0d133e2bb773d48a61c7d58f86424f951cb01b6e1d9949a5bd8554094bc5700",
+          "bytes": 48496,
+          "triangles": 1716
+        }
+      ],
+      "thumb": {
+        "path": "blobs/f3b4c91cbe6458de53fad36cb92ff5e2f3d1fe91b781c0366f6f5883d3defb84.svg",
+        "sha256": "f3b4c91cbe6458de53fad36cb92ff5e2f3d1fe91b781c0366f6f5883d3defb84",
+        "bytes": 38495,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1716,
+        "bounds": {
+          "min": [
+            -0.3199999928474426,
+            0,
+            -0.44999998807907104
+          ],
+          "max": [
+            0.3199999928474426,
+            1,
+            0.44999998807907104
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_round_dining_table",
       "version": 1,
       "name_en": "Round pedestal dining table",
@@ -4226,6 +5160,83 @@
             0.550000011920929,
             0.75,
             0.550000011920929
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_round_rug",
+      "version": 1,
+      "name_en": "Round rug with medallion",
+      "name_hi": "गोल गलीचा (बीच में डिज़ाइन)",
+      "category": "rugs",
+      "tags": [
+        "round rug",
+        "circular rug",
+        "carpet",
+        "dhurrie",
+        "गलीचा",
+        "दरी",
+        "गोल"
+      ],
+      "dims": {
+        "w": 1500,
+        "d": 1500,
+        "h": 12
+      },
+      "sourceSha256": "ad3b3b78106c7c0167f103a7ec42a1a97ed8c6c1dd0cdb58023f38456de78631",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_round_rug-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_round_rug-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/857629334ed04ba9d16a1dc3fba5c17a4713c90a6b4cb349257043b27869c805.glb",
+          "sha256": "857629334ed04ba9d16a1dc3fba5c17a4713c90a6b4cb349257043b27869c805",
+          "bytes": 11488,
+          "triangles": 288
+        },
+        {
+          "level": 1,
+          "path": "blobs/857629334ed04ba9d16a1dc3fba5c17a4713c90a6b4cb349257043b27869c805.glb",
+          "sha256": "857629334ed04ba9d16a1dc3fba5c17a4713c90a6b4cb349257043b27869c805",
+          "bytes": 11488,
+          "triangles": 288
+        }
+      ],
+      "thumb": {
+        "path": "blobs/0e8e299748a71a8fc57781c3e75831564456fbcfb1f991df8a32b89dd3e43b87.svg",
+        "sha256": "0e8e299748a71a8fc57781c3e75831564456fbcfb1f991df8a32b89dd3e43b87",
+        "bytes": 6649,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 288,
+        "bounds": {
+          "min": [
+            -0.75,
+            0,
+            -0.75
+          ],
+          "max": [
+            0.75,
+            0.012000000104308128,
+            0.75
           ]
         },
         "validator": {
@@ -4376,6 +5387,162 @@
             0.800000011920929,
             0.009999999776482582,
             0.5
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_runner_rug",
+      "version": 1,
+      "name_en": "Hallway runner rug",
+      "name_hi": "लंबा रनर गलीचा",
+      "category": "rugs",
+      "tags": [
+        "runner",
+        "hallway rug",
+        "long rug",
+        "corridor",
+        "kitchen runner",
+        "dhurrie",
+        "गलीचा",
+        "दरी"
+      ],
+      "dims": {
+        "w": 2400,
+        "d": 750,
+        "h": 12
+      },
+      "sourceSha256": "66168c3c764db402dc3c11ec7d9de11cb5329a42eea7e6435831dd02f0b8f504",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_runner_rug-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_runner_rug-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/7439503bd7a51856cccc2edca39a4569103b8417cc9abb1aef39df69f3a04dc5.glb",
+          "sha256": "7439503bd7a51856cccc2edca39a4569103b8417cc9abb1aef39df69f3a04dc5",
+          "bytes": 8100,
+          "triangles": 84
+        },
+        {
+          "level": 1,
+          "path": "blobs/7439503bd7a51856cccc2edca39a4569103b8417cc9abb1aef39df69f3a04dc5.glb",
+          "sha256": "7439503bd7a51856cccc2edca39a4569103b8417cc9abb1aef39df69f3a04dc5",
+          "bytes": 8100,
+          "triangles": 84
+        }
+      ],
+      "thumb": {
+        "path": "blobs/6d5e6532f1ec1a5f325c5484e539ce664764bc86e316a29918b7863220b93c91.svg",
+        "sha256": "6d5e6532f1ec1a5f325c5484e539ce664764bc86e316a29918b7863220b93c91",
+        "bytes": 3363,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 84,
+        "bounds": {
+          "min": [
+            -1.2000000476837158,
+            0,
+            -0.375
+          ],
+          "max": [
+            1.2000000476837158,
+            0.012000000104308128,
+            0.375
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_shoe_bench",
+      "version": 1,
+      "name_en": "Shoe rack bench with cushion",
+      "name_hi": "गद्दी वाली जूते रखने की बेंच",
+      "category": "seating",
+      "tags": [
+        "shoe rack",
+        "shoe bench",
+        "bench",
+        "entryway",
+        "hall",
+        "seat",
+        "जूते",
+        "बेंच"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 350,
+        "h": 480
+      },
+      "sourceSha256": "72c073595c3b55cdea3b643e339f3545f1d02f0cc4af5e11c32922510eb0bb2f",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_shoe_bench-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_shoe_bench-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/8ad5bc1c12e8cecc8a700b5f104ddf2f21761ebb13f68f071c6b3316588499e4.glb",
+          "sha256": "8ad5bc1c12e8cecc8a700b5f104ddf2f21761ebb13f68f071c6b3316588499e4",
+          "bytes": 16712,
+          "triangles": 444
+        },
+        {
+          "level": 1,
+          "path": "blobs/8ad5bc1c12e8cecc8a700b5f104ddf2f21761ebb13f68f071c6b3316588499e4.glb",
+          "sha256": "8ad5bc1c12e8cecc8a700b5f104ddf2f21761ebb13f68f071c6b3316588499e4",
+          "bytes": 16712,
+          "triangles": 444
+        }
+      ],
+      "thumb": {
+        "path": "blobs/3fbfbade5cb11a59862f07d5a76326ad5141e0f0c8a6ec7c34e70e6a05258679.svg",
+        "sha256": "3fbfbade5cb11a59862f07d5a76326ad5141e0f0c8a6ec7c34e70e6a05258679",
+        "bytes": 11368,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 444,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -0.17499999701976776
+          ],
+          "max": [
+            0.5,
+            0.47999998927116394,
+            0.17499999701976776
           ]
         },
         "validator": {
@@ -5515,6 +6682,83 @@
       }
     },
     {
+      "id": "a_l0_storage_single_bed",
+      "version": 1,
+      "name_en": "Single bed with storage drawers",
+      "name_hi": "दराज़ वाला सिंगल पलंग",
+      "category": "beds",
+      "tags": [
+        "single bed",
+        "storage bed",
+        "drawers",
+        "kids room",
+        "guest room",
+        "पलंग",
+        "दराज़"
+      ],
+      "dims": {
+        "w": 1000,
+        "d": 2050,
+        "h": 900
+      },
+      "sourceSha256": "d3f076ec3ee91df52291365cd9d0753a1168cb1702ccf0f68c0ec95f165a4449",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_storage_single_bed-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_storage_single_bed-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/52e961123de12ced36b3e9111479e26c0af851aa371d32b35127ef0d5440fad1.glb",
+          "sha256": "52e961123de12ced36b3e9111479e26c0af851aa371d32b35127ef0d5440fad1",
+          "bytes": 31584,
+          "triangles": 1028
+        },
+        {
+          "level": 1,
+          "path": "blobs/52e961123de12ced36b3e9111479e26c0af851aa371d32b35127ef0d5440fad1.glb",
+          "sha256": "52e961123de12ced36b3e9111479e26c0af851aa371d32b35127ef0d5440fad1",
+          "bytes": 31584,
+          "triangles": 1028
+        }
+      ],
+      "thumb": {
+        "path": "blobs/c6bfe75ff6012f61fe850e6bddd0d24b21939dfb5970b6226f40f03efbfb1f94.svg",
+        "sha256": "c6bfe75ff6012f61fe850e6bddd0d24b21939dfb5970b6226f40f03efbfb1f94",
+        "bytes": 21018,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 1028,
+        "bounds": {
+          "min": [
+            -0.5,
+            0,
+            -1.024999976158142
+          ],
+          "max": [
+            0.5,
+            0.8999999761581421,
+            1.024999976158142
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_study_desk",
       "version": 1,
       "name_en": "Study desk",
@@ -5820,6 +7064,83 @@
       }
     },
     {
+      "id": "a_l0_tall_plant",
+      "version": 1,
+      "name_en": "Tall indoor plant in pot",
+      "name_hi": "गमले में लंबा पौधा",
+      "category": "decor",
+      "tags": [
+        "tall plant",
+        "indoor plant",
+        "floor plant",
+        "green",
+        "big plant",
+        "पौधा",
+        "गमला"
+      ],
+      "dims": {
+        "w": 870,
+        "d": 870,
+        "h": 1700
+      },
+      "sourceSha256": "4b0c8d59cc4db39f8f6c8507dbead8406d7a2c2cd133cdea7db8c8a9a0beec67",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_tall_plant-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_tall_plant-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/0dc153ad0c8f715739075d0a81c8a3f427cb8501ecb287a069db4a3871fa639a.glb",
+          "sha256": "0dc153ad0c8f715739075d0a81c8a3f427cb8501ecb287a069db4a3871fa639a",
+          "bytes": 90704,
+          "triangles": 2752
+        },
+        {
+          "level": 1,
+          "path": "blobs/0dc153ad0c8f715739075d0a81c8a3f427cb8501ecb287a069db4a3871fa639a.glb",
+          "sha256": "0dc153ad0c8f715739075d0a81c8a3f427cb8501ecb287a069db4a3871fa639a",
+          "bytes": 90704,
+          "triangles": 2752
+        }
+      ],
+      "thumb": {
+        "path": "blobs/a5ba76ee13d0fdfd569453949a97439f81921ba7c00f92db27c1e576e671f70a.svg",
+        "sha256": "a5ba76ee13d0fdfd569453949a97439f81921ba7c00f92db27c1e576e671f70a",
+        "bytes": 71363,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 2752,
+        "bounds": {
+          "min": [
+            -0.4350000023841858,
+            0,
+            -0.4350000023841858
+          ],
+          "max": [
+            0.4350000023841858,
+            1.7000000476837158,
+            0.4350000023841858
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
       "id": "a_l0_tv_unit",
       "version": 1,
       "name_en": "TV unit",
@@ -6111,6 +7432,235 @@
             0.4,
             0.7,
             0.175
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wall_clock",
+      "version": 1,
+      "name_en": "Wall clock",
+      "name_hi": "दीवार घड़ी",
+      "category": "decor",
+      "tags": [
+        "clock",
+        "wall clock",
+        "round clock",
+        "घड़ी",
+        "दीवार घड़ी"
+      ],
+      "dims": {
+        "w": 350,
+        "d": 40,
+        "h": 350
+      },
+      "sourceSha256": "7ee3620399f43b4a190c136308edf3c72ffef8058458b54095948583415d75ce",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wall_clock-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_clock-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/746c82e76220576083c10b835c553627b300019e26a7bd0a0b7ceb90542c1a3e.glb",
+          "sha256": "746c82e76220576083c10b835c553627b300019e26a7bd0a0b7ceb90542c1a3e",
+          "bytes": 14508,
+          "triangles": 328
+        },
+        {
+          "level": 1,
+          "path": "blobs/746c82e76220576083c10b835c553627b300019e26a7bd0a0b7ceb90542c1a3e.glb",
+          "sha256": "746c82e76220576083c10b835c553627b300019e26a7bd0a0b7ceb90542c1a3e",
+          "bytes": 14508,
+          "triangles": 328
+        }
+      ],
+      "thumb": {
+        "path": "blobs/62899afa3f87f991d13fc4a1ee49f3b21be43737bfc49697a0544866a64de9ac.svg",
+        "sha256": "62899afa3f87f991d13fc4a1ee49f3b21be43737bfc49697a0544866a64de9ac",
+        "bytes": 9147,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 328,
+        "bounds": {
+          "min": [
+            -0.17499999701976776,
+            0,
+            -0.019999999552965164
+          ],
+          "max": [
+            0.17499999701976776,
+            0.3499999940395355,
+            0.019999999552965164
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wall_mirror",
+      "version": 1,
+      "name_en": "Round wall mirror",
+      "name_hi": "गोल दीवार शीशा",
+      "category": "decor",
+      "tags": [
+        "mirror",
+        "wall mirror",
+        "round mirror",
+        "brass frame",
+        "शीशा",
+        "आईना"
+      ],
+      "dims": {
+        "w": 600,
+        "d": 30,
+        "h": 600
+      },
+      "sourceSha256": "8e64c1db3d5c67d2af454dc8817827059658f3cf953cb7213548fa2d6b5f8b07",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wall_mirror-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_mirror-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/a7eeaa7955603c1cb924875042750da81219345c170af1f1c648e2d8c751c711.glb",
+          "sha256": "a7eeaa7955603c1cb924875042750da81219345c170af1f1c648e2d8c751c711",
+          "bytes": 7812,
+          "triangles": 192
+        },
+        {
+          "level": 1,
+          "path": "blobs/a7eeaa7955603c1cb924875042750da81219345c170af1f1c648e2d8c751c711.glb",
+          "sha256": "a7eeaa7955603c1cb924875042750da81219345c170af1f1c648e2d8c751c711",
+          "bytes": 7812,
+          "triangles": 192
+        }
+      ],
+      "thumb": {
+        "path": "blobs/45203eb8098170d485510dabe2c1d05b50236f5379a7378c6bf4fe05a270216f.svg",
+        "sha256": "45203eb8098170d485510dabe2c1d05b50236f5379a7378c6bf4fe05a270216f",
+        "bytes": 4845,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 192,
+        "bounds": {
+          "min": [
+            -0.30000001192092896,
+            0,
+            -0.014999999664723873
+          ],
+          "max": [
+            0.30000001192092896,
+            0.6000000238418579,
+            0.014999999664723873
+          ]
+        },
+        "validator": {
+          "version": "2.0.0-dev.3.10",
+          "errors": 0,
+          "warnings": 0,
+          "infos": 0,
+          "messages": []
+        }
+      }
+    },
+    {
+      "id": "a_l0_wall_shelf",
+      "version": 1,
+      "name_en": "Study wall shelf",
+      "name_hi": "दीवार पर लगने वाली स्टडी शेल्फ़",
+      "category": "storage",
+      "tags": [
+        "wall shelf",
+        "study shelf",
+        "bookshelf",
+        "floating shelf",
+        "books",
+        "wall mounted",
+        "शेल्फ़",
+        "किताबें"
+      ],
+      "dims": {
+        "w": 900,
+        "d": 250,
+        "h": 900
+      },
+      "sourceSha256": "a1476c13009f5baf5d08b7dfcb77761f6863a6f32254a6e46faaff5d8bca654a",
+      "license": {
+        "source": "tools/asset-pipeline/sources/a_l0_wall_shelf-v1.json",
+        "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_shelf-v1.json",
+        "type": "project-original-app-use",
+        "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+        "commercialUse": true,
+        "redistributionInApp": true,
+        "standaloneRedistribution": false,
+        "checkedOn": "2026-10-27"
+      },
+      "lods": [
+        {
+          "level": 0,
+          "path": "blobs/2788bdd2e669811f26182c78c444b57d3e700177309859efa57da10047c3e3fa.glb",
+          "sha256": "2788bdd2e669811f26182c78c444b57d3e700177309859efa57da10047c3e3fa",
+          "bytes": 15472,
+          "triangles": 232
+        },
+        {
+          "level": 1,
+          "path": "blobs/2788bdd2e669811f26182c78c444b57d3e700177309859efa57da10047c3e3fa.glb",
+          "sha256": "2788bdd2e669811f26182c78c444b57d3e700177309859efa57da10047c3e3fa",
+          "bytes": 15472,
+          "triangles": 232
+        }
+      ],
+      "thumb": {
+        "path": "blobs/39c740eabf3e655cce6146f617c4593565199719153d4208411bf302caf4409d.svg",
+        "sha256": "39c740eabf3e655cce6146f617c4593565199719153d4208411bf302caf4409d",
+        "bytes": 8185,
+        "width": 256,
+        "height": 256
+      },
+      "inspection": {
+        "triangles": 232,
+        "bounds": {
+          "min": [
+            -0.44999998807907104,
+            0,
+            -0.125
+          ],
+          "max": [
+            0.44999998807907104,
+            0.8999999761581421,
+            0.125
           ]
         },
         "validator": {

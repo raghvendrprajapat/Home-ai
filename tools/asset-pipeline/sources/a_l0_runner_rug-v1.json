@@ -1,0 +1,148 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_runner_rug",
+  "version": 1,
+  "name_en": "Hallway runner rug",
+  "name_hi": "लंबा रनर गलीचा",
+  "category": "rugs",
+  "tags": [
+    "runner",
+    "hallway rug",
+    "long rug",
+    "corridor",
+    "kitchen runner",
+    "dhurrie",
+    "गलीचा",
+    "दरी"
+  ],
+  "dims": {
+    "w": 2400,
+    "d": 750,
+    "h": 12
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_runner_rug-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_runner_rug-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "border",
+      "shape": "box",
+      "center": [
+        0,
+        4,
+        0
+      ],
+      "size": [
+        2320,
+        8,
+        750
+      ],
+      "color": "#b5653f",
+      "finish": "matte"
+    },
+    {
+      "name": "field",
+      "shape": "box",
+      "center": [
+        0,
+        5,
+        0
+      ],
+      "size": [
+        2160,
+        10,
+        590
+      ],
+      "color": "#e6dcc6",
+      "finish": "matte"
+    },
+    {
+      "name": "stripe-1",
+      "shape": "box",
+      "center": [
+        -700,
+        6,
+        0
+      ],
+      "size": [
+        60,
+        12,
+        590
+      ],
+      "color": "#3e4f6e",
+      "finish": "matte"
+    },
+    {
+      "name": "stripe-2",
+      "shape": "box",
+      "center": [
+        0,
+        6,
+        0
+      ],
+      "size": [
+        60,
+        12,
+        590
+      ],
+      "color": "#3e4f6e",
+      "finish": "matte"
+    },
+    {
+      "name": "stripe-3",
+      "shape": "box",
+      "center": [
+        700,
+        6,
+        0
+      ],
+      "size": [
+        60,
+        12,
+        590
+      ],
+      "color": "#3e4f6e",
+      "finish": "matte"
+    },
+    {
+      "name": "fringe-left",
+      "shape": "box",
+      "center": [
+        -1180,
+        2,
+        0
+      ],
+      "size": [
+        40,
+        4,
+        690
+      ],
+      "color": "#efe3c8",
+      "finish": "matte"
+    },
+    {
+      "name": "fringe-right",
+      "shape": "box",
+      "center": [
+        1180,
+        2,
+        0
+      ],
+      "size": [
+        40,
+        4,
+        690
+      ],
+      "color": "#efe3c8",
+      "finish": "matte"
+    }
+  ]
+}

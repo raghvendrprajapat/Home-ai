@@ -1,0 +1,183 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_wall_clock",
+  "version": 1,
+  "name_en": "Wall clock",
+  "name_hi": "दीवार घड़ी",
+  "category": "decor",
+  "tags": [
+    "clock",
+    "wall clock",
+    "round clock",
+    "घड़ी",
+    "दीवार घड़ी"
+  ],
+  "dims": {
+    "w": 350,
+    "d": 40,
+    "h": 350
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_wall_clock-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_clock-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "rim",
+      "shape": "cylinder",
+      "center": [
+        0,
+        175,
+        5
+      ],
+      "size": [
+        350,
+        350,
+        30
+      ],
+      "color": "#5b3a26",
+      "finish": "satin",
+      "axis": "z",
+      "segments": 24
+    },
+    {
+      "name": "face",
+      "shape": "cylinder",
+      "center": [
+        0,
+        175,
+        -13
+      ],
+      "size": [
+        320,
+        320,
+        6
+      ],
+      "color": "#f4f1ea",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 24
+    },
+    {
+      "name": "hand-hour",
+      "shape": "box",
+      "center": [
+        0,
+        215,
+        -18
+      ],
+      "size": [
+        10,
+        84,
+        4
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "hand-minute",
+      "shape": "box",
+      "center": [
+        -60,
+        175,
+        -18
+      ],
+      "size": [
+        120,
+        8,
+        4
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "mark-12",
+      "shape": "box",
+      "center": [
+        0,
+        305,
+        -18
+      ],
+      "size": [
+        12,
+        30,
+        4
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "mark-3",
+      "shape": "box",
+      "center": [
+        140,
+        175,
+        -18
+      ],
+      "size": [
+        30,
+        12,
+        4
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "mark-6",
+      "shape": "box",
+      "center": [
+        0,
+        45,
+        -18
+      ],
+      "size": [
+        12,
+        30,
+        4
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "mark-9",
+      "shape": "box",
+      "center": [
+        -140,
+        175,
+        -18
+      ],
+      "size": [
+        30,
+        12,
+        4
+      ],
+      "color": "#30373b",
+      "finish": "matte"
+    },
+    {
+      "name": "cap",
+      "shape": "cylinder",
+      "center": [
+        0,
+        175,
+        -18
+      ],
+      "size": [
+        20,
+        20,
+        4
+      ],
+      "color": "#30373b",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 16
+    }
+  ]
+}

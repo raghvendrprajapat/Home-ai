@@ -7,7 +7,7 @@
  * back = (-s, c)) and the 3D model's +z. All points lie inside [-w/2, w/2] x [-d/2, d/2]; strokes are centred
  * on those points, so a drawn line may reach half its pixel width past the footprint edge.
  */
-export type SymbolKind='bed'|'bunk'|'sofa'|'sofa_l'|'armchair'|'chair'|'dining_set'|'dining_table'|'table'|'desk'|'round_table'|'stool'|'bench'|'tv'|'wardrobe'|'sliding_wardrobe'|'drawers'|'dressing'|'cabinet'|'shoe'|'bookcase'|'wall_cabinet'|'kitchen'|'island'|'vanity'|'rug'|'plant'|'lamp'|'curtain'|'picture'|'generic';
+export type SymbolKind='bed'|'bunk'|'sofa'|'sofa_l'|'armchair'|'chair'|'dining_set'|'dining_table'|'table'|'desk'|'round_table'|'stool'|'bench'|'tv'|'wardrobe'|'sliding_wardrobe'|'drawers'|'dressing'|'cabinet'|'shoe'|'bookcase'|'wall_cabinet'|'kitchen'|'island'|'vanity'|'rug'|'round_rug'|'cushion'|'plant'|'lamp'|'curtain'|'picture'|'generic';
 export interface SymbolPath {
  /** Flat [x0, y0, x1, y1, ...] in local millimetres. */
  readonly points:readonly number[];
@@ -36,7 +36,7 @@ export function symbolKind(assetId:string):SymbolKind {
  if(has(t,'bunk'))return 'bunk';
  if(has(t,'curtain','drape','blind','blinds'))return 'curtain';
  if(has(t,'lamp','light','lantern','chandelier','pendant'))return 'lamp';
- if(has(t,'rug','carpet','mat','dhurrie','durrie'))return 'rug';
+ if(has(t,'rug','carpet','mat','dhurrie','durrie'))return has(t,'round','circle','circular')?'round_rug':'rug';
  if(has(t,'plant','planter','tree','flower','fern','bonsai','pot'))return 'plant';
  if(has(t,'wardrobe','almirah','closet'))return has(t,'sliding','slider')?'sliding_wardrobe':'wardrobe';
  if(has(t,'dressing'))return 'dressing';
@@ -49,14 +49,15 @@ export function symbolKind(assetId:string):SymbolKind {
  if(has(t,'shoe'))return 'shoe';
  if(has(t,'bookcase','bookshelf','books','shelf','shelves','rack'))return 'bookcase';
  if(has(t,'drawer','chest','dresser','nightstand','bedside'))return 'drawers';
- if(has(t,'sideboard','cabinet','cupboard','buffet','crockery'))return 'cabinet';
+ if(has(t,'sideboard','cabinet','cupboard','buffet','crockery','pooja','puja','mandir'))return 'cabinet';
  if(has(t,'dining')&&has(t,'set','chairs'))return 'dining_set';
  if(has(t,'armchair','recliner'))return 'armchair';
- if(has(t,'sofa','couch','sectional','loveseat','settee','diwan'))return has(t,'l','sectional','corner','lshape','lshaped')?'sofa_l':'sofa';
+ if(has(t,'sofa','couch','sectional','loveseat','settee','diwan','baithak'))return has(t,'l','sectional','corner','lshape','lshaped')?'sofa_l':'sofa';
  if(has(t,'lounge'))return 'armchair';
  if(has(t,'chair'))return 'chair';
  if(has(t,'bed','cot','crib','mattress'))return 'bed';
  if(has(t,'bench'))return 'bench';
+ if(has(t,'cushion','gaddi'))return 'cushion';
  if(has(t,'stool','pouffe','pouf','ottoman'))return 'stool';
  if(has(t,'desk','study','workstation'))return 'desk';
  if(has(t,'table')&&has(t,'side','end','round'))return 'round_table';
@@ -67,7 +68,7 @@ export function symbolKind(assetId:string):SymbolKind {
  return 'generic';
 }
 /** Draw order: rugs lie under everything; wall-hung pieces and curtains draw on top. */
-export function symbolLayer(kind:SymbolKind):0|1|2 {return kind==='rug'?0:kind==='wall_cabinet'||kind==='picture'||kind==='curtain'?2:1;}
+export function symbolLayer(kind:SymbolKind):0|1|2 {return kind==='rug'||kind==='round_rug'?0:kind==='wall_cabinet'||kind==='picture'||kind==='curtain'?2:1;}
 /** The first number in the id (sofa_3 -> 3, wardrobe_3door -> 3, dining_set_6 -> 6), if any. */
 function countIn(assetId:string):number|undefined {for(const t of words(assetId).slice(1)){const m=/^(\d+)(?:[a-z]*)$/.exec(t);if(m&&t!=='l0')return Number(m[1]);}return undefined;}
 
@@ -228,6 +229,20 @@ function rug(c:Ctx){
  const dw=Math.max(0,W-band*2.5)*.42,dd=Math.max(0,D-band*2.5)*.42;if(dw>5&&dd>5){b.shape([0,-dd,dw,0,0,dd,-dw,0],tint(border,.2),null);b.shape([0,-dd*.45,dw*.45,0,0,dd*.45,-dw*.45,0],RUG_FIELD,null,1,{detail:true});}
  for(const sx of [-1,1])for(const sy of [-1,1]){const cx=sx*(W-band*2.2),cy=sy*(D-band*2.2),r=band*.45;if(Math.abs(cx)+r<W-band&&Math.abs(cy)+r<D-band)b.shape([cx,cy-r,cx+r,cy,cx,cy+r,cx-r,cy],tint(border,.2),null,1,{detail:true});}
 }
+/** D91 round rug: border ring, plain field and a centre medallion, all ellipses inside the footprint. */
+function roundRug(c:Ctx){
+ const {b,W,D}=c,border=c.finish?c.main:RUG,band=clamp(Math.min(W,D)*.12,10,140),fw=W-band,fd=D-band;
+ b.shape(ellipse(0,0,W,D,40),border,shade(border,.2),.75);
+ if(fw>5&&fd>5){b.shape(ellipse(0,0,fw,fd,40),RUG_FIELD,null);b.shape(ellipse(0,0,fw*.9,fd*.9,40),undefined,tint(border,.1),.6,{detail:true});b.shape(ellipse(0,0,fw*.5,fd*.5,32),tint(border,.2),null);b.shape(ellipse(0,0,fw*.22,fd*.22,20),RUG_FIELD,null,1,{detail:true});}
+}
+/** D91 square floor cushion: puffy rounded square, a seam just inside the edge, cross stitching and a centre button. */
+function cushion(c:Ctx){
+ const {b,W,D,w,d,main}=c,r=Math.min(w,d)*.18,i=clamp(Math.min(w,d)*.07,4,40);
+ b.shape(rr(-W,-D,W,D,r),main,undefined,1);
+ if(W-i>2&&D-i>2)b.shape(rr(-W+i,-D+i,W-i,D-i,r*.7),undefined,tint(b.line,.3),.6,{detail:true});
+ b.stroke([-W*.7,0,W*.7,0],tint(main,.6),.75,{detail:true});b.stroke([0,-D*.7,0,D*.7],tint(main,.6),.75,{detail:true});
+ b.shape(ellipse(0,0,Math.min(W,D)*.08,Math.min(W,D)*.08,12),tint(main,.6),shade(main,.3),.5,{detail:true});
+}
 function plant(c:Ctx){
  const {b,W,D}=c,pot=c.finish?c.main:POT;
  b.shape(ellipse(0,0,W*.66,D*.66,28),pot,shade(pot,.3),1);
@@ -275,7 +290,7 @@ function build(assetId:string,w:number,d:number,finish:string|null|undefined):Fu
   case 'bookcase':bookcase(c);break;
   case 'wall_cabinet':wallCabinet(c);break;
   case 'kitchen':case 'island':case 'vanity':worktopUnit(c,kind);break;
-  case 'rug':rug(c);break;case 'plant':plant(c);break;case 'lamp':lamp(c);break;case 'curtain':curtain(c);break;case 'picture':picture(c);break;
+  case 'rug':rug(c);break;case 'round_rug':roundRug(c);break;case 'cushion':cushion(c);break;case 'plant':plant(c);break;case 'lamp':lamp(c);break;case 'curtain':curtain(c);break;case 'picture':picture(c);break;
   default:generic(c);
  }
  // Guard for degenerate tiny items: minimum part sizes can exceed the footprint, so pull such points onto its edge.

@@ -1,0 +1,572 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_baby_cot",
+  "version": 1,
+  "name_en": "Baby cot with rails",
+  "name_hi": "बेबी कॉट (बच्चों का पलंग)",
+  "category": "beds",
+  "tags": [
+    "baby cot",
+    "crib",
+    "cradle",
+    "nursery",
+    "infant bed",
+    "पलंग",
+    "पालना",
+    "बच्चों का पलंग"
+  ],
+  "dims": {
+    "w": 700,
+    "d": 1300,
+    "h": 950
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_baby_cot-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_baby_cot-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "post-1",
+      "shape": "box",
+      "center": [
+        -325,
+        475,
+        -625
+      ],
+      "size": [
+        50,
+        950,
+        50
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "post-2",
+      "shape": "box",
+      "center": [
+        325,
+        475,
+        -625
+      ],
+      "size": [
+        50,
+        950,
+        50
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "post-3",
+      "shape": "box",
+      "center": [
+        -325,
+        475,
+        625
+      ],
+      "size": [
+        50,
+        950,
+        50
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "post-4",
+      "shape": "box",
+      "center": [
+        325,
+        475,
+        625
+      ],
+      "size": [
+        50,
+        950,
+        50
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "rail-top-left",
+      "shape": "box",
+      "center": [
+        -325,
+        900,
+        0
+      ],
+      "size": [
+        40,
+        40,
+        1200
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "rail-low-left",
+      "shape": "box",
+      "center": [
+        -325,
+        270,
+        0
+      ],
+      "size": [
+        40,
+        40,
+        1200
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-left-1",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        -500
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-left-2",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        -375
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-left-3",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        -250
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-left-4",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        -125
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-left-5",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        0
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-left-6",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        125
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-left-7",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        250
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-left-8",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        375
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-left-9",
+      "shape": "cylinder",
+      "center": [
+        -325,
+        585,
+        500
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "rail-top-right",
+      "shape": "box",
+      "center": [
+        325,
+        900,
+        0
+      ],
+      "size": [
+        40,
+        40,
+        1200
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "rail-low-right",
+      "shape": "box",
+      "center": [
+        325,
+        270,
+        0
+      ],
+      "size": [
+        40,
+        40,
+        1200
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-right-1",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        -500
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-right-2",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        -375
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-right-3",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        -250
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-right-4",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        -125
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-right-5",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        0
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-right-6",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        125
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-right-7",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        250
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-right-8",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        375
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "slat-right-9",
+      "shape": "cylinder",
+      "center": [
+        325,
+        585,
+        500
+      ],
+      "size": [
+        20,
+        590,
+        20
+      ],
+      "color": "#d9b98f",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 8
+    },
+    {
+      "name": "end-head",
+      "shape": "box",
+      "center": [
+        0,
+        590,
+        625
+      ],
+      "size": [
+        600,
+        600,
+        20
+      ],
+      "color": "#a9cbd9",
+      "finish": "matte"
+    },
+    {
+      "name": "end-foot",
+      "shape": "box",
+      "center": [
+        0,
+        590,
+        -625
+      ],
+      "size": [
+        600,
+        600,
+        20
+      ],
+      "color": "#a9cbd9",
+      "finish": "matte"
+    },
+    {
+      "name": "base",
+      "shape": "box",
+      "center": [
+        0,
+        360,
+        0
+      ],
+      "size": [
+        600,
+        20,
+        1200
+      ],
+      "color": "#d9b98f",
+      "finish": "satin"
+    },
+    {
+      "name": "mattress",
+      "shape": "rounded",
+      "center": [
+        0,
+        420,
+        0
+      ],
+      "size": [
+        580,
+        100,
+        1180
+      ],
+      "color": "#f4f1ea",
+      "finish": "matte",
+      "radius": 30,
+      "segments": 2
+    },
+    {
+      "name": "pillow",
+      "shape": "rounded",
+      "center": [
+        0,
+        500,
+        480
+      ],
+      "size": [
+        300,
+        60,
+        200
+      ],
+      "color": "#f4f1ea",
+      "finish": "matte",
+      "radius": 25,
+      "segments": 2
+    }
+  ]
+}

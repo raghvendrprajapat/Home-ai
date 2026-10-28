@@ -210,3 +210,21 @@ test('AST-001/002 Git baseline detects joint committed source/catalog changes un
     const second=structuredClone(first);second.assets.push({id:'a_demo',version:2,dims:{w:1400}});await writeFile(join(repository,catalogPath),JSON.stringify(second));assert.equal((await verifyVersions({repository,baseSha:baseline,catalogPath})).historicalVersions,1);await assert.rejects(verifyVersions({repository,baseSha:'main; echo unsafe',catalogPath}),/baseline-sha/);await assert.rejects(verifyVersions({repository,baseSha:'f'.repeat(40),catalogPath}));
   }finally{await rm(repository,{recursive:true,force:true});}
 });
+
+// D91 catalog wave (Claude-authored builder test). Node counts and triangle totals are hand-counted from the designs:
+// box 12, cylinder 4·segments (8→32, 12→48, 16→64, 24→96), rounded box 12·(2·segments+1)² (1→108, 2→300).
+// The bed's headboard pad is 40 mm thick with a 20 mm radius, so its two middle depth rows coincide: (25+20+20)·4=260.
+test('D91 the twenty new sources are merged schemaVersion 3 originals with hand-counted material nodes and triangles',async()=>{
+  const expected={a_l0_diwan:[3,4*48+108+3*300+2*64],a_l0_baithak:[2,3*300+2*64],a_l0_shoe_bench:[2,12*12+300],a_l0_rocking_chair:[2,2*96+8*48+5*108+2*300],a_l0_floor_cushion:[2,300+2*12+64],
+    a_l0_media_wall:[5,32*12+2*64],a_l0_crockery_unit:[4,17*12+4*48],a_l0_wall_shelf:[5,14*12+64],a_l0_kids_wardrobe:[4,6*12+4*64],a_l0_pooja_unit:[3,12*12+2*48],
+    a_l0_storage_single_bed:[6,5*12+260+2*300+108],a_l0_baby_cot:[3,11*12+18*32+2*300],a_l0_kids_study_desk:[4,108+11*12],a_l0_folding_dining_table:[2,108+6*12+4*48],a_l0_computer_desk:[3,108+8*12],
+    a_l0_wall_mirror:[2,2*96],a_l0_wall_clock:[3,2*96+6*12+64],a_l0_tall_plant:[6,2*96+64+6*32+48*48],a_l0_round_rug:[3,3*96],a_l0_runner_rug:[4,7*12]};
+  for(const [id,[nodes,triangles]]of Object.entries(expected)){
+    const file=`${id}-v1.json`,path=`tools/asset-pipeline/sources/${file}`,raw=await readFile(join(defaults.sourceDir,file)),src=JSON.parse(raw);
+    assert.equal(src.schemaVersion,3,id);assert.equal(src.mergeByMaterial,true,id);assert.equal(src.license.type,'project-original-app-use',id);assert.equal(src.license.checkedOn,'2026-10-27',id);
+    const compiled=await compileSource(raw,path),scene=(await new NodeIO().readBinary(compiled.files.get(compiled.entry.lods[0].path))).getRoot().getDefaultScene().listChildren();
+    assert.equal(scene.length,nodes,id);assert.equal(compiled.entry.inspection.triangles,triangles,id);assert.ok(triangles<=3000,id);
+    assert.equal(compiled.entry.inspection.validator.errors,0,id);assert.equal(compiled.entry.inspection.validator.warnings,0,id);
+    for(const node of scene){assert.deepEqual(node.getTranslation(),[0,0,0],id);assert.deepEqual(node.getScale(),[1,1,1],id);}
+  }
+});

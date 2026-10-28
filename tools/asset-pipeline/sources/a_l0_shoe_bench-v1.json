@@ -1,0 +1,246 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_shoe_bench",
+  "version": 1,
+  "name_en": "Shoe rack bench with cushion",
+  "name_hi": "गद्दी वाली जूते रखने की बेंच",
+  "category": "seating",
+  "tags": [
+    "shoe rack",
+    "shoe bench",
+    "bench",
+    "entryway",
+    "hall",
+    "seat",
+    "जूते",
+    "बेंच"
+  ],
+  "dims": {
+    "w": 1000,
+    "d": 350,
+    "h": 480
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_shoe_bench-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_shoe_bench-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "side-left",
+      "shape": "box",
+      "center": [
+        -491,
+        210,
+        0
+      ],
+      "size": [
+        18,
+        420,
+        350
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "side-right",
+      "shape": "box",
+      "center": [
+        491,
+        210,
+        0
+      ],
+      "size": [
+        18,
+        420,
+        350
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "top",
+      "shape": "box",
+      "center": [
+        0,
+        430,
+        0
+      ],
+      "size": [
+        1000,
+        20,
+        350
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "back",
+      "shape": "box",
+      "center": [
+        0,
+        220,
+        170
+      ],
+      "size": [
+        964,
+        400,
+        10
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-low-1",
+      "shape": "box",
+      "center": [
+        0,
+        80,
+        -120
+      ],
+      "size": [
+        964,
+        16,
+        60
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-low-2",
+      "shape": "box",
+      "center": [
+        0,
+        80,
+        -40
+      ],
+      "size": [
+        964,
+        16,
+        60
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-low-3",
+      "shape": "box",
+      "center": [
+        0,
+        80,
+        40
+      ],
+      "size": [
+        964,
+        16,
+        60
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-low-4",
+      "shape": "box",
+      "center": [
+        0,
+        80,
+        120
+      ],
+      "size": [
+        964,
+        16,
+        60
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-high-1",
+      "shape": "box",
+      "center": [
+        0,
+        250,
+        -120
+      ],
+      "size": [
+        964,
+        16,
+        60
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-high-2",
+      "shape": "box",
+      "center": [
+        0,
+        250,
+        -40
+      ],
+      "size": [
+        964,
+        16,
+        60
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-high-3",
+      "shape": "box",
+      "center": [
+        0,
+        250,
+        40
+      ],
+      "size": [
+        964,
+        16,
+        60
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "slat-high-4",
+      "shape": "box",
+      "center": [
+        0,
+        250,
+        120
+      ],
+      "size": [
+        964,
+        16,
+        60
+      ],
+      "color": "#c49a6c",
+      "finish": "satin"
+    },
+    {
+      "name": "cushion",
+      "shape": "rounded",
+      "center": [
+        0,
+        460,
+        0
+      ],
+      "size": [
+        980,
+        40,
+        330
+      ],
+      "color": "#52696a",
+      "finish": "matte",
+      "radius": 12,
+      "segments": 2
+    }
+  ]
+}

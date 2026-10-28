@@ -1,0 +1,264 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_pooja_unit",
+  "version": 1,
+  "name_en": "Pooja unit with doors",
+  "name_hi": "दरवाज़ों वाला पूजा यूनिट (मंदिर)",
+  "category": "storage",
+  "tags": [
+    "pooja unit",
+    "puja",
+    "mandir",
+    "temple unit",
+    "prayer shelf",
+    "wooden",
+    "पूजा",
+    "मंदिर"
+  ],
+  "dims": {
+    "w": 600,
+    "d": 400,
+    "h": 1200
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_pooja_unit-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_pooja_unit-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "plinth",
+      "shape": "box",
+      "center": [
+        0,
+        30,
+        13
+      ],
+      "size": [
+        560,
+        60,
+        350
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "base",
+      "shape": "box",
+      "center": [
+        0,
+        270,
+        13
+      ],
+      "size": [
+        600,
+        420,
+        374
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "door-left",
+      "shape": "box",
+      "center": [
+        -150,
+        270,
+        -183
+      ],
+      "size": [
+        296,
+        400,
+        18
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "door-right",
+      "shape": "box",
+      "center": [
+        150,
+        270,
+        -183
+      ],
+      "size": [
+        296,
+        400,
+        18
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "knob-left",
+      "shape": "cylinder",
+      "center": [
+        -40,
+        300,
+        -196
+      ],
+      "size": [
+        24,
+        24,
+        8
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "knob-right",
+      "shape": "cylinder",
+      "center": [
+        40,
+        300,
+        -196
+      ],
+      "size": [
+        24,
+        24,
+        8
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "z",
+      "segments": 12
+    },
+    {
+      "name": "counter",
+      "shape": "box",
+      "center": [
+        0,
+        495,
+        0
+      ],
+      "size": [
+        600,
+        30,
+        400
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "niche-back",
+      "shape": "box",
+      "center": [
+        0,
+        780,
+        191
+      ],
+      "size": [
+        552,
+        540,
+        18
+      ],
+      "color": "#efe3c8",
+      "finish": "matte"
+    },
+    {
+      "name": "step",
+      "shape": "box",
+      "center": [
+        0,
+        550,
+        107
+      ],
+      "size": [
+        400,
+        80,
+        150
+      ],
+      "color": "#efe3c8",
+      "finish": "matte"
+    },
+    {
+      "name": "niche-side-left",
+      "shape": "box",
+      "center": [
+        -288,
+        780,
+        35
+      ],
+      "size": [
+        24,
+        540,
+        330
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "niche-side-right",
+      "shape": "box",
+      "center": [
+        288,
+        780,
+        35
+      ],
+      "size": [
+        24,
+        540,
+        330
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "canopy",
+      "shape": "box",
+      "center": [
+        0,
+        1070,
+        20
+      ],
+      "size": [
+        600,
+        40,
+        360
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "cornice",
+      "shape": "box",
+      "center": [
+        0,
+        1110,
+        20
+      ],
+      "size": [
+        540,
+        40,
+        320
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    },
+    {
+      "name": "crown",
+      "shape": "box",
+      "center": [
+        0,
+        1165,
+        30
+      ],
+      "size": [
+        460,
+        70,
+        260
+      ],
+      "color": "#a0683c",
+      "finish": "satin"
+    }
+  ]
+}

@@ -1,0 +1,204 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_kids_wardrobe",
+  "version": 1,
+  "name_en": "Kids' wardrobe with drawers",
+  "name_hi": "बच्चों की दराज़ वाली अलमारी",
+  "category": "storage",
+  "tags": [
+    "kids wardrobe",
+    "children",
+    "wardrobe",
+    "almirah",
+    "drawers",
+    "pastel",
+    "बच्चों की अलमारी",
+    "अलमारी"
+  ],
+  "dims": {
+    "w": 900,
+    "d": 520,
+    "h": 1500
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_kids_wardrobe-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_kids_wardrobe-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "carcass",
+      "shape": "box",
+      "center": [
+        0,
+        780,
+        14
+      ],
+      "size": [
+        900,
+        1440,
+        492
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "plinth",
+      "shape": "box",
+      "center": [
+        0,
+        30,
+        25
+      ],
+      "size": [
+        860,
+        60,
+        470
+      ],
+      "color": "#f3f0ea",
+      "finish": "matte"
+    },
+    {
+      "name": "door-left",
+      "shape": "box",
+      "center": [
+        -224,
+        1025,
+        -241
+      ],
+      "size": [
+        444,
+        930,
+        18
+      ],
+      "color": "#9cc9b4",
+      "finish": "matte"
+    },
+    {
+      "name": "door-right",
+      "shape": "box",
+      "center": [
+        224,
+        1025,
+        -241
+      ],
+      "size": [
+        444,
+        930,
+        18
+      ],
+      "color": "#f2b8a0",
+      "finish": "matte"
+    },
+    {
+      "name": "drawer-low",
+      "shape": "box",
+      "center": [
+        0,
+        190,
+        -241
+      ],
+      "size": [
+        892,
+        230,
+        18
+      ],
+      "color": "#9cc9b4",
+      "finish": "matte"
+    },
+    {
+      "name": "drawer-high",
+      "shape": "box",
+      "center": [
+        0,
+        430,
+        -241
+      ],
+      "size": [
+        892,
+        230,
+        18
+      ],
+      "color": "#f2b8a0",
+      "finish": "matte"
+    },
+    {
+      "name": "knob-door-left",
+      "shape": "cylinder",
+      "center": [
+        -40,
+        1025,
+        -252
+      ],
+      "size": [
+        40,
+        40,
+        16
+      ],
+      "color": "#e0b24a",
+      "finish": "satin",
+      "axis": "z",
+      "segments": 16
+    },
+    {
+      "name": "knob-door-right",
+      "shape": "cylinder",
+      "center": [
+        40,
+        1025,
+        -252
+      ],
+      "size": [
+        40,
+        40,
+        16
+      ],
+      "color": "#e0b24a",
+      "finish": "satin",
+      "axis": "z",
+      "segments": 16
+    },
+    {
+      "name": "knob-drawer-low",
+      "shape": "cylinder",
+      "center": [
+        0,
+        190,
+        -252
+      ],
+      "size": [
+        40,
+        40,
+        16
+      ],
+      "color": "#e0b24a",
+      "finish": "satin",
+      "axis": "z",
+      "segments": 16
+    },
+    {
+      "name": "knob-drawer-high",
+      "shape": "cylinder",
+      "center": [
+        0,
+        430,
+        -252
+      ],
+      "size": [
+        40,
+        40,
+        16
+      ],
+      "color": "#e0b24a",
+      "finish": "satin",
+      "axis": "z",
+      "segments": 16
+    }
+  ]
+}

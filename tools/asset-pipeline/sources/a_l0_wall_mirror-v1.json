@@ -1,0 +1,70 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_wall_mirror",
+  "version": 1,
+  "name_en": "Round wall mirror",
+  "name_hi": "गोल दीवार शीशा",
+  "category": "decor",
+  "tags": [
+    "mirror",
+    "wall mirror",
+    "round mirror",
+    "brass frame",
+    "शीशा",
+    "आईना"
+  ],
+  "dims": {
+    "w": 600,
+    "d": 30,
+    "h": 600
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_wall_mirror-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_wall_mirror-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "frame",
+      "shape": "cylinder",
+      "center": [
+        0,
+        300,
+        5
+      ],
+      "size": [
+        600,
+        600,
+        20
+      ],
+      "color": "#b99b57",
+      "finish": "metal",
+      "axis": "z",
+      "segments": 24
+    },
+    {
+      "name": "glass",
+      "shape": "cylinder",
+      "center": [
+        0,
+        300,
+        -10
+      ],
+      "size": [
+        540,
+        540,
+        10
+      ],
+      "color": "#c9d6da",
+      "finish": "gloss",
+      "axis": "z",
+      "segments": 24
+    }
+  ]
+}

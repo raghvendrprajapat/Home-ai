@@ -1,0 +1,215 @@
+{
+  "schemaVersion": 3,
+  "id": "a_l0_diwan",
+  "version": 1,
+  "name_en": "Diwan with bolsters",
+  "name_hi": "गाव तकियों वाला दीवान",
+  "category": "seating",
+  "tags": [
+    "diwan",
+    "divan",
+    "settee",
+    "bolsters",
+    "living room",
+    "दीवान",
+    "तकिया"
+  ],
+  "dims": {
+    "w": 1850,
+    "d": 800,
+    "h": 750
+  },
+  "license": {
+    "source": "tools/asset-pipeline/sources/a_l0_diwan-v1.json",
+    "url": "https://github.com/raghvendrprajapat/Home-ai/blob/main/tools/asset-pipeline/sources/a_l0_diwan-v1.json",
+    "type": "project-original-app-use",
+    "attribution": "Original procedural furniture design authored by Claude Code for GharPlan from this repository source; owner rights retained. No third-party model or art.",
+    "commercialUse": true,
+    "redistributionInApp": true,
+    "standaloneRedistribution": false,
+    "checkedOn": "2026-10-27"
+  },
+  "mergeByMaterial": true,
+  "parts": [
+    {
+      "name": "leg-1",
+      "shape": "cylinder",
+      "center": [
+        -860,
+        75,
+        -340
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-2",
+      "shape": "cylinder",
+      "center": [
+        860,
+        75,
+        -340
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-3",
+      "shape": "cylinder",
+      "center": [
+        -860,
+        75,
+        340
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "leg-4",
+      "shape": "cylinder",
+      "center": [
+        860,
+        75,
+        340
+      ],
+      "size": [
+        50,
+        150,
+        50
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "axis": "y",
+      "segments": 12
+    },
+    {
+      "name": "frame",
+      "shape": "rounded",
+      "center": [
+        0,
+        225,
+        0
+      ],
+      "size": [
+        1850,
+        150,
+        800
+      ],
+      "color": "#6b4630",
+      "finish": "satin",
+      "radius": 20,
+      "segments": 1
+    },
+    {
+      "name": "mattress",
+      "shape": "rounded",
+      "center": [
+        0,
+        375,
+        0
+      ],
+      "size": [
+        1800,
+        150,
+        760
+      ],
+      "color": "#c9a25e",
+      "finish": "matte",
+      "radius": 40,
+      "segments": 2
+    },
+    {
+      "name": "back-cushion-left",
+      "shape": "rounded",
+      "center": [
+        -390,
+        600,
+        290
+      ],
+      "size": [
+        760,
+        300,
+        180
+      ],
+      "color": "#c9a25e",
+      "finish": "matte",
+      "radius": 50,
+      "segments": 2
+    },
+    {
+      "name": "back-cushion-right",
+      "shape": "rounded",
+      "center": [
+        390,
+        600,
+        290
+      ],
+      "size": [
+        760,
+        300,
+        180
+      ],
+      "color": "#c9a25e",
+      "finish": "matte",
+      "radius": 50,
+      "segments": 2
+    },
+    {
+      "name": "bolster-left",
+      "shape": "cylinder",
+      "center": [
+        -780,
+        560,
+        -100
+      ],
+      "size": [
+        220,
+        220,
+        560
+      ],
+      "color": "#8c3b2e",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 16
+    },
+    {
+      "name": "bolster-right",
+      "shape": "cylinder",
+      "center": [
+        780,
+        560,
+        -100
+      ],
+      "size": [
+        220,
+        220,
+        560
+      ],
+      "color": "#8c3b2e",
+      "finish": "matte",
+      "axis": "z",
+      "segments": 16
+    }
+  ]
+}
